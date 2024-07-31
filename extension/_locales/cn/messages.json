@@ -19,7 +19,7 @@
     "message": "导入账号",
     "description": ""
   },
-  "home-password-label": {
+  "home_password_label": {
     "message": "密码:",
     "description": ""
   },
@@ -33,6 +33,14 @@
   },
   "home_wallet_create_btn": {
     "message": "创建新账号",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "显示助记词",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "隐藏助记词",
     "description": ""
   }
 }

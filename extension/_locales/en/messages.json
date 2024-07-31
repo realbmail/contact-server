@@ -34,5 +34,13 @@
   "home_wallet_create_btn": {
     "message": "Create New Account",
     "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "Reveal seed phrase",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "Hide seed phrase",
+    "description": ""
   }
 }

@@ -9,7 +9,7 @@ export function translateHomePage() {
     document.getElementById('confirm-password-label2')!.textContent = browser.i18n.getMessage('home_password_label');
     let confirmPasswordInput = document.getElementById('home-create-password') as HTMLInputElement;
     confirmPasswordInput!.placeholder = browser.i18n.getMessage('home_password_placeholder');
-     confirmPasswordInput = document.getElementById('home-confirm-password') as HTMLInputElement;
+    confirmPasswordInput = document.getElementById('home-confirm-password') as HTMLInputElement;
     confirmPasswordInput!.placeholder = browser.i18n.getMessage('home_password_placeholder2');
     document.getElementById('create-new-account-btn')!.textContent = browser.i18n.getMessage('home_wallet_create_btn');
 
