@@ -1,0 +1,17 @@
+{
+  "name": "BMail",
+  "version": "1.0.1",
+  "description": "A Mail Plugin Based On Blockchain Technology.",
+  "scripts": {
+    "build:dev": "webpack --mode development --stats-error-details",
+    "build": "webpack --mode production --stats-error-details",
+    "analyze": "webpack --mode production --env ANALYZE=true --stats-error-details"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.5.1",
+    "@types/webextension-polyfill": "^0.10.7"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.10.0"
+  }
+}
