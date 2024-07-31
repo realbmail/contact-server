@@ -43,6 +43,7 @@
         .welcome-container .checkbox-container input[type="checkbox"] {
             margin-right: 10px;
         }
+
         .primary-button,
         .secondary-button {
             width: 100%;
@@ -68,7 +69,62 @@
             background-color: #e0e0e0;
             color: #333;
         }
+
         .secondary-button:hover {
+            background-color: #1C86EE;
+        }
+
+
+    </style>
+
+    <style>
+        .password-container .logo-container {
+            width: 150px;
+            height: 150px;
+            border: 1px solid #000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+
+        .password-container .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .password-container .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .password-container .input-container label {
+            margin-right: 10px;
+        }
+
+        .password-container .input-container input {
+            padding: 5px;
+            border: 1px solid #000;
+            border-radius: 5px;
+        }
+
+        .password-container button {
+            width: 80%;
+            padding: 10px;
+            margin: 5px auto;
+            background-color: #1E90FF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .password-container button:hover {
             background-color: #1C86EE;
         }
 
@@ -86,6 +142,21 @@
     </div>
     <button id="create-account-btn" class="primary-button">创建账号</button>
     <button id="import-account-btn" class="secondary-button">导入账号</button>
+</div>
+
+<div id="view-create-password" class="page_view password-container">
+    <div class="logo-container">
+        <img src="../file/logo.png" alt="logo">
+    </div>
+    <div class="input-container">
+        <label for="home-create-password" id="confirm-password-label1">密码：</label>
+        <input type="password" id="home-create-password" placeholder="(最少8字符)">
+    </div>
+    <div class="input-container">
+        <label for="home-confirm-password" id="confirm-password-label2">密码:</label>
+        <input type="password" id="home-confirm-password" placeholder="(确认密码)">
+    </div>
+    <button id="create-new-account-btn">创建新账号</button>
 </div>
 
 <div id="view-account" class="page_view">

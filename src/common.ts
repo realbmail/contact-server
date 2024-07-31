@@ -15,7 +15,7 @@ export enum WalletStatus {
     Error = 'error'
 }
 export function showView(hash: string, callback: (hash: string) => void): void {
-    const views = document.querySelectorAll<HTMLElement>('.view');
+    const views = document.querySelectorAll<HTMLElement>('.page_view');
     views.forEach(view => view.style.display = 'none');
 
     const id = hash.replace('#onboarding/', 'view-');

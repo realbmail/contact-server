@@ -18,5 +18,21 @@
   "home_wallet_import": {
     "message": "Import Account",
     "description": ""
+  },
+  "home_password_label": {
+    "message": "Password",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "8 characters min",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "password again",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "Create New Account",
+    "description": ""
   }
 }

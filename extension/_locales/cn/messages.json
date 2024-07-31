@@ -18,5 +18,21 @@
   "home_wallet_import": {
     "message": "导入账号",
     "description": ""
+  },
+  "home-password-label": {
+    "message": "密码:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "最少8字符",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "密码确认",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "创建新账号",
+    "description": ""
   }
 }
