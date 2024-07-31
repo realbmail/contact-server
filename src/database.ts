@@ -1,6 +1,6 @@
 let __databaseObj: IDBDatabase | null = null;
 const __databaseName = 'bmail-database';
-export const __currentDatabaseVersion = 9;
+export const __currentDatabaseVersion = 1;
 export const __tableNameWallet = '__table_wallet__';
 export const __tableSystemSetting = '__table_system_setting__';
 
@@ -9,27 +9,26 @@ export function initDatabase(): Promise<IDBDatabase> {
         const request = indexedDB.open(__databaseName, __currentDatabaseVersion);
 
         request.onerror = function (event: Event) {
-            console.error("Database open failed:", (event.target as IDBOpenDBRequest).error);
+            console.error("[Database]Database open failed:", (event.target as IDBOpenDBRequest).error);
             reject((event.target as IDBOpenDBRequest).error);
         };
 
         request.onsuccess = function (event: Event) {
             __databaseObj = (event.target as IDBOpenDBRequest).result;
-            console.log("Database open success, version=", __databaseObj.version);
+            console.log("[Database]Database open success, version=", __databaseObj.version);
             resolve(__databaseObj);
         };
 
         request.onupgradeneeded = function (event: IDBVersionChangeEvent) {
             const db = (event.target as IDBOpenDBRequest).result;
             if (!db.objectStoreNames.contains(__tableNameWallet)) {
-                const objectStore = db.createObjectStore(__tableNameWallet, {keyPath: 'uuid'});
-                // objectStore.createIndex("uuid", "uuid", { unique: true });
-                console.log("Created wallet table successfully.");
+                const objectStore = db.createObjectStore(__tableNameWallet, {keyPath: 'address'});
+                console.log("[Database]Created wallet table successfully.");
             }
 
             if (!db.objectStoreNames.contains(__tableSystemSetting)) {
                 const objectStore = db.createObjectStore(__tableSystemSetting, {keyPath: 'id'});
-                console.log("Created wallet setting table successfully.");
+                console.log("[Database]Created wallet setting table successfully.");
             }
         };
     });

@@ -1,12 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Extension</title>
+    <meta charset="UTF-8">
+    <title>__MSG_home_title__</title>
+    <script src="../js/home.js"></script>
+    <link rel="stylesheet" href="../file/home.css">
+    <style>
+        .page_view {
+            display: none;
+        }
+
+        .welcome-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .welcome-container .logo-container {
+            width: 150px;
+            height: 150px;
+            border: 1px solid #000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+
+        .welcome-container .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .welcome-container .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome-container .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .primary-button,
+        .secondary-button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .primary-button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .primary-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .secondary-button {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        .secondary-button:hover {
+            background-color: #1C86EE;
+        }
+
+
+    </style>
 </head>
 <body>
-<div id="view-welcome" class="page_view">
-    <h1>Welcome to Onboarding!</h1>
+<div id="view-welcome" class="page_view welcome-container">
+    <div class="logo-container">
+        <img src="../file/logo.png" alt="logo">
+    </div>
+    <div class="checkbox-container">
+        <input type="checkbox" id="user-consent">
+        <label for="user-consent" id="user-consent-label">用户须知</label>
+    </div>
+    <button id="create-account-btn" class="primary-button">创建账号</button>
+    <button id="import-account-btn" class="secondary-button">导入账号</button>
 </div>
+
 <div id="view-account" class="page_view">
     <h1>Main Content of My Extension</h1>
 </div>
@@ -14,7 +95,5 @@
 <div id="view-dashboard" class="page_view">
     <h1>Main Content of My Extension</h1>
 </div>
-
-<script src="../js/home.js"></script>
 </body>
 </html>

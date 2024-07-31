@@ -1,6 +1,6 @@
 {
   "home_title": {
-    "message": "Mail Extension Based On Blockchain",
+    "message": "区块链邮箱插件",
     "description": "The title of the extension page"
   },
   "home_content": {
@@ -8,15 +8,15 @@
     "description": "The content of the extension page"
   },
   "home_user_content": {
-    "message": "User Consent",
+    "message": "用户须知",
     "description": ""
   },
   "home_wallet_create": {
-    "message": "Create Account",
+    "message": "创建账号",
     "description": ""
   },
   "home_wallet_import": {
-    "message": "Import Account",
+    "message": "导入账号",
     "description": ""
   }
 }
