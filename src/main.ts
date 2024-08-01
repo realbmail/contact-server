@@ -1,11 +1,36 @@
 import browser from "webextension-polyfill";
 import {MsgType, showView, WalletStatus} from "./common";
-import {initDatabase} from "./database";
+import {__currentDatabaseVersion, __tableSystemSetting, databaseUpdate, getMaxIdRecord, initDatabase} from "./database";
+import {DbWallet} from "./wallet";
+class SysSetting {
+    id: number;
+    address: string;
+    network: string;
+
+    constructor(id: number, addr: string, network: string) {
+        this.id = id;
+        this.address = addr;
+        this.network = network;
+    }
+
+    async syncToDB(): Promise<void> {
+        await databaseUpdate(__tableSystemSetting, this.id, this);
+    }
+
+    async changeAddr(addr: string): Promise<void> {
+        this.address = addr;
+        await databaseUpdate(__tableSystemSetting, this.id, this);
+    }
+}
+
+let __systemSetting: SysSetting;
+let __curWallet: DbWallet;
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin as EventListener);
 
 async function initDessagePlugin(): Promise<void> {
     await initDatabase();
+    await loadLastSystemSetting();
     checkBackgroundStatus();
 }
 
@@ -29,11 +54,12 @@ function checkBackgroundStatus(): void {
                 return;
             case WalletStatus.Locked:
             case WalletStatus.Expired:
-                showView('#onboarding/unlock-plugin', router);
+                showView('#onboarding/main-login', router);
                 return;
             case WalletStatus.Unlocked:
                 const obj = JSON.parse(response.message);
-                showView('#onboarding/dashboard', router);
+                console.log("------>>>response=>", response.message);
+                showView('#onboarding/main-dashboard', router);
                 return;
             case WalletStatus.Error:
                 alert("error:" + response.message);
@@ -51,4 +77,13 @@ function router(path: string): void {
 }
 function populateDashboard() {
 
+}
+
+async function loadLastSystemSetting(): Promise<void> {
+    const ss = await getMaxIdRecord(__tableSystemSetting);
+    if (ss) {
+        __systemSetting = new SysSetting(ss.id, ss.address, ss.network);
+        return;
+    }
+    __systemSetting = new SysSetting(__currentDatabaseVersion, '', '');
 }

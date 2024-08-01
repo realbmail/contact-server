@@ -1,12 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Simple Menu</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://ajax.googleapis.com;">
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="../file/main.css">
+    <style>
+        .page_view {
+            display: none;
+        }
+        .logo-container {
+            width: 150px;
+            height: 150px;
+            border: 1px solid #000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+    </style>
+    <script src="../js/main.js"></script>
 </head>
 <body>
-<script src="../js/main.js"></script>
+
+<div id="view-main-login" class="view-main-login page_view">
+    <div class="logo-container">
+        <img src="../file/logo.png" alt="logo">
+    </div>
+    <h1>Welcome back!</h1>
+    <p>The decentralized web awaits</p>
+    <label for="login-password">Password</label>
+    <input type="password" id="login-password" name="password" required>
+    <div>
+        <button type="button" class="primary-button">Unlock</button>
+    </div>
+</div>
+
+<div id="view-main-dashboard" class="view-main-dashboard page_view">
+    <div id="main-header-part" class="main-header-part">
+        <p id="bmail-address-lbl">Address:</p>
+        <p id="bmail-address-val"></p>
+    </div>
+    <hr style="width: 100%;">
+    <div id="main-body-part" class="main-body-part">
+    </div>
+    <hr style="width: 100%;">
+    <div id="main-footer-part" class="main-footer-part">
+    </div>
+</div>
 
 </body>
 </html>

@@ -24,7 +24,7 @@ class CipherData {
     }
 }
 
-class DbWallet {
+export class DbWallet {
     address: string;
     ethAddress: string;
     cipherObj: CipherData;
