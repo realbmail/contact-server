@@ -167,6 +167,26 @@
             color: #333;
         }
     </style>
+
+    <style>
+        .recovery-input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .recovery-phrase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .hidden-word {
+            background-color: #f0f0f0; /* 轻微高亮背景 */
+        }
+    </style>
 </head>
 <body>
 <div id="view-welcome" class="page_view welcome-container">
@@ -181,7 +201,7 @@
     <button id="import-account-btn" class="secondary-button">导入账号</button>
 </div>
 
-<div id="view-create-password" class="page_view password-container">
+<div id="view-create-password" class="password-container page_view">
     <div class="logo-container">
         <img src="../file/logo.png" alt="logo">
     </div>
@@ -211,12 +231,60 @@
     <button type="button" class="primary-button">Next</button>
 </div>
 
-<div id="view-account" class="page_view">
-    <h1>Main Content of My Extension</h1>
+<div id="view-password-for-imported" class="password-container page_view">
+    <div class="logo-container">
+        <img src="../file/logo.png" alt="logo">
+    </div>
+    <div class="input-container">
+        <label for="imported-new-password" id="import-password-label1">密码：</label>
+        <input type="password" id="imported-new-password" placeholder="(最少8字符)">
+    </div>
+    <div class="input-container">
+        <label for="imported-confirm-password" id="import-password-label2">密码:</label>
+        <input type="password" id="imported-confirm-password" placeholder="(确认密码)">
+    </div>
+    <button id="import-new-account-btn" class="primary-button">创建新账号</button>
 </div>
 
-<div id="view-dashboard" class="page_view">
-    <h1>Main Content of My Extension</h1>
+<div id="view-confirm-recovery" class="recovery-confirm-container page_view">
+    <label id="phrase-item-readOnly" style="display: none">
+        <span class="phrase-item-index"></span>.
+        <input type="text" class="recovery-input" disabled>
+    </label>
+    <label id="phrase-item-writeOnly" style="display: none">
+        <span class="phrase-item-index"></span>.
+        <input type="text" class="recovery-input">
+    </label>
+    <div class="recovery-phrase-grid">
+    </div>
+    <div class="error-message" style="display:none;"></div>
+    <button type="button" class="primary-button" disabled>Confirm</button>
+</div>
+
+<div id="view-import-wallet" class="page_view">
+    <p class="import-container-tip" id="import-container-tip">You can paste your entire secret recovery phrase into any field</p>
+    <div class="recovery-phrase-row" id="recovery-phrase-row-template" style="display: none;">
+        <div class="recovery-phrase-input">
+            <input type="password" class="recovery-phrase"/>
+            <button type="button" class="toggle-visibility">👁</button>
+        </div>
+        <div class="recovery-phrase-input">
+            <input type="password" class="recovery-phrase"/>
+            <button type="button" class="toggle-visibility">👁</button>
+        </div>
+        <div class="recovery-phrase-input">
+            <input type="password" class="recovery-phrase"/>
+            <button type="button" class="toggle-visibility">👁</button>
+        </div>
+    </div>
+    <div class="recovery-phrase-inputs" id="recovery-phrase-inputs"></div>
+    <div id="error-message" class="error-message" style="display:none;">
+        Invalid Secret Recovery Phrase
+    </div>
+    <button type="button" disabled class="primary-button">Confirm Secret Recovery Phrase</button>
+</div>
+
+<div id="view-account-home" class="account-home-container page_view">
 </div>
 </body>
 </html>

@@ -25,11 +25,3 @@ export function showView(hash: string, callback: (hash: string) => void): void {
     }
     callback(hash);
 }
-
-export async function queryCurWallet(): Promise<DbWallet|null> {
-    const walletObj = await getMaxIdRecord(__tableNameWallet);
-    if (!walletObj) {
-        return null;
-    }
-    return walletObj;
-}

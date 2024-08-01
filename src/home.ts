@@ -3,20 +3,21 @@ import {showView} from "./common";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
-import {newWallet} from "./wallet";
+import {newWallet, queryCurWallet} from "./wallet";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
 let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
-
+const wordlist = wordlists.english;
+const __mnemonic_len  = 12;
 async function initWelcomePage(): Promise<void> {
     await initDatabase();
     translateHomePage();
     initWelcomeDiv();
     initPasswordDiv();
     initMnemonicDiv();
+    initMnemonicConfirmDiv();
     initImportPasswordDiv();
-
 
     window.addEventListener('hashchange', function () {
         showView(window.location.hash, router);
@@ -56,16 +57,16 @@ function navigateTo(hash: string): void {
 
 function router(path: string): void {
     if (path === '#onboarding/recovery-phrase') {
-        // displayMnemonic();
+        displayMnemonic();
     }
     if (path === '#onboarding/confirm-recovery') {
-        // displayConfirmVal();
+        displayConfirmVal();
     }
     if (path === '#onboarding/import-wallet') {
-        // generateRecoveryPhraseInputs();
+        generateRecoveryPhraseInputs();
     }
     if (path === '#onboarding/account-home') {
-        // prepareAccountData();
+        prepareAccountData();
     }
 }
 
@@ -92,6 +93,10 @@ async function createWallet(): Promise<void> {
     sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic();
+
+    const wallet = newWallet(mnemonic, password1);
+    const result = await databaseAddItem(__tableNameWallet, wallet);
+    console.log("save wallet result=>", result);
 }
 
 function displayMnemonic(): void {
@@ -206,9 +211,8 @@ function displayConfirmVal(): void {
 }
 
 function checkConfirmUserPhrase(this: HTMLInputElement): void {
-    const form = this.closest('form') as HTMLFormElement;
     let confirmIsOk = true;
-    form.querySelectorAll(".hidden-word").forEach(div => {
+    document.querySelectorAll(".recovery-phrase-grid .hidden-word").forEach(div => {
         const element = div as HTMLElement;
         const input = element.querySelector(".recovery-input") as HTMLInputElement;
         if (element.dataset.correctWord !== input.value) {
@@ -221,18 +225,13 @@ function checkConfirmUserPhrase(this: HTMLInputElement): void {
         }
     });
 
-    const primaryButton = form.querySelector(".primary-button") as HTMLButtonElement;
+    const primaryButton = document.querySelector("#view-confirm-recovery .primary-button") as HTMLButtonElement;
     primaryButton.disabled = !confirmIsOk;
 }
-
-
 
 function initImportPasswordDiv(): void {
     const importBtn = document.querySelector("#view-password-for-imported .primary-button") as HTMLButtonElement;
     importBtn.addEventListener('click', actionOfWalletImport);
-
-    const importedPasswordAgree = document.getElementById('imported-password-agree') as HTMLInputElement;
-    importedPasswordAgree.addEventListener('change', checkImportPassword);
 
     const importedNewPassword = document.getElementById("imported-new-password") as HTMLInputElement;
     importedNewPassword.addEventListener('input', checkImportPassword);
@@ -251,7 +250,9 @@ async function actionOfWalletImport(): Promise<void> {
     }
 
     const wallet = newWallet(___mnemonic_in_mem, password);
-    await  databaseAddItem(__tableNameWallet, wallet);
+    databaseAddItem(__tableNameWallet, wallet).then(result=>{
+        console.log("------>>>:",result);
+    }).catch(e => console.error(e));
 
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
@@ -289,4 +290,161 @@ function checkImportPassword(this: HTMLInputElement): void {
     errMsg.style.display = 'none';
     const checkbox = form.querySelector('input[type="checkbox"]') as HTMLInputElement;
     okBtn.disabled = !(checkbox.checked && pwd[0].length >= 8);
+}
+
+
+function generateRecoveryPhraseInputs(): void {
+    setRecoverPhaseTips(false, '');
+
+    const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs') as HTMLElement ;
+    const template = document.getElementById("recovery-phrase-row-template") as HTMLTemplateElement ;
+
+    recoveryPhraseInputs.innerHTML = '';
+
+    for (let i = 0; i < __mnemonic_len; i += 3) {
+        const rowDiv = template.cloneNode(true) as HTMLElement;
+        rowDiv.style.display = 'grid';
+        rowDiv.id = '';
+        recoveryPhraseInputs.appendChild(rowDiv);
+        rowDiv.querySelectorAll("input").forEach(input => {
+            input.addEventListener('input', validateRecoveryPhrase);
+            const nextSibling = input.nextElementSibling as HTMLElement;
+            nextSibling.addEventListener('click', changeInputType);
+        });
+    }
+}
+
+function setRecoverPhaseTips(isValid: boolean, errMsg: string): void {
+    const errorMessage = document.getElementById('error-message') as HTMLElement;
+    const primaryButton = document.querySelector("#view-import-wallet .primary-button") as HTMLButtonElement;
+
+    if (isValid) {
+        errorMessage.style.display = 'none';
+        primaryButton.disabled = false;
+    } else {
+        errorMessage.style.display = 'block';
+        primaryButton.disabled = true;
+    }
+    errorMessage.innerText = errMsg;
+}
+
+
+
+function validateRecoveryPhrase(this: HTMLInputElement): void {
+    const wordsArray = this.value.split(' ');
+    let errMsg = '';
+    let everyWordIsOk = true;
+    const inputs = document.querySelectorAll<HTMLInputElement>("#recovery-phrase-inputs .recovery-phrase");
+    const length = Number((document.getElementById('recovery-phrase-length') as HTMLInputElement).value);
+
+    if (wordsArray.length === 1) {
+        const mnemonic = wordsArray[0];
+        if (!wordlist.includes(mnemonic)) {
+            setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
+            return;
+        }
+
+        const inputValues: string[] = [];
+        inputs.forEach(input => {
+            if (!input.value) {
+                return;
+            }
+
+            const wordIsOk = wordlist.includes(input.value);
+            if (!wordIsOk) {
+                everyWordIsOk = false;
+            }
+            inputValues.push(input.value);
+        });
+
+        if (!everyWordIsOk) {
+            setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
+            return;
+        }
+
+        if (inputValues.length !== length) {
+            setRecoverPhaseTips(false, "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words");
+            return;
+        }
+        setRecoverPhaseTips(true, "");
+        return;
+    }
+
+    if (wordsArray.length !== length) {
+        errMsg = "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words";
+        setRecoverPhaseTips(false, errMsg);
+        return;
+    }
+
+    for (let i = 0; i < length; i++) {
+        inputs[i].value = wordsArray[i];
+        const wordIsOk = wordlist.includes(wordsArray[i]);
+        if (!wordIsOk) {
+            everyWordIsOk = false;
+        }
+    }
+    if (!everyWordIsOk) {
+        setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
+        return;
+    }
+    const str = wordsArray.join(' ');
+    const valid = validateMnemonic(str);
+    if (!valid) {
+        setRecoverPhaseTips(false, "Invalid Mnemonic String");
+        return;
+    }
+
+    setRecoverPhaseTips(true, "");
+}
+
+function changeInputType(this: HTMLElement): void {
+    const input = this.previousElementSibling as HTMLInputElement;
+    if (input.type === "password") {
+        input.type = "text";
+        this.textContent = "🙈"; // Change button text to indicate hiding
+    } else {
+        input.type = "password";
+        this.textContent = "👁"; // Change button text to indicate showing
+    }
+}
+
+function prepareAccountData() {
+    queryCurWallet().then((data) => {
+        console.log("------>>> new account details:",data)
+    })
+}
+
+function initMnemonicConfirmDiv(): void {
+    const confirmPhraseBtn = document.querySelector("#view-confirm-recovery .primary-button") as HTMLButtonElement;
+    confirmPhraseBtn.addEventListener('click', confirmUserInputPhrase);
+
+    const confirmRecoverBtn = document.querySelector('#view-import-wallet .primary-button') as HTMLButtonElement;
+    confirmRecoverBtn.addEventListener('click', confirmImportedWallet);
+}
+
+function confirmUserInputPhrase(): void {
+    ___mnemonic_in_mem = null;
+    sessionStorage.removeItem(__key_for_mnemonic_temp);
+    navigateTo('#onboarding/account-home');
+}
+
+function confirmImportedWallet(): void {
+    const inputs = document.querySelectorAll("#recovery-phrase-inputs .recovery-phrase") as NodeListOf<HTMLInputElement>;
+    const inputValues: string[] = [];
+
+    inputs.forEach(input => {
+        inputValues.push(input.value);
+    });
+
+    const mnemonic = inputValues.join(' ');
+    const valid = validateMnemonic(mnemonic);
+
+    if (!valid) {
+        alert("Invalid mnemonic data");
+        return;
+    }
+
+    ___mnemonic_in_mem = mnemonic;
+    sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
+    navigateTo('#onboarding/password-for-imported');
 }

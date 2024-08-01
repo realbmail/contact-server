@@ -1,7 +1,8 @@
 /// <reference lib="webworker" />
 import browser, {Runtime} from "webextension-polyfill";
 import {checkAndInitDatabase, closeDatabase} from "./database";
-import {MsgType, queryCurWallet, WalletStatus} from "./common";
+import {MsgType, WalletStatus} from "./common";
+import {queryCurWallet} from "./wallet";
 
 const runtime = browser.runtime;
 const storage = browser.storage;

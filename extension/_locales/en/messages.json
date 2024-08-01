@@ -42,5 +42,21 @@
   "hide_seed_phrase": {
     "message": "Hide seed phrase",
     "description": ""
+  },
+  "home_next_step": {
+    "message": "Next",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "Confirm",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "You can paste your entire secret recovery phrase into any field",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "Confirm Secret Recovery Phrase",
+    "description": ""
   }
 }

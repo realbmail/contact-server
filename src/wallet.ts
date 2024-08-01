@@ -7,6 +7,7 @@ import {mnemonicToSeedSync} from "bip39";
 import {ec as EC} from "elliptic";
 import base58 from "bs58";
 import {keccak256} from "js-sha3";
+import {__tableNameWallet, getMaxIdRecord} from "./database";
 
 const BMailAddrLen = 32;
 const BMailAddrPrefix = "BM";
@@ -97,4 +98,12 @@ export function encryptAes(plainTxt: string, password: string): CipherData {
     const encrypted = AES.encrypt(plainTxt, key, {iv: iv});
 
     return new CipherData(encrypted.toString(), iv.toString(Hex), salt.toString(Hex));
+}
+
+export async function queryCurWallet(): Promise<DbWallet|null> {
+    const walletObj = await getMaxIdRecord(__tableNameWallet);
+    if (!walletObj) {
+        return null;
+    }
+    return walletObj;
 }
