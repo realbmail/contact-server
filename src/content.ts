@@ -50,14 +50,22 @@ function appendForQQ(template: HTMLTemplateElement) {
 }
 
 function appendFor126(template: HTMLTemplateElement) {
-    // const targetElement = document.getElementById('dvMultiTab');
     const targetElement = document.querySelector('.js-component-tree.nui-tree');
     if (!targetElement) {
         console.log("failed to find target element");
         return;
     }
-    const bmailElement = template.content.getElementById('bmail_left_menu-btn');
-    targetElement.appendChild(bmailElement!.cloneNode(true));
+    const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn');
+    if (!bmailInboxBtn) {
+        console.log("failed to find bmailElement");
+        return;
+    }
+    const clone = bmailInboxBtn.cloneNode(true);
+    if (targetElement.children.length >= 2) {
+        targetElement.insertBefore(clone, targetElement.children[1]);
+    } else {
+        targetElement.appendChild(clone);
+    }
 }
 
 function appendFor163(template: HTMLTemplateElement) {
@@ -71,10 +79,16 @@ const targetSelectorMap = {
     'wx.mail.qq.com': appendForQQ
 };
 
+function translateInjectedElm() {
+    let bmailElement = document.getElementById("bmail-send-action-btn")
+    bmailElement!.textContent = browser.i18n.getMessage('inject_mail_inbox')
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     addBmailObject('js/inject.js');
     addCustomStyles('file/inject.css');
     addCustomElements('html/inject.html', targetSelectorMap).then(() => {
-        console.log("content js run success")
+        console.log("++++++>>>content js run success")
+        translateInjectedElm();
     });
 });

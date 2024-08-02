@@ -62,5 +62,9 @@
   "address_label": {
     "message": "Address:",
     "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail Inbox",
+    "description": ""
   }
 }

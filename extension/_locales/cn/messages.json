@@ -62,5 +62,9 @@
   "address_label": {
     "message": "地址:",
     "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail 收件箱",
+    "description": ""
   }
 }
