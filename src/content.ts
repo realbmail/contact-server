@@ -1,4 +1,5 @@
 import browser from "webextension-polyfill";
+import {MsgType} from "./common";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -94,11 +95,22 @@ function translateInjectedElm() {
     }
 }
 
-addBmailObject('js/inject.js');
 document.addEventListener('DOMContentLoaded', () => {
+    addBmailObject('js/inject.js');
     addCustomStyles('file/inject.css');
     addCustomElements('html/inject.html', targetSelectorMap).then(() => {
         console.log("++++++>>>content js run success");
         translateInjectedElm();
     });
+});
+
+
+window.addEventListener('message', (event) => {
+    if (event.source !== window) {
+        return;
+    }
+
+    if (event.data && event.data.action === 'encryptMail') {
+        browser.runtime.sendMessage({ action: MsgType.EncryptMail }).catch(console.error);
+    }
 });
