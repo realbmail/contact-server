@@ -9,6 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./extension/js",
     "baseUrl": ".",
+    "lib": ["dom", "esnext"],
     "paths": {
       "*": ["node_modules/*"]
     }

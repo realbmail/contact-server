@@ -94,8 +94,8 @@ function translateInjectedElm() {
     }
 }
 
+addBmailObject('js/inject.js');
 document.addEventListener('DOMContentLoaded', () => {
-    addBmailObject('js/inject.js');
     addCustomStyles('file/inject.css');
     addCustomElements('html/inject.html', targetSelectorMap).then(() => {
         console.log("++++++>>>content js run success");

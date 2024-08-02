@@ -1,3 +1,6 @@
+import browser from "webextension-polyfill";
+import {MsgType} from "./common";
+
 interface BMail {
     version: string;
     connect: () => void;
@@ -14,9 +17,18 @@ function createBmailObj() {
 }
 
 function bmailInfo() {
-    console.log('bmail action triggered');
+    browser.runtime.sendMessage({ action: MsgType.EncryptMail }).catch(console.error);
 }
 
 createBmailObj();
 (window as any).bmailInfo = bmailInfo;
 
+document.addEventListener('DOMContentLoaded', initInjectElemAction);
+
+function initInjectElemAction() {
+    console.log("++++++>>> injection init success")
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initInjectElemAction();
+}

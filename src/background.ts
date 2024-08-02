@@ -61,6 +61,12 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             closeWallet(sendResponse).then(() => {
             });
             return true;
+        case  MsgType.EncryptMail:
+            browser.windows.create({
+                url: browser.runtime.getURL('popup.html'),
+                type: 'popup',
+            });
+            return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
             return;

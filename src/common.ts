@@ -1,9 +1,8 @@
-import {__tableNameWallet, databaseQueryAll, getMaxIdRecord} from "./database";
-
 export enum MsgType {
     PluginClicked = 'PluginClicked',
     WalletOpen = 'WalletOpen',
     WalletClose = 'WalletClose',
+    EncryptMail = 'EncryptMail',
 }
 export enum WalletStatus {
     Init = 'Init',
