@@ -49,7 +49,8 @@
       "resources": [
         "file/inject.css",
         "html/inject.html",
-        "js/inject.js"
+        "js/inject.js",
+        "file/logo_16.png"
       ],
       "matches": [
         "<all_urls>"

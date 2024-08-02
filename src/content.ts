@@ -42,11 +42,11 @@ async function addCustomElements(htmlFilePath: string, targetSelectorMap: {
 }
 
 function appendForGoogle(template: HTMLTemplateElement) {
-
+    // Implement append logic for Google Mail
 }
 
 function appendForQQ(template: HTMLTemplateElement) {
-
+    // Implement append logic for QQ Mail
 }
 
 function appendFor126(template: HTMLTemplateElement) {
@@ -60,7 +60,14 @@ function appendFor126(template: HTMLTemplateElement) {
         console.log("failed to find bmailElement");
         return;
     }
-    const clone = bmailInboxBtn.cloneNode(true);
+
+    // Update image src to use browser.runtime.getURL
+    const img = bmailInboxBtn.querySelector('img');
+    if (img) {
+        img.src = browser.runtime.getURL('file/logo_16.png');
+    }
+
+    const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
     if (targetElement.children.length >= 2) {
         targetElement.insertBefore(clone, targetElement.children[1]);
     } else {
@@ -68,8 +75,9 @@ function appendFor126(template: HTMLTemplateElement) {
     }
 }
 
-function appendFor163(template: HTMLTemplateElement) {
 
+function appendFor163(template: HTMLTemplateElement) {
+    // Implement append logic for 163 Mail
 }
 
 const targetSelectorMap = {
@@ -80,15 +88,17 @@ const targetSelectorMap = {
 };
 
 function translateInjectedElm() {
-    let bmailElement = document.getElementById("bmail-send-action-btn")
-    bmailElement!.textContent = browser.i18n.getMessage('inject_mail_inbox')
+    const bmailElement = document.getElementById("bmail-send-action-btn");
+    if (bmailElement) {
+        bmailElement.textContent = browser.i18n.getMessage('inject_mail_inbox');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     addBmailObject('js/inject.js');
     addCustomStyles('file/inject.css');
     addCustomElements('html/inject.html', targetSelectorMap).then(() => {
-        console.log("++++++>>>content js run success")
+        console.log("++++++>>>content js run success");
         translateInjectedElm();
     });
 });
