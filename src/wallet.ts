@@ -36,6 +36,13 @@ export class DbWallet {
     }
 }
 
+export class MemWallet{
+    address: string;
+    constructor(address: string) {
+    this.address = address;
+    }
+}
+
 class MailKey {
     priRaw: Uint8Array;
     ecKey: EC.KeyPair;
@@ -106,4 +113,19 @@ export async function queryCurWallet(): Promise<DbWallet|null> {
         return null;
     }
     return walletObj;
+}
+
+export function hexStringToByteArray(hexString: string): Uint8Array {
+    if (hexString.length % 2 !== 0) {
+        throw new Error("Hex string must have an even length");
+    }
+    return new Uint8Array(Buffer.from(hexString, 'hex'));
+}
+
+export function castToMemWallet(pwd: string, wallet: DbWallet): MemWallet {
+    const decryptedPri = decryptAes(wallet.cipherObj, pwd);
+    const priArray = hexStringToByteArray(decryptedPri);
+    const key = new MailKey(priArray);
+    const address = key.GetPub();
+    return new MemWallet(address);
 }

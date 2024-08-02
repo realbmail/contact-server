@@ -58,5 +58,9 @@
   "home_confirm_recovery": {
     "message": "Confirm Secret Recovery Phrase",
     "description": ""
+  },
+  "address_label": {
+    "message": "Address:",
+    "description": ""
   }
 }

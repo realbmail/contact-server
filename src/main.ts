@@ -1,7 +1,9 @@
 import browser from "webextension-polyfill";
 import {MsgType, showView, WalletStatus} from "./common";
 import {__currentDatabaseVersion, __tableSystemSetting, databaseUpdate, getMaxIdRecord, initDatabase} from "./database";
-import {DbWallet} from "./wallet";
+import {DbWallet, MemWallet} from "./wallet";
+import {translateMainPage} from "./local";
+
 class SysSetting {
     id: number;
     address: string;
@@ -24,14 +26,17 @@ class SysSetting {
 }
 
 let __systemSetting: SysSetting;
-let __curWallet: DbWallet;
+let __curWallet: MemWallet;
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin as EventListener);
 
 async function initDessagePlugin(): Promise<void> {
     await initDatabase();
     await loadLastSystemSetting();
+    translateMainPage();
     checkBackgroundStatus();
+    initLoginDiv();
+    initDashBoard();
 }
 
 function checkBackgroundStatus(): void {
@@ -71,12 +76,13 @@ function checkBackgroundStatus(): void {
 }
 
 function router(path: string): void {
-    if (path === '#onboarding/dashboard') {
+    if (path === '#onboarding/main-dashboard') {
         populateDashboard();
     }
 }
-function populateDashboard() {
 
+function populateDashboard() {
+    document.getElementById('bmail-address-val')!.textContent = __curWallet.address;
 }
 
 async function loadLastSystemSetting(): Promise<void> {
@@ -86,4 +92,37 @@ async function loadLastSystemSetting(): Promise<void> {
         return;
     }
     __systemSetting = new SysSetting(__currentDatabaseVersion, '', '');
+}
+
+function initLoginDiv(): void {
+    const button = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;
+    button.addEventListener('click', openAllWallets);
+}
+
+function openAllWallets(): void {
+    const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
+    const password = inputElement.value;
+
+    browser.runtime.sendMessage({action: MsgType.WalletOpen, password: password}).then((response: {
+        status: boolean;
+        message: string
+        error: string
+    }) => {
+        if (!response.status) {
+            const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
+            errTips.innerText = response.error;
+        }
+
+        const obj = JSON.parse(response.message);
+        console.log("------------>>>", response.message, obj);
+        __curWallet = new MemWallet(obj.address);
+        showView('#onboarding/main-dashboard', router);
+        return;
+    }).catch(error => {
+        console.error('Error sending message:', error);
+    });
+}
+
+function initDashBoard(): void {
+
 }

@@ -19,6 +19,11 @@
             margin: 0 auto 20px;
             overflow: hidden;
         }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
     <script src="../js/main.js"></script>
 </head>
@@ -32,6 +37,7 @@
     <p>The decentralized web awaits</p>
     <label for="login-password">Password</label>
     <input type="password" id="login-password" name="password" required>
+    <div class="error-tips-area"><p class="login-error"></p></div>
     <div>
         <button type="button" class="primary-button">Unlock</button>
     </div>

@@ -58,5 +58,9 @@
   "home_confirm_recovery": {
     "message": "确认恢复私钥",
     "description": ""
+  },
+  "address_label": {
+    "message": "地址:",
+    "description": ""
   }
 }

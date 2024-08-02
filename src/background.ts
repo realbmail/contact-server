@@ -2,7 +2,7 @@
 import browser, {Runtime} from "webextension-polyfill";
 import {checkAndInitDatabase, closeDatabase} from "./database";
 import {MsgType, WalletStatus} from "./common";
-import {queryCurWallet} from "./wallet";
+import {castToMemWallet, queryCurWallet} from "./wallet";
 
 const runtime = browser.runtime;
 const storage = browser.storage;
@@ -50,7 +50,7 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             pluginClicked(sendResponse).then(() => {
             }).catch((error: Error) => {
                 console.error("[service work] Failed to set value:", error);
-                sendResponse({status: 'failed', error: error});
+                sendResponse({status: false, error: error});
             });
             return true;
         case MsgType.WalletOpen:
@@ -61,12 +61,8 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             closeWallet(sendResponse).then(() => {
             });
             return true;
-        case MsgType.WalletCreated:
-            createWallet(sendResponse).then(() => {
-            });
-            return true;
         default:
-            sendResponse({status: 'unknown action'});
+            sendResponse({status: false, message: 'unknown action'});
             return;
     }
 });
@@ -123,7 +119,7 @@ async function pluginClicked(sendResponse: (response: any) => void): Promise<voi
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
     if (walletStatus === WalletStatus.Init) {
         const wallet = await queryCurWallet();
-        console.log('[service work] queryCurWallet result:',wallet);
+        console.log('[service work] queryCurWallet result:', wallet);
         if (!wallet) {
             console.log('[service work] Wallet not found');
             sendResponse({status: WalletStatus.NoWallet, message: ''});
@@ -142,12 +138,24 @@ async function pluginClicked(sendResponse: (response: any) => void): Promise<voi
 }
 
 async function openWallet(pwd: string, sendResponse: (response: any) => void): Promise<void> {
+    await checkAndInitDatabase();
+    const wallet = await queryCurWallet();
+    if (!wallet) {
+        sendResponse({status: false, error: 'no wallet setup'});
+        await sessionSet(__key_wallet_status, WalletStatus.NoWallet);
+        return;
+    }
 
+    const mWallet = castToMemWallet(pwd, wallet);
+    await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
+    await sessionSet(__key_wallet_cur, wallet);
+    sendResponse({status: true, message: JSON.stringify(mWallet)});
 }
 
 async function closeWallet(sendResponse: (response: any) => void): Promise<void> {
-
-}
-
-async function createWallet(sendResponse: (response: any) => void): Promise<void> {
+    await sessionRemove(__key_wallet_status);
+    await sessionRemove(__key_wallet_cur);
+    if (sendResponse) {
+        sendResponse({status: true});
+    }
 }
