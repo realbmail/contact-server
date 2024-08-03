@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {MsgType} from "./common";
+import {HostArr, MsgType} from "./common";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -82,10 +82,10 @@ function appendFor163(template: HTMLTemplateElement) {
 }
 
 const targetSelectorMap = {
-    'mail.google.com': appendForGoogle,
-    'mail.163.com': appendFor163,
-    'mail.126.com': appendFor126,
-    'wx.mail.qq.com': appendForQQ
+    [HostArr.Google]: appendForGoogle,
+    [HostArr.Mail163]: appendFor163,
+    [HostArr.Mail126]: appendFor126,
+    [HostArr.QQ]: appendForQQ
 };
 
 function translateInjectedElm() {
@@ -110,7 +110,8 @@ window.addEventListener('message', (event) => {
         return;
     }
 
-    if (event.data && event.data.action === 'encryptMail') {
-        browser.runtime.sendMessage({ action: MsgType.EncryptMail }).catch(console.error);
+    if (event.data && event.data.action === MsgType.EncryptMail) {
+        browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch(console.error);
     }
 });
+

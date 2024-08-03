@@ -3,7 +3,9 @@ export enum MsgType {
     WalletOpen = 'WalletOpen',
     WalletClose = 'WalletClose',
     EncryptMail = 'EncryptMail',
+    AddInboxBtn = 'AddInboxBtn',
 }
+
 export enum WalletStatus {
     Init = 'Init',
     NoWallet = 'NoWallet',
@@ -11,6 +13,13 @@ export enum WalletStatus {
     Unlocked = 'Unlocked',
     Expired = 'Expired',
     Error = 'error'
+}
+
+export enum HostArr{
+    Google = 'mail.google.com',
+    Mail163 = 'mail.163.com',
+    Mail126 = 'mail.126.com',
+    QQ = 'wx.mail.qq.com'
 }
 export function showView(hash: string, callback: (hash: string) => void): void {
     const views = document.querySelectorAll<HTMLElement>('.page_view');
