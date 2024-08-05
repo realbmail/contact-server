@@ -66,5 +66,9 @@
   "inject_mail_inbox": {
     "message": "BMail Inbox",
     "description": ""
+  },
+  "email_label": {
+    "message": "Current Email Address:",
+    "description": ""
   }
 }

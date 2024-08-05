@@ -39,4 +39,5 @@ export function translateHomePage() {
 
 export function translateMainPage() {
     document.getElementById('bmail-address-lbl')!.textContent = browser.i18n.getMessage('address_label');
+    document.getElementById('bmail-email-address-lbl')!.textContent = browser.i18n.getMessage('email_label');
 }
