@@ -62,10 +62,10 @@ async function timerTaskWork(alarm: any): Promise<void> {
     }
 }
 
-self.addEventListener('install', () => {
+self.addEventListener('install', (event) => {
     console.log('[service work] Service Worker installing...');
-    createAlarm().then(() => {
-    });
+    const evt = event as ExtendableEvent;
+    evt.waitUntil(createAlarm());
 });
 
 self.addEventListener('activate', (event) => {
@@ -73,6 +73,7 @@ self.addEventListener('activate', (event) => {
     extendableEvent.waitUntil((self as unknown as ServiceWorkerGlobalScope).clients.claim());
     console.log('[service work] Service Worker activating......');
 });
+
 
 runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType) => {
     console.log("[service work] onInstalled event triggered......");

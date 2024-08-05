@@ -1,4 +1,4 @@
-import browser from "webextension-polyfill";
+import browser, {Runtime} from "webextension-polyfill";
 import {HostArr, MsgType} from "./common";
 
 function addBmailObject(jsFilePath: string): void {
@@ -131,3 +131,34 @@ window.addEventListener('message', (event) => {
     }
 });
 
+function readCurrentMailAddress() {
+    const hostname = window.location.hostname;
+    if (hostname === HostArr.Mail126) {
+        const mailAddr = document.getElementById('spnUid');
+        if (!mailAddr) {
+            console.log('mail address missing for domain:', hostname);
+            return null;
+        }
+        console.log("------>>>mail address:", mailAddr.textContent);
+        return mailAddr.textContent;
+    }
+    if (hostname === HostArr.Google) {
+        const pageTitle = document.title;
+
+        const account = document.querySelector(".account-message .hiver-loginUser-id");
+        if(!account){
+            return null;
+        }
+        return account.textContent;
+    }
+    return null;
+}
+
+browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
+    console.log("----------------------browser.runtime.onMessage.addListener active");
+    if (request.action ===  MsgType.QueryCurEmail) {
+        const emailAddr = readCurrentMailAddress();
+        sendResponse({ value: emailAddr });
+    }
+    return true; // Keep the message channel open for sendResponse
+});

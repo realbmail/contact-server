@@ -76,6 +76,23 @@ function populateDashboard() {
         }
         document.getElementById('bmail-address-val')!.textContent = wallet.address;
     })
+
+    browser.tabs.query({ active: true, currentWindow: true }).then(tabList=>{
+        const activeTab = tabList[0];
+        if(!activeTab || !activeTab.id){
+            console.log("------>>> invalid tab")
+            return;
+        }
+        console.log("++++++++++++++++>>>",activeTab.id);
+        browser.tabs.sendMessage(activeTab.id, { action: MsgType.QueryCurEmail }).then(response => {
+            if (response && response.value) {
+                console.log('------>>>Element Value:', response.value);
+                document.getElementById('bmail-email-address-val')!.textContent = response.value;
+            } else {
+                console.log('------>>>Element not found or has no value');
+            }
+        });
+    })
 }
 
 function initLoginDiv(): void {
@@ -112,3 +129,4 @@ function openAllWallets(): void {
 function initDashBoard(): void {
 
 }
+

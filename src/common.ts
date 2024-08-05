@@ -4,6 +4,7 @@ export enum MsgType {
     WalletClose = 'WalletClose',
     EncryptMail = 'EncryptMail',
     AddInboxBtn = 'AddInboxBtn',
+    QueryCurEmail = 'QueryCurEmail',
 }
 
 export enum WalletStatus {
