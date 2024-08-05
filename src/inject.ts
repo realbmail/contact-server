@@ -1,4 +1,4 @@
-import {HostArr, MsgType} from "./common";
+import { MsgType} from "./common";
 interface BMail {
     version: string;
     connect: () => void;
@@ -19,7 +19,7 @@ createBmailObj();
 document.addEventListener('DOMContentLoaded', initInjectElemAction);
 
 function initInjectElemAction() {
-    console.log("++++++>>> injection init success")
+    console.log("++++++>>> injection init success",document.getElementById('bmail_left_menu_btn_google'));
     addBmailInbox().then();
 }
 
@@ -28,13 +28,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 
-function bmailInfo() {
-    console.log("------>>> bmail inbox")
-    window.postMessage({action: MsgType.EncryptMail}, '*');
-}
-
-(window as any).bmailInfo = bmailInfo;
 
 async function addBmailInbox() {
-
 }

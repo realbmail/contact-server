@@ -12,6 +12,24 @@ const __alarm_name__: string = '__alarm_name__timer__';
 const __key_wallet_status: string = '__key_wallet_status';
 const __key_wallet_cur: string = '__key_wallet_cur';
 
+const ICON_PATHS = {
+    loggedIn: {
+        "16": "../file/logo_16.png",
+        "48": "../file/logo_48.png",
+        "128": "../file/logo_128.png"
+    },
+    loggedOut: {
+        "16": "../file/logo_16_out.png",
+        "48": "../file/logo_48_out.png",
+        "128": "../file/logo_128_out.png"
+    }
+};
+
+function updateIcon(isLoggedIn:boolean) {
+    const iconPath = isLoggedIn ? ICON_PATHS.loggedIn : ICON_PATHS.loggedOut;
+    browser.action.setIcon({ path: iconPath });
+}
+
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);
     switch (request.action) {
@@ -66,12 +84,14 @@ self.addEventListener('install', (event) => {
     console.log('[service work] Service Worker installing...');
     const evt = event as ExtendableEvent;
     evt.waitUntil(createAlarm());
+    updateIcon(false);
 });
 
 self.addEventListener('activate', (event) => {
     const extendableEvent = event as ExtendableEvent;
     extendableEvent.waitUntil((self as unknown as ServiceWorkerGlobalScope).clients.claim());
     console.log('[service work] Service Worker activating......');
+    updateIcon(false);
 });
 
 
@@ -135,6 +155,7 @@ async function openWallet(pwd: string, sendResponse: (response: any) => void): P
     await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
     await sessionSet(__key_wallet_cur, wallet);
     sendResponse({status: true, message: JSON.stringify(mWallet)});
+    updateIcon(true);
 }
 
 async function closeWallet(sendResponse: (response: any) => void): Promise<void> {

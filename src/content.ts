@@ -1,4 +1,4 @@
-import browser, {Runtime} from "webextension-polyfill";
+import browser from "webextension-polyfill";
 import {HostArr, MsgType} from "./common";
 
 function addBmailObject(jsFilePath: string): void {
@@ -43,16 +43,52 @@ async function addCustomElements(htmlFilePath: string, targetSelectorMap: {
 }
 
 function appendForGoogle(template: HTMLTemplateElement) {
-    // Implement append logic for Google Mail
+    const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn_google');
+    if (!bmailInboxBtn) {
+        console.log("failed to find bmailElement");
+        return;
+    }
+
+    const img = bmailInboxBtn.querySelector('img');
+    if (img) {
+        img.src = browser.runtime.getURL('file/logo_16.png');
+    }
+    const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
+    (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInfo);
+    const observerConfig = {
+        childList: true, // 监听子节点的变化
+        subtree: true    // 监听整个子树
+    };
+
+    const callback: MutationCallback = (mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                // 尝试查找目标元素
+                const googleMenu = document.querySelector('.TK') as HTMLElement;
+                if (googleMenu) {
+                    console.log('---------->>>Element found:', googleMenu, clone);
+                    const targetObserver = new MutationObserver((targetMutations, targetObs) => {
+                        targetObs.disconnect();
+                        googleMenu.insertBefore(clone, googleMenu.children[1]);
+                    });
+                    targetObserver.observe(googleMenu, {childList: true, subtree: true});
+                    observer.disconnect();
+                    break;
+                }
+            }
+        }
+    };
+    const observer = new MutationObserver(callback);
+    observer.observe(document.body, observerConfig);
 }
 
 function appendForQQ(template: HTMLTemplateElement) {
     // Implement append logic for QQ Mail
 }
-function appentBtnTo126menu(clone:HTMLElement){
+
+function appendBtnTo126menu(clone: HTMLElement) {
     const ulElements = document.querySelectorAll('ul[aria-label="左侧导航"]');
 
-// 过滤出 display 不是 none 的元素
     const targetElement = Array.from(ulElements).find((element) => {
         return window.getComputedStyle(element).display !== 'none';
     });
@@ -67,27 +103,28 @@ function appentBtnTo126menu(clone:HTMLElement){
         targetElement.appendChild(clone);
     }
 }
+
 function appendFor126(template: HTMLTemplateElement) {
 
-    const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn');
+    const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn_126');
     if (!bmailInboxBtn) {
         console.log("failed to find bmailElement");
         return;
     }
 
-    // Update image src to use browser.runtime.getURL
     const img = bmailInboxBtn.querySelector('img');
     if (img) {
         img.src = browser.runtime.getURL('file/logo_16.png');
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
-    appentBtnTo126menu(clone);
+    (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInfo);
+    appendBtnTo126menu(clone);
     const tabMenus = document.querySelectorAll('li[title="首页"]');
     if (tabMenus.length > 0) {
         tabMenus[0].addEventListener('click', () => {
-            const dynamicBtn = document.getElementById('bmail_left_menu_btn');
-            if(!dynamicBtn){
-                appentBtnTo126menu(clone)
+            const dynamicBtn = document.getElementById('bmail_left_menu_btn_126');
+            if (!dynamicBtn) {
+                appendBtnTo126menu(clone)
             }
         });
     }
@@ -143,10 +180,8 @@ function readCurrentMailAddress() {
         return mailAddr.textContent;
     }
     if (hostname === HostArr.Google) {
-        const pageTitle = document.title;
-
         const account = document.querySelector(".account-message .hiver-loginUser-id");
-        if(!account){
+        if (!account) {
             return null;
         }
         return account.textContent;
@@ -156,9 +191,14 @@ function readCurrentMailAddress() {
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
     console.log("----------------------browser.runtime.onMessage.addListener active");
-    if (request.action ===  MsgType.QueryCurEmail) {
+    if (request.action === MsgType.QueryCurEmail) {
         const emailAddr = readCurrentMailAddress();
-        sendResponse({ value: emailAddr });
+        sendResponse({value: emailAddr});
     }
     return true; // Keep the message channel open for sendResponse
 });
+
+function bmailInfo() {
+    console.log("------>>> bmail inbox")
+    browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch(console.error);
+}
