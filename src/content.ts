@@ -83,7 +83,6 @@ function appendFor126(template: HTMLTemplateElement) {
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
     appentBtnTo126menu(clone);
     const tabMenus = document.querySelectorAll('li[title="首页"]');
-    console.log("======>>>tab menus:", tabMenus);
     if (tabMenus.length > 0) {
         tabMenus[0].addEventListener('click', () => {
             const dynamicBtn = document.getElementById('bmail_left_menu_btn');

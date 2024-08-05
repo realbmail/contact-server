@@ -12,7 +12,8 @@ export enum WalletStatus {
     Locked = 'Locked',
     Unlocked = 'Unlocked',
     Expired = 'Expired',
-    Error = 'error'
+    Error = 'error',
+    InvalidTarget = 'InvalidTarget'
 }
 
 export enum HostArr{

@@ -52,6 +52,9 @@ function checkBackgroundStatus(): void {
             case WalletStatus.Error:
                 alert("error:" + response.message);
                 return;
+            case WalletStatus.InvalidTarget:
+                showView('#onboarding/invalid-service-target', router);
+                return;
         }
     }).catch((error: any) => {
         console.error('Error sending message:', error);

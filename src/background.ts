@@ -93,6 +93,12 @@ runtime.onSuspend.addListener(() => {
 });
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
+    const availableUrl = await  currentTabIsValid();
+    console.log(`[service work] Service Worker is ${availableUrl}...`);
+    if (!availableUrl){
+        sendResponse({status: WalletStatus.InvalidTarget, message: ''});
+        return
+    }
     await checkAndInitDatabase();
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
     if (walletStatus === WalletStatus.Init) {
@@ -136,4 +142,42 @@ async function closeWallet(sendResponse: (response: any) => void): Promise<void>
     if (sendResponse) {
         sendResponse({status: true});
     }
+}
+
+const urlsToMatch = [
+    "https://mail.google.com/*",
+    "https://mail.163.com/*",
+    "https://wx.mail.qq.com/*",
+    "https://mail.126.com/*"
+];
+
+tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (changeInfo.status === 'complete' && tab.url) {
+        const ok = await checkTabUrl(tabId);
+        console.log("[service work] onUpdated checkTabUrl=>", ok);
+    }
+});
+
+tabs.onActivated.addListener(async (activeInfo) => {
+    const ok = await checkTabUrl(activeInfo.tabId);
+    console.log("[service work] onActivated checkTabUrl=>", ok);
+});
+
+async function checkTabUrl(tabId: number): Promise<boolean> {
+    const tab = await tabs.get(tabId);
+    if (!tab.url) {
+        return false;
+    }
+    return urlsToMatch.some(url => new URL(tab.url!).origin.startsWith(new URL(url).origin));
+}
+
+async function currentTabIsValid() {
+    const tabsList = await tabs.query({active: true, currentWindow: true});
+    if (tabsList.length == 0){
+        return false
+    }
+    if(!tabsList[0].id){
+        return false;
+    }
+    return checkTabUrl(tabsList[0].id);
 }
