@@ -49,13 +49,26 @@ function appendForGoogle(template: HTMLTemplateElement) {
 function appendForQQ(template: HTMLTemplateElement) {
     // Implement append logic for QQ Mail
 }
+function appentBtnTo126menu(clone:HTMLElement){
+    const ulElements = document.querySelectorAll('ul[aria-label="左侧导航"]');
 
-function appendFor126(template: HTMLTemplateElement) {
-    const targetElement = document.querySelector('.js-component-tree.nui-tree');
+// 过滤出 display 不是 none 的元素
+    const targetElement = Array.from(ulElements).find((element) => {
+        return window.getComputedStyle(element).display !== 'none';
+    });
     if (!targetElement) {
         console.log("failed to find target element");
         return;
     }
+
+    if (targetElement.children.length >= 2) {
+        targetElement.insertBefore(clone, targetElement.children[1]);
+    } else {
+        targetElement.appendChild(clone);
+    }
+}
+function appendFor126(template: HTMLTemplateElement) {
+
     const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn');
     if (!bmailInboxBtn) {
         console.log("failed to find bmailElement");
@@ -67,18 +80,19 @@ function appendFor126(template: HTMLTemplateElement) {
     if (img) {
         img.src = browser.runtime.getURL('file/logo_16.png');
     }
-
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
-    if (targetElement.children.length >= 2) {
-        targetElement.insertBefore(clone, targetElement.children[1]);
-    } else {
-        targetElement.appendChild(clone);
-    }
-
-    const tabMenus = document.querySelectorAll('.nui-tabs-item-text.nui-fNoSelect');
+    appentBtnTo126menu(clone);
+    const tabMenus = document.querySelectorAll('li[title="首页"]');
     console.log("======>>>tab menus:", tabMenus);
+    if (tabMenus.length > 0) {
+        tabMenus[0].addEventListener('click', () => {
+            const dynamicBtn = document.getElementById('bmail_left_menu_btn');
+            if(!dynamicBtn){
+                appentBtnTo126menu(clone)
+            }
+        });
+    }
 }
-
 
 function appendFor163(template: HTMLTemplateElement) {
     // Implement append logic for 163 Mail
