@@ -74,6 +74,9 @@ function appendFor126(template: HTMLTemplateElement) {
     } else {
         targetElement.appendChild(clone);
     }
+
+    const tabMenus = document.querySelectorAll('.nui-tabs-item-text.nui-fNoSelect');
+    console.log("======>>>tab menus:", tabMenus);
 }
 
 

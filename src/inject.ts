@@ -44,7 +44,6 @@ function readCurrentMailAddress() {
             console.log('mail address missing for domain:', hostname);
             return;
         }
-
         console.log("------>>>mail address:", mailAddr.textContent);
     }
 }

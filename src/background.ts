@@ -1,47 +1,16 @@
 /// <reference lib="webworker" />
 import browser, {Runtime} from "webextension-polyfill";
 import {checkAndInitDatabase, closeDatabase} from "./database";
-import {MsgType, WalletStatus} from "./common";
+import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, queryCurWallet} from "./wallet";
+import {MsgType, WalletStatus} from "./common";
 
 const runtime = browser.runtime;
-const storage = browser.storage;
 const alarms = browser.alarms;
 const tabs = browser.tabs;
 const __alarm_name__: string = '__alarm_name__timer__';
 const __key_wallet_status: string = '__key_wallet_status';
 const __key_wallet_cur: string = '__key_wallet_cur';
-
-async function sessionSet(key: string, value: any): Promise<void> {
-    try {
-        await storage.session.set({[key]: value});
-        console.log("[service work] Value was set successfully.", value);
-    } catch (error: unknown) {
-        const err = error as Error;
-        console.error("[service work] Failed to set value:", err);
-    }
-}
-
-async function sessionGet(key: string): Promise<any> {
-    try {
-        const result = await storage.session.get(key);
-        console.log("[service work] Value is:", result[key]);
-        return result[key];
-    } catch (error: unknown) {
-        const err = error as Error;
-        console.error("[service work] Failed to get value:", err);
-        return null;
-    }
-}
-
-async function sessionRemove(key: string): Promise<void> {
-    try {
-        await storage.session.remove(key);
-        console.log("[service work] Value was removed successfully.");
-    } catch (error) {
-        console.error("[service work] Failed to remove value:", error);
-    }
-}
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);

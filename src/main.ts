@@ -1,38 +1,21 @@
 import browser from "webextension-polyfill";
 import {MsgType, showView, WalletStatus} from "./common";
-import {__currentDatabaseVersion, __tableSystemSetting, databaseUpdate, getMaxIdRecord, initDatabase} from "./database";
-import {DbWallet, MemWallet} from "./wallet";
+import {initDatabase} from "./database";
+import {MemWallet} from "./wallet";
 import {translateMainPage} from "./local";
+import {loadLastSystemSetting} from "./setting";
+import {sessionGet, sessionSet} from "./session_storage";
 
-class SysSetting {
-    id: number;
-    address: string;
-    network: string;
-
-    constructor(id: number, addr: string, network: string) {
-        this.id = id;
-        this.address = addr;
-        this.network = network;
-    }
-
-    async syncToDB(): Promise<void> {
-        await databaseUpdate(__tableSystemSetting, this.id, this);
-    }
-
-    async changeAddr(addr: string): Promise<void> {
-        this.address = addr;
-        await databaseUpdate(__tableSystemSetting, this.id, this);
-    }
-}
-
-let __systemSetting: SysSetting;
-let __curWallet: MemWallet;
+const __currentWalletKey = "__current_wallet_storage_key_"
+const __systemSetting = "__system_setting_"
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin as EventListener);
 
 async function initDessagePlugin(): Promise<void> {
     await initDatabase();
-    await loadLastSystemSetting();
+    loadLastSystemSetting().then(setting => {
+        sessionSet(__systemSetting, setting);
+    });
     translateMainPage();
     checkBackgroundStatus();
     initLoginDiv();
@@ -82,16 +65,14 @@ function router(path: string): void {
 }
 
 function populateDashboard() {
-    document.getElementById('bmail-address-val')!.textContent = __curWallet.address;
-}
-
-async function loadLastSystemSetting(): Promise<void> {
-    const ss = await getMaxIdRecord(__tableSystemSetting);
-    if (ss) {
-        __systemSetting = new SysSetting(ss.id, ss.address, ss.network);
-        return;
-    }
-    __systemSetting = new SysSetting(__currentDatabaseVersion, '', '');
+    sessionGet(__currentWalletKey).then(wallet => {
+        if (!wallet) {
+            //TODO::something wrong with this step.
+            console.log("------>>>fatal logic error, no wallet found!")
+            return;
+        }
+        document.getElementById('bmail-address-val')!.textContent = wallet.address;
+    })
 }
 
 function initLoginDiv(): void {
@@ -103,7 +84,7 @@ function openAllWallets(): void {
     const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
     const password = inputElement.value;
 
-    browser.runtime.sendMessage({action: MsgType.WalletOpen, password: password}).then((response: {
+    browser.runtime.sendMessage({action: MsgType.WalletOpen, password: password}).then(async (response: {
         status: boolean;
         message: string
         error: string
@@ -115,7 +96,9 @@ function openAllWallets(): void {
 
         const obj = JSON.parse(response.message);
         console.log("------------>>>", response.message, obj);
-        __curWallet = new MemWallet(obj.address);
+        const wallet = new MemWallet(obj.address);
+        await sessionSet(__currentWalletKey, wallet);
+
         showView('#onboarding/main-dashboard', router);
         return;
     }).catch(error => {
