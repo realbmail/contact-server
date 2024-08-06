@@ -10,7 +10,9 @@ window.addEventListener('message', (event) => {
     }
 
     if (event.data && event.data.action === MsgType.EncryptMail) {
-        browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch(console.error);
+        browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch((error: any) => {
+            console.warn('------>>>error sending message:', error);
+        });
     }
 });
 
@@ -23,9 +25,11 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse: (response:
     return true; // Keep the message channel open for sendResponse
 });
 
-function bmailInfo() {
+function bmailInboxAction() {
     console.log("------>>> bmail inbox")
-    browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch(console.error);
+    browser.runtime.sendMessage({action: MsgType.BMailInbox}).catch((error: any) => {
+        console.warn('------>>>error sending message:', error);
+    });
 }
 
 function readCurrentMailAddress() {
@@ -52,6 +56,6 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
         img.src = browser.runtime.getURL('file/logo_16.png');
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
-    (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInfo);
+    (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInboxAction);
     return clone;
 }

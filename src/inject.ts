@@ -1,5 +1,3 @@
-import {waitForElement} from "./common";
-
 interface BMail {
     version: string;
     connect: () => void;

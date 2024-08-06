@@ -25,9 +25,9 @@ const ICON_PATHS = {
     }
 };
 
-function updateIcon(isLoggedIn:boolean) {
+function updateIcon(isLoggedIn: boolean) {
     const iconPath = isLoggedIn ? ICON_PATHS.loggedIn : ICON_PATHS.loggedOut;
-    browser.action.setIcon({ path: iconPath });
+    browser.action.setIcon({path: iconPath});
 }
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
@@ -49,11 +49,20 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             });
             return true;
 
-        case  MsgType.EncryptMail:
+        case  MsgType.BMailInbox:
             browser.action.openPopup().then(() => {
                 sendResponse({success: true});
             }).catch((error) => {
-                console.error(error);
+                console.error("[service work] bmail inbox action failed:", error);
+                sendResponse({success: false, error: error.message});
+            });
+            return true;
+
+        case  MsgType.EncryptMail:
+            browser.action.openPopup().then(() => {
+                sendResponse({success: true,data:request.data});
+            }).catch((error) => {
+                console.error("[service work] encrypt mail failed:", error);
                 sendResponse({success: false, error: error.message});
             });
             return true;
@@ -99,7 +108,7 @@ runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType) => {
     console.log("[service work] onInstalled event triggered......");
     if (details.reason === "install") {
         tabs.create({
-            url: runtime.getURL("home.html#onboarding/welcome")
+            url: runtime.getURL("html/home.html#onboarding/welcome")
         }).then(() => {
         });
     }
@@ -114,9 +123,9 @@ runtime.onSuspend.addListener(() => {
 });
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
-    const availableUrl = await  currentTabIsValid();
+    const availableUrl = await currentTabIsValid();
     console.log(`[service work] Service Worker is ${availableUrl}...`);
-    if (!availableUrl){
+    if (!availableUrl) {
         sendResponse({status: WalletStatus.InvalidTarget, message: ''});
         return
     }
@@ -195,10 +204,10 @@ async function checkTabUrl(tabId: number): Promise<boolean> {
 
 async function currentTabIsValid() {
     const tabsList = await tabs.query({active: true, currentWindow: true});
-    if (tabsList.length == 0){
+    if (tabsList.length == 0) {
         return false
     }
-    if(!tabsList[0].id){
+    if (!tabsList[0].id) {
         return false;
     }
     return checkTabUrl(tabsList[0].id);

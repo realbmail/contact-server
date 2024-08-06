@@ -3,6 +3,7 @@ export enum MsgType {
     WalletOpen = 'WalletOpen',
     WalletClose = 'WalletClose',
     EncryptMail = 'EncryptMail',
+    BMailInbox = 'BMailInbox',
     AddInboxBtn = 'AddInboxBtn',
     QueryCurEmail = 'QueryCurEmail',
 }

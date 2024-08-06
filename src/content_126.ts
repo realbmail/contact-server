@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import {parseBmailInboxBtn} from "./content_common";
+import {MsgType} from "./common";
 
 export function appendFor126(template: HTMLTemplateElement) {
 
@@ -8,6 +9,7 @@ export function appendFor126(template: HTMLTemplateElement) {
         console.warn("------>>> failed to parse bmail inbox button");
         return
     }
+
     appendBtnToMenu(clone);
     addActionForHomePage(clone);
     addActionForComposeBtn(template);
@@ -114,6 +116,35 @@ function parseCryptoMailBtn(template: HTMLTemplateElement) {
 }
 
 function encryptMailContent() {
-    console.log('----->>> encryptMailContent()');
-   const iframe = document.querySelector(".APP-editor-iframe")
+    const iframe = document.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
+    if (!iframe) {
+        console.log('----->>> encrypt failed to find iframe:=>');
+        return;
+    }
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDocument) {
+        console.log("----->>> no frame body found:=>");
+        return;
+    }
+
+    const iframeBody = iframeDocument.body;
+    console.log("------>>>inner html=>",iframeBody.innerHTML);
+
+    let bodyTextContent = iframeBody.textContent || iframeBody.innerText;
+    bodyTextContent = bodyTextContent.trim();
+    if (!bodyTextContent || bodyTextContent.length <= 0) {
+        console.log("----->>> no body text content");
+        return;
+    }
+
+    console.log('----->>> iframe body text content:=>', bodyTextContent, bodyTextContent.length);
+    browser.runtime.sendMessage({action: MsgType.EncryptMail, data: bodyTextContent}).then((response:any)=>{
+        if (!response) {
+            console.warn('------>>>error: response is undefined or null.');
+            return;
+        }
+        console.log("response=>", JSON.stringify(response));
+    }).catch((error: any) => {
+        console.warn('------>>>error sending message:', error);
+    });
 }
