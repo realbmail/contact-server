@@ -115,4 +115,5 @@ function parseCryptoMailBtn(template: HTMLTemplateElement) {
 
 function encryptMailContent() {
     console.log('----->>> encryptMailContent()');
+   const iframe = document.querySelector(".APP-editor-iframe")
 }

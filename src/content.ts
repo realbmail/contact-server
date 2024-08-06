@@ -58,6 +58,11 @@ function translateInjectedElm() {
     if (bmailElement) {
         bmailElement.textContent = browser.i18n.getMessage('inject_mail_inbox');
     }
+
+    const cryptoBtn = document.querySelector('.bmail-crypto-btn');
+    if (cryptoBtn) {
+        cryptoBtn.textContent = browser.i18n.getMessage('crypto_and_send');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

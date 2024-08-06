@@ -70,5 +70,9 @@
   "email_label": {
     "message": "当前邮件地址:",
     "description": ""
+  },
+  "crypto_and_send": {
+    "message": "加密",
+    "description": ""
   }
 }

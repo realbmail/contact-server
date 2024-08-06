@@ -62,12 +62,17 @@ function observeForElement(foundFunc: () => HTMLElement | null, callback: () => 
 
 function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
-    console.log("------>>> all compose div when loaded=>", allComposeDiv);
+    console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
     allComposeDiv.forEach(sendBtn => {
         const parentNode = sendBtn.parentNode as HTMLElement;
         if (!parentNode) {
             console.log("-------->>>failed to find send button:=>");
             return
+        }
+        const node = parentNode.parentNode?.querySelector(".bmail-crypto-btn");
+        if(node){
+            console.log("------>>> node already exists");
+            return;
         }
         const clone = parseCryptoMailBtn(template,parentNode);
         if (!clone){
@@ -95,7 +100,7 @@ function parseCryptoMailBtn(template: HTMLTemplateElement,sendBtn: HTMLElement) 
 }
 
 function encryptMailContent(sendBtn: HTMLElement) {
-    console.log("------>>> crypto mail content")
+    console.log("------>>> crypto mail content");
 }
 
 function addActionForComposeBtn(template: HTMLTemplateElement) {
