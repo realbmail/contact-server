@@ -2,7 +2,7 @@
 import browser, {Runtime} from "webextension-polyfill";
 import {checkAndInitDatabase, closeDatabase} from "./database";
 import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, queryCurWallet} from "./wallet";
+import {castToMemWallet, decodePubKey, queryCurWallet, testEnryptoData} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
 
 const runtime = browser.runtime;
@@ -32,6 +32,7 @@ function updateIcon(isLoggedIn: boolean) {
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);
+    testEnryptoData();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(() => {
@@ -209,13 +210,27 @@ async function currentTabIsValid() {
 }
 
 async function encryptMailBody(peerAddr: string[], mailBody: string, sendResponse: (response: any) => void) {
-    let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
-    if (walletStatus !== WalletStatus.Unlocked) {
-        browser.action.openPopup().then(() => {
-            sendResponse({success: false, message: "open wallet first please!"});
-        });
-        return;
+    try {
+        let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
+        if (walletStatus !== WalletStatus.Unlocked) {
+            browser.action.openPopup().then(() => {
+                sendResponse({success: false, message: "open wallet first please!"});
+            });
+            return;
+        }
+
+        if (peerAddr.length <= 0) {
+            sendResponse({success: false, message: "no valid blockchain address of receivers"});
+            return;
+        }
+
+        console.log("[service work] encryptMailBody addresses:=>", peerAddr);
+        sendResponse({success: true, data: "encryptMailBody is coming......"});
+
+        console.log("[service work] public array:=>", decodePubKey(peerAddr[0]));
+
+    } catch (err) {
+        sendResponse({success: false, data: `internal error: ${err}`});
     }
-    console.log("[service work] encryptMailBody addresses:=>",peerAddr);
-    sendResponse({success: true, data: "encryptMailBody is coming......"});
+
 }
