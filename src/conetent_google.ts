@@ -1,44 +1,22 @@
-import browser from "webextension-polyfill";
-import {bmailInfo} from "./content_common";
+import {parseBmailInboxBtn} from "./content_common";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
-    const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn_google');
-    if (!bmailInboxBtn) {
-        console.log("failed to find bmailElement");
-        return;
+    const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google');
+    if (!clone) {
+        console.warn("------>>> failed to parse bmail inbox button");
+        return
     }
 
-    const img = bmailInboxBtn.querySelector('img');
-    if (img) {
-        img.src = browser.runtime.getURL('file/logo_16.png');
-    }
-    const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
-    (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInfo);
-    const observerConfig = {
-        childList: true, // 监听子节点的变化
-        subtree: true    // 监听整个子树
-    };
+    observeForElement(() => {
+        return document.querySelector('.TK') as HTMLElement;
+    }, () => {
+        addBMailInboxToMenu(clone);
+    });
+}
 
-    const callback: MutationCallback = (mutationsList, observer) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                // 尝试查找目标元素
-                const googleMenu = document.querySelector('.TK') as HTMLElement;
-                if (googleMenu) {
-                    console.log('---------->>>google menu found:');
-                    const targetObserver = new MutationObserver((targetMutations, targetObs) => {
-                        targetObs.disconnect();
-                        googleMenu.insertBefore(clone, googleMenu.children[1]);
-                    });
-                    targetObserver.observe(googleMenu, {childList: true, subtree: true});
-                    observer.disconnect();
-                    break;
-                }
-            }
-        }
-    };
-    const observer = new MutationObserver(callback);
-    observer.observe(document.body, observerConfig);
+function addBMailInboxToMenu(clone: HTMLElement) {
+    const googleMenu = document.querySelector('.TK') as HTMLElement;
+    googleMenu.insertBefore(clone, googleMenu.children[1]);
 }
 
 export function queryEmailAddrGoogle() {
@@ -55,4 +33,31 @@ export function queryEmailAddrGoogle() {
 
     console.log('------>>>No email address found in the page title.');
     return null
+}
+
+function observeForElement(foundFunc: () => HTMLElement | null, callback: () => void) {
+    const observerConfig = {
+        childList: true, // 监听子节点的变化
+        subtree: true    // 监听整个子树
+    };
+
+    const cb: MutationCallback = (mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                const element = foundFunc();
+                if (element) {
+                    console.log('---------->>>google menu found:');
+                    const targetObserver = new MutationObserver((targetMutations, targetObs) => {
+                        targetObs.disconnect();
+                        callback();
+                    });
+                    targetObserver.observe(element, {childList: true, subtree: true});
+                    observer.disconnect();
+                    break;
+                }
+            }
+        }
+    };
+    const observer = new MutationObserver(cb);
+    observer.observe(document.body, observerConfig);
 }

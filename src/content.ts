@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {HostArr, MsgType} from "./common";
+import {HostArr} from "./common";
 import {appendFor126} from "./content_126";
 import {appendForGoogle} from "./conetent_google";
 import {appendFor163} from "./content_163";
