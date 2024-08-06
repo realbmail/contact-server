@@ -1,4 +1,6 @@
 import {parseBmailInboxBtn} from "./content_common";
+import browser from "webextension-polyfill";
+import {emailRegex} from "./common";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google');
@@ -7,57 +9,100 @@ export function appendForGoogle(template: HTMLTemplateElement) {
         return
     }
 
-    observeForElement(() => {
-        return document.querySelector('.TK') as HTMLElement;
-    }, () => {
-        addBMailInboxToMenu(clone);
-    });
+    observeForElement(
+        () => {
+            return document.querySelector('.TK') as HTMLElement;
+        }, () => {
+            console.log("------>>>start to populate google area");
+            addBMailInboxToMenu(clone);
+            addCryptoBtnToComposeDiv(template);
+            addActionForComposeBtn(template);
+        });
 }
 
 function addBMailInboxToMenu(clone: HTMLElement) {
     const googleMenu = document.querySelector('.TK') as HTMLElement;
     googleMenu.insertBefore(clone, googleMenu.children[1]);
+    console.log("------>>> add bmail inbox button success=>")
 }
 
 export function queryEmailAddrGoogle() {
     const pageTitle = document.title;
-    console.log('-------->>>Page Title:', pageTitle);
-    const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
     const match = pageTitle.match(emailRegex);
-
     if (match) {
         const email = match[1];
-        console.log('----->>> google email :', email);
+        console.log('----->>> google email found:', email);
         return email;
     }
-
     console.log('------>>>No email address found in the page title.');
     return null
 }
 
 function observeForElement(foundFunc: () => HTMLElement | null, callback: () => void) {
-    const observerConfig = {
-        childList: true, // 监听子节点的变化
-        subtree: true    // 监听整个子树
-    };
+    const idleThreshold = 500; // 无变化的时间阈值（毫秒）
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const cb: MutationCallback = (mutationsList, observer) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                const element = foundFunc();
-                if (element) {
-                    console.log('---------->>>google menu found:');
-                    const targetObserver = new MutationObserver((targetMutations, targetObs) => {
-                        targetObs.disconnect();
-                        callback();
-                    });
-                    targetObserver.observe(element, {childList: true, subtree: true});
-                    observer.disconnect();
-                    break;
-                }
-            }
+        if (idleTimer) {
+            clearTimeout(idleTimer);
+        }
+        const element = foundFunc();
+        if (element) {
+            idleTimer = setTimeout(() => {
+                callback();
+                console.log('---------->>> element found:');
+                observer.disconnect();
+            }, idleThreshold);
         }
     };
+
     const observer = new MutationObserver(cb);
-    observer.observe(document.body, observerConfig);
+    observer.observe(document.body, {childList: true, subtree: true});
+}
+
+function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
+    const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
+    console.log("------>>> all compose div when loaded=>", allComposeDiv);
+}
+
+function parseCryptoMailBtn(template: HTMLTemplateElement) {
+    const cryptoBtnDiv = template.content.getElementById('bmail_crypto_btn_in_compose_google');
+    if (!cryptoBtnDiv) {
+        console.log("------>>>failed to find bmailElement");
+        return null;
+    }
+    const img = cryptoBtnDiv.querySelector('img');
+    if (img) {
+        img.src = browser.runtime.getURL('file/logo_16.png');
+    }
+    return cryptoBtnDiv;
+    // const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
+    // (clone.querySelector(".bmail-crypto-btn") as HTMLElement).addEventListener('click', ()=>{
+    //     encryptMailContent();
+    // });
+    // return clone;
+}
+
+function encryptMailContent(sendBtn: HTMLElement) {
+}
+
+function addActionForComposeBtn(template: HTMLTemplateElement) {
+    const composBtn = document.querySelector(".T-I.T-I-KE.L3");
+    if (!composBtn) {
+        console.warn("------>>> compose button not found");
+        return;
+    }
+    composBtn.addEventListener('click', () => {
+        observeForElement(
+            () => {
+                const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
+                if (allComposeDiv.length > 0) {
+                    return allComposeDiv[allComposeDiv.length - 1] as HTMLElement;
+                }
+                return null;
+            }, () => {
+                const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
+                console.log("----->>> prepare add crypto mail btn", allComposeDiv);
+            });
+    })
 }

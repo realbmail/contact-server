@@ -23,7 +23,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse: (response:
     return true; // Keep the message channel open for sendResponse
 });
 
- function bmailInfo() {
+function bmailInfo() {
     console.log("------>>> bmail inbox")
     browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch(console.error);
 }
@@ -40,7 +40,7 @@ function readCurrentMailAddress() {
     }
 }
 
-export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr:string) {
+export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: string) {
     const bmailInboxBtn = template.content.getElementById(inboxDivStr);
     if (!bmailInboxBtn) {
         console.log("failed to find bmailElement");
@@ -53,6 +53,5 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr:st
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
     (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInfo);
-
     return clone;
 }

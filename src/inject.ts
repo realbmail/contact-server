@@ -29,9 +29,9 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 async function addBmailInbox() {
-    waitForElement(() => {
-        const bmailInboxBtn = document.querySelector(".bmail-send-action");
-        return bmailInboxBtn !== undefined && bmailInboxBtn !== null;
-    })
+    // waitForElement(() => {
+    //     const bmailInboxBtn = document.querySelector(".bmail-send-action");
+    //     return bmailInboxBtn !== undefined && bmailInboxBtn !== null;
+    // })
 }
 

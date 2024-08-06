@@ -24,6 +24,8 @@ export enum HostArr {
     QQ = 'wx.mail.qq.com'
 }
 
+export const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
+
 export function showView(hash: string, callback: (hash: string) => void): void {
     const views = document.querySelectorAll<HTMLElement>('.page_view');
     views.forEach(view => view.style.display = 'none');
@@ -48,7 +50,7 @@ export function waitForElement(callback: () => boolean) {
         } else {
             attempts++;
             if (attempts >= maxAttempts) {
-                console.warn("------>>> time out after maximum attempts.");
+                console.log("------>>> time out after maximum attempts.");
                 clearInterval(intervalId);
             }
         }

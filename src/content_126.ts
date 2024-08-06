@@ -1,6 +1,5 @@
 import browser from "webextension-polyfill";
 import {parseBmailInboxBtn} from "./content_common";
-import {waitForElement} from "./common";
 
 export function appendFor126(template: HTMLTemplateElement) {
 
