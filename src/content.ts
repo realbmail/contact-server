@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import {HostArr} from "./common";
-import {appendFor126} from "./content_126";
+import {appendForNetEase} from "./content_126";
 import {appendForGoogle} from "./conetent_google";
 import {appendFor163} from "./content_163";
 import {appendForQQ} from "./content_qq";
@@ -48,8 +48,8 @@ async function addCustomElements(htmlFilePath: string, targetSelectorMap: {
 
 const targetSelectorMap = {
     [HostArr.Google]: appendForGoogle,
-    [HostArr.Mail163]: appendFor163,
-    [HostArr.Mail126]: appendFor126,
+    [HostArr.Mail163]: appendForNetEase,
+    [HostArr.Mail126]: appendForNetEase,
     [HostArr.QQ]: appendForQQ
 };
 

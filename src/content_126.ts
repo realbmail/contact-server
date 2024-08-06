@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import {parseBmailInboxBtn} from "./content_common";
 import {MsgType} from "./common";
 
-export function appendFor126(template: HTMLTemplateElement) {
+export function appendForNetEase(template: HTMLTemplateElement) {
 
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_126");
     if (!clone) {

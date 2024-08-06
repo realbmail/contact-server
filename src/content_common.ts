@@ -36,6 +36,7 @@ function readCurrentMailAddress() {
     const hostname = window.location.hostname;
     switch (hostname) {
         case HostArr.Mail126:
+        case HostArr.Mail163:
             return queryEmailAddr126();
         case HostArr.Google:
             return queryEmailAddrGoogle();
