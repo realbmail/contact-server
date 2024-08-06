@@ -59,12 +59,7 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             return true;
 
         case  MsgType.EncryptMail:
-            browser.action.openPopup().then(() => {
-                sendResponse({success: true,data:request.data});
-            }).catch((error) => {
-                console.error("[service work] encrypt mail failed:", error);
-                sendResponse({success: false, error: error.message});
-            });
+            encryptMailBody(request.receivers, request.data, sendResponse).then();
             return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -211,4 +206,16 @@ async function currentTabIsValid() {
         return false;
     }
     return checkTabUrl(tabsList[0].id);
+}
+
+async function encryptMailBody(peerAddr: string[], mailBody: string, sendResponse: (response: any) => void) {
+    let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
+    if (walletStatus !== WalletStatus.Unlocked) {
+        browser.action.openPopup().then(() => {
+            sendResponse({success: false, message: "open wallet first please!"});
+        });
+        return;
+    }
+    console.log("[service work] encryptMailBody addresses:=>",peerAddr);
+    sendResponse({success: true, data: "encryptMailBody is coming......"});
 }

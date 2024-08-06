@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {parseBmailInboxBtn} from "./content_common";
+import {encryptMailByWallet, parseBmailInboxBtn} from "./content_common";
 import {MsgType} from "./common";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
@@ -115,7 +115,7 @@ function parseCryptoMailBtn(template: HTMLTemplateElement) {
     return clone;
 }
 
-function encryptMailContent() {
+async function encryptMailContent() {
     const iframe = document.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
@@ -128,7 +128,7 @@ function encryptMailContent() {
     }
 
     const iframeBody = iframeDocument.body;
-    console.log("------>>>inner html=>",iframeBody.innerHTML);
+    console.log("------>>>inner html=>", iframeBody.innerHTML);
 
     let bodyTextContent = iframeBody.textContent || iframeBody.innerText;
     bodyTextContent = bodyTextContent.trim();
@@ -138,13 +138,13 @@ function encryptMailContent() {
     }
 
     console.log('----->>> iframe body text content:=>', bodyTextContent, bodyTextContent.length);
-    browser.runtime.sendMessage({action: MsgType.EncryptMail, data: bodyTextContent}).then((response:any)=>{
-        if (!response) {
-            console.warn('------>>>error: response is undefined or null.');
-            return;
-        }
-        console.log("response=>", JSON.stringify(response));
-    }).catch((error: any) => {
-        console.warn('------>>>error sending message:', error);
-    });
+    let receiver: string[] = [];
+    receiver.push('BMAg7jxsP2MdFyADYftX9dxM3j2zhmXD8TapLYsCCpMh3');
+    receiver.push('BMAg7jxsP2MdFyADYftX9dxM3j2zhmXD8TapLYsCCpMh3');
+    const encryptedData = await encryptMailByWallet(receiver, bodyTextContent);
+    if (!encryptedData) {
+        console.log("----->>> encrypt failed to find encrypted data");
+        return;
+    }
+    console.log("----->>> encrypt success:", encryptedData);
 }

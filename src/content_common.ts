@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {HostArr, MsgType} from "./common";
+import {HostArr, MsgType, WalletStatus} from "./common";
 import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 
@@ -59,4 +59,27 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
     (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInboxAction);
     return clone;
+}
+
+export async function encryptMailByWallet(tos: string[], mailBody: string): Promise<string | null> {
+    try {
+        const response = await browser.runtime.sendMessage({
+            action: MsgType.EncryptMail,
+            receivers: tos,
+            data: mailBody
+        })
+
+        if (!response) {
+            console.warn('------>>>error: response is undefined or null.');
+            return null;
+        }
+        if (!response.success) {
+            console.warn("------>>>error reading response:", response.message);
+            return null;
+        }
+        return response.data;
+    } catch (e) {
+        console.error(e);
+        return null
+    }
 }

@@ -80,7 +80,6 @@ export function newWallet(mnemonic: string, password: string): DbWallet {
     const address = key.GetPub();
     const ethAddr = key.GetEthPub();
     return new DbWallet(address, ethAddr, data);
-
 }
 
 export function decryptAes(data: CipherData, password: string): string {
