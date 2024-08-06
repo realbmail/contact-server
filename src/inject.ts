@@ -33,9 +33,9 @@ async function addBmailInbox() {
     let attempts = 0;
 
     const intervalId = setInterval(() => {
-        const googleMenuButton = document.querySelector(".bmail-send-action");
-        if (googleMenuButton) {
-            console.log("------>>>bmail button Element found:", googleMenuButton, (window as any).bmail);
+        const bmailInboxBtn = document.querySelector(".bmail-send-action");
+        if (bmailInboxBtn) {
+            console.log("------>>>bmail inbox btn found:");
             clearInterval(intervalId);
         } else {
             attempts++;
