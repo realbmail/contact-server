@@ -11,7 +11,6 @@ export function appendFor126(template: HTMLTemplateElement) {
     appendBtnToMenu(clone);
     addActionForHomePage(clone);
     addActionForComposeBtn(template);
-
 }
 
 function parseBmailInboxBtn(template: HTMLTemplateElement) {
@@ -48,7 +47,7 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
         console.log("------>>> compose button not found");
         return;
     }
-    composeBtn.addEventListener('click', e => {
+    composeBtn.addEventListener('click', () => {
         const composeDiv = document.getElementById("_dvModuleContainer_compose.ComposeModule_0");
         if (!composeDiv) {
             console.warn("------>>> can't find a compose div");
@@ -56,6 +55,11 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
             addBmailBtnForComposition(composeDiv, template);
         }
     })
+    const composeDiv = document.getElementById("_dvModuleContainer_compose.ComposeModule_0");
+    if(!composeDiv) {
+        return;
+    }
+    addBmailBtnForComposition(composeDiv, template);
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -86,9 +90,14 @@ export function queryEmailAddr126() {
 }
 
 function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+    const cryptoBtnDiv = document.getElementById('bmail_crypto_btn_in_compose_126');
+    if(cryptoBtnDiv) {
+        console.log("------>>> crypto btn has been added");
+        return;
+    }
     const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
     if(!headerBtnList) {
-        console.warn("------>>> header list not found for mail composition");
+        console.log("------>>> header list not found for mail composition");
         return;
     }
     const cryptoBtn = parseCryptoMailBtn(template)
