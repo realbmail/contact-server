@@ -3,10 +3,22 @@ import {bmailInfo} from "./content_common";
 
 export function appendFor126(template: HTMLTemplateElement) {
 
+    const clone = parseBmailInboxBtn(template);
+    if (!clone) {
+        console.warn("------>>> failed to parse bmail inbox button");
+        return
+    }
+    appendBtnToMenu(clone);
+    addActionForHomePage(clone);
+    addActionForComposeBtn(template);
+
+}
+
+function parseBmailInboxBtn(template: HTMLTemplateElement) {
     const bmailInboxBtn = template.content.getElementById('bmail_left_menu_btn_126');
     if (!bmailInboxBtn) {
         console.log("failed to find bmailElement");
-        return;
+        return null;
     }
 
     const img = bmailInboxBtn.querySelector('img');
@@ -15,7 +27,10 @@ export function appendFor126(template: HTMLTemplateElement) {
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
     (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInfo);
-    appendBtnToMenu(clone);
+    return clone;
+}
+
+function addActionForHomePage(clone: HTMLElement): void {
     const tabMenus = document.querySelectorAll('li[title="首页"]');
     if (tabMenus.length > 0) {
         tabMenus[0].addEventListener('click', () => {
@@ -25,6 +40,22 @@ export function appendFor126(template: HTMLTemplateElement) {
             }
         });
     }
+}
+
+function addActionForComposeBtn(template: HTMLTemplateElement) {
+    const composeBtn = document.getElementById('_mail_component_94_94');
+    if (!composeBtn) {
+        console.log("------>>> compose button not found");
+        return;
+    }
+    composeBtn.addEventListener('click', e => {
+        const composeDiv = document.getElementById("_dvModuleContainer_compose.ComposeModule_0");
+        if (!composeDiv) {
+            console.warn("------>>> can't find a compose div");
+        } else {
+            addBmailBtnForComposition(composeDiv, template);
+        }
+    })
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -52,4 +83,41 @@ export function queryEmailAddr126() {
     }
     console.log("------>>>mail address:", mailAddr.textContent);
     return mailAddr.textContent;
+}
+
+function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
+    if(!headerBtnList) {
+        console.warn("------>>> header list not found for mail composition");
+        return;
+    }
+    const cryptoBtn = parseCryptoMailBtn(template)
+    if (!cryptoBtn) {
+        return;
+    }
+    if (headerBtnList.children.length > 1) {
+        headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
+    }else{
+        headerBtnList.appendChild(cryptoBtn);
+    }
+}
+
+function parseCryptoMailBtn(template: HTMLTemplateElement) {
+    const cryptoBtnDiv = template.content.getElementById('bmail_crypto_btn_in_compose_126');
+    if (!cryptoBtnDiv) {
+        console.log("------>>>failed to find bmailElement");
+        return null;
+    }
+
+    const img = cryptoBtnDiv.querySelector('img');
+    if (img) {
+        img.src = browser.runtime.getURL('file/logo_16.png');
+    }
+    const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
+    (clone.querySelector(".bmail-crypto-btn") as HTMLElement).addEventListener('click', encryptMailContent);
+    return clone;
+}
+
+function encryptMailContent(){
+    console.log('----->>> encryptMailContent()');
 }

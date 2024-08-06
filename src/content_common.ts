@@ -15,7 +15,7 @@ window.addEventListener('message', (event) => {
 });
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
-    console.log("------>>>on message:",request.action);
+    console.log("------>>>on message:", request.action);
     if (request.action === MsgType.QueryCurEmail) {
         const emailAddr = readCurrentMailAddress();
         sendResponse({value: emailAddr});

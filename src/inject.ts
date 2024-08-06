@@ -1,3 +1,5 @@
+import {waitForElement} from "./common";
+
 interface BMail {
     version: string;
     connect: () => void;
@@ -27,22 +29,9 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 async function addBmailInbox() {
-
-    const checkInterval = 500; // 检查间隔时间（毫秒）
-    const maxAttempts = 20; // 最大尝试次数
-    let attempts = 0;
-
-    const intervalId = setInterval(() => {
+    waitForElement(() => {
         const bmailInboxBtn = document.querySelector(".bmail-send-action");
-        if (bmailInboxBtn) {
-            console.log("------>>>bmail inbox btn found:");
-            clearInterval(intervalId);
-        } else {
-            attempts++;
-            if (attempts >= maxAttempts) {
-                console.warn("Element not found after maximum attempts.");
-                clearInterval(intervalId);
-            }
-        }
-    }, checkInterval);
+        return bmailInboxBtn !== undefined && bmailInboxBtn !== null;
+    })
 }
+
