@@ -50,7 +50,7 @@ function observeForElement(foundFunc: () => HTMLElement | null, callback: () => 
         if (element) {
             idleTimer = setTimeout(() => {
                 callback();
-                console.log('---------->>> element found:');
+                console.log('---------->>> document body load finished');
                 observer.disconnect();
             }, idleThreshold);
         }
@@ -63,9 +63,21 @@ function observeForElement(foundFunc: () => HTMLElement | null, callback: () => 
 function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
     console.log("------>>> all compose div when loaded=>", allComposeDiv);
+    allComposeDiv.forEach(sendBtn => {
+        const parentNode = sendBtn.parentNode as HTMLElement;
+        if (!parentNode) {
+            console.log("-------->>>failed to find send button:=>");
+            return
+        }
+        const clone = parseCryptoMailBtn(template,parentNode);
+        if (!clone){
+            return;
+        }
+        parentNode.insertAdjacentElement('afterend', clone);
+    });
 }
 
-function parseCryptoMailBtn(template: HTMLTemplateElement) {
+function parseCryptoMailBtn(template: HTMLTemplateElement,sendBtn: HTMLElement) {
     const cryptoBtnDiv = template.content.getElementById('bmail_crypto_btn_in_compose_google');
     if (!cryptoBtnDiv) {
         console.log("------>>>failed to find bmailElement");
@@ -75,15 +87,15 @@ function parseCryptoMailBtn(template: HTMLTemplateElement) {
     if (img) {
         img.src = browser.runtime.getURL('file/logo_16.png');
     }
-    return cryptoBtnDiv;
-    // const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
-    // (clone.querySelector(".bmail-crypto-btn") as HTMLElement).addEventListener('click', ()=>{
-    //     encryptMailContent();
-    // });
-    // return clone;
+    const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
+    (clone.querySelector(".bmail-crypto-btn") as HTMLElement).addEventListener('click', ()=>{
+        encryptMailContent(sendBtn);
+    });
+    return clone;
 }
 
 function encryptMailContent(sendBtn: HTMLElement) {
+    console.log("------>>> crypto mail content")
 }
 
 function addActionForComposeBtn(template: HTMLTemplateElement) {
@@ -101,8 +113,7 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
                 }
                 return null;
             }, () => {
-                const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
-                console.log("----->>> prepare add crypto mail btn", allComposeDiv);
+                addCryptoBtnToComposeDiv(template);
             });
     })
 }
