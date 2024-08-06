@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import {HostArr, MsgType} from "./common";
-import {queryEmailAddr126} from "./content_126";
+import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 
 
@@ -37,7 +37,7 @@ function readCurrentMailAddress() {
     switch (hostname) {
         case HostArr.Mail126:
         case HostArr.Mail163:
-            return queryEmailAddr126();
+            return queryEmailAddrNetEase();
         case HostArr.Google:
             return queryEmailAddrGoogle();
         default:

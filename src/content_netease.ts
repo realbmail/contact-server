@@ -68,7 +68,7 @@ function appendBtnToMenu(clone: HTMLElement) {
     }
 }
 
-export function queryEmailAddr126() {
+export function queryEmailAddrNetEase() {
     const mailAddr = document.getElementById('spnUid');
     if (!mailAddr) {
         return null;

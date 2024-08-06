@@ -1,8 +1,7 @@
 import browser from "webextension-polyfill";
 import {HostArr} from "./common";
-import {appendForNetEase} from "./content_126";
+import {appendForNetEase} from "./content_netease";
 import {appendForGoogle} from "./conetent_google";
-import {appendFor163} from "./content_163";
 import {appendForQQ} from "./content_qq";
 
 function addBmailObject(jsFilePath: string): void {
