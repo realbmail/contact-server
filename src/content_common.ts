@@ -66,12 +66,8 @@ export async function encryptMailByWallet(tos: string[], mailBody: string): Prom
             data: mailBody
         })
 
-        if (!response) {
-            console.warn('------>>>error: response is undefined or null.');
-            return null;
-        }
         if (!response.success) {
-            console.warn("------>>>error reading response:", response.message);
+            console.log("------>>>error reading response:", response.message);
             return null;
         }
         return response.data;

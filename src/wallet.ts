@@ -27,72 +27,57 @@ class CipherData {
 }
 
 export class DbWallet {
-    address: string;
-    ethAddress: string;
+    address: MailAddress;
     cipherObj: CipherData;
 
-    constructor(address: string, ethAddr: string, cipherObj: CipherData) {
+    constructor(address: MailAddress, cipherObj: CipherData) {
         this.address = address;
-        this.ethAddress = ethAddr;
         this.cipherObj = cipherObj;
     }
 }
 
-export class MemWallet {
-    address: string;
-    key?: MailKey;
+export class MailAddress {
+    public bmailAddress: string;
+    public ethAddress: string;
 
-    constructor(address: string, key?: MailKey) {
-        this.address = address;
-        this.key = key;
-    }
-
-    safeJsonString() {
-        return JSON.stringify(this, (key, value) => {
-            if (key === "key") {
-                return undefined;
-            }
-            return value;
-        });
+    constructor(address: string, ethAddress: string) {
+        this.bmailAddress = address;
+        this.ethAddress = ethAddress;
     }
 }
 
 export class MailKey {
-    priRaw: Uint8Array;
-    ecKey: EC.KeyPair;
-    bmailKey: BoxKeyPair
-    address?: string;
-    ethAddress?: string;
+    private priRaw: Uint8Array;
+    private readonly ecKey: EC.KeyPair;
+    readonly bmailKey: nacl.BoxKeyPair
+    public address: MailAddress;
 
     constructor(priRaw: Uint8Array) {
         this.priRaw = priRaw;
         const ec = new EC('secp256k1');
         this.ecKey = ec.keyFromPrivate(priRaw);
-        this.bmailKey = nacl.box.keyPair.fromSecretKey(priRaw);
+        this.bmailKey = generateKeyPairFromSecretKey(priRaw);
+        this.address = new MailAddress(this.getPub(), this.getEthPub());
     }
 
-    GetPub(): string {
-        if (this.address) {
-            return this.address;
-        }
+    private getPub(): string {
         const publicKeyArray = this.bmailKey.publicKey;
         const subAddr = new Uint8Array(BMailAddrLen);
         const publicKeyUint8Array = new Uint8Array(publicKeyArray);
         subAddr.set(publicKeyUint8Array.slice(0, BMailAddrLen));
         const encodedAddress = base58.encode(subAddr);
-        this.address = BMailAddrPrefix + encodedAddress;
-        return this.address;
+        return BMailAddrPrefix + encodedAddress;
     }
 
-    GetEthPub(): string {
-        if (this.ethAddress) {
-            return this.ethAddress;
-        }
+    private getEthPub(): string {
         const publicKey = this.ecKey.getPublic();
         const publicKeyBytes = Buffer.from(publicKey.encode('array', false).slice(1));
         const hashedPublicKey = keccak256(publicKeyBytes);
-        this.ethAddress = '0x' + hashedPublicKey.slice(-40);
-        return this.ethAddress;
+        return '0x' + hashedPublicKey.slice(-40);
+    }
+
+    rawPriKey(): Uint8Array {
+        return this.priRaw;
     }
 }
 
@@ -103,9 +88,7 @@ export function newWallet(mnemonic: string, password: string): DbWallet {
     const seedUint8Array: Uint8Array = new Uint8Array(first32Bytes);
     const key = new MailKey(seedUint8Array);
     const data = encryptAes(hexPri, password);
-    const address = key.GetPub();
-    const ethAddr = key.GetEthPub();
-    return new DbWallet(address, ethAddr, data);
+    return new DbWallet(key.address, data);
 }
 
 export function decryptAes(data: CipherData, password: string): string {
@@ -140,12 +123,10 @@ export async function queryCurWallet(): Promise<DbWallet | null> {
     return walletObj;
 }
 
-export function castToMemWallet(pwd: string, wallet: DbWallet): MemWallet {
+export function castToMemWallet(pwd: string, wallet: DbWallet): MailKey {
     const decryptedPri = decryptAes(wallet.cipherObj, pwd);
     const priArray = decodeHex(decryptedPri);
-    const key = new MailKey(priArray);
-    const address = key.GetPub();
-    return new MemWallet(address, key);
+    return new MailKey(priArray);
 }
 
 export function decodePubKey(pubKeyStr: string): Uint8Array {

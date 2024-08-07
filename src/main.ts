@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import {MsgType, showView, WalletStatus} from "./common";
 import {initDatabase} from "./database";
-import {MemWallet} from "./wallet";
+import {MailAddress, MailKey} from "./wallet";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
 import {sessionGet, sessionSet} from "./session_storage";
@@ -45,8 +45,6 @@ function checkBackgroundStatus(): void {
                 showView('#onboarding/main-login', router);
                 return;
             case WalletStatus.Unlocked:
-                const obj = JSON.parse(response.message);
-                console.log("------>>>response=>", response.message);
                 showView('#onboarding/main-dashboard', router);
                 return;
             case WalletStatus.Error:
@@ -68,23 +66,22 @@ function router(path: string): void {
 }
 
 function populateDashboard() {
-    sessionGet(__currentWalletKey).then(wallet => {
-        if (!wallet) {
+    sessionGet(__currentWalletKey).then(mAddr => {
+        if (!mAddr) {
             //TODO::something wrong with this step.
             console.log("------>>>fatal logic error, no wallet found!")
             return;
         }
-        document.getElementById('bmail-address-val')!.textContent = wallet.address;
+        document.getElementById('bmail-address-val')!.textContent = mAddr.bmailAddress;
     })
 
-    browser.tabs.query({ active: true, currentWindow: true }).then(tabList=>{
+    browser.tabs.query({active: true, currentWindow: true}).then(tabList => {
         const activeTab = tabList[0];
-        if(!activeTab || !activeTab.id){
+        if (!activeTab || !activeTab.id) {
             console.log("------>>> invalid tab")
             return;
         }
-        console.log("++++++++++++++++>>>",activeTab.id);
-        browser.tabs.sendMessage(activeTab.id, { action: MsgType.QueryCurEmail }).then(response => {
+        browser.tabs.sendMessage(activeTab.id, {action: MsgType.QueryCurEmail}).then(response => {
             if (response && response.value) {
                 console.log('------>>>Element Value:', response.value);
                 document.getElementById('bmail-email-address-val')!.textContent = response.value;
@@ -106,20 +103,18 @@ function openAllWallets(): void {
 
     browser.runtime.sendMessage({action: MsgType.WalletOpen, password: password}).then(async (response: {
         status: boolean;
-        message: string
+        message: MailAddress;
         error: string
     }) => {
         if (!response.status) {
             const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
-            console.log("------>>>error:",response.error)
+            console.log("------>>>error:", response.error)
             errTips.innerText = response.error;
             return;
         }
-
-        const obj = JSON.parse(response.message);
-        console.log("------------>>>", response.message, obj);
-        const wallet = new MemWallet(obj.address);
-        await sessionSet(__currentWalletKey, wallet);
+        console.log("------------>>>", response.message);
+        const mAddr = response.message as MailAddress;
+        await sessionSet(__currentWalletKey, mAddr);
 
         showView('#onboarding/main-dashboard', router);
         return;

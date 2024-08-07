@@ -28,20 +28,21 @@ export function encodeMail(peers: string[], data: string, key: MailKey) {
 
     peers.forEach(peer => {
         const peerPub = decodePubKey(peer);
+        console.log("------>>>", key.bmailKey.secretKey);
         const sharedKey = nacl.box.before(peerPub, key.bmailKey.secretKey);
         const encryptedKey = nacl.secretbox(aesKey, nonce, sharedKey);
         secrets.set(peer, encodeHex(encryptedKey));
     })
 
     const encryptedBody = nacl.secretbox(naclUtil.decodeUTF8(data), nonce, aesKey);
-    return new BMailBody(MailBodyVersion, secrets, naclUtil.encodeBase64(encryptedBody), nonce, key.GetPub())
+    return new BMailBody(MailBodyVersion, secrets, naclUtil.encodeBase64(encryptedBody), nonce, key.address.bmailAddress)
 }
 
 export function decodeMail(mailData: string, key: MailKey) {
     const mail = JSON.parse(mailData) as BMailBody;
 
-    const address = key.GetPub();
-    const encryptedKey = mail.receivers.get(address)
+    const address = key.address;
+    const encryptedKey = mail.receivers.get(address.bmailAddress)
     if (!encryptedKey) {
         throw new Error("address isn't in receiver list");
     }

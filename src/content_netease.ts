@@ -127,7 +127,7 @@ async function encryptMailContent() {
     }
 
     const iframeBody = iframeDocument.body;
-    console.log("------>>>inner html=>", iframeBody.innerHTML);
+    // console.log("------>>>inner html=>", iframeBody.innerHTML);
 
     let bodyTextContent = iframeBody.textContent || iframeBody.innerText;
     bodyTextContent = bodyTextContent.trim();
@@ -142,8 +142,8 @@ async function encryptMailContent() {
     receiver.push('BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq');
     const encryptedData = await encryptMailByWallet(receiver, bodyTextContent);
     if (!encryptedData) {
-        console.log("----->>> encrypt failed to find encrypted data");
         return;
     }
     console.log("----->>> encrypt success:", encryptedData);
+    iframeBody.textContent = encryptedData
 }

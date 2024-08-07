@@ -10,6 +10,9 @@ export async function sessionSet(key: string, value: any): Promise<void> {
         console.error("[service work] Failed to set value:", err);
     }
 }
+export async function resetStorage(){
+    await storage.session.clear();
+}
 
 export async function sessionGet(key: string): Promise<any> {
     try {
