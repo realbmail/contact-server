@@ -44,6 +44,9 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             return true;
         case MsgType.WalletOpen:
             openWallet(request.password, sendResponse).then(() => {
+            }).catch((error: Error) => {
+                console.log("[service work] Failed to open wallets:", error);
+                sendResponse({status: false, error: error.message});
             });
             return true;
         case MsgType.WalletClose:

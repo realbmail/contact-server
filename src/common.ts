@@ -58,7 +58,6 @@ export function waitForElement(callback: () => boolean) {
     }, checkInterval);
 }
 
-// 将 Uint8Array 转换为十六进制字符串
 export function encodeHex(array: Uint8Array): string {
     return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
 }

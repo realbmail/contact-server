@@ -51,7 +51,7 @@ export class MemWallet {
 export class MailKey {
     priRaw: Uint8Array;
     ecKey: EC.KeyPair;
-    bmailKey:BoxKeyPair
+    bmailKey: BoxKeyPair
 
     constructor(priRaw: Uint8Array) {
         this.priRaw = priRaw;
@@ -62,7 +62,6 @@ export class MailKey {
 
     GetPub(): string {
         const publicKeyArray = this.bmailKey.publicKey;
-        console.log("++++++>>>publicKeyArray and length:", publicKeyArray, publicKeyArray.length);
         const subAddr = new Uint8Array(BMailAddrLen);
         const publicKeyUint8Array = new Uint8Array(publicKeyArray);
         subAddr.set(publicKeyUint8Array.slice(0, BMailAddrLen));

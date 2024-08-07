@@ -111,7 +111,9 @@ function openAllWallets(): void {
     }) => {
         if (!response.status) {
             const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
+            console.log("------>>>error:",response.error)
             errTips.innerText = response.error;
+            return;
         }
 
         const obj = JSON.parse(response.message);
