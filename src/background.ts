@@ -32,7 +32,7 @@ function updateIcon(isLoggedIn: boolean) {
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);
-    testEnryptoData();
+    // testEnryptoData();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(() => {
@@ -99,7 +99,6 @@ self.addEventListener('activate', (event) => {
     updateIcon(false);
 });
 
-
 runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType) => {
     console.log("[service work] onInstalled event triggered......");
     if (details.reason === "install") {
@@ -109,6 +108,7 @@ runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType) => {
         });
     }
 });
+
 runtime.onStartup.addListener(() => {
     console.log('[service work] Service Worker onStartup......');
 });
@@ -120,7 +120,7 @@ runtime.onSuspend.addListener(() => {
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
     const availableUrl = await currentTabIsValid();
-    console.log(`[service work] Service Worker is ${availableUrl}...`);
+    console.log(`[service work] current url is ${availableUrl}...`);
     if (!availableUrl) {
         sendResponse({status: WalletStatus.InvalidTarget, message: ''});
         return
@@ -175,7 +175,11 @@ const urlsToMatch = [
     "https://mail.google.com/*",
     "https://mail.163.com/*",
     "https://wx.mail.qq.com/*",
-    "https://mail.126.com/*"
+    "https://mail.126.com/*",
+    "https://*.mail.google.com/*",
+    "https://*.mail.163.com/*",
+    "https://*.mail.qq.com/*",
+    "https://*.mail.126.com/*"
 ];
 
 tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -195,7 +199,13 @@ async function checkTabUrl(tabId: number): Promise<boolean> {
     if (!tab.url) {
         return false;
     }
-    return urlsToMatch.some(url => new URL(tab.url!).origin.startsWith(new URL(url).origin));
+
+    const matchesPattern = (url: string, pattern: string) => {
+        const regex = new RegExp("^" + pattern.replace(/\*/g, ".*"));
+        return regex.test(url);
+    };
+
+    return urlsToMatch.some(pattern => matchesPattern(tab.url!, pattern));
 }
 
 async function currentTabIsValid() {
@@ -232,5 +242,4 @@ async function encryptMailBody(peerAddr: string[], mailBody: string, sendRespons
     } catch (err) {
         sendResponse({success: false, data: `internal error: ${err}`});
     }
-
 }

@@ -34,14 +34,11 @@ function bmailInboxAction() {
 
 function readCurrentMailAddress() {
     const hostname = window.location.hostname;
-    switch (hostname) {
-        case HostArr.Mail126:
-        case HostArr.Mail163:
-            return queryEmailAddrNetEase();
-        case HostArr.Google:
-            return queryEmailAddrGoogle();
-        default:
-            return null;
+    if (hostname.includes(HostArr.Mail126) || hostname.includes(HostArr.Mail163)){
+        return queryEmailAddrNetEase();
+    }
+    if(hostname.includes(HostArr.Google)){
+        return queryEmailAddrGoogle();
     }
 }
 

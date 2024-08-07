@@ -33,10 +33,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://mail.google.com/*",
-        "https://mail.163.com/*",
-        "https://wx.mail.qq.com/*",
-        "https://mail.126.com/*"
+        "<all_urls>"
       ],
       "js": [
         "js/content.js"
