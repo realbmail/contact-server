@@ -2,9 +2,9 @@
 import browser, {Runtime} from "webextension-polyfill";
 import {checkAndInitDatabase, closeDatabase} from "./database";
 import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, decodePubKey, queryCurWallet} from "./wallet";
+import {castToMemWallet, MemWallet, queryCurWallet} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
-import {testBmailPub, testCurve, testEncryptData} from "./testEncrypt";
+import {decodeMail, encodeMail} from "./bmail_body";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -63,8 +63,11 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             });
             return true;
 
-        case  MsgType.EncryptMail:
-            encryptMailBody(request.receivers, request.data, sendResponse).then();
+        case  MsgType.EncryptData:
+            encryptData(request.receivers, request.data, sendResponse).then();
+            return true;
+        case MsgType.DecryptData:
+            decryptData(request.data, sendResponse).then();
             return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -144,9 +147,12 @@ async function pluginClicked(sendResponse: (response: any) => void): Promise<voi
     }
 
     if (walletStatus === WalletStatus.Unlocked) {
-        const sObj = await sessionGet(__key_wallet_cur);
-        let msg = JSON.stringify(sObj);
-        sendResponse({status: walletStatus, message: msg});
+        const sObj = await sessionGet(__key_wallet_cur) as MemWallet;
+        if (!sObj) {
+            sendResponse({status: WalletStatus.Locked, message: ''});
+            return;
+        }
+        sendResponse({status: walletStatus, message: sObj.safeJsonString()});
         return;
     }
 }
@@ -162,8 +168,8 @@ async function openWallet(pwd: string, sendResponse: (response: any) => void): P
 
     const mWallet = castToMemWallet(pwd, wallet);
     await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
-    await sessionSet(__key_wallet_cur, wallet);
-    sendResponse({status: true, message: JSON.stringify(mWallet)});
+    await sessionSet(__key_wallet_cur, mWallet);
+    sendResponse({status: true, message: mWallet.safeJsonString()});
     updateIcon(true);
 }
 
@@ -222,26 +228,46 @@ async function currentTabIsValid() {
     return checkTabUrl(tabsList[0].id);
 }
 
-async function encryptMailBody(peerAddr: string[], mailBody: string, sendResponse: (response: any) => void) {
+async function checkWalletStatus(sendResponse: (response: any) => void) {
+    let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
+    const sObj = await sessionGet(__key_wallet_cur) as MemWallet;
+
+    if (walletStatus !== WalletStatus.Unlocked || !sObj || !sObj.key) {
+        await browser.action.openPopup();
+        sendResponse({success: false, message: "open wallet first please!"});
+        return null;
+    }
+    return sObj
+}
+
+async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (response: any) => void) {
     try {
-        let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
-        if (walletStatus !== WalletStatus.Unlocked) {
-            browser.action.openPopup().then(() => {
-                sendResponse({success: false, message: "open wallet first please!"});
-            });
+        const mWallet = await checkWalletStatus(sendResponse);
+        if (!mWallet || !mWallet.key) {
             return;
         }
 
         if (peerAddr.length <= 0) {
             sendResponse({success: false, message: "no valid blockchain address of receivers"});
-            return;
+            return null;
         }
 
-        console.log("[service work] encryptMailBody addresses:=>", peerAddr);
-        sendResponse({success: true, data: "encryptMailBody is coming......"});
+        const mail = encodeMail(peerAddr, plainTxt, mWallet.key)
+        console.log("[service work] encrypted mail body =>", mail);
+        sendResponse({success: true, data: JSON.stringify(mail)});
+    } catch (err) {
+        sendResponse({success: false, data: `internal error: ${err}`});
+    }
+}
 
-        console.log("[service work] public array:=>", decodePubKey(peerAddr[0]));
-
+async function decryptData(mail: string, sendResponse: (response: any) => void) {
+    try {
+        const mWallet = await checkWalletStatus(sendResponse);
+        if (!mWallet || !mWallet.key) {
+            return;
+        }
+        const mailBody = decodeMail(mail, mWallet.key);
+        sendResponse({success: true, data: mailBody});
     } catch (err) {
         sendResponse({success: false, data: `internal error: ${err}`});
     }

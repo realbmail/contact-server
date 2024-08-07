@@ -7,7 +7,7 @@ import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import {encodeHex} from "./common";
-import {decodePubKey, MailKey, newWallet} from "./wallet";
+import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey, newWallet} from "./wallet";
 
 export function testEncryptData() {
 
@@ -62,14 +62,6 @@ export function testEncryptData() {
     console.log("Decrypted:", decrypted);
 }
 
-function generatePrivateKey(): Uint8Array {
-    return nacl.randomBytes(nacl.box.secretKeyLength);
-}
-
-
-function generateKeyPairFromSecretKey(secretKey: Uint8Array): nacl.BoxKeyPair {
-    return nacl.box.keyPair.fromSecretKey(secretKey);
-}
 
 export function testCurve() {
     // 生成curve25519的密钥对
@@ -112,7 +104,7 @@ export function testCurve() {
     }
 }
 
-export function testBmailPub(){
+export function testBmailPub() {
     const secretKey = generatePrivateKey();
     const key = new MailKey(secretKey);
     console.log("------>>> uint8 array pub:", key.GetPub(), decodePubKey(key.GetPub()))
@@ -125,7 +117,7 @@ export function testBmailPub(){
     console.log("Alice's Shared Key:", encodeHex(aliceSharedKey));
 
     // Bob 使用自己的私钥和 Alice 的公钥生成共享密钥
-   const alicePub = decodePubKey(key.GetPub())
+    const alicePub = decodePubKey(key.GetPub())
     const bobSharedKey = nacl.box.before(alicePub, bobKeyPair.secretKey);
     console.log("Bob's Shared Key:", encodeHex(bobSharedKey));
 

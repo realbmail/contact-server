@@ -8,9 +8,7 @@ import {ec as EC} from "elliptic";
 import base58 from "bs58";
 import {keccak256} from "js-sha3";
 import {__tableNameWallet, getMaxIdRecord} from "./database";
-
 import nacl, {BoxKeyPair} from 'tweetnacl';
-import naclUtil from 'tweetnacl-util';
 import {decodeHex} from "./common";
 
 const BMailAddrLen = 32;
@@ -42,9 +40,20 @@ export class DbWallet {
 
 export class MemWallet {
     address: string;
+    key?: MailKey;
 
-    constructor(address: string) {
+    constructor(address: string, key?: MailKey) {
         this.address = address;
+        this.key = key;
+    }
+
+    safeJsonString() {
+        return JSON.stringify(this, (key, value) => {
+            if (key === "key") {
+                return undefined;
+            }
+            return value;
+        });
     }
 }
 
@@ -52,6 +61,8 @@ export class MailKey {
     priRaw: Uint8Array;
     ecKey: EC.KeyPair;
     bmailKey: BoxKeyPair
+    address?: string;
+    ethAddress?: string;
 
     constructor(priRaw: Uint8Array) {
         this.priRaw = priRaw;
@@ -61,19 +72,27 @@ export class MailKey {
     }
 
     GetPub(): string {
+        if (this.address) {
+            return this.address;
+        }
         const publicKeyArray = this.bmailKey.publicKey;
         const subAddr = new Uint8Array(BMailAddrLen);
         const publicKeyUint8Array = new Uint8Array(publicKeyArray);
         subAddr.set(publicKeyUint8Array.slice(0, BMailAddrLen));
         const encodedAddress = base58.encode(subAddr);
-        return BMailAddrPrefix + encodedAddress;
+        this.address = BMailAddrPrefix + encodedAddress;
+        return this.address;
     }
 
     GetEthPub(): string {
+        if (this.ethAddress) {
+            return this.ethAddress;
+        }
         const publicKey = this.ecKey.getPublic();
         const publicKeyBytes = Buffer.from(publicKey.encode('array', false).slice(1));
         const hashedPublicKey = keccak256(publicKeyBytes);
-        return '0x' + hashedPublicKey.slice(-40);
+        this.ethAddress = '0x' + hashedPublicKey.slice(-40);
+        return this.ethAddress;
     }
 }
 
@@ -126,7 +145,7 @@ export function castToMemWallet(pwd: string, wallet: DbWallet): MemWallet {
     const priArray = decodeHex(decryptedPri);
     const key = new MailKey(priArray);
     const address = key.GetPub();
-    return new MemWallet(address);
+    return new MemWallet(address, key);
 }
 
 export function decodePubKey(pubKeyStr: string): Uint8Array {
@@ -140,4 +159,14 @@ export function decodePubKey(pubKeyStr: string): Uint8Array {
         throw new Error("Invalid decoded public key length");
     }
     return decodedBytes;
+}
+
+
+export function generatePrivateKey(): Uint8Array {
+    return nacl.randomBytes(nacl.box.secretKeyLength);
+}
+
+
+export function generateKeyPairFromSecretKey(secretKey: Uint8Array): nacl.BoxKeyPair {
+    return nacl.box.keyPair.fromSecretKey(secretKey);
 }

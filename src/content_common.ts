@@ -9,8 +9,8 @@ window.addEventListener('message', (event) => {
         return;
     }
 
-    if (event.data && event.data.action === MsgType.EncryptMail) {
-        browser.runtime.sendMessage({action: MsgType.EncryptMail}).catch((error: any) => {
+    if (event.data && event.data.action === MsgType.EncryptData) {
+        browser.runtime.sendMessage({action: MsgType.EncryptData}).catch((error: any) => {
             console.warn('------>>>error sending message:', error);
         });
     }
@@ -34,10 +34,10 @@ function bmailInboxAction() {
 
 function readCurrentMailAddress() {
     const hostname = window.location.hostname;
-    if (hostname.includes(HostArr.Mail126) || hostname.includes(HostArr.Mail163)){
+    if (hostname.includes(HostArr.Mail126) || hostname.includes(HostArr.Mail163)) {
         return queryEmailAddrNetEase();
     }
-    if(hostname.includes(HostArr.Google)){
+    if (hostname.includes(HostArr.Google)) {
         return queryEmailAddrGoogle();
     }
 }
@@ -61,7 +61,7 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
 export async function encryptMailByWallet(tos: string[], mailBody: string): Promise<string | null> {
     try {
         const response = await browser.runtime.sendMessage({
-            action: MsgType.EncryptMail,
+            action: MsgType.EncryptData,
             receivers: tos,
             data: mailBody
         })

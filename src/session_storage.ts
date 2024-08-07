@@ -5,7 +5,6 @@ const storage = browser.storage;
 export async function sessionSet(key: string, value: any): Promise<void> {
     try {
         await storage.session.set({[key]: value});
-        console.log("[service work] Value was set successfully.", value);
     } catch (error: unknown) {
         const err = error as Error;
         console.error("[service work] Failed to set value:", err);
@@ -15,7 +14,6 @@ export async function sessionSet(key: string, value: any): Promise<void> {
 export async function sessionGet(key: string): Promise<any> {
     try {
         const result = await storage.session.get(key);
-        console.log("[service work] Value is:", result[key]);
         return result[key];
     } catch (error: unknown) {
         const err = error as Error;

@@ -138,8 +138,8 @@ async function encryptMailContent() {
 
     console.log('----->>> iframe body text content:=>', bodyTextContent, bodyTextContent.length);
     let receiver: string[] = [];
-    receiver.push('BMG9iEaZP5CRoZpGJsmYTxUDLjn4wQwKSPpju7yQnwjnS');
-    receiver.push('BMAg7jxsP2MdFyADYftX9dxM3j2zhmXD8TapLYsCCpMh3');
+    receiver.push('BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M');
+    receiver.push('BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq');
     const encryptedData = await encryptMailByWallet(receiver, bodyTextContent);
     if (!encryptedData) {
         console.log("----->>> encrypt failed to find encrypted data");
