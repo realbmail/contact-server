@@ -2,8 +2,9 @@
 import browser, {Runtime} from "webextension-polyfill";
 import {checkAndInitDatabase, closeDatabase} from "./database";
 import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, decodePubKey, queryCurWallet, testEnryptoData} from "./wallet";
+import {castToMemWallet, decodePubKey, queryCurWallet} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
+import {testBmailPub, testCurve, testEncryptData} from "./testEncrypt";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -184,14 +185,13 @@ const urlsToMatch = [
 
 tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url) {
-        const ok = await checkTabUrl(tabId);
-        console.log("[service work] onUpdated checkTabUrl=>", ok);
+        console.log("[service work] tabs onUpdated =>");
     }
 });
 
 tabs.onActivated.addListener(async (activeInfo) => {
     const ok = await checkTabUrl(activeInfo.tabId);
-    console.log("[service work] onActivated checkTabUrl=>", ok);
+    console.log("[service work] tabs onActivated =>", ok);
 });
 
 async function checkTabUrl(tabId: number): Promise<boolean> {

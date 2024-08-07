@@ -57,3 +57,15 @@ export function waitForElement(callback: () => boolean) {
         }
     }, checkInterval);
 }
+
+// 将 Uint8Array 转换为十六进制字符串
+export function encodeHex(array: Uint8Array): string {
+    return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function decodeHex(hexString: string): Uint8Array {
+    if (hexString.length % 2 !== 0) {
+        throw new Error("Hex string must have an even length");
+    }
+    return new Uint8Array(Buffer.from(hexString, 'hex'));
+}
