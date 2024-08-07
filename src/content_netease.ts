@@ -126,7 +126,6 @@ async function encryptMailContent(btn: HTMLElement) {
         return;
     }
 
-    console.log('----->>> iframe body text content:=>', bodyTextContent, bodyTextContent.length);
     let receiver: string[] = [];
     receiver.push('BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M');
     receiver.push('BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq');
@@ -134,7 +133,6 @@ async function encryptMailContent(btn: HTMLElement) {
     if (!encryptedData) {
         return;
     }
-    // console.log("----->>> encrypt success:", encryptedData);
     iframeBody.dataset.originalHtml = iframeBody.innerHTML;
     iframeBody.innerText = encryptedData;
     iframeBody.dataset.mailHasEncrypted = 'true';
