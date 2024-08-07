@@ -74,5 +74,9 @@
   "crypto_and_send": {
     "message": "加密",
     "description": ""
+  },
+  "decrypt_mail_body": {
+    "message": "解密",
+    "description": ""
   }
 }

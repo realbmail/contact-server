@@ -1,5 +1,4 @@
-import {parseBmailInboxBtn} from "./content_common";
-import browser from "webextension-polyfill";
+import {parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
 import {emailRegex} from "./common";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
@@ -74,7 +73,7 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
             console.log("------>>> node already exists");
             return;
         }
-        const clone = parseCryptoMailBtn(template,parentNode);
+        const clone = parseCryptoMailBtn(template,"bmail_crypto_btn_in_compose_google",encryptMailContent);
         if (!clone){
             return;
         }
@@ -82,24 +81,7 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     });
 }
 
-function parseCryptoMailBtn(template: HTMLTemplateElement,sendBtn: HTMLElement) {
-    const cryptoBtnDiv = template.content.getElementById('bmail_crypto_btn_in_compose_google');
-    if (!cryptoBtnDiv) {
-        console.log("------>>>failed to find bmailElement");
-        return null;
-    }
-    const img = cryptoBtnDiv.querySelector('img');
-    if (img) {
-        img.src = browser.runtime.getURL('file/logo_16.png');
-    }
-    const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
-    (clone.querySelector(".bmail-crypto-btn") as HTMLElement).addEventListener('click', ()=>{
-        encryptMailContent(sendBtn);
-    });
-    return clone;
-}
-
-function encryptMailContent(sendBtn: HTMLElement) {
+async function encryptMailContent(sendBtn: HTMLElement) {
     console.log("------>>> crypto mail content");
 }
 

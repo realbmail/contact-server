@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {encryptMailByWallet, parseBmailInboxBtn} from "./content_common";
+import {encryptMailByWallet, parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
 
@@ -87,7 +87,7 @@ function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTempla
         console.log("------>>> header list not found for mail composition");
         return;
     }
-    const cryptoBtn = parseCryptoMailBtn(template)
+    const cryptoBtn = parseCryptoMailBtn(template, 'bmail_crypto_btn_in_compose_126', encryptMailContent);
     if (!cryptoBtn) {
         return;
     }
@@ -98,23 +98,7 @@ function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTempla
     }
 }
 
-function parseCryptoMailBtn(template: HTMLTemplateElement) {
-    const cryptoBtnDiv = template.content.getElementById('bmail_crypto_btn_in_compose_126');
-    if (!cryptoBtnDiv) {
-        console.log("------>>>failed to find bmailElement");
-        return null;
-    }
-
-    const img = cryptoBtnDiv.querySelector('img');
-    if (img) {
-        img.src = browser.runtime.getURL('file/logo_16.png');
-    }
-    const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
-    (clone.querySelector(".bmail-crypto-btn") as HTMLElement).addEventListener('click', encryptMailContent);
-    return clone;
-}
-
-async function encryptMailContent() {
+async function encryptMailContent(btn: HTMLElement) {
     const iframe = document.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
@@ -127,9 +111,15 @@ async function encryptMailContent() {
     }
 
     const iframeBody = iframeDocument.body;
-    // console.log("------>>>inner html=>", iframeBody.innerHTML);
+    const hasEncrypted = iframeBody.dataset.mailHasEncrypted === 'true';
+    if (hasEncrypted && iframeBody.dataset.originalHtml) {
+        iframeBody.innerHTML = iframeBody.dataset.originalHtml;
+        iframeBody.dataset.mailHasEncrypted = 'false';
+        btn.innerText = browser.i18n.getMessage('crypto_and_send');
+        return;
+    }
 
-    let bodyTextContent = iframeBody.textContent || iframeBody.innerText;
+    let bodyTextContent = iframeBody.innerText;
     bodyTextContent = bodyTextContent.trim();
     if (!bodyTextContent || bodyTextContent.length <= 0) {
         console.log("----->>> no body text content");
@@ -144,6 +134,9 @@ async function encryptMailContent() {
     if (!encryptedData) {
         return;
     }
-    console.log("----->>> encrypt success:", encryptedData);
-    iframeBody.textContent = encryptedData
+    // console.log("----->>> encrypt success:", encryptedData);
+    iframeBody.dataset.originalHtml = iframeBody.innerHTML;
+    iframeBody.innerText = encryptedData;
+    iframeBody.dataset.mailHasEncrypted = 'true';
+    btn.innerText = browser.i18n.getMessage('decrypt_mail_body');
 }

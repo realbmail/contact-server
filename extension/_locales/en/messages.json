@@ -74,5 +74,9 @@
   "crypto_and_send": {
     "message": "Encrypt",
     "description": ""
+  },
+  "decrypt_mail_body": {
+    "message": "Decrypt",
+    "description": ""
   }
 }

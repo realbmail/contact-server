@@ -47,7 +47,7 @@ export class MailAddress {
 }
 
 export class MailKey {
-    private priRaw: Uint8Array;
+    private readonly priRaw: Uint8Array;
     private readonly ecKey: EC.KeyPair;
     readonly bmailKey: nacl.BoxKeyPair
     public address: MailAddress;

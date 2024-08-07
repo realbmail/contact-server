@@ -58,6 +58,25 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
     return clone;
 }
 
+export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string, action: (btn: HTMLElement) => Promise<void>) {
+    const cryptoBtnDiv = template.content.getElementById(elmId);
+    if (!cryptoBtnDiv) {
+        console.log("------>>>failed to find bmailElement");
+        return null;
+    }
+    const img = cryptoBtnDiv.querySelector('img');
+    if (img) {
+        img.src = browser.runtime.getURL('file/logo_16.png');
+    }
+    const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
+    const cryptoBtn = clone.querySelector(".bmail-crypto-btn") as HTMLElement;
+    cryptoBtn.textContent = browser.i18n.getMessage('crypto_and_send');
+    cryptoBtn.addEventListener('click', async () => {
+        await action(cryptoBtn);
+    });
+    return clone;
+}
+
 export async function encryptMailByWallet(tos: string[], mailBody: string): Promise<string | null> {
     try {
         const response = await browser.runtime.sendMessage({

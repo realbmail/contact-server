@@ -19,16 +19,38 @@ export class BMailBody {
         this.nonce = nonce;
         this.sender = sender;
     }
+    toJSON() {
+        return {
+            version: this.version,
+            receivers: Array.from(this.receivers.entries()), // 将 Map 转换为二维数组
+            cryptoBody: this.cryptoBody,
+            nonce: Array.from(this.nonce), // 将 Uint8Array 转换为普通数组
+            sender: this.sender
+        };
+    }
+
+    /*
+    *
+    * // const parsedObject = JSON.parse(jsonString);
+    // const deserializedBMailBody = BMailBody.fromJSON(parsedObject);
+    * */
+    static fromJSON(json: any): BMailBody {
+        const version = json.version;
+        const receivers = new Map<string, string>(json.receivers); // 将二维数组转换回 Map
+        const cryptoBody = json.cryptoBody;
+        const nonce = new Uint8Array(json.nonce); // 将普通数组转换回 Uint8Array
+        const sender = json.sender;
+        return new BMailBody(version, receivers, cryptoBody, nonce, sender);
+    }
 }
 
-export function encodeMail(peers: string[], data: string, key: MailKey) {
+export function encodeMail(peers: string[], data: string, key: MailKey):BMailBody {
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
     const aesKey = generatePrivateKey();
     let secrets = new Map<string, string>();
 
     peers.forEach(peer => {
         const peerPub = decodePubKey(peer);
-        console.log("------>>>", key.bmailKey.secretKey);
         const sharedKey = nacl.box.before(peerPub, key.bmailKey.secretKey);
         const encryptedKey = nacl.secretbox(aesKey, nonce, sharedKey);
         secrets.set(peer, encodeHex(encryptedKey));
