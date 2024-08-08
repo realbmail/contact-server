@@ -1,8 +1,8 @@
 let __databaseObj: IDBDatabase | null = null;
 const __databaseName = 'bmail-database';
-export const __currentDatabaseVersion = 1;
-export const __tableNameWallet = '__table_wallet__';
-export const __tableSystemSetting = '__table_system_setting__';
+export const __currentDatabaseVersion = 4;
+export const __tableNameWallet = '__table_wallet__v1';
+export const __tableSystemSetting = '__table_system_setting__v1';
 
 export function initDatabase(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -22,12 +22,12 @@ export function initDatabase(): Promise<IDBDatabase> {
         request.onupgradeneeded = function (event: IDBVersionChangeEvent) {
             const db = (event.target as IDBOpenDBRequest).result;
             if (!db.objectStoreNames.contains(__tableNameWallet)) {
-                const objectStore = db.createObjectStore(__tableNameWallet, {keyPath: 'address'});
+                const objectStore = db.createObjectStore(__tableNameWallet, {keyPath: 'id', autoIncrement: true});
                 console.log("[Database]Created wallet table successfully.");
             }
 
             if (!db.objectStoreNames.contains(__tableSystemSetting)) {
-                const objectStore = db.createObjectStore(__tableSystemSetting, {keyPath: 'id'});
+                const objectStore = db.createObjectStore(__tableSystemSetting, {keyPath: 'id', autoIncrement: true});
                 console.log("[Database]Created wallet setting table successfully.");
             }
         };

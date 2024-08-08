@@ -163,8 +163,6 @@ function hideSeedDiv(this: HTMLElement): void {
     recoveryPhraseContainer.dataset.visible = String(!seedPhraseVisible);
 }
 
-
-
 function displayConfirmVal(): void {
     if (!___mnemonic_in_mem) {
         ___mnemonic_in_mem = sessionStorage.getItem(__key_for_mnemonic_temp);

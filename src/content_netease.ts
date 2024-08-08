@@ -1,8 +1,9 @@
 import browser from "webextension-polyfill";
 import {
+    appendTipDialog,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
-    parseTipDialog, sendMessage,
+    sendMessage,
     showTipsDialog
 } from "./content_common";
 import {MsgType} from "./common";
@@ -19,10 +20,8 @@ export function appendForNetEase(template: HTMLTemplateElement) {
     addActionForHomePage(clone);
     addActionForComposeBtn(template);
     checkIfComposing(template);
-    const tipDialog = parseTipDialog(template);
-    if (tipDialog) {
-        document.body.appendChild(tipDialog);
-    }
+    appendTipDialog(template);
+    monitorTabMenu();
 }
 
 function addActionForHomePage(clone: HTMLElement): void {
@@ -139,14 +138,23 @@ function hasEncryptedMailBody(composeDiv: HTMLElement, btn?: HTMLElement) {
     if (!iframeBody || !iframeBody.fElm || !btn) {
         return;
     }
-    if (iframeBody.fElm.dataset.mailHasEncrypted === 'true') {
-        btn.textContent = browser.i18n.getMessage('decrypt_mail_body')
+    setBtnStatus(iframeBody.fElm.dataset.mailHasEncrypted === 'true', btn);
+}
+
+function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
+    const img = btn.parentNode!.querySelector('img');
+    if (hasEncrypted) {
+        btn.textContent = browser.i18n.getMessage('decrypt_mail_body');
+        img!.src = browser.runtime.getURL('file/logo_16_out.png');
+    } else {
+        btn.textContent = browser.i18n.getMessage('crypto_and_send');
+        img!.src = browser.runtime.getURL('file/logo_16.png');
     }
 }
 
 async function decryptMailContent(fElm: HTMLElement, mBody: string, btn: HTMLElement) {
     if (fElm.dataset.originalHtml) {
-        btn.innerText = browser.i18n.getMessage('crypto_and_send');
+        setBtnStatus(false, btn);
         fElm.innerHTML = fElm.dataset.originalHtml!;
         fElm.dataset.mailHasEncrypted = 'false';
         fElm.dataset.originalHtml = undefined;
@@ -164,12 +172,12 @@ async function decryptMailContent(fElm: HTMLElement, mBody: string, btn: HTMLEle
             browser.i18n.getMessage("decrypt_mail_body_failed"));
         return;
     }
-    btn.innerText = browser.i18n.getMessage('crypto_and_send');
+    setBtnStatus(false, btn);
     fElm.textContent = mailRsp.data;
     fElm.dataset.mailHasEncrypted = 'false';
 }
 
-async function processReceivers(composeDiv:HTMLElement) {
+async function processReceivers(composeDiv: HTMLElement) {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock");
     if (receiverArea.length <= 0) {
         showTipsDialog(browser.i18n.getMessage("Tips"),
@@ -219,18 +227,18 @@ async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
     }
 
     const receiver = await processReceivers(composeDiv);
-    if(!receiver){
+    if (!receiver) {
         return;
     }
 
-    const mailRsp =  await browser.runtime.sendMessage({
+    const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.EncryptData,
         receivers: receiver,
         data: mBody
     })
 
     if (mailRsp.success <= 0) {
-        if ( mailRsp.success === 0) {
+        if (mailRsp.success === 0) {
             return;
         }
         showTipsDialog(browser.i18n.getMessage("Tips"), mailRsp.message);
@@ -240,5 +248,33 @@ async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
     fElm.dataset.originalHtml = fElm.innerHTML;
     fElm.innerText = mailRsp.data;
     fElm.dataset.mailHasEncrypted = 'true';
-    btn.innerText = browser.i18n.getMessage('decrypt_mail_body');
+    setBtnStatus(true, btn);
+}
+
+function monitorTabMenu() {
+    const ul = document.querySelector('.js-component-tab.tz0.nui-tabs');
+    if (!ul) {
+        console.log("------>>>no tab menu found")
+        return;
+    }
+    let lastChildCount = ul.children.length;
+    const observer = new MutationObserver((mutationsList) => {
+        const currentChildCount = ul.children.length;
+        if (currentChildCount !== lastChildCount) {
+            if (currentChildCount > lastChildCount) {
+                const lastAdded = ul.children[ul.children.length - 2];
+                console.log(`------>>>Added li: ${lastAdded?.innerHTML}`);
+            } else {
+                mutationsList.forEach(mutation => {
+                    mutation.removedNodes.forEach(node => {
+                        if (node.nodeName === 'LI') {
+                            console.log(`------>>>Removed li: ${(node as HTMLElement).innerHTML}`);
+                        }
+                    });
+                });
+            }
+            lastChildCount = currentChildCount;
+        }
+    });
+    observer.observe(ul, {childList: true});
 }

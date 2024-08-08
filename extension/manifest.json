@@ -47,7 +47,8 @@
         "file/inject.css",
         "html/inject.html",
         "js/inject.js",
-        "file/logo_16.png"
+        "file/logo_16.png",
+        "file/logo_16_out.png"
       ],
       "matches": [
         "<all_urls>"

@@ -66,7 +66,8 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     }
     const img = cryptoBtnDiv.querySelector('img');
     if (img) {
-        img.src = browser.runtime.getURL('file/logo_16.png');
+        img.src = browser.runtime.getURL('file/logo_16_out.png');
+        // img.src = browser.runtime.getURL('file/logo_16.png');
     }
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
     const cryptoBtn = clone.querySelector(".bmail-crypto-btn") as HTMLElement;
@@ -77,11 +78,11 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     return clone;
 }
 
-export function parseTipDialog(template: HTMLTemplateElement) {
+export function appendTipDialog(template: HTMLTemplateElement) {
     const dialog = template.content.getElementById("bmail_dialog_container");
     if (!dialog) {
         console.log("------>>>failed to find tip dialog");
-        return null;
+        return ;
     }
 
     const clone = dialog.cloneNode(true) as HTMLElement;
@@ -90,7 +91,7 @@ export function parseTipDialog(template: HTMLTemplateElement) {
     okBtn.addEventListener('click', async () => {
         clone.style.display = "none";
     });
-    return clone;
+    document.body.appendChild(clone);
 }
 
 export function showTipsDialog(title: string, message: string) {
