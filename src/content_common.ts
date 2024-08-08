@@ -77,7 +77,7 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     return clone;
 }
 
-export async function encryptMailByWallet(tos: string[], mailBody: string): Promise<string | null> {
+export async function encryptMail(tos: string[], mailBody: string): Promise<string | null> {
     try {
         const response = await browser.runtime.sendMessage({
             action: MsgType.EncryptData,
@@ -89,6 +89,25 @@ export async function encryptMailByWallet(tos: string[], mailBody: string): Prom
             console.log("------>>>error reading response:", response.message);
             return null;
         }
+        return response.data;
+    } catch (e) {
+        console.error(e);
+        return null
+    }
+}
+
+export async function decryptMail(encryptedMailBody:string):Promise<string|null> {
+    try {
+        const response = await browser.runtime.sendMessage({
+            action: MsgType.DecryptData,
+            data: encryptedMailBody
+        })
+
+        if (!response.success) {
+            console.log("------>>>error reading response:", response.message);
+            return null;
+        }
+
         return response.data;
     } catch (e) {
         console.error(e);

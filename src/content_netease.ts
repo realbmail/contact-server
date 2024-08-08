@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {encryptMailByWallet, parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
+import {decryptMail, encryptMail, parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
 
@@ -129,7 +129,7 @@ async function encryptMailContent(btn: HTMLElement) {
     let receiver: string[] = [];
     receiver.push('BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M');
     receiver.push('BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq');
-    const encryptedData = await encryptMailByWallet(receiver, bodyTextContent);
+    const encryptedData = await encryptMail(receiver, bodyTextContent);
     if (!encryptedData) {
         return;
     }

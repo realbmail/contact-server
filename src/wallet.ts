@@ -8,10 +8,9 @@ import {ec as EC} from "elliptic";
 import base58 from "bs58";
 import {keccak256} from "js-sha3";
 import {__tableNameWallet, getMaxIdRecord} from "./database";
-import nacl, {BoxKeyPair} from 'tweetnacl';
+import nacl from 'tweetnacl';
 import {decodeHex} from "./common";
 
-const BMailAddrLen = 32;
 const BMailAddrPrefix = "BM";
 
 class CipherData {
@@ -49,7 +48,7 @@ export class MailAddress {
 export class MailKey {
     private readonly priRaw: Uint8Array;
     private readonly ecKey: EC.KeyPair;
-    readonly bmailKey: nacl.BoxKeyPair
+    readonly bmailKey: nacl.BoxKeyPair;
     public address: MailAddress;
 
     constructor(priRaw: Uint8Array) {
@@ -62,10 +61,8 @@ export class MailKey {
 
     private getPub(): string {
         const publicKeyArray = this.bmailKey.publicKey;
-        const subAddr = new Uint8Array(BMailAddrLen);
         const publicKeyUint8Array = new Uint8Array(publicKeyArray);
-        subAddr.set(publicKeyUint8Array.slice(0, BMailAddrLen));
-        const encodedAddress = base58.encode(subAddr);
+        const encodedAddress = base58.encode(publicKeyUint8Array);
         return BMailAddrPrefix + encodedAddress;
     }
 
@@ -134,12 +131,7 @@ export function decodePubKey(pubKeyStr: string): Uint8Array {
         throw new Error("Invalid public key prefix");
     }
     const encodedAddress = pubKeyStr.slice(BMailAddrPrefix.length);
-    const decodedBytes = base58.decode(encodedAddress);
-
-    if (decodedBytes.length !== BMailAddrLen) {
-        throw new Error("Invalid decoded public key length");
-    }
-    return decodedBytes;
+    return base58.decode(encodedAddress);
 }
 
 

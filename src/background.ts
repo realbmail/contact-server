@@ -270,6 +270,6 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
         const mailBody = decodeMail(mail, mKey);
         sendResponse({success: true, data: mailBody});
     } catch (err) {
-        sendResponse({success: false, data: `internal error: ${err}`});
+        sendResponse({success: false, message: `internal error: ${err}`});
     }
 }

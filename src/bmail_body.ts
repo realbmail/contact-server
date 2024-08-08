@@ -29,12 +29,8 @@ export class BMailBody {
         };
     }
 
-    /*
-    *
-    * // const parsedObject = JSON.parse(jsonString);
-    // const deserializedBMailBody = BMailBody.fromJSON(parsedObject);
-    * */
-    static fromJSON(json: any): BMailBody {
+    static fromJSON(jsonStr: string): BMailBody {
+        const json = JSON.parse(jsonStr);
         const version = json.version;
         const receivers = new Map<string, string>(json.receivers); // 将二维数组转换回 Map
         const cryptoBody = json.cryptoBody;
@@ -61,8 +57,8 @@ export function encodeMail(peers: string[], data: string, key: MailKey):BMailBod
 }
 
 export function decodeMail(mailData: string, key: MailKey) {
-    const mail = JSON.parse(mailData) as BMailBody;
 
+    const mail = BMailBody.fromJSON(mailData);
     const address = key.address;
     const encryptedKey = mail.receivers.get(address.bmailAddress)
     if (!encryptedKey) {
