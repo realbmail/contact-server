@@ -98,5 +98,9 @@
   "invalid_bmail_account": {
     "message": " is invalid bmail account",
     "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "failed to decrypt mail body",
+    "description": ""
   }
 }

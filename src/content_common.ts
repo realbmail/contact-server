@@ -77,31 +77,6 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     return clone;
 }
 
-export async function encryptMail(tos: string[], mailBody: string): Promise<any> {
-    try {
-        return await browser.runtime.sendMessage({
-            action: MsgType.EncryptData,
-            receivers: tos,
-            data: mailBody
-        })
-    } catch (e) {
-        console.error(e);
-        return null
-    }
-}
-
-export async function decryptMail(encryptedMailBody: string): Promise<any> {
-    try {
-        return await browser.runtime.sendMessage({
-            action: MsgType.DecryptData,
-            data: encryptedMailBody
-        })
-    } catch (e) {
-        console.error(e);
-        return null
-    }
-}
-
 export function parseTipDialog(template: HTMLTemplateElement) {
     const dialog = template.content.getElementById("bmail_dialog_container");
     if (!dialog) {

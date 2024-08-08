@@ -98,5 +98,9 @@
   "invalid_bmail_account": {
     "message": " 不是一个有消息的bmail账号",
     "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "解密邮箱内容失败",
+    "description": ""
   }
 }

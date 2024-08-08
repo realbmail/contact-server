@@ -1,16 +1,14 @@
 import browser from "webextension-polyfill";
 import {
-    decryptMail,
-    encryptMail,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
     parseTipDialog, sendMessage,
     showTipsDialog
 } from "./content_common";
 import {MsgType} from "./common";
+import {MailFlag} from "./bmail_body";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
-
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_126");
     if (!clone) {
         console.warn("------>>> failed to parse bmail inbox button");
@@ -20,6 +18,7 @@ export function appendForNetEase(template: HTMLTemplateElement) {
     appendBtnToMenu(clone);
     addActionForHomePage(clone);
     addActionForComposeBtn(template);
+    checkIfComposing(template);
     const tipDialog = parseTipDialog(template);
     if (tipDialog) {
         document.body.appendChild(tipDialog);
@@ -44,21 +43,17 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
         console.log("------>>> compose button not found");
         return;
     }
-
-    const composDivClass = 'div[aria-label="写信"]';
     composeBtn.addEventListener('click', () => {
-        const composeDiv = document.querySelector(composDivClass) as HTMLElement | null;
-        if (composeDiv) {
-            addMailEncryptLogicForComposition(composeDiv, template);
-            return;
-        }
-        console.warn("------>>> can't find a compose div");
+        checkIfComposing(template);
     });
-    const composeDiv = document.querySelector(composDivClass) as HTMLElement | null;
-    if (!composeDiv) {
-        return;
-    }
-    addMailEncryptLogicForComposition(composeDiv, template);
+}
+
+function checkIfComposing(template: HTMLTemplateElement) {
+    const composDivClass = 'div[aria-label="写信"]';
+    const composeDiv = document.querySelectorAll(composDivClass) as NodeListOf<HTMLElement>;
+    composeDiv.forEach(div => {
+        addMailEncryptLogicForComposition(div, template);
+    });
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -88,10 +83,31 @@ export function queryEmailAddrNetEase() {
     return mailAddr.textContent;
 }
 
+function mailBodyArea(composeDiv: HTMLElement) {
+    const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
+    if (!iframe) {
+        console.log('----->>> encrypt failed to find iframe:=>');
+        return null;
+    }
+
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDocument) {
+        console.log("----->>> no frame body found:=>");
+        return null;
+    }
+
+    let bodyTextContent = iframeDocument.body.innerText.trim();
+    if (iframeDocument.body.dataset.mailHasEncrypted !== 'true' && bodyTextContent.includes(MailFlag)) {
+        iframeDocument.body.dataset.mailHasEncrypted = 'true';
+    }
+    return {fElm: iframeDocument.body, mBody: bodyTextContent};
+}
+
 function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
-    const cryptoBtnDiv = document.getElementById('bmail_crypto_btn_in_compose_126');
+    const cryptoBtnDiv = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
     if (cryptoBtnDiv) {
         console.log("------>>> crypto btn has been added");
+        hasEncryptedMailBody(composeDiv, cryptoBtnDiv);
         return;
     }
     const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
@@ -107,6 +123,9 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
         console.log("------>>> no crypto button found in template!")
         return;
     }
+
+    hasEncryptedMailBody(composeDiv, cryptoBtn.querySelector('.bmail-crypto-btn') as HTMLElement);
+
     if (headerBtnList.children.length > 1) {
         headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
     } else {
@@ -115,36 +134,43 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     console.log("------>>> encrypt button add success")
 }
 
-async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
-    const iframe = document.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
-    if (!iframe) {
-        console.log('----->>> encrypt failed to find iframe:=>');
+function hasEncryptedMailBody(composeDiv: HTMLElement, btn?: HTMLElement) {
+    const iframeBody = mailBodyArea(composeDiv);
+    if (!iframeBody || !iframeBody.fElm || !btn) {
         return;
     }
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDocument) {
-        console.log("----->>> no frame body found:=>");
-        return;
+    if (iframeBody.fElm.dataset.mailHasEncrypted === 'true') {
+        btn.textContent = browser.i18n.getMessage('decrypt_mail_body')
     }
+}
 
-    const iframeBody = iframeDocument.body;
-    const hasEncrypted = iframeBody.dataset.mailHasEncrypted === 'true';
-    if (hasEncrypted && iframeBody.dataset.originalHtml) {
-        iframeBody.innerHTML = iframeBody.dataset.originalHtml;
-        iframeBody.dataset.mailHasEncrypted = 'false';
+async function decryptMailContent(fElm: HTMLElement, mBody: string, btn: HTMLElement) {
+    if (fElm.dataset.originalHtml) {
         btn.innerText = browser.i18n.getMessage('crypto_and_send');
+        fElm.innerHTML = fElm.dataset.originalHtml!;
+        fElm.dataset.mailHasEncrypted = 'false';
+        fElm.dataset.originalHtml = undefined;
         return;
     }
-
-    let bodyTextContent = iframeBody.innerText;
-    bodyTextContent = bodyTextContent.trim();
-    if (!bodyTextContent || bodyTextContent.length <= 0) {
+    const mailRsp = await browser.runtime.sendMessage({
+        action: MsgType.DecryptData,
+        data: mBody
+    })
+    if (mailRsp.success === 0) {
+        return;
+    }
+    if (mailRsp.success < 0) {
         showTipsDialog(browser.i18n.getMessage("Tips"),
-            browser.i18n.getMessage("encrypt_mail_body"));
+            browser.i18n.getMessage("decrypt_mail_body_failed"));
         return;
     }
+    btn.innerText = browser.i18n.getMessage('crypto_and_send');
+    fElm.textContent = mailRsp.data;
+    fElm.dataset.mailHasEncrypted = 'false';
+}
 
-    const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock");// //
+async function processReceivers(composeDiv:HTMLElement) {
+    const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock");
     if (receiverArea.length <= 0) {
         showTipsDialog(browser.i18n.getMessage("Tips"),
             browser.i18n.getMessage("encrypt_mail_receiver"));
@@ -172,18 +198,47 @@ async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
         receiver.push(bmailAddr.data);
         receiverArea[i].classList.add("bmail_receiver_is_fine");
     }
+    return receiver;
+}
 
-    const mailRsp = await encryptMail(receiver, bodyTextContent);
-    if (!mailRsp || mailRsp.success === 0) {
+async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
+    const result = mailBodyArea(composeDiv);
+    if (!result) {
         return;
     }
-    if (mailRsp.success<0){
-        showTipsDialog(browser.i18n.getMessage("Tips"),mailRsp.message);
+    const {fElm, mBody} = result;
+    if (mBody.length <= 0) {
+        showTipsDialog(browser.i18n.getMessage("Tips"),
+            browser.i18n.getMessage("encrypt_mail_body"));
         return;
     }
 
-    iframeBody.dataset.originalHtml = iframeBody.innerHTML;
-    iframeBody.innerText = mailRsp.data;
-    iframeBody.dataset.mailHasEncrypted = 'true';
+    if (fElm.dataset.mailHasEncrypted === 'true') {
+        await decryptMailContent(fElm, mBody, btn);
+        return;
+    }
+
+    const receiver = await processReceivers(composeDiv);
+    if(!receiver){
+        return;
+    }
+
+    const mailRsp =  await browser.runtime.sendMessage({
+        action: MsgType.EncryptData,
+        receivers: receiver,
+        data: mBody
+    })
+
+    if (mailRsp.success <= 0) {
+        if ( mailRsp.success === 0) {
+            return;
+        }
+        showTipsDialog(browser.i18n.getMessage("Tips"), mailRsp.message);
+        return;
+    }
+
+    fElm.dataset.originalHtml = fElm.innerHTML;
+    fElm.innerText = mailRsp.data;
+    fElm.dataset.mailHasEncrypted = 'true';
     btn.innerText = browser.i18n.getMessage('decrypt_mail_body');
 }

@@ -4,6 +4,7 @@ import {decodePubKey, generatePrivateKey, MailKey} from "./wallet";
 import {decodeHex, encodeHex} from "./common";
 
 export const MailBodyVersion = 1;
+export const MailFlag = "0be465716ad37c9119253196f921e677";
 
 export class BMailBody {
     version: number;
@@ -11,6 +12,7 @@ export class BMailBody {
     cryptoBody: string;
     nonce: Uint8Array;
     sender: string;
+    mailFlag: string
 
     constructor(version: number, secrets: Map<string, string>, body: string, nonce: Uint8Array, sender: string) {
         this.version = version;
@@ -18,14 +20,17 @@ export class BMailBody {
         this.cryptoBody = body;
         this.nonce = nonce;
         this.sender = sender;
+        this.mailFlag = MailFlag;
     }
+
     toJSON() {
         return {
             version: this.version,
-            receivers: Array.from(this.receivers.entries()), // 将 Map 转换为二维数组
+            receivers: Array.from(this.receivers.entries()),
             cryptoBody: this.cryptoBody,
-            nonce: Array.from(this.nonce), // 将 Uint8Array 转换为普通数组
-            sender: this.sender
+            nonce: Array.from(this.nonce),
+            sender: this.sender,
+            mailFlag: this.mailFlag
         };
     }
 
@@ -40,10 +45,12 @@ export class BMailBody {
     }
 }
 
-export function encodeMail(peers: string[], data: string, key: MailKey):BMailBody {
+export function encodeMail(peers: string[], data: string, key: MailKey): BMailBody {
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
     const aesKey = generatePrivateKey();
     let secrets = new Map<string, string>();
+
+    peers.push(key.address.bmailAddress);//add self for decrypt.
 
     peers.forEach(peer => {
         const peerPub = decodePubKey(peer);
