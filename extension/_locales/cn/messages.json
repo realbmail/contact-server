@@ -78,5 +78,25 @@
   "decrypt_mail_body": {
     "message": "解密",
     "description": ""
+  },
+  "OK": {
+    "message": "确定",
+    "description": ""
+  },
+  "Tips": {
+    "message": "提示",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "收件人地址为空",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "邮件内容不能为空",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " 不是一个有消息的bmail账号",
+    "description": ""
   }
 }

@@ -140,7 +140,7 @@ function initMnemonicDiv(): void {
         navigator.clipboard.writeText(___mnemonic_in_mem).then(() => {
             alert("Copy success");
         }).catch(err => {
-            console.error('Error copying text: ', err);
+            console.error('------>>>Error copying text: ', err);
         });
     });
 }

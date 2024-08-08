@@ -78,5 +78,25 @@
   "decrypt_mail_body": {
     "message": "Decrypt",
     "description": ""
+  },
+  "OK": {
+    "message": "OK",
+    "description": ""
+  },
+  "Tips": {
+    "message": "Tips",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "No valid mail receivers",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "No valid mail content",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " is invalid bmail account",
+    "description": ""
   }
 }

@@ -1,5 +1,13 @@
 import browser from "webextension-polyfill";
-import {decryptMail, encryptMail, parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
+import {
+    decryptMail,
+    encryptMail,
+    parseBmailInboxBtn,
+    parseCryptoMailBtn,
+    parseTipDialog, sendMessage,
+    showTipsDialog
+} from "./content_common";
+import {MsgType} from "./common";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
 
@@ -12,6 +20,10 @@ export function appendForNetEase(template: HTMLTemplateElement) {
     appendBtnToMenu(clone);
     addActionForHomePage(clone);
     addActionForComposeBtn(template);
+    const tipDialog = parseTipDialog(template);
+    if (tipDialog) {
+        document.body.appendChild(tipDialog);
+    }
 }
 
 function addActionForHomePage(clone: HTMLElement): void {
@@ -37,7 +49,7 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
     composeBtn.addEventListener('click', () => {
         const composeDiv = document.querySelector(composDivClass) as HTMLElement | null;
         if (composeDiv) {
-            addBmailBtnForComposition(composeDiv, template);
+            addMailEncryptLogicForComposition(composeDiv, template);
             return;
         }
         console.warn("------>>> can't find a compose div");
@@ -46,7 +58,7 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
     if (!composeDiv) {
         return;
     }
-    addBmailBtnForComposition(composeDiv, template);
+    addMailEncryptLogicForComposition(composeDiv, template);
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -76,7 +88,7 @@ export function queryEmailAddrNetEase() {
     return mailAddr.textContent;
 }
 
-function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     const cryptoBtnDiv = document.getElementById('bmail_crypto_btn_in_compose_126');
     if (cryptoBtnDiv) {
         console.log("------>>> crypto btn has been added");
@@ -87,8 +99,12 @@ function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTempla
         console.log("------>>> header list not found for mail composition");
         return;
     }
-    const cryptoBtn = parseCryptoMailBtn(template, 'bmail_crypto_btn_in_compose_126', encryptMailContent);
+    const cryptoBtn = parseCryptoMailBtn(template, 'bmail_crypto_btn_in_compose_126', async btn => {
+        await encryptMailContent(btn, composeDiv);
+    });
+
     if (!cryptoBtn) {
+        console.log("------>>> no crypto button found in template!")
         return;
     }
     if (headerBtnList.children.length > 1) {
@@ -96,9 +112,10 @@ function addBmailBtnForComposition(composeDiv: HTMLElement, template: HTMLTempla
     } else {
         headerBtnList.appendChild(cryptoBtn);
     }
+    console.log("------>>> encrypt button add success")
 }
 
-async function encryptMailContent(btn: HTMLElement) {
+async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
     const iframe = document.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
@@ -122,19 +139,51 @@ async function encryptMailContent(btn: HTMLElement) {
     let bodyTextContent = iframeBody.innerText;
     bodyTextContent = bodyTextContent.trim();
     if (!bodyTextContent || bodyTextContent.length <= 0) {
-        console.log("----->>> no body text content");
+        showTipsDialog(browser.i18n.getMessage("Tips"),
+            browser.i18n.getMessage("encrypt_mail_body"));
+        return;
+    }
+
+    const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock");// //
+    if (receiverArea.length <= 0) {
+        showTipsDialog(browser.i18n.getMessage("Tips"),
+            browser.i18n.getMessage("encrypt_mail_receiver"));
         return;
     }
 
     let receiver: string[] = [];
-    receiver.push('BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M');
-    receiver.push('BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq');
-    const encryptedData = await encryptMail(receiver, bodyTextContent);
-    if (!encryptedData) {
+    for (let i = 0; i < receiverArea.length; i++) {
+        const emailElement = receiverArea[i].querySelector(".nui-addr-email");
+        if (!emailElement) {
+            continue;
+        }
+        const email = emailElement.textContent!.replace(/[<>]/g, "");
+        const bmailAddr = await sendMessage(email, MsgType.EmailAddrToBmailAddr);
+        if (!bmailAddr || bmailAddr.success === 0) {
+            return;
+        }
+        if (bmailAddr.success < 0) {
+            showTipsDialog(browser.i18n.getMessage("Tips"),
+                email + browser.i18n.getMessage("invalid_bmail_account"));
+            receiverArea[i].classList.add("bmail_receiver_invalid");
+            return;
+        }
+        console.log("----->>>email address:", email, "bmail address:", bmailAddr);
+        receiver.push(bmailAddr.data);
+        receiverArea[i].classList.add("bmail_receiver_is_fine");
+    }
+
+    const mailRsp = await encryptMail(receiver, bodyTextContent);
+    if (!mailRsp || mailRsp.success === 0) {
         return;
     }
+    if (mailRsp.success<0){
+        showTipsDialog(browser.i18n.getMessage("Tips"),mailRsp.message);
+        return;
+    }
+
     iframeBody.dataset.originalHtml = iframeBody.innerHTML;
-    iframeBody.innerText = encryptedData;
+    iframeBody.innerText = mailRsp.data;
     iframeBody.dataset.mailHasEncrypted = 'true';
     btn.innerText = browser.i18n.getMessage('decrypt_mail_body');
 }

@@ -1,8 +1,3 @@
-interface BMail {
-    version: string;
-    connect: () => void;
-}
-
 function createBmailObj() {
     (window as any).bmail = {
         version: '1.0.0',

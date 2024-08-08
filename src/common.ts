@@ -7,6 +7,7 @@ export enum MsgType {
     BMailInbox = 'BMailInbox',
     AddInboxBtn = 'AddInboxBtn',
     QueryCurEmail = 'QueryCurEmail',
+    EmailAddrToBmailAddr = 'EmailAddrToBmailAddr',
 }
 
 export enum WalletStatus {

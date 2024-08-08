@@ -69,6 +69,9 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
         case MsgType.DecryptData:
             decryptData(request.data, sendResponse).then();
             return true;
+        case MsgType.EmailAddrToBmailAddr:
+            contactQuery(request.data, sendResponse).then();
+            return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
             return;
@@ -235,7 +238,7 @@ async function checkWalletStatus(sendResponse: (response: any) => void) {
 
     if (walletStatus !== WalletStatus.Unlocked || !sObj) {
         await browser.action.openPopup();
-        sendResponse({success: false, message: "open wallet first please!"});
+        sendResponse({success: 0, message: "open wallet first please!"});
         return null;
     }
     return new MailKey(new Uint8Array(sObj));
@@ -247,9 +250,8 @@ async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (
         if (!mKey) {
             return;
         }
-
         if (peerAddr.length <= 0) {
-            sendResponse({success: false, message: "no valid blockchain address of receivers"});
+            sendResponse({success: -1, message: "no valid blockchain address of receivers"});
             return null;
         }
 
@@ -257,7 +259,7 @@ async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (
         console.log("[service work] encrypted mail body =>", mail);
         sendResponse({success: true, data: JSON.stringify(mail)});
     } catch (err) {
-        sendResponse({success: false, message: `internal error: ${err}`});
+        sendResponse({success: -1, message: `internal error: ${err}`});
     }
 }
 
@@ -270,6 +272,30 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
         const mailBody = decodeMail(mail, mKey);
         sendResponse({success: true, data: mailBody});
     } catch (err) {
-        sendResponse({success: false, message: `internal error: ${err}`});
+        sendResponse({success: -1, message: `internal error: ${err}`});
+    }
+}
+
+const contactData: Map<string, string> = new Map([
+    ["hopwesley@126.com", 'BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M'],
+    ["ribencong@163.com", 'BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq']
+]);
+
+async function contactQuery(emailAddr: string, sendResponse: (response: any) => void) {
+    try {
+        const mKey = await checkWalletStatus(sendResponse);
+        if (!mKey) {
+            return;
+        }
+
+        const bmailAddr = contactData.get(emailAddr);
+        if (!bmailAddr) {
+            sendResponse({success: -1, message: "no valid bmail address for this address"});
+            return;
+        }
+
+        sendResponse({success: 1, data: bmailAddr});
+    } catch (err) {
+        sendResponse({success: -1, message: `internal error: ${err}`});
     }
 }

@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {HostArr, MsgType, WalletStatus} from "./common";
+import {HostArr, MsgType} from "./common";
 import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 
@@ -45,7 +45,7 @@ function readCurrentMailAddress() {
 export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: string) {
     const bmailInboxBtn = template.content.getElementById(inboxDivStr);
     if (!bmailInboxBtn) {
-        console.log("failed to find bmailElement");
+        console.log("------>>>failed to find bmailElement");
         return null;
     }
 
@@ -77,40 +77,65 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     return clone;
 }
 
-export async function encryptMail(tos: string[], mailBody: string): Promise<string | null> {
+export async function encryptMail(tos: string[], mailBody: string): Promise<any> {
     try {
-        const response = await browser.runtime.sendMessage({
+        return await browser.runtime.sendMessage({
             action: MsgType.EncryptData,
             receivers: tos,
             data: mailBody
         })
-
-        if (!response.success) {
-            console.log("------>>>error reading response:", response.message);
-            return null;
-        }
-        return response.data;
     } catch (e) {
         console.error(e);
         return null
     }
 }
 
-export async function decryptMail(encryptedMailBody:string):Promise<string|null> {
+export async function decryptMail(encryptedMailBody: string): Promise<any> {
     try {
-        const response = await browser.runtime.sendMessage({
+        return await browser.runtime.sendMessage({
             action: MsgType.DecryptData,
             data: encryptedMailBody
         })
-
-        if (!response.success) {
-            console.log("------>>>error reading response:", response.message);
-            return null;
-        }
-
-        return response.data;
     } catch (e) {
         console.error(e);
+        return null
+    }
+}
+
+export function parseTipDialog(template: HTMLTemplateElement) {
+    const dialog = template.content.getElementById("bmail_dialog_container");
+    if (!dialog) {
+        console.log("------>>>failed to find tip dialog");
+        return null;
+    }
+
+    const clone = dialog.cloneNode(true) as HTMLElement;
+    const okBtn = clone.querySelector(".bmail_dialog_button") as HTMLElement;
+    okBtn.textContent = browser.i18n.getMessage('OK');
+    okBtn.addEventListener('click', async () => {
+        clone.style.display = "none";
+    });
+    return clone;
+}
+
+export function showTipsDialog(title: string, message: string) {
+    const dialog = document.getElementById("bmail_dialog_container");
+    if (!dialog) {
+        return;
+    }
+    dialog.querySelector(".bmail_dialog_title")!.textContent = title;
+    dialog.querySelector(".bmail_dialog_message")!.textContent = message;
+    dialog.style.display = "block";
+}
+
+export async function sendMessage(data: any, actTyp: string): Promise<any> {
+    try {
+        return await browser.runtime.sendMessage({
+            action: actTyp,
+            data: data,
+        });
+    } catch (e) {
+        console.error("------>>>send message error", e);
         return null
     }
 }
