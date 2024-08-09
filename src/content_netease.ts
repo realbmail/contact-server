@@ -140,10 +140,10 @@ function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
 }
 
 function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
-    const cryptoBtnDiv = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
-    if (cryptoBtnDiv) {
+    let cryptoBtn = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
+    if (cryptoBtn) {
         console.log("------>>> crypto btn has been added");
-        addMailBodyListener(composeDiv, cryptoBtnDiv);
+        addMailBodyListener(composeDiv, cryptoBtn);
         return;
     }
     const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
@@ -152,28 +152,32 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
         return;
     }
     const title = browser.i18n.getMessage('crypto_and_send');
-    const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
             await encryptMailContent(composeDiv);
-        });
+        }) as HTMLElement;
 
-    if (!cryptoBtn) {
+    if (!cryptoBtnDiv) {
         console.log("------>>> no crypto button found in template!")
         return;
     }
 
-    addMailBodyListener(composeDiv, cryptoBtn.querySelector('.bmail-crypto-btn') as HTMLElement);
+    addMailBodyListener(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
 
     if (headerBtnList.children.length > 1) {
-        headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
+        headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     } else {
-        headerBtnList.appendChild(cryptoBtn);
+        headerBtnList.appendChild(cryptoBtnDiv);
     }
     console.log("------>>> encrypt button add success")
 }
 
 function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
-    const img = btn.parentNode!.querySelector('img');
+    let img = (btn.parentNode as HTMLImageElement | null)?.querySelector('img') as HTMLImageElement | null;
+    if (!img) {
+        console.log("------>>>logo element not found");
+        return;
+    }
     if (hasEncrypted) {
         btn.textContent = browser.i18n.getMessage('decrypt_mail_body');
         img!.src = browser.runtime.getURL('file/logo_16_out.png');
@@ -324,7 +328,7 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-            await decryptMailInReading(composeDiv, mailContent, mailData);
+            await decryptMailInReading(mailContent, mailData, btn);
         });
 
     if (!cryptoBtn) {
@@ -361,13 +365,38 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     addDecryptBtnToHeader(composeDiv, template, mailContent, mailData)
 }
 
-async function decryptMailInReading(composeDiv: HTMLElement, mailContent: HTMLElement, mailData: string) {
+async function decryptMailInReading(mailContent: HTMLElement, mailData: string, cryptoBtn?: HTMLElement | undefined | null) {
     const statusRsp = await sendMessage('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0) {
+    if (statusRsp.success < 0 || !mailContent || !cryptoBtn) {
+        return;
+    }
+    console.log("------>>>mail body:", mailData);
+
+    if (mailContent.dataset.hasDecrypted === 'true') {
+        mailContent.innerText = mailContent.dataset.orignCrpted!;
+        mailContent.dataset.hasDecrypted = "false";
+        setBtnStatus(true, cryptoBtn);
         return;
     }
 
-    console.log("------>>>mail body:", mailData);
+    const mailRsp = await browser.runtime.sendMessage({
+        action: MsgType.DecryptData,
+        data: mailData
+    })
+
+    if (mailRsp.success <= 0) {
+        if (mailRsp.success === 0) {
+            return;
+        }
+        showTipsDialog("Tips", mailRsp.message);
+        return;
+    }
+    console.log("------>>>mail body:", mailRsp.data);
+
+    mailContent.innerText = mailRsp.data;
+    mailContent.dataset.orignCrpted = mailData;
+    mailContent.dataset.hasDecrypted = "true";
+    setBtnStatus(false, cryptoBtn);
 }
 
 function extractJsonString(input: string): string | null {
