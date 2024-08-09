@@ -1,5 +1,6 @@
 import {parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
 import {emailRegex} from "./common";
+import browser from "webextension-polyfill";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google');
@@ -69,12 +70,14 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
             return
         }
         const node = parentNode.parentNode?.querySelector(".bmail-crypto-btn");
-        if(node){
+        if (node) {
             console.log("------>>> node already exists");
             return;
         }
-        const clone = parseCryptoMailBtn(template,"bmail_crypto_btn_in_compose_google",encryptMailContent);
-        if (!clone){
+        const title = browser.i18n.getMessage('crypto_and_send');
+        const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
+            "bmail_crypto_btn_in_compose_google", encryptMailContent);
+        if (!clone) {
             return;
         }
         parentNode.insertAdjacentElement('afterend', clone);

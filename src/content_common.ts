@@ -58,7 +58,8 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
     return clone;
 }
 
-export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string, action: (btn: HTMLElement) => Promise<void>) {
+export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc:string, btnClass: string,
+                                   title:string, elmId: string, action: (btn: HTMLElement) => Promise<void>) {
     const cryptoBtnDiv = template.content.getElementById(elmId);
     if (!cryptoBtnDiv) {
         console.log("------>>>failed to find bmailElement");
@@ -66,12 +67,12 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     }
     const img = cryptoBtnDiv.querySelector('img');
     if (img) {
-        img.src = browser.runtime.getURL('file/logo_16.png');
+        img.src = browser.runtime.getURL(imgSrc);
     }
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
-    const cryptoBtn = clone.querySelector(".bmail-crypto-btn") as HTMLElement;
-    cryptoBtn.textContent = browser.i18n.getMessage('crypto_and_send');
-    cryptoBtn.addEventListener('click', async () => {
+    const cryptoBtn = clone.querySelector(btnClass) as HTMLElement;
+    cryptoBtn.textContent = title;
+    clone.addEventListener('click', async () => {
         await action(cryptoBtn);
     });
     return clone;

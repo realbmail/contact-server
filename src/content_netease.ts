@@ -6,7 +6,7 @@ import {
     sendMessage,
     showTipsDialog
 } from "./content_common";
-import {MsgType, WalletStatus} from "./common";
+import {MsgType} from "./common";
 import {MailFlag} from "./bmail_body";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
@@ -18,14 +18,15 @@ export function appendForNetEase(template: HTMLTemplateElement) {
 
     appendBtnToMenu(clone);
     addActionForHomePage(clone);
-    checkIfComposing(template);
+    checkHasMailContent(template);
+
     appendTipDialog(template);
     monitorTabMenu((isDelete: boolean) => {
         if (isDelete) {
             //TODO::
             return;
         }
-        checkIfComposing(template);
+        checkHasMailContent(template);
     });
 }
 
@@ -41,12 +42,20 @@ function addActionForHomePage(clone: HTMLElement): void {
     }
 }
 
-function checkIfComposing(template: HTMLTemplateElement) {
+function checkHasMailContent(template: HTMLTemplateElement) {
     const composDivClass = 'div[aria-label="写信"]';
     const composeDiv = document.querySelectorAll(composDivClass) as NodeListOf<HTMLElement>;
     composeDiv.forEach(div => {
         addMailEncryptLogicForComposition(div, template);
     });
+
+    let debounceTimer = setTimeout(() => {
+        clearTimeout(debounceTimer);
+        const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
+        readDiv.forEach(div => {
+            addMailDecryptForReading(div, template);
+        });
+    }, 500);
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -142,9 +151,11 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
         console.log("------>>> header list not found for mail composition");
         return;
     }
-    const cryptoBtn = parseCryptoMailBtn(template, 'bmail_crypto_btn_in_compose_126', async btn => {
-        await encryptMailContent(composeDiv);
-    });
+    const title = browser.i18n.getMessage('crypto_and_send');
+    const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+        title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
+            await encryptMailContent(composeDiv);
+        });
 
     if (!cryptoBtn) {
         console.log("------>>> no crypto button found in template!")
@@ -172,7 +183,7 @@ function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
 }
 
-async function decryptMailContent(fElm: HTMLElement, mBody: string) {
+async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
     if (fElm.dataset.originalHtml) {
         fElm.innerHTML = fElm.dataset.originalHtml!;
         fElm.dataset.originalHtml = undefined;
@@ -244,7 +255,7 @@ async function encryptMailContent(composeDiv: HTMLElement) {
     }
 
     if (mailBody.dataset.mailHasEncrypted === 'true') {
-        await decryptMailContent(mailBody, bodyTextContent);
+        await decryptMailInComposing(mailBody, bodyTextContent);
         return;
     }
 
@@ -301,4 +312,69 @@ function monitorTabMenu(callback?: (isDelete: boolean) => void) {
         }
     });
     observer.observe(ul, {childList: true});
+}
+
+function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateElement, mailContent: HTMLElement, mailData: string) {
+    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar")
+
+    if (!headerBtnList) {
+        console.log("------>>> header list not found for mail reading");
+        return;
+    }
+    const title = browser.i18n.getMessage('decrypt_mail_body')
+    const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+        title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
+            await decryptMailInReading(composeDiv, mailContent, mailData);
+        });
+
+    if (!cryptoBtn) {
+        console.log("------>>> no decrypt button found in template!")
+        return;
+    }
+    if (headerBtnList.children.length > 1) {
+        headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
+    } else {
+        headerBtnList.appendChild(cryptoBtn);
+    }
+    console.log("------>>> decrypt button add success")
+}
+
+function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+
+    const decryptBtn = composeDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    if (decryptBtn) {
+        console.log("------>>> decrypt button has been added");
+        return;
+    }
+    const iframe = composeDiv.querySelector("iframe") as HTMLIFrameElement | null;
+    const mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
+    if (!mailBody) {
+        console.log("----->>> no mail body found:=>");
+        return;
+    }
+    const mailContent = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
+    const mailData = extractJsonString(mailContent.innerText);
+    if (!mailData) {
+        console.log("----->>> no encrypted mail body found:=>");
+        return;
+    }
+    addDecryptBtnToHeader(composeDiv, template, mailContent, mailData)
+}
+
+async function decryptMailInReading(composeDiv: HTMLElement, mailContent: HTMLElement, mailData: string) {
+    const statusRsp = await sendMessage('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return;
+    }
+
+    console.log("------>>>mail body:", mailData);
+}
+
+function extractJsonString(input: string): string | null {
+    if (!input.includes(MailFlag)) {
+        return null;
+    }
+    const jsonRegex = /[{[].*[\]}]/;
+    const match = input.match(jsonRegex);
+    return match ? match[0] : null;
 }
