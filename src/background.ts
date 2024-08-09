@@ -72,14 +72,8 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
         case MsgType.EmailAddrToBmailAddr:
             contactQuery(request.data, sendResponse).then();
             return true;
-        case MsgType.QueryKeyStatus:
-            sessionGet(__key_wallet_status).then(status => {
-                if (!status) {
-                    sendResponse({status: WalletStatus.Init});
-                    return
-                }
-                sendResponse({status: status});
-            });
+        case MsgType.CheckIfLogin:
+            checkLoginStatus(sendResponse).then();
             return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -281,7 +275,7 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
         const mailBody = decodeMail(mail, mKey);
         sendResponse({success: 1, data: mailBody});
     } catch (err) {
-        sendResponse({success: -1, message: `internal error: ${err}`});
+        sendResponse({success: -1, message: browser.i18n.getMessage("decrypt_mail_body_failed") + ` error: ${err}`});
     }
 }
 
@@ -300,12 +294,21 @@ async function contactQuery(emailAddr: string, sendResponse: (response: any) => 
 
         const bmailAddr = contactData.get(emailAddr);
         if (!bmailAddr) {
-            sendResponse({success: -1, message: "no valid bmail address for this address"});
+            sendResponse({success: -1, message: browser.i18n.getMessage("invalid_bmail_account")});
             return;
         }
-
         sendResponse({success: 1, data: bmailAddr});
     } catch (err) {
         sendResponse({success: -1, message: `internal error: ${err}`});
     }
+}
+
+async function checkLoginStatus(sendResponse: (response: any) => void) {
+    const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
+    if (status !== WalletStatus.Unlocked) {
+        await browser.action.openPopup();
+        sendResponse({success: -1});
+        return;
+    }
+    sendResponse({success: 1});
 }

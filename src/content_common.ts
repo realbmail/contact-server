@@ -66,8 +66,7 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, elmId: string,
     }
     const img = cryptoBtnDiv.querySelector('img');
     if (img) {
-        img.src = browser.runtime.getURL('file/logo_16_out.png');
-        // img.src = browser.runtime.getURL('file/logo_16.png');
+        img.src = browser.runtime.getURL('file/logo_16.png');
     }
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
     const cryptoBtn = clone.querySelector(".bmail-crypto-btn") as HTMLElement;
@@ -82,7 +81,7 @@ export function appendTipDialog(template: HTMLTemplateElement) {
     const dialog = template.content.getElementById("bmail_dialog_container");
     if (!dialog) {
         console.log("------>>>failed to find tip dialog");
-        return ;
+        return;
     }
 
     const clone = dialog.cloneNode(true) as HTMLElement;
@@ -111,7 +110,8 @@ export async function sendMessage(data: any, actTyp: string): Promise<any> {
             data: data,
         });
     } catch (e) {
-        console.error("------>>>send message error", e);
-        return null
+        const error = e as Error;
+        console.warn("------>>>send message error", error);
+        return {success: -1, data: error.message}
     }
 }

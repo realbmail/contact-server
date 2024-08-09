@@ -6,7 +6,7 @@ import {
     sendMessage,
     showTipsDialog
 } from "./content_common";
-import {MsgType} from "./common";
+import {MsgType, WalletStatus} from "./common";
 import {MailFlag} from "./bmail_body";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
@@ -18,10 +18,15 @@ export function appendForNetEase(template: HTMLTemplateElement) {
 
     appendBtnToMenu(clone);
     addActionForHomePage(clone);
-    addActionForComposeBtn(template);
     checkIfComposing(template);
     appendTipDialog(template);
-    monitorTabMenu();
+    monitorTabMenu((isDelete: boolean) => {
+        if (isDelete) {
+            //TODO::
+            return;
+        }
+        checkIfComposing(template);
+    });
 }
 
 function addActionForHomePage(clone: HTMLElement): void {
@@ -34,17 +39,6 @@ function addActionForHomePage(clone: HTMLElement): void {
             }
         });
     }
-}
-
-function addActionForComposeBtn(template: HTMLTemplateElement) {
-    const composeBtn = document.getElementById('_mail_component_94_94');
-    if (!composeBtn) {
-        console.log("------>>> compose button not found");
-        return;
-    }
-    composeBtn.addEventListener('click', () => {
-        checkIfComposing(template);
-    });
 }
 
 function checkIfComposing(template: HTMLTemplateElement) {
@@ -84,7 +78,6 @@ export function queryEmailAddrNetEase() {
 
 function checkFrameBody(fBody: Document, btn: HTMLElement) {
     let textContent = fBody.body.innerText.trim();
-    console.log('------>>>Body text content changed:', textContent.length);
     if (textContent.length <= 0) {
         console.log("------>>> no mail content to judge");
         return;
@@ -92,9 +85,16 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
     if (fBody.body.dataset.mailHasEncrypted !== 'true' && textContent.includes(MailFlag)) {
         fBody.body.dataset.mailHasEncrypted = 'true';
         setBtnStatus(true, btn);
-    } else {
+        fBody.body.contentEditable = 'false';
+        console.log("change to decrypt model....")
+        return;
+    }
+    if (fBody.body.dataset.mailHasEncrypted !== 'false') {
         fBody.body.dataset.mailHasEncrypted = 'false';
         setBtnStatus(false, btn);
+        fBody.body.contentEditable = 'true';
+        console.log("change to encrypt model....")
+        return;
     }
 }
 
@@ -104,22 +104,29 @@ function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
         console.log('----->>> encrypt failed to find iframe:=>');
         return null;
     }
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDocument) {
-        console.log("----->>> no frame body found:=>");
-        return null;
-    }
-    const observer = new MutationObserver(() => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            checkFrameBody(iframeDocument, btn);
-        }, 300);
+    iframe.addEventListener('load', () => {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDocument) {
+            console.log("----->>> no frame body found:=>");
+            return null;
+        }
+        const observer = new MutationObserver(() => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                checkFrameBody(iframeDocument, btn);
+            }, 300);
+        });
+
+        let debounceTimer: NodeJS.Timeout;
+        const config = {characterData: true, childList: true, subtree: true};
+        observer.observe(iframeDocument.body, config);
+        checkFrameBody(iframeDocument, btn);
     });
 
-    checkFrameBody(iframeDocument, btn);
-    let debounceTimer: NodeJS.Timeout;
-    const config = {characterData: true, childList: true, subtree: true};
-    observer.observe(iframeDocument.body, config);
+    if (iframe.contentDocument?.readyState === 'complete') {
+        const loadEvent = new Event('load');
+        iframe.dispatchEvent(loadEvent);
+    }
     return;
 }
 
@@ -136,7 +143,7 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
         return;
     }
     const cryptoBtn = parseCryptoMailBtn(template, 'bmail_crypto_btn_in_compose_126', async btn => {
-        await encryptMailContent(btn, composeDiv);
+        await encryptMailContent(composeDiv);
     });
 
     if (!cryptoBtn) {
@@ -165,7 +172,7 @@ function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
 }
 
-async function decryptMailContent(fElm: HTMLElement, mBody: string, btn: HTMLElement) {
+async function decryptMailContent(fElm: HTMLElement, mBody: string) {
     if (fElm.dataset.originalHtml) {
         fElm.innerHTML = fElm.dataset.originalHtml!;
         fElm.dataset.originalHtml = undefined;
@@ -180,18 +187,17 @@ async function decryptMailContent(fElm: HTMLElement, mBody: string, btn: HTMLEle
         if (mailRsp.success === 0) {
             return;
         }
-        showTipsDialog(browser.i18n.getMessage("Tips"),
-            browser.i18n.getMessage("decrypt_mail_body_failed"));
+        showTipsDialog("Tips", mailRsp.message);
         return;
     }
     fElm.textContent = mailRsp.data;
+    console.log("------>>>decrypt mail content success")
 }
 
 async function processReceivers(composeDiv: HTMLElement) {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock");
     if (receiverArea.length <= 0) {
-        showTipsDialog(browser.i18n.getMessage("Tips"),
-            browser.i18n.getMessage("encrypt_mail_receiver"));
+        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
         return;
     }
 
@@ -202,24 +208,29 @@ async function processReceivers(composeDiv: HTMLElement) {
             continue;
         }
         const email = emailElement.textContent!.replace(/[<>]/g, "");
-        const bmailAddr = await sendMessage(email, MsgType.EmailAddrToBmailAddr);
-        if (!bmailAddr || bmailAddr.success === 0) {
+        const mailRsp = await sendMessage(email, MsgType.EmailAddrToBmailAddr);
+        if (!mailRsp || mailRsp.success === 0) {
             return;
         }
-        if (bmailAddr.success < 0) {
-            showTipsDialog(browser.i18n.getMessage("Tips"),
-                email + browser.i18n.getMessage("invalid_bmail_account"));
+        if (mailRsp.success < 0) {
+            showTipsDialog("Tips", email + mailRsp.message);
             receiverArea[i].classList.add("bmail_receiver_invalid");
             return;
         }
-        console.log("----->>>email address:", email, "bmail address:", bmailAddr);
-        receiver.push(bmailAddr.data);
+        console.log("----->>>email address:", email, "bmail address:", mailRsp);
+        receiver.push(mailRsp.data);
         receiverArea[i].classList.add("bmail_receiver_is_fine");
     }
     return receiver;
 }
 
-async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
+async function encryptMailContent(composeDiv: HTMLElement) {
+
+    const statusRsp = await sendMessage('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return;
+    }
+
     const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
     const mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
     if (!mailBody) {
@@ -228,13 +239,12 @@ async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
     }
     let bodyTextContent = mailBody.innerText.trim();
     if (bodyTextContent.length <= 0) {
-        showTipsDialog(browser.i18n.getMessage("Tips"),
-            browser.i18n.getMessage("encrypt_mail_body"));
+        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
         return;
     }
 
     if (mailBody.dataset.mailHasEncrypted === 'true') {
-        await decryptMailContent(mailBody, bodyTextContent, btn);
+        await decryptMailContent(mailBody, bodyTextContent);
         return;
     }
 
@@ -253,7 +263,7 @@ async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
         if (mailRsp.success === 0) {
             return;
         }
-        showTipsDialog(browser.i18n.getMessage("Tips"), mailRsp.message);
+        showTipsDialog("Tips", mailRsp.message);
         return;
     }
 
@@ -261,7 +271,7 @@ async function encryptMailContent(btn: HTMLElement, composeDiv: HTMLElement) {
     mailBody.innerText = mailRsp.data;
 }
 
-function monitorTabMenu() {
+function monitorTabMenu(callback?: (isDelete: boolean) => void) {
     const ul = document.querySelector('.js-component-tab.tz0.nui-tabs');
     if (!ul) {
         console.log("------>>>no tab menu found")
@@ -270,20 +280,24 @@ function monitorTabMenu() {
     let lastChildCount = ul.children.length;
     const observer = new MutationObserver((mutationsList) => {
         const currentChildCount = ul.children.length;
+        let isDelete = true;
         if (currentChildCount !== lastChildCount) {
             if (currentChildCount > lastChildCount) {
-                const lastAdded = ul.children[ul.children.length - 2];
-                console.log(`------>>>Added li: ${lastAdded?.innerHTML}`);
+                console.log(`------>>>Added li: `);
+                isDelete = false;
             } else {
                 mutationsList.forEach(mutation => {
                     mutation.removedNodes.forEach(node => {
                         if (node.nodeName === 'LI') {
-                            console.log(`------>>>Removed li: ${(node as HTMLElement).innerHTML}`);
+                            console.log(`------>>>Removed li:`);
                         }
                     });
                 });
             }
             lastChildCount = currentChildCount;
+            if (callback) {
+                callback(isDelete);
+            }
         }
     });
     observer.observe(ul, {childList: true});
