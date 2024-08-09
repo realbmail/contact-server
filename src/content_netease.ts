@@ -370,7 +370,6 @@ async function decryptMailInReading(mailContent: HTMLElement, mailData: string, 
     if (statusRsp.success < 0 || !mailContent || !cryptoBtn) {
         return;
     }
-    console.log("------>>>mail body:", mailData);
 
     if (mailContent.dataset.hasDecrypted === 'true') {
         mailContent.innerText = mailContent.dataset.orignCrpted!;
@@ -391,8 +390,8 @@ async function decryptMailInReading(mailContent: HTMLElement, mailData: string, 
         showTipsDialog("Tips", mailRsp.message);
         return;
     }
-    console.log("------>>>mail body:", mailRsp.data);
 
+    console.log("------>>> decrypt mail body success");
     mailContent.innerText = mailRsp.data;
     mailContent.dataset.orignCrpted = mailData;
     mailContent.dataset.hasDecrypted = "true";
