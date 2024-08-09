@@ -72,6 +72,15 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
         case MsgType.EmailAddrToBmailAddr:
             contactQuery(request.data, sendResponse).then();
             return true;
+        case MsgType.QueryKeyStatus:
+            sessionGet(__key_wallet_status).then(status => {
+                if (!status) {
+                    sendResponse({status: WalletStatus.Init});
+                    return
+                }
+                sendResponse({status: status});
+            });
+            return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
             return;
@@ -278,7 +287,8 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
 
 const contactData: Map<string, string> = new Map([
     ["hopwesley@126.com", 'BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M'],
-    ["ribencong@163.com", 'BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq']
+    ["ribencong@163.com", 'BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq'],
+    ["ribencong@126.com", 'BMDCdbe97k8SanmsEwtw6XbHMxAC1ekpnsYXweNM5vTyhk']
 ]);
 
 async function contactQuery(emailAddr: string, sendResponse: (response: any) => void) {
