@@ -105,7 +105,7 @@ func QueryByEmail(request *Req) (*Rsp, error) {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
 	}
 	rsp.Payload = common.MustJson(contact)
-	common.LogInst().Debug().Msg("query by email address success:")
+	common.LogInst().Debug().Msg("query by email address success")
 	return rsp, nil
 }
 
@@ -120,7 +120,7 @@ func QueryByBMail(request *Req) (*Rsp, error) {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
 	}
 	rsp.Payload = common.MustJson(contact)
-	common.LogInst().Debug().Msg("query by bmail address success:")
+	common.LogInst().Debug().Msg("query by bmail address success")
 	return rsp, nil
 }
 
@@ -134,5 +134,8 @@ func OperateContact(request *Req) (*Rsp, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	common.LogInst().Debug().Bool("is-deletion", operation.IsDel).
+		Str("bmail", operation.BMailAddr).Msg("operate contact success")
 	return rsp, nil
 }

@@ -117,7 +117,7 @@ func TestAddContact(t *testing.T) {
 func TestRemoveContact(t *testing.T) {
 	var req = &Req{
 		Operation: &Operation{
-			IsDel:     false,
+			IsDel:     true,
 			BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
 			EmailAddr: []string{
 				"ribencong@gmail.com",
