@@ -6,6 +6,7 @@ const (
 	BMErrCode = iota
 	BMErrInvalidParam
 	BMErrDatabase
+	BMErrNoRight
 )
 
 type BMError struct {

@@ -13,7 +13,7 @@ type QueryReq struct {
 type Operation struct {
 	IsDel     bool     `json:"is_del"`
 	BMailAddr string   `json:"b_mail_addr"`
-	EmailAddr []string `json:"email_addr"`
+	EmailAddr []string `json:"email_addr,omitempty"`
 }
 
 type Rsp struct {

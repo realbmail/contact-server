@@ -8,12 +8,12 @@ import (
 	"testing"
 )
 
-var address string
-
 const (
 	//api_url = "http://localhost:8001"
 	api_url = "https://sharp-happy-grouse.ngrok-free.app"
 )
+
+var address string
 
 func init() {
 	flag.StringVar(&address, "addr", "", "addr")
@@ -38,7 +38,7 @@ func TestKeepAlive(t *testing.T) {
 		fmt.Println("failed to parse contact data")
 		return
 	}
-	var contact database.BMailContact
+	var contact database.BMailAccount
 	err = json.Unmarshal([]byte(contactStr), &contact)
 	if err != nil {
 		fmt.Println("failed to parse contact:", err.Error())
@@ -65,11 +65,11 @@ func TestQueryByEmail(t *testing.T) {
 	fmt.Println(rsp)
 }
 
-func TestQueryByBMail(t *testing.T) {
+func TestQueryAccounts(t *testing.T) {
 	var req = &Req{QueryReq: &QueryReq{
 		BMailAddr: address,
 	}}
-	api := api_url + "/query_by_bmail"
+	api := api_url + "/query_account"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {
@@ -81,7 +81,7 @@ func TestQueryByBMail(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
-	var bmc database.BMailContact
+	var bmc database.BMailAccount
 	json.Unmarshal([]byte(rsp.Payload.(string)), &bmc)
 	fmt.Println(bmc.EMailAddress)
 }

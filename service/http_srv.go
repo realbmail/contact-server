@@ -24,61 +24,29 @@ func (s *Service) Start() {
 	}
 }
 func keepAlive(w http.ResponseWriter, r *http.Request) {
-	var c = database.BMailContact{
+	var c = database.BMailAccount{
 		EMailAddress: []string{"ri", "ben", "con"},
 	}
 	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
 }
 
-func queryContactByEmail(w http.ResponseWriter, r *http.Request) {
-	var request = Req{}
-	var err = ReadJsonRequest(r, &request)
-	if err != nil {
-		common.LogInst().Err(err).Msg("read parameter for query by email failed")
-		WriteError(w, err)
-		return
+func callFunc(callback func(request *Req) (*Rsp, error)) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var request = Req{}
+		var err = ReadJsonRequest(r, &request)
+		if err != nil {
+			common.LogInst().Err(err).Msg("read parameter for query by email failed")
+			WriteError(w, err)
+			return
+		}
+		response, err := callback(&request)
+		if err != nil {
+			WriteError(w, err)
+			common.LogInst().Err(err).Msg("query by email error")
+			return
+		}
+		WriteJsonRequest(w, response)
 	}
-	response, err := QueryByEmail(&request)
-	if err != nil {
-		WriteError(w, err)
-		common.LogInst().Err(err).Msg("query by email error")
-		return
-	}
-	WriteJsonRequest(w, response)
-}
-
-func queryContactByBMail(w http.ResponseWriter, r *http.Request) {
-	var request = Req{}
-	var err = ReadJsonRequest(r, &request)
-	if err != nil {
-		common.LogInst().Err(err).Msg("read parameter for query by bmail failed")
-		WriteError(w, err)
-		return
-	}
-	response, err := QueryByBMail(&request)
-	if err != nil {
-		common.LogInst().Err(err).Msg("query by bmail error")
-		WriteError(w, err)
-		return
-	}
-	WriteJsonRequest(w, response)
-}
-
-func operateContact(w http.ResponseWriter, r *http.Request) {
-	var request = Req{}
-	var err = ReadJsonRequest(r, &request)
-	if err != nil {
-		common.LogInst().Err(err).Msg("read operation action parameter error")
-		WriteError(w, err)
-		return
-	}
-	response, err := OperateContact(&request)
-	if err != nil {
-		WriteError(w, err)
-		common.LogInst().Err(err).Msg("operation action error")
-		return
-	}
-	WriteJsonRequest(w, response)
 }
 
 func NewHttpService() *Service {
@@ -87,9 +55,10 @@ func NewHttpService() *Service {
 	r.Use(middleware.Recoverer)
 	r.HandleFunc("/keep_alive", keepAlive)
 	r.MethodFunc(http.MethodPost, "/keep_alive", keepAlive)
-	r.MethodFunc(http.MethodPost, "/query_by_email", queryContactByEmail)
-	r.MethodFunc(http.MethodPost, "/query_by_bmail", queryContactByBMail)
-	r.MethodFunc(http.MethodPost, "/operate_contact", operateContact)
+	r.MethodFunc(http.MethodPost, "/query_by_email", callFunc(QueryByEmail))
+	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
+	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
+	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
 	s.router = r
 	return s
 }
@@ -100,7 +69,7 @@ func QueryByEmail(request *Req) (*Rsp, error) {
 	if query == nil || len(query.EmailAddr) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
-	contact, err := database.DbInst().QueryContactByEmailAddr(query.EmailAddr)
+	contact, err := database.DbInst().QueryAccountByEmail(query.EmailAddr)
 	if err != nil {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
 	}
@@ -109,13 +78,13 @@ func QueryByEmail(request *Req) (*Rsp, error) {
 	return rsp, nil
 }
 
-func QueryByBMail(request *Req) (*Rsp, error) {
+func QueryAccount(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
 	var query = request.QueryReq
 	if query == nil || len(query.BMailAddr) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
-	contact, err := database.DbInst().QueryContactByBMailAddr(query.BMailAddr)
+	contact, err := database.DbInst().QueryAccount(query.BMailAddr)
 	if err != nil {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
 	}
@@ -127,15 +96,32 @@ func QueryByBMail(request *Req) (*Rsp, error) {
 func OperateContact(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
 	var operation = request.Operation
-	if operation == nil {
+	if operation == nil || len(operation.EmailAddr) == 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid operation parameter")
 	}
-	err := database.DbInst().OperateBMail(operation.BMailAddr, operation.EmailAddr, operation.IsDel)
+	err := database.DbInst().OperateAccount(operation.BMailAddr, operation.EmailAddr, operation.IsDel)
 	if err != nil {
 		return nil, err
 	}
 
 	common.LogInst().Debug().Bool("is-deletion", operation.IsDel).
 		Str("bmail", operation.BMailAddr).Msg("operate contact success")
+	return rsp, nil
+}
+
+func AccountCreate(request *Req) (*Rsp, error) {
+	var rsp = &Rsp{Success: true}
+	var operation = request.Operation
+
+	if operation == nil || operation.IsDel {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
+	}
+
+	err := database.DbInst().CreateBMailAccount(operation.BMailAddr, database.UserLevelFree)
+	if err != nil {
+		return nil, err
+	}
+
+	common.LogInst().Debug().Str("bmail", operation.BMailAddr).Msg("account creation success")
 	return rsp, nil
 }
