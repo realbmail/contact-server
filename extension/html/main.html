@@ -8,6 +8,7 @@
         .page_view {
             display: none;
         }
+
         .logo-container {
             width: 150px;
             height: 150px;
@@ -19,6 +20,7 @@
             margin: 0 auto 20px;
             overflow: hidden;
         }
+
         .logo-container img {
             width: 100%;
             height: 100%;
@@ -45,8 +47,9 @@
 
 <div id="view-main-dashboard" class="view-main-dashboard page_view">
     <div id="main-header-part" class="main-header-part">
-        <p id="bmail-address-lbl">Address:</p>
-        <p id="bmail-address-val"></p>
+        <p id="bmail-address-lbl" class="bmail-address-lbl">Address:</p>
+        <p id="bmail-address-val" class="bmail-address-val"></p>
+        <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新联系人</button>
     </div>
     <hr style="width: 100%;">
     <div id="main-body-part" class="main-body-part">
