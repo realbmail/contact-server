@@ -10,13 +10,18 @@ import (
 
 var address string
 
+const (
+	//api_url = "http://localhost:8001"
+	api_url = "https://sharp-happy-grouse.ngrok-free.app"
+)
+
 func init() {
 	flag.StringVar(&address, "addr", "", "addr")
 }
 
 func TestKeepAlive(t *testing.T) {
 	var req = &Req{}
-	api := "http://localhost:8001" + "/keep_alive"
+	api := api_url + "/keep_alive"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {
@@ -40,12 +45,13 @@ func TestKeepAlive(t *testing.T) {
 		return
 	}
 	fmt.Println("email:=>", contact.EMailAddress)
-	fmt.Println("bmail:=>", contact.BMailAddress)
 }
 
 func TestQueryByEmail(t *testing.T) {
-	var req = &Req{EmailAddr: address}
-	api := "http://localhost:8001" + "/query_by_email"
+	var req = &Req{QueryReq: &QueryReq{
+		EmailAddr: address,
+	}}
+	api := api_url + "/query_by_email"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {
@@ -60,8 +66,68 @@ func TestQueryByEmail(t *testing.T) {
 }
 
 func TestQueryByBMail(t *testing.T) {
-	var req = &Req{BMailAddr: address}
-	api := "http://localhost:8001" + "/query_by_bmail"
+	var req = &Req{QueryReq: &QueryReq{
+		BMailAddr: address,
+	}}
+	api := api_url + "/query_by_bmail"
+	reqData, _ := json.Marshal(req)
+	respData, err := doHttp(api, "application/json", reqData)
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = Rsp{}
+	err = json.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(rsp)
+	var bmc database.BMailContact
+	json.Unmarshal([]byte(rsp.Payload.(string)), &bmc)
+	fmt.Println(bmc.EMailAddress)
+}
+
+func TestAddContact(t *testing.T) {
+	var req = &Req{
+		Operation: &Operation{
+			IsDel:     false,
+			BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
+			EmailAddr: []string{
+				"ribencong@gmail.com",
+				"ribencong@126.com",
+				"ribencong@163.com",
+				"99927800@qq.com",
+				"hopwesley@126.com",
+			},
+		},
+	}
+	api := api_url + "/operate_contact"
+	reqData, _ := json.Marshal(req)
+	respData, err := doHttp(api, "application/json", reqData)
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = Rsp{}
+	err = json.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(rsp)
+}
+
+func TestRemoveContact(t *testing.T) {
+	var req = &Req{
+		Operation: &Operation{
+			IsDel:     false,
+			BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
+			EmailAddr: []string{
+				"ribencong@gmail.com",
+				"99927800@qq.com",
+				"hopwesley@126.com",
+			},
+		},
+	}
+
+	api := api_url + "/operate_contact"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {

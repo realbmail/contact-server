@@ -51,6 +51,8 @@ func LogInst() *zerolog.Logger {
 }
 
 func SetLogLevel(ll, file string) {
+	_ = LogInst()
+
 	logLevel = ll
 	if len(file) > 0 {
 		LogFileName = file

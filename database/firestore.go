@@ -11,7 +11,8 @@ import (
 
 const (
 	DefaultDBTimeOut = 10 * time.Second
-	DBTableContact   = "bmail-contact"
+	DBTableBContact  = "bmail-contact"
+	DBTableEContact  = "email-contact"
 )
 
 var _dbInst *DbManager

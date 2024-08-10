@@ -17,7 +17,7 @@ type DbCfg struct {
 }
 
 func (c *DbCfg) String() string {
-	s := "\n------file store config------"
+	s := "\n------firestore config------"
 	s += "\nlocal run:\t" + fmt.Sprintf("%t", c.LocalRun)
 	s += "\nproject id:\t" + c.ProjectID
 	s += "\ndatabase id:\t" + c.DatabaseID

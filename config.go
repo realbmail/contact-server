@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/database"
 	"github.com/realbmail/contact-server/service"
 	"os"
@@ -47,5 +48,6 @@ func initConfig(filName string) *Config {
 	database.InitConf(cf.DbCfg)
 	_sysConfig = cf
 	fmt.Println(cf.String())
+	common.SetLogLevel(cf.LogLevel, cf.LogFile)
 	return cf
 }
