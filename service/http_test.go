@@ -86,7 +86,7 @@ func TestQueryByEmailArray(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
-	var account = make([]database.EmailContact, 0)
+	var account = make(map[string]database.EmailContact)
 	contactStr, _ := rsp.Payload.(string)
 	_ = json.Unmarshal([]byte(contactStr), &account)
 	fmt.Println(account)

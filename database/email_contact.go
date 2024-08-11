@@ -8,11 +8,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (dm *DbManager) QueryAccountsByEmails(emailAddrs []string) ([]*EmailContact, error) {
+func (dm *DbManager) QueryAccountsByEmails(emailAddrs []string) (map[string]EmailContact, error) {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()
 
-	var contacts []*EmailContact
+	var contacts = make(map[string]EmailContact)
 	collection := dm.fileCli.Collection(DBTableEContact)
 
 	for _, emailAddr := range emailAddrs {
@@ -33,7 +33,7 @@ func (dm *DbManager) QueryAccountsByEmails(emailAddrs []string) ([]*EmailContact
 			common.LogInst().Err(err).Str("email-addr", emailAddr).Msg("Failed to parse contact object")
 			continue
 		}
-		contacts = append(contacts, &contact)
+		contacts[emailAddr] = contact
 	}
 
 	return contacts, nil
