@@ -55,7 +55,8 @@ func NewHttpService() *Service {
 	r.Use(middleware.Recoverer)
 	r.HandleFunc("/keep_alive", keepAlive)
 	r.MethodFunc(http.MethodPost, "/keep_alive", keepAlive)
-	r.MethodFunc(http.MethodPost, "/query_by_email", callFunc(QueryByEmail))
+	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryByOneEmail))
+	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
 	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
 	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
@@ -63,18 +64,37 @@ func NewHttpService() *Service {
 	return s
 }
 
-func QueryByEmail(request *Req) (*Rsp, error) {
+func QueryByOneEmail(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
 	var query = request.QueryReq
-	if query == nil || len(query.EmailAddr) <= 0 {
+	if query == nil || len(query.OneEmailAddr) <= 0 {
+		common.LogInst().Warn().Msg("invalid parameter for querying by one email")
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
-	contact, err := database.DbInst().QueryAccountByEmail(query.EmailAddr)
+	account, err := database.DbInst().QueryAccountByOneEmail(query.OneEmailAddr)
 	if err != nil {
+		common.LogInst().Err(err).Str("email-addr", query.OneEmailAddr).Msg("query database failed for one email")
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
 	}
-	rsp.Payload = common.MustJson(contact)
-	common.LogInst().Debug().Msg("query by email address success")
+	rsp.Payload = common.MustJson(account)
+	common.LogInst().Debug().Str("email-addr", query.OneEmailAddr).Msg("query by one email address success")
+	return rsp, nil
+}
+
+func QueryByEmailArray(request *Req) (*Rsp, error) {
+	var rsp = &Rsp{Success: true}
+	var query = request.QueryReq
+	if query == nil || len(query.EmailAddrArr) <= 0 {
+		common.LogInst().Warn().Msg("invalid parameter for querying by email array")
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address array")
+	}
+	accountArr, err := database.DbInst().QueryAccountsByEmails(query.EmailAddrArr)
+	if err != nil {
+		common.LogInst().Err(err).Msgf("query database failed for email array:%v", query.EmailAddrArr)
+		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email array:"+err.Error())
+	}
+	rsp.Payload = common.MustJson(accountArr)
+	common.LogInst().Debug().Msgf("query by email address array success:%v", query.EmailAddrArr)
 	return rsp, nil
 }
 
@@ -84,11 +104,11 @@ func QueryAccount(request *Req) (*Rsp, error) {
 	if query == nil || len(query.BMailAddr) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
-	contact, err := database.DbInst().QueryAccount(query.BMailAddr)
+	account, err := database.DbInst().QueryAccount(query.BMailAddr)
 	if err != nil {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
 	}
-	rsp.Payload = common.MustJson(contact)
+	rsp.Payload = common.MustJson(account)
 	common.LogInst().Debug().Msg("query by bmail address success")
 	return rsp, nil
 }

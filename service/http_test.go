@@ -14,9 +14,11 @@ const (
 )
 
 var address string
+var address2 string
 
 func init() {
 	flag.StringVar(&address, "addr", "", "addr")
+	flag.StringVar(&address2, "addr2", "", "addr2")
 }
 
 func TestKeepAlive(t *testing.T) {
@@ -47,11 +49,11 @@ func TestKeepAlive(t *testing.T) {
 	fmt.Println("email:=>", contact.EMailAddress)
 }
 
-func TestQueryByEmail(t *testing.T) {
+func TestQueryByOneEmail(t *testing.T) {
 	var req = &Req{QueryReq: &QueryReq{
-		EmailAddr: address,
+		OneEmailAddr: address,
 	}}
-	api := api_url + "/query_by_email"
+	api := api_url + "/query_by_one_email"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {
@@ -63,6 +65,31 @@ func TestQueryByEmail(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
+}
+
+func TestQueryByEmailArray(t *testing.T) {
+	var req = &Req{QueryReq: &QueryReq{
+		EmailAddrArr: []string{
+			address,
+			address2,
+		},
+	}}
+	api := api_url + "/query_by_email_array"
+	reqData, _ := json.Marshal(req)
+	respData, err := doHttp(api, "application/json", reqData)
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = Rsp{}
+	err = json.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(rsp)
+	var account = make([]database.EmailContact, 0)
+	contactStr, _ := rsp.Payload.(string)
+	_ = json.Unmarshal([]byte(contactStr), &account)
+	fmt.Println(account)
 }
 
 func TestQueryAccounts(t *testing.T) {

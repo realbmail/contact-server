@@ -6,8 +6,9 @@ type Req struct {
 }
 
 type QueryReq struct {
-	EmailAddr string `json:"email_addr,omitempty"`
-	BMailAddr string `json:"b_mail_addr,omitempty"`
+	OneEmailAddr string   `json:"one_email_addr,omitempty"`
+	BMailAddr    string   `json:"b_mail_addr,omitempty"`
+	EmailAddrArr []string `json:"email_addr_arr,omitempty"`
 }
 
 type Operation struct {
