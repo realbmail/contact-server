@@ -9,6 +9,7 @@ import naclUtil from "tweetnacl-util";
 import {encodeHex} from "./common";
 import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
 import base58 from "bs58";
+import {sha512} from "js-sha512";
 
 export function testEncryptData() {
 
@@ -136,24 +137,40 @@ export function testBmailPub() {
         console.log("Failed to decrypt message");
     }
 }
+function privateKeyToCurve25519(privateKey: Uint8Array) {
+    const curve25519Private = new Uint8Array(32); // 计算 SHA-512 哈希，只取前32字节作为私钥
+    const digest = sha512.arrayBuffer(privateKey.slice(0, 32));
 
+    const digestUint8 = new Uint8Array(digest);
+
+    digestUint8[0] &= 248;
+    digestUint8[31] &= 127;
+    digestUint8[31] |= 64;
+
+    curve25519Private.set(digestUint8.slice(0, 32));
+
+    return curve25519Private;
+}
 export function testCurveEd(){
     const seed = generatePrivateKey();
     const keyPair = nacl.sign.keyPair.fromSeed(seed);
+    const edPriPart = keyPair.secretKey.slice(0,32);
+    console.log("------>>>",nacl.sign.secretKeyLength, keyPair.publicKey, keyPair.secretKey, edPriPart);
 
     const message = naclUtil.decodeUTF8('Hello, signature!');
     const signature = nacl.sign.detached(message, keyPair.secretKey);
-
-    // 验证签名，需要提供消息、签名和公钥
-
 
     const signatureHex = encodeHex(signature);
 
     const keypair2 = nacl.box.keyPair.fromSecretKey(seed);
 
+    const newSeed = privateKeyToCurve25519(keyPair.secretKey);
+    const keypair3 = nacl.box.keyPair.fromSecretKey(newSeed);
+
     const publicKeyUint8Array = new Uint8Array(keypair2.publicKey);
     const encodedAddress = base58.encode(publicKeyUint8Array);
     const bmAddr = "BM" + encodedAddress;
+
     console.log('------------------->>>>',
         "\nmessage:\t",encodeHex(message),
         "\nSignature:\t",signatureHex,
@@ -163,6 +180,9 @@ export function testCurveEd(){
         "\npub2:\t", encodeHex(keypair2.publicKey),
         "\npri2:\t", encodeHex(keypair2.secretKey),
         "\nbmAddr:\t", bmAddr,
+        "\nnew seed:\t", encodeHex(newSeed),
+        "\npub3:\t", encodeHex(keypair3.publicKey),
+        "\npri3:\t", encodeHex(keypair3.secretKey),
         );
 
     const isValid = nacl.sign.detached.verify(message, signature, keyPair.publicKey);
