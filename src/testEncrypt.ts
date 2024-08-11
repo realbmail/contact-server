@@ -8,6 +8,7 @@ import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import {encodeHex} from "./common";
 import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
+import base58 from "bs58";
 
 export function testEncryptData() {
 
@@ -149,6 +150,10 @@ export function testCurveEd(){
     const signatureHex = encodeHex(signature);
 
     const keypair2 = nacl.box.keyPair.fromSecretKey(seed);
+
+    const publicKeyUint8Array = new Uint8Array(keypair2.publicKey);
+    const encodedAddress = base58.encode(publicKeyUint8Array);
+    const bmAddr = "BM" + encodedAddress;
     console.log('------------------->>>>',
         "\nmessage:\t",encodeHex(message),
         "\nSignature:\t",signatureHex,
@@ -157,6 +162,7 @@ export function testCurveEd(){
         "\npri1\t",encodeHex(keyPair.secretKey),
         "\npub2:\t", encodeHex(keypair2.publicKey),
         "\npri2:\t", encodeHex(keypair2.secretKey),
+        "\nbmAddr:\t", bmAddr,
         );
 
     const isValid = nacl.sign.detached.verify(message, signature, keyPair.publicKey);
