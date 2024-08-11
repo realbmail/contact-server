@@ -4,10 +4,12 @@ go 1.22.5
 
 require (
 	cloud.google.com/go/firestore v1.16.0
+	github.com/GoKillers/libsodium-go v0.0.0-20171022220152-dd733721c3cb
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/hopwesley/fdlimit v1.0.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
+	golang.org/x/crypto v0.25.0
 	google.golang.org/api v0.189.0
 	google.golang.org/grpc v1.64.1
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
@@ -38,7 +40,6 @@ require (
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect

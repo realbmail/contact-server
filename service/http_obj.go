@@ -3,6 +3,7 @@ package service
 type Req struct {
 	QueryReq  *QueryReq  `json:"query_req,omitempty"`
 	Operation *Operation `json:"operation,omitempty"`
+	Signature string     `json:"signature,omitempty"`
 }
 
 type QueryReq struct {
