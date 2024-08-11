@@ -76,6 +76,11 @@ export class MailKey {
     rawPriKey(): Uint8Array {
         return this.priRaw;
     }
+
+    static signData(priRaw: Uint8Array, data: any): string|null {
+
+        return null;
+    }
 }
 
 export function newWallet(mnemonic: string, password: string): DbWallet {

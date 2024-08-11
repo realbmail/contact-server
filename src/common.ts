@@ -1,7 +1,9 @@
 import * as QRCode from 'qrcode';
+import browser from "webextension-polyfill";
 
 export enum MsgType {
     PluginClicked = 'PluginClicked',
+    WalletCreate = 'WalletCreate',
     WalletOpen = 'WalletOpen',
     WalletClose = 'WalletClose',
     EncryptData = 'EncryptData',
@@ -11,6 +13,7 @@ export enum MsgType {
     QueryCurEmail = 'QueryCurEmail',
     EmailAddrToBmailAddr = 'EmailAddrToBmailAddr',
     CheckIfLogin = 'CheckIfLogin',
+    SignData = 'SignData',
 }
 
 export enum WalletStatus {
@@ -102,4 +105,31 @@ export async function httpApi(path: string, param: any) {
         console.log("------->>>fetch failed:=>", e.message);
         throw e;
     }
+}
+
+export async function sendMessageToBackground(data: any, actTyp: string): Promise<any> {
+    try {
+        return await browser.runtime.sendMessage({
+            action: actTyp,
+            data: data,
+        });
+    } catch (e) {
+        const error = e as Error;
+        console.warn("------>>>send message error", error);
+        return {success: -1, data: error.message}
+    }
+}
+
+export async function signData(data:any, password?:string):Promise<string|null>{
+    const reqData = {
+        data:data,
+        password:password,
+    }
+
+    const rsp = await sendMessageToBackground(reqData, MsgType.SignData);
+    if (rsp.success<0){
+        return null;
+    }
+
+    return"";
 }

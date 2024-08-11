@@ -1,9 +1,9 @@
 import {__tableNameWallet, databaseAddItem, initDatabase} from "./database";
-import {createQRCodeImg, httpApi, showView} from "./common";
+import {createQRCodeImg, httpApi, MsgType, sendMessageToBackground, showView, signData} from "./common";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
-import {newWallet, queryCurWallet} from "./wallet";
+import {DbWallet, newWallet, queryCurWallet} from "./wallet";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
@@ -96,12 +96,26 @@ async function createWallet(): Promise<void> {
     const mnemonic = generateMnemonic();
     ___mnemonic_in_mem = mnemonic;
     sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
+    const wallet = await createNewWallet(mnemonic, password1);
+    if (!wallet){
+        console.log("------>>> create wallet failed")
+        return ;
+    }
+    console.log("creat wallet success=>",wallet.address);
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic();
+}
 
-    const wallet = newWallet(mnemonic, password1);
-    const result = await databaseAddItem(__tableNameWallet, wallet);
-    console.log("save wallet result=>", result);
+async function createNewWallet(mnemonic: string, password: string):Promise<DbWallet | null> {
+    const request = {
+        mnemonic: mnemonic,
+        password: password,
+    }
+    const resp = await sendMessageToBackground(request, MsgType.WalletCreate);
+    if (!resp.success) {
+        return null;
+    }
+    return resp.data as DbWallet;
 }
 
 function displayMnemonic(): void {
@@ -515,13 +529,22 @@ async function freeActiveAccount() {
             operation: {
                 is_del:false,
                 b_mail_addr:address,
-            }
+            },
+            signature:"",
         };
+
+        const signature = await signData(postData.operation);
+        if(!signature){
+            console.log("------>>> sign data failed")
+            return;
+        }
+        postData.signature= signature;
         const data = await httpApi("/account_create", postData);
         if(!data.success){
             console.log("------>>> error:",data.message);
             return
         }
+
         console.log("------->>>fetch success:=>", data);
         // JSON.parse(data.payload)
         navigateTo('#onboarding/account-success');
@@ -530,3 +553,4 @@ async function freeActiveAccount() {
         console.log("------->>>fetch failed:=>", e.message);
     }
 }
+

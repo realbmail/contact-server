@@ -103,16 +103,3 @@ export function showTipsDialog(title: string, message: string) {
     dialog.querySelector(".bmail_dialog_message")!.textContent = message;
     dialog.style.display = "block";
 }
-
-export async function sendMessage(data: any, actTyp: string): Promise<any> {
-    try {
-        return await browser.runtime.sendMessage({
-            action: actTyp,
-            data: data,
-        });
-    } catch (e) {
-        const error = e as Error;
-        console.warn("------>>>send message error", error);
-        return {success: -1, data: error.message}
-    }
-}

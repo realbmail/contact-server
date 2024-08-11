@@ -47,14 +47,25 @@
 
 <div id="view-main-dashboard" class="view-main-dashboard page_view">
     <div id="main-header-part" class="main-header-part">
-        <p id="bmail-address-lbl" class="bmail-address-lbl">Address:</p>
+        <p id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</p>
         <p id="bmail-address-val" class="bmail-address-val"></p>
-        <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新联系人</button>
+        <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新绑定信息</button>
+        <div class="binding-email-address-area">
+            <li class="binding-email-address-item" id="binding-email-address-item" style="display: none">
+                <div class="binding-email-address-item-div">
+                    <span class="binding-email-address-val-">ribencong@gmail.com</span>
+                    <button class="binding-email-unbind-btn">解除绑定</button>
+                </div>
+            </li>
+            <ul class="binding-email-address-list" id="binding-email-address-list">
+            </ul>
+        </div>
     </div>
     <hr style="width: 100%;">
     <div id="main-body-part" class="main-body-part">
         <p id="bmail-email-address-lbl">Current Email Address:</p>
         <p id="bmail-email-address-val"></p>
+        <button class="current-email-bind-btn">绑定该地址</button>
     </div>
     <hr style="width: 100%;">
     <div id="main-footer-part" class="main-footer-part">

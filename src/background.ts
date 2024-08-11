@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 import browser, {Runtime} from "webextension-polyfill";
-import {checkAndInitDatabase, closeDatabase} from "./database";
+import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, MailAddress, MailKey, queryCurWallet} from "./wallet";
+import {castToMemWallet, DbWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
 
@@ -41,6 +41,12 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
                 sendResponse({status: false, error: error});
             });
             return true;
+
+        case MsgType.WalletCreate:
+            const param = request.data;
+            createWallet(param.mnemonic, param.password, sendResponse).then();
+            return true;
+
         case MsgType.WalletOpen:
             openWallet(request.password, sendResponse).then(() => {
             }).catch((error: Error) => {
@@ -48,6 +54,7 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
                 sendResponse({status: false, error: error.message});
             });
             return true;
+
         case MsgType.WalletClose:
             closeWallet(sendResponse).then(() => {
             });
@@ -73,6 +80,10 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             return true;
         case MsgType.CheckIfLogin:
             checkLoginStatus(sendResponse).then();
+            return true;
+
+        case MsgType.SignData:
+            SigDataInBackground(request.data, sendResponse).then();
             return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -155,11 +166,25 @@ async function pluginClicked(sendResponse: (response: any) => void): Promise<voi
     if (walletStatus === WalletStatus.Unlocked) {
         const mKey = await sessionGet(__dbKey_cur_key) as Uint8Array;
         if (!mKey) {
-            sendResponse({status: WalletStatus.Locked, message: ''});
+            sendResponse({status: WalletStatus.Locked, message: 'no valid key found'});
             return;
         }
         sendResponse({status: walletStatus});
         return;
+    }
+}
+
+async function createWallet(mnemonic: string, password: string, sendResponse: (response: any) => void): Promise<void> {
+    try {
+        const wallet = newWallet(mnemonic, password);
+        await databaseAddItem(__tableNameWallet, wallet);
+        const mKey = castToMemWallet(password, wallet);
+        await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
+        await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
+        sendResponse({success: true, data: wallet})
+    } catch (error) {
+        console.log("[service work] creating wallet failed:", error);
+        sendResponse({status: false, message: 'create wallet failed'});
     }
 }
 
@@ -310,4 +335,24 @@ async function checkLoginStatus(sendResponse: (response: any) => void) {
         return;
     }
     sendResponse({success: 1});
+}
+
+async function SigDataInBackground(data: any, sendResponse: (response: any) => void) {
+    const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
+    if (status !== WalletStatus.Unlocked) {
+        sendResponse({success: false, message: "open wallet first"});
+        return;
+    }
+    const priData = await sessionGet(__dbKey_cur_key);
+    if (!priData) {
+        sendResponse({success: false, message: "private raw data lost"});
+        return;
+    }
+    const signature = MailKey.signData(priData, data);
+    if (!signature) {
+        sendResponse({success: false, message: "sign data failed"});
+        return;
+    }
+
+    sendResponse({success: true, data: signature});
 }

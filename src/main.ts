@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {MsgType, showView, WalletStatus} from "./common";
+import {httpApi, MsgType, showView, WalletStatus} from "./common";
 import {initDatabase} from "./database";
 import {MailAddress, MailKey} from "./wallet";
 import {translateMainPage} from "./local";
@@ -124,6 +124,74 @@ function openAllWallets(): void {
 }
 
 function initDashBoard(): void {
-
+    const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
+    const reloadBindingBtn = container.querySelector(".bmail-address-query-btn") as HTMLButtonElement;
+    reloadBindingBtn.addEventListener('click', reloadBindings);
 }
 
+
+class BMailAccount {
+    userLevel: number;
+    emailAddresses: string[];
+
+    constructor(userLevel: number, emailAddresses: []) {
+        this.userLevel = userLevel;
+        this.emailAddresses = emailAddresses;
+    }
+
+    static FromJsonStr(str: string) {
+        const jsonObj = JSON.parse(str);
+        return new BMailAccount(jsonObj.user_lel, jsonObj.e_mail_address);
+    }
+}
+
+async function reloadBindings() {
+    const account = await queryLastAccountInfo();
+    if (!account) {
+        return;
+    }
+    const address = document.getElementById('bmail-address-val')?.textContent;
+
+    const template = document.getElementById("binding-email-address-item") as HTMLElement;
+    const parent = document.getElementById("binding-email-address-list") as HTMLElement;
+    account.emailAddresses.forEach((emailAddress) => {
+        const clone = template.cloneNode(true) as HTMLElement;
+        const unbindBtn = clone.querySelector(".binding-email-unbind-btn") as HTMLElement;
+        unbindBtn.addEventListener("click", e => {
+            unbindMailFromAccount(emailAddress,address!);
+        })
+    })
+}
+
+async function queryLastAccountInfo(): Promise<BMailAccount | null> {
+    const address = document.getElementById('bmail-address-val')?.textContent;
+    if (!address) {
+        console.log("------>>> no valid address found");
+        return null;
+    }
+    try {
+        const parameter = {
+            query_req: {
+                b_mail_addr: address,
+            }
+        };
+        const bindings = await httpApi("/query_account", parameter)
+        if (!bindings.success) {
+            console.log("----->>> query bmail account error:", bindings.message)
+            return null;
+        }
+        const resultStr = bindings.payload as string;
+        if (!resultStr) {
+            console.log("----->>> query result has no payload:");
+            return null;
+        }
+        return BMailAccount.FromJsonStr(resultStr);
+    } catch (e) {
+        console.log('------>>>reload bindings error:', e);
+        return null;
+    }
+}
+
+function unbindMailFromAccount(emailAddress: string, address: string): void {
+
+}

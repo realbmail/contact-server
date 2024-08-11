@@ -3,10 +3,9 @@ import {
     appendTipDialog,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
-    sendMessage,
     showTipsDialog
 } from "./content_common";
-import {MsgType} from "./common";
+import {MsgType, sendMessageToBackground} from "./common";
 import {MailFlag} from "./bmail_body";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
@@ -223,7 +222,7 @@ async function processReceivers(composeDiv: HTMLElement) {
             continue;
         }
         const email = emailElement.textContent!.replace(/[<>]/g, "");
-        const mailRsp = await sendMessage(email, MsgType.EmailAddrToBmailAddr);
+        const mailRsp = await sendMessageToBackground(email, MsgType.EmailAddrToBmailAddr);
         if (!mailRsp || mailRsp.success === 0) {
             return;
         }
@@ -241,7 +240,7 @@ async function processReceivers(composeDiv: HTMLElement) {
 
 async function encryptMailContent(composeDiv: HTMLElement) {
 
-    const statusRsp = await sendMessage('', MsgType.CheckIfLogin)
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
     if (statusRsp.success < 0) {
         return;
     }
@@ -366,7 +365,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
 }
 
 async function decryptMailInReading(mailContent: HTMLElement, mailData: string, cryptoBtn?: HTMLElement | undefined | null) {
-    const statusRsp = await sendMessage('', MsgType.CheckIfLogin)
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
     if (statusRsp.success < 0 || !mailContent || !cryptoBtn) {
         return;
     }
