@@ -5,6 +5,7 @@ import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_sto
 import {castToMemWallet, DbWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
+import {testCurveEd, testSignatureLength} from "./testEncrypt";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -33,6 +34,8 @@ function updateIcon(isLoggedIn: boolean) {
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);
+    testCurveEd();
+    // testSignatureLength();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(() => {

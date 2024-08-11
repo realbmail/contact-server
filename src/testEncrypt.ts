@@ -7,7 +7,7 @@ import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import {encodeHex} from "./common";
-import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey, newWallet} from "./wallet";
+import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
 
 export function testEncryptData() {
 
@@ -133,5 +133,57 @@ export function testBmailPub() {
         console.log("Decrypted:", naclUtil.encodeUTF8(decrypted));
     } else {
         console.log("Failed to decrypt message");
+    }
+}
+
+export function testCurveEd(){
+    const seed = generatePrivateKey();
+    const keyPair = nacl.sign.keyPair.fromSeed(seed);
+
+    const message = naclUtil.decodeUTF8('Hello, signature!');
+    const signature = nacl.sign.detached(message, keyPair.secretKey);
+
+    // 验证签名，需要提供消息、签名和公钥
+
+
+    const signatureHex = encodeHex(signature);
+
+    const keypair2 = nacl.box.keyPair.fromSecretKey(seed);
+    console.log('------------------->>>>',
+        "\nmessage:\t",encodeHex(message),
+        "\nSignature:\t",signatureHex,
+        "\nseed:\t", encodeHex(seed),
+        "\npub1\t",encodeHex(keyPair.publicKey),
+        "\npri1\t",encodeHex(keyPair.secretKey),
+        "\npub2:\t", encodeHex(keypair2.publicKey),
+        "\npri2:\t", encodeHex(keypair2.secretKey),
+        );
+
+    const isValid = nacl.sign.detached.verify(message, signature, keyPair.publicKey);
+    if (isValid) {
+        console.log('Signature is valid!');
+    } else {
+        console.log('Signature is invalid!');
+    }
+}
+
+export function testSignatureLength() {
+    const keyPair = nacl.sign.keyPair();
+    const longMessage = new Uint8Array(10000);  // 创建一个长度为10000的大消息
+    for (let i = 0; i < longMessage.length; i++) {
+        longMessage[i] = i % 256;  // 填充一些数据
+    }
+
+    const signature = nacl.sign(longMessage, keyPair.secretKey);
+
+    console.log('------>>>>Signature length:', signature.length);  // 输出签名长度，应为 64
+
+    // 验证签名
+    const originalMessage = nacl.sign.open(signature, keyPair.publicKey);
+
+    if (originalMessage) {
+        console.log('------>>>>Signature valid, original message length:', originalMessage.length);
+    } else {
+        console.log('------>>>>Invalid signature');
     }
 }
