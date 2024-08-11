@@ -1,5 +1,5 @@
 import {__tableNameWallet, databaseAddItem, initDatabase} from "./database";
-import {showView} from "./common";
+import {createQRCodeImg, httpApi, showView} from "./common";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
 let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
 const wordlist = wordlists.english;
-const __mnemonic_len  = 12;
+const __mnemonic_len = 12;
+
 async function initWelcomePage(): Promise<void> {
     await initDatabase();
     translateHomePage();
@@ -18,6 +19,7 @@ async function initWelcomePage(): Promise<void> {
     initMnemonicDiv();
     initMnemonicConfirmDiv();
     initImportPasswordDiv();
+    initCreateSuccessDiv();
 
     window.addEventListener('hashchange', function () {
         showView(window.location.hash, router);
@@ -68,6 +70,9 @@ function router(path: string): void {
     if (path === '#onboarding/account-home') {
         prepareAccountData();
     }
+    // if(path === '#onboarding/buy-vip') {
+    //
+    // }
 }
 
 function importWallet(): void {
@@ -249,8 +254,8 @@ async function actionOfWalletImport(): Promise<void> {
     }
 
     const wallet = newWallet(___mnemonic_in_mem, password);
-    databaseAddItem(__tableNameWallet, wallet).then(result=>{
-        console.log("------>>>:",result);
+    databaseAddItem(__tableNameWallet, wallet).then(result => {
+        console.log("------>>>:", result);
     }).catch(e => console.error(e));
 
     ___mnemonic_in_mem = null;
@@ -295,8 +300,8 @@ function checkImportPassword(this: HTMLInputElement): void {
 function generateRecoveryPhraseInputs(): void {
     setRecoverPhaseTips(false, '');
 
-    const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs') as HTMLElement ;
-    const template = document.getElementById("recovery-phrase-row-template") as HTMLTemplateElement ;
+    const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs') as HTMLElement;
+    const template = document.getElementById("recovery-phrase-row-template") as HTMLTemplateElement;
 
     recoveryPhraseInputs.innerHTML = '';
 
@@ -326,7 +331,6 @@ function setRecoverPhaseTips(isValid: boolean, errMsg: string): void {
     }
     errorMessage.innerText = errMsg;
 }
-
 
 
 function validateRecoveryPhrase(this: HTMLInputElement): void {
@@ -409,7 +413,13 @@ function changeInputType(this: HTMLElement): void {
 
 function prepareAccountData() {
     queryCurWallet().then((data) => {
-        console.log("------>>> new account details:",data)
+        console.log("------>>> new account details:", data, data?.address.bmailAddress)
+        const address = data?.address.bmailAddress;
+        if (!address) {
+            return
+        }
+        const walletAddrDiv = document.querySelector(".current-wallet-address-val") as HTMLElement;
+        walletAddrDiv.innerText = address;
     })
 }
 
@@ -446,4 +456,77 @@ function confirmImportedWallet(): void {
     ___mnemonic_in_mem = mnemonic;
     sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
     navigateTo('#onboarding/password-for-imported');
+}
+
+function initCreateSuccessDiv() {
+    const parentDiv = document.getElementById("view-account-home") as HTMLButtonElement;
+    const confirmBtn = parentDiv.querySelector(".confirm-button") as HTMLButtonElement;
+    confirmBtn.addEventListener('click', buyVipMembership);
+
+    const freeAccountBtn = parentDiv.querySelector(".confirm-button.free-active") as HTMLButtonElement;
+    freeAccountBtn.addEventListener('click', freeActiveAccount);
+
+    const allCards = parentDiv.querySelectorAll(".membership") as NodeListOf<HTMLElement>;
+    allCards.forEach(membership => {
+        membership.addEventListener("click", () => {
+            membershipChanged(allCards, membership);
+            if (membership.dataset.priceVal === 'false') {
+                freeAccountBtn.style.display = 'block'
+                confirmBtn.style.display = "none";
+            } else {
+                freeAccountBtn.style.display = 'none'
+                confirmBtn.style.display = "block";
+                confirmBtn.querySelector(".price-val-in-btn")!.textContent = membership.dataset.priceVal!;
+                confirmBtn.dataset.priceVal = membership.dataset.priceVal;
+            }
+        })
+    })
+    allCards[0].click();
+}
+
+function membershipChanged(allCard: NodeListOf<HTMLElement>, current: HTMLElement) {
+    allCard.forEach(card => {
+        card.classList.remove("selected");
+    });
+    current.classList.add("selected");
+}
+
+function buyVipMembership(e: MouseEvent): void {
+    console.log("------>>>target:=>", e.target);
+    const btn = e.target as HTMLElement;
+    console.log("------>>>price value:", btn.dataset.priceVal)
+    const qrUrl = createQRCodeImg("")
+    if (!qrUrl) {
+        console.log("------>>>failed to create qr code image");
+        return;
+    }
+    navigateTo('#onboarding/buy-vip');
+}
+
+async function freeActiveAccount() {
+    try {
+        const walletAddrDiv = document.querySelector(".current-wallet-address-val") as HTMLElement;
+        const address = walletAddrDiv.innerText;
+        if (!address){
+            console.log("------>>> no valid account address found")
+            return
+        }
+        const postData = {
+            operation: {
+                is_del:false,
+                b_mail_addr:address,
+            }
+        };
+        const data = await httpApi("/account_create", postData);
+        if(!data.success){
+            console.log("------>>> error:",data.message);
+            return
+        }
+        console.log("------->>>fetch success:=>", data);
+        // JSON.parse(data.payload)
+        navigateTo('#onboarding/account-success');
+    } catch (error) {
+        const e = error as Error;
+        console.log("------->>>fetch failed:=>", e.message);
+    }
 }

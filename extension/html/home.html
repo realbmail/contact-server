@@ -183,8 +183,71 @@
             width: 100%;
             margin-bottom: 20px;
         }
+
         .hidden-word {
             background-color: #f0f0f0; /* 轻微高亮背景 */
+        }
+    </style>
+
+    <style>
+
+        .membership img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .membership h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .membership p {
+            font-size: 16px;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        ul {
+            padding: 0;
+            list-style: none;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        ul li {
+            padding: 2px 0;
+        }
+
+        .confirm-button {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 20px auto;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .membership-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .membership {
+            width: 22%;
+            padding: 10px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .selected {
+            background-color: #cceeff; /* 选中时的背景颜色 */
         }
     </style>
 </head>
@@ -262,7 +325,8 @@
 </div>
 
 <div id="view-import-wallet" class="page_view">
-    <p class="import-container-tip" id="import-container-tip">You can paste your entire secret recovery phrase into any field</p>
+    <p class="import-container-tip" id="import-container-tip">You can paste your entire secret recovery phrase into any
+        field</p>
     <div class="recovery-phrase-row" id="recovery-phrase-row-template" style="display: none;">
         <div class="recovery-phrase-input">
             <input type="password" class="recovery-phrase"/>
@@ -285,7 +349,57 @@
 </div>
 
 <div id="view-account-home" class="account-home-container page_view">
-    Create wallet success
+    <div>
+        <span class="current-wallet-address-lbl">当前账号:</span>
+        <br>
+        <span class="current-wallet-address-val"></span>
+    </div>
+    <div class="membership-container">
+        <div class="membership" id="membership_type_free" data-price-val="false">
+            <img src="../file/free.png" alt="Free Membership">
+            <h2>免费会员</h2>
+            <p class="membership-price">¥0/月</p>
+            <ul>
+                <li>基本内容访问</li>
+                <li>有限下载次数</li>
+            </ul>
+        </div>
+        <div class="membership" id="membership_type_bronze" data-price-val="29">
+            <img src="../file/bronze.png" alt="Bronze Membership">
+            <h2>青铜会员</h2>
+            <p class="membership-price">¥29/月</p>
+            <ul>
+                <li>视频教程</li>
+                <li>无限下载</li>
+            </ul>
+        </div>
+        <div class="membership" id="membership_type_silver" data-price-val="59">
+            <img src="../file/silver.png" alt="Silver Membership">
+            <h2 class="membership-price">白银会员</h2>
+            <p>¥59/月</p>
+            <ul>
+                <li>包括青铜权益</li>
+                <li>在线研讨会</li>
+            </ul>
+        </div>
+        <div class="membership" id="membership_type_gold" data-price-val="99">
+            <img src="../file/gold.png" alt="Gold Membership">
+            <h2>黄金会员</h2>
+            <p class="membership-price">¥99/月</p>
+            <ul>
+                <li>包括白银权益</li>
+                <li>个人顾问</li>
+            </ul>
+        </div>
+    </div>
+    <button class="confirm-button" style="display: none" data-price-val=""><span class="price-in-btn">¥<span class="price-val-in-btn">29</span>/月 </span>购买</button>
+    <button class="confirm-button free-active" style="display: block">免费激活</button>
+</div>
+<div id="view-account-success" class="account-success page_view">
+    请把该插件pin到右上角
+</div>
+<div id="view-buy-vip" class="account-buy-vip page_view">
+    请把该插件pin到右上角
 </div>
 </body>
 </html>

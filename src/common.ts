@@ -1,3 +1,5 @@
+import * as QRCode from 'qrcode';
+
 export enum MsgType {
     PluginClicked = 'PluginClicked',
     WalletOpen = 'WalletOpen',
@@ -70,4 +72,34 @@ export function decodeHex(hexString: string): Uint8Array {
         throw new Error("Hex string must have an even length");
     }
     return new Uint8Array(Buffer.from(hexString, 'hex'));
+}
+
+export async function createQRCodeImg(data: string) {
+    try {
+        const url = await QRCode.toDataURL(data, {errorCorrectionLevel: 'H'});
+        console.log('Generated QR Code:', url);
+        return url;
+    } catch (error) {
+        console.error('Error generating QR Code:', error);
+        return null
+    }
+}
+
+const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
+
+export async function httpApi(path: string, param: any) {
+    try {
+        const response = await fetch(httpServerUrl + path, {
+            method: 'POST', // 设置方法为POST
+            headers: {
+                'Content-Type': 'application/json' // 指定内容类型为JSON
+            },
+            body: JSON.stringify(param) // 将数据转换为JSON字符串
+        });
+        return await response.json();
+    } catch (error) {
+        const e = error as Error;
+        console.log("------->>>fetch failed:=>", e.message);
+        throw e;
+    }
 }
