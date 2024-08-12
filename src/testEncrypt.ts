@@ -6,10 +6,11 @@ import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
-import {encodeHex} from "./common";
+import {decodeHex, encodeHex} from "./common";
 import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
 import base58 from "bs58";
 import {sha512} from "js-sha512";
+import {Ed25519ToCurve25519} from "./edwards25519";
 
 export function testEncryptData() {
 
@@ -112,7 +113,7 @@ export function testBmailPub() {
     const bobSecretKey = generatePrivateKey();
     const bobKeyPair = generateKeyPairFromSecretKey(bobSecretKey);
 
-    console.log("------>>> uint8 array pub:", key.address, decodePubKey(key.address.bmailAddress),bobKeyPair.secretKey)
+    console.log("------>>> uint8 array pub:", key.address, decodePubKey(key.address.bmailAddress), bobKeyPair.secretKey)
     const aliceSharedKey = nacl.box.before(bobKeyPair.publicKey, key.bmailKey.secretKey);
     console.log("Alice's Shared Key:", encodeHex(aliceSharedKey));
 
@@ -137,6 +138,7 @@ export function testBmailPub() {
         console.log("Failed to decrypt message");
     }
 }
+
 function privateKeyToCurve25519(privateKey: Uint8Array) {
     const curve25519Private = new Uint8Array(32); // 计算 SHA-512 哈希，只取前32字节作为私钥
     const digest = sha512.arrayBuffer(privateKey.slice(0, 32));
@@ -151,11 +153,12 @@ function privateKeyToCurve25519(privateKey: Uint8Array) {
 
     return curve25519Private;
 }
-export function testCurveEd(){
+
+export function testCurveEd() {
     const seed = generatePrivateKey();
     const keyPair = nacl.sign.keyPair.fromSeed(seed);
-    const edPriPart = keyPair.secretKey.slice(0,32);
-    console.log("------>>>",nacl.sign.secretKeyLength, keyPair.publicKey, keyPair.secretKey, edPriPart);
+    const edPriPart = keyPair.secretKey.slice(0, 32);
+    console.log("------>>>", nacl.sign.secretKeyLength, keyPair.publicKey, keyPair.secretKey, edPriPart);
 
     const message = naclUtil.decodeUTF8('Hello, signature!');
     const signature = nacl.sign.detached(message, keyPair.secretKey);
@@ -172,18 +175,18 @@ export function testCurveEd(){
     const bmAddr = "BM" + encodedAddress;
 
     console.log('------------------->>>>',
-        "\nmessage:\t",encodeHex(message),
-        "\nSignature:\t",signatureHex,
+        "\nmessage:\t", encodeHex(message),
+        "\nSignature:\t", signatureHex,
         "\nseed:\t", encodeHex(seed),
-        "\npub1\t",encodeHex(keyPair.publicKey),
-        "\npri1\t",encodeHex(keyPair.secretKey),
+        "\npub1\t", encodeHex(keyPair.publicKey),
+        "\npri1\t", encodeHex(keyPair.secretKey),
         "\npub2:\t", encodeHex(keypair2.publicKey),
         "\npri2:\t", encodeHex(keypair2.secretKey),
         "\nbmAddr:\t", bmAddr,
         "\nnew seed:\t", encodeHex(newSeed),
         "\npub3:\t", encodeHex(keypair3.publicKey),
         "\npri3:\t", encodeHex(keypair3.secretKey),
-        );
+    );
 
     const isValid = nacl.sign.detached.verify(message, signature, keyPair.publicKey);
     if (isValid) {
@@ -212,4 +215,18 @@ export function testSignatureLength() {
     } else {
         console.log('------>>>>Invalid signature');
     }
+}
+
+export function testEd2curve() {
+    const seed = decodeHex('ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1');
+    const keyPair = nacl.sign.keyPair.fromSeed(seed);
+    console.log("------>>>publicKey:", keyPair.publicKey, encodeHex(keyPair.publicKey));
+
+    const curvePub = Ed25519ToCurve25519(keyPair.publicKey)
+    if (!curvePub) {
+        console.log("------>>> failed to convert:");
+        return;
+    }
+    console.log("------>>>publicKey:", curvePub, encodeHex(curvePub));
+
 }
