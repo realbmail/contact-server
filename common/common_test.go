@@ -3,11 +3,9 @@ package common
 import (
 	"crypto/ed25519"
 	"crypto/rand"
-	cryptorand "crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"golang.org/x/crypto/curve25519"
-	"io"
 	"testing"
 )
 
@@ -34,9 +32,14 @@ func TestEdToCur(t *testing.T) {
 }
 
 func TestEd25519ToCurve25519(t *testing.T) {
-	randReader := cryptorand.Reader
-	seed := make([]byte, ed25519.SeedSize)
-	if _, err := io.ReadFull(randReader, seed); err != nil {
+	//randReader := cryptorand.Reader
+	//seed := make([]byte, ed25519.SeedSize)
+	//if _, err := io.ReadFull(randReader, seed); err != nil {
+	//	t.Fatal(err)
+	//}
+
+	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
+	if err != nil {
 		t.Fatal(err)
 	}
 

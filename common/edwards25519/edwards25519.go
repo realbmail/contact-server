@@ -4,7 +4,9 @@
 
 package edwards25519
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+)
 
 // This code is a port of the public domain, “ref10” implementation of ed25519
 // from SUPERCOP.
@@ -733,6 +735,7 @@ func (p *ExtendedGroupElement) FromBytes(s *[32]byte) bool {
 	FeOne(&p.Z)
 	FeSquare(&u, &p.Y)
 	FeMul(&v, &u, &d)
+
 	FeSub(&u, &u, &p.Z) // y = y^2-1
 	FeAdd(&v, &v, &p.Z) // v = dy^2+1
 
