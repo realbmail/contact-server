@@ -3,10 +3,11 @@ package common
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	cryptorand "crypto/rand"
+	"encoding/hex"
 	"fmt"
-	"github.com/GoKillers/libsodium-go/cryptosign"
-	sodium "github.com/GoKillers/libsodium-go/sodium"
 	"golang.org/x/crypto/curve25519"
+	"io"
 	"testing"
 )
 
@@ -32,34 +33,24 @@ func TestEdToCur(t *testing.T) {
 	fmt.Println("Curve25519 Public Key:", curve25519PublicKey)
 }
 
-func TestCurToEd(t *testing.T) {
-	sodium.Init()
-
-	// 生成Ed25519密钥对
-	ed25519PrivKey, ed25519PubKey, err := cryptosign.CryptoSignKeyPair()
-	if err < 0 {
-		t.Fatalf("Error generating Ed25519 key pair: %d\n", err)
+func TestEd25519ToCurve25519(t *testing.T) {
+	randReader := cryptorand.Reader
+	seed := make([]byte, ed25519.SeedSize)
+	if _, err := io.ReadFull(randReader, seed); err != nil {
+		t.Fatal(err)
 	}
 
-	//// 检查密钥长度是否为64字节
-	if len(ed25519PrivKey) != 64 {
-		t.Fatalf("Expected 64 byte Ed25519 private key, got %d bytes", len(ed25519PrivKey))
-	}
+	fmt.Println("seed:=>", hex.EncodeToString(seed))
+	privateKey := ed25519.NewKeyFromSeed(seed)
+	//publicKey := make([]byte, ed25519.PublicKeySize)
+	var publicKey [32]byte
 
-	// 将Ed25519私钥转换为Curve25519私钥
-	curve25519PrivKey, err := cryptosign.CryptoSignEd25519SkToCurve25519(ed25519PrivKey)
-	if err < 0 {
-		t.Fatalf("Error converting Ed25519 private key to Curve25519: %d\n", err)
-	}
+	copy(publicKey[:], privateKey[32:])
+	fmt.Println("publicKey:=>", publicKey, hex.EncodeToString(publicKey[:]))
+	var curvePub [32]byte
 
-	// 将Ed25519公钥转换为Curve25519公钥
-	curve25519PubKey, err := cryptosign.CryptoSignEd25519PkToCurve25519(ed25519PubKey)
-	if err < 0 {
-		t.Fatalf("Error converting Ed25519 public key to Curve25519: %d\n", err)
-	}
+	Ed25519ToCurve25519(&curvePub, &publicKey)
 
-	fmt.Printf("Ed25519 Public Key: %x\n", ed25519PubKey)
-	fmt.Printf("Curve25519 Public Key: %x\n", curve25519PubKey)
-	fmt.Printf("Ed25519 Private Key: %x\n", ed25519PrivKey[:32]) // Ed25519 私钥的前32字节是种子
-	fmt.Printf("Curve25519 Private Key: %x\n", curve25519PrivKey)
+	fmt.Println("Curve25519 publicKey:=>", curvePub, hex.EncodeToString(curvePub[:]))
+
 }
