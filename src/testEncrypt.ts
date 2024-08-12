@@ -1,4 +1,4 @@
-import {ec as EC} from "elliptic";
+import {ec, ec as EC} from "elliptic";
 import Hex from "crypto-js/enc-hex";
 import PBKDF2 from "crypto-js/pbkdf2";
 import WordArray from "crypto-js/lib-typedarrays";
@@ -9,8 +9,7 @@ import naclUtil from "tweetnacl-util";
 import {decodeHex, encodeHex} from "./common";
 import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
 import base58 from "bs58";
-import {sha512} from "js-sha512";
-import {Ed25519ToCurve25519} from "./edwards25519";
+import {ed2CurvePub, ed2CurvePri} from "./edwards25519";
 
 export function testEncryptData() {
 
@@ -139,20 +138,7 @@ export function testBmailPub() {
     }
 }
 
-function privateKeyToCurve25519(privateKey: Uint8Array) {
-    const curve25519Private = new Uint8Array(32); // 计算 SHA-512 哈希，只取前32字节作为私钥
-    const digest = sha512.arrayBuffer(privateKey.slice(0, 32));
 
-    const digestUint8 = new Uint8Array(digest);
-
-    digestUint8[0] &= 248;
-    digestUint8[31] &= 127;
-    digestUint8[31] |= 64;
-
-    curve25519Private.set(digestUint8.slice(0, 32));
-
-    return curve25519Private;
-}
 
 export function testCurveEd() {
     const seed = generatePrivateKey();
@@ -167,7 +153,7 @@ export function testCurveEd() {
 
     const keypair2 = nacl.box.keyPair.fromSecretKey(seed);
 
-    const newSeed = privateKeyToCurve25519(keyPair.secretKey);
+    const newSeed = ed2CurvePri(keyPair.secretKey);
     const keypair3 = nacl.box.keyPair.fromSecretKey(newSeed);
 
     const publicKeyUint8Array = new Uint8Array(keypair2.publicKey);
@@ -222,11 +208,83 @@ export function testEd2curve() {
     const keyPair = nacl.sign.keyPair.fromSeed(seed);
     console.log("------>>>publicKey:", keyPair.publicKey, encodeHex(keyPair.publicKey));
 
-    const curvePub = Ed25519ToCurve25519(keyPair.publicKey)
+    const curvePub = ed2CurvePub(keyPair.publicKey)
     if (!curvePub) {
         console.log("------>>> failed to convert:");
         return;
     }
     console.log("------>>>publicKey:", curvePub, encodeHex(curvePub));
 
+    const curvePri = ed2CurvePri(keyPair.secretKey.slice(0,32))
+    const keypairCurve = nacl.box.keyPair.fromSecretKey(curvePri);
+    console.log("------>>>publicKey2:", keypairCurve.publicKey, encodeHex(keypairCurve.publicKey));
+}
+
+export function testEdCrypto(){
+    const seed = generatePrivateKey();
+    console.log("----->>>>seed:", seed, encodeHex(seed));
+    const edKeyPair = nacl.sign.keyPair.fromSeed(seed);
+    console.log("----->>>>ed pub key:", edKeyPair.publicKey, encodeHex(edKeyPair.publicKey));
+    const peerPubStr = "a7706d464d52c03a242a9875eab1d4a9c2af0459fa3b585fbcc29c0c0ee0ddec";
+    const curvePri = ed2CurvePri(edKeyPair.secretKey.slice(0,32))
+    const sharedKey = nacl.box.before(decodeHex(peerPubStr), curvePri);
+    console.log("------>>> shared Key:",sharedKey, encodeHex(sharedKey));
+}
+
+export function testEdCrypto2(){
+    const seed = decodeHex("65a3f3ccb71cb2e2177dbeffa923e527da56cc13172a7d060575e50c080c1f34");
+    const edKeyPair = nacl.sign.keyPair.fromSeed(seed);
+    console.log("----->>>>ed pub key:", edKeyPair.publicKey, encodeHex(edKeyPair.publicKey));
+    const peerEdPub = decodeHex("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1");
+    const peerCurvePub = ed2CurvePub(peerEdPub);
+    console.log("----->>>>peer curve pub:", peerCurvePub, encodeHex(peerCurvePub!));
+    const curvePri = ed2CurvePri(edKeyPair.secretKey.slice(0,32))
+    const sharedKey = nacl.box.before(peerCurvePub!, curvePri);
+    console.log("------>>> shared Key:",sharedKey, encodeHex(sharedKey));
+}
+
+export function testOne(){
+    const seed = decodeHex("65a3f3ccb71cb2e2177dbeffa923e527da56cc13172a7d060575e50c080c1f34");
+    const edKeyPair = nacl.sign.keyPair.fromSeed(seed);
+    console.log("----->>>>self ed pub key:", edKeyPair.publicKey, encodeHex(edKeyPair.publicKey));
+    const peerCurvePub = ed2CurvePub(edKeyPair.publicKey);
+    console.log("----->>>>self curve pub:", peerCurvePub, encodeHex(peerCurvePub!));
+    const curvePri = ed2CurvePri(edKeyPair.secretKey);
+    console.log("----->>>>self curve pri:", curvePri, encodeHex(curvePri!));
+}
+
+
+export function testTwo(){
+    const seed = decodeHex("65a3f3ccb71cb2e2177dbeffa923e527da56cc13172a7d060575e50c080c1f34");
+
+    const edKeyPair = nacl.sign.keyPair.fromSeed(seed);
+    console.log("----->>>>self ed pub key:", encodeHex(edKeyPair.publicKey));
+    const curvePub = ed2CurvePub(edKeyPair.publicKey);
+    const curvePri = ed2CurvePri(edKeyPair.secretKey)
+    console.log("----->>>>self curve pub:", encodeHex(curvePub!),"self curve pri:",encodeHex(curvePri));
+
+    const peerEdPub = decodeHex("a7706d464d52c03a242a9875eab1d4a9c2af0459fa3b585fbcc29c0c0ee0ddec");
+    const peerCurvePub = ed2CurvePub(peerEdPub);
+    console.log("----->>>>peer curve pub:", encodeHex(peerCurvePub!));
+
+    const sharedKey = nacl.box.before(peerCurvePub!, curvePri);
+    console.log("------>>> shared Key:",encodeHex(curvePri),encodeHex(peerCurvePub!), encodeHex(sharedKey));
+}
+
+
+export function testThree(){
+    const selfPriArr = decodeHex("20501526f7c3b061da5d00fdf9b51acc6a856476c110cc7d2e5215e3d1984d76");
+    const peerPriArr = decodeHex("18f3e9e9ac0d9cd77d1b1eac1d71fdd99a038dbfb49a9cf642395fecdfa86971");
+
+    const aliceKeyPair = nacl.box.keyPair.fromSecretKey(selfPriArr);
+    const bobKeyPair  = nacl.box.keyPair.fromSecretKey(peerPriArr);
+
+    // const aliceKeyPair = nacl.sign.keyPair.fromSeed(selfPriArr);
+    // const bobKeyPair = nacl.sign.keyPair.fromSeed(selfPriArr);
+
+    const aliceSharedKey = nacl.scalarMult(aliceKeyPair.secretKey, bobKeyPair.publicKey);
+    const bobSharedKey = nacl.scalarMult(bobKeyPair.secretKey, aliceKeyPair.publicKey);
+
+    console.log("----->>>>Alice's Shared Key:", Buffer.from(aliceSharedKey).toString('hex'));
+    console.log("----->>>>Bob's Shared Key:", Buffer.from(bobSharedKey).toString('hex'));
 }

@@ -1,3 +1,5 @@
+import {sha512} from "js-sha512";
+
 function FeOne(fe: FieldElement): void {
     fe.setZero();
     fe.set(0, 1);
@@ -581,7 +583,7 @@ function edwardsToMontgomeryX(outX: FieldElement, y: FieldElement): void {
     FeMul(outX, outX, oneMinusY);
 }
 
-export function Ed25519ToCurve25519(publicKey: Uint8Array): Uint8Array | null {
+export function ed2CurvePub(publicKey: Uint8Array): Uint8Array | null {
     const A = new ExtendedGroupElement();
     if (!A.FromBytes(publicKey)) {
         return null;
@@ -593,4 +595,19 @@ export function Ed25519ToCurve25519(publicKey: Uint8Array): Uint8Array | null {
     const curve25519Public = new Uint8Array(32);
     FeToBytes(curve25519Public, x);
     return curve25519Public;
+}
+
+export function ed2CurvePri(privateKey: Uint8Array) {
+    const curve25519Private = new Uint8Array(32); // 计算 SHA-512 哈希，只取前32字节作为私钥
+    const digest = sha512.arrayBuffer(privateKey.slice(0, 32));
+
+    const digestUint8 = new Uint8Array(digest);
+
+    digestUint8[0] &= 248;
+    digestUint8[31] &= 127;
+    digestUint8[31] |= 64;
+
+    curve25519Private.set(digestUint8.slice(0, 32));
+
+    return curve25519Private;
 }
