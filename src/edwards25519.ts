@@ -8,8 +8,8 @@ class FieldElement {
 
     constructor() {
         this.values = new Int32Array(10);
+        this.values.fill(0);
     }
-
 
     set(index: number, value: number): void {
         this.values[index] = value;
@@ -18,46 +18,8 @@ class FieldElement {
     get(index: number): number {
         return this.values[index];
     }
-
     setZero(): void {
         this.values.fill(0);
-    }
-
-    // Example methods for FieldElement (add more as needed)
-    setOne(): void {
-        this.values[0] = 1;
-        for (let i = 1; i < 10; i++) {
-            this.values[i] = 0;
-        }
-    }
-
-    sub(other: FieldElement): FieldElement {
-        let result = new FieldElement();
-        for (let i = 0; i < 10; i++) {
-            result.values[i] = this.values[i] - other.values[i];
-        }
-        return result;
-    }
-
-    invert(): FieldElement {
-        // Simplified inversion; actual inversion is more complex
-        let result = new FieldElement();
-        // Inversion logic here
-        return result;
-    }
-
-    add(other: FieldElement): FieldElement {
-        let result = new FieldElement();
-        for (let i = 0; i < 10; i++) {
-            result.values[i] = this.values[i] + other.values[i];
-        }
-        return result;
-    }
-
-    mul(other: FieldElement): FieldElement {
-        let result = new FieldElement();
-        // Simplified multiplication; actual multiplication is more complex
-        return result;
     }
 }
 
@@ -152,90 +114,92 @@ class ExtendedGroupElement {
     }
 }
 
-function load4(input: Uint8Array): number {
+function load4(input: Uint8Array): bigint {
     if (input.length < 4) {
         throw new Error("Input must have at least 4 bytes");
     }
-    let r: number = 0;
-    r |= input[0];
-    r |= input[1] << 8;
-    r |= input[2] << 16;
-    r |= input[3] << 24;
+    let r: bigint = 0n;
+    r |= BigInt(input[0]);
+    r |= BigInt(input[1]) << 8n;
+    r |= BigInt(input[2]) << 16n;
+    r |= BigInt(input[3]) << 24n;
     return r;
 }
 
-function load3(input: Uint8Array): number {
+function load3(input: Uint8Array): bigint {
     if (input.length < 3) {
         throw new Error("Input must have at least 3 bytes");
     }
-    let r: number = 0;
-    r |= input[0];
-    r |= input[1] << 8;
-    r |= input[2] << 16;
+    let r: bigint = 0n;
+    r |= BigInt(input[0]);
+    r |= BigInt(input[1]) << 8n;
+    r |= BigInt(input[2]) << 16n;
     return r;
 }
 
 function FeCombine(
     h: FieldElement,
-    h0: number, h1: number, h2: number, h3: number, h4: number,
-    h5: number, h6: number, h7: number, h8: number, h9: number
+    h0: bigint, h1: bigint, h2: bigint, h3: bigint, h4: bigint,
+    h5: bigint, h6: bigint, h7: bigint, h8: bigint, h9: bigint
 ): void {
-    let c0, c1, c2, c3, c4, c5, c6, c7, c8, c9: number;
+    let c0: bigint = 0n, c1: bigint = 0n, c2: bigint = 0n, c3: bigint = 0n, c4: bigint = 0n;
+    let c5: bigint = 0n, c6: bigint = 0n, c7: bigint = 0n, c8: bigint = 0n, c9: bigint = 0n;
 
-    c0 = (h0 + (1 << 25)) >> 26;
+    c0 = (h0 + (1n << 25n)) >> 26n;
     h1 += c0;
-    h0 -= c0 << 26;
-    c4 = (h4 + (1 << 25)) >> 26;
+    h0 -= c0 << 26n;
+    c4 = (h4 + (1n << 25n)) >> 26n;
     h5 += c4;
-    h4 -= c4 << 26;
+    h4 -= c4 << 26n;
 
-    c1 = (h1 + (1 << 24)) >> 25;
+    c1 = (h1 + (1n << 24n)) >> 25n;
     h2 += c1;
-    h1 -= c1 << 25;
-    c5 = (h5 + (1 << 24)) >> 25;
+    h1 -= c1 << 25n;
+    c5 = (h5 + (1n << 24n)) >> 25n;
     h6 += c5;
-    h5 -= c5 << 25;
+    h5 -= c5 << 25n;
 
-    c2 = (h2 + (1 << 25)) >> 26;
+    c2 = (h2 + (1n << 25n)) >> 26n;
     h3 += c2;
-    h2 -= c2 << 26;
-    c6 = (h6 + (1 << 25)) >> 26;
+    h2 -= c2 << 26n;
+    c6 = (h6 + (1n << 25n)) >> 26n;
     h7 += c6;
-    h6 -= c6 << 26;
+    h6 -= c6 << 26n;
 
-    c3 = (h3 + (1 << 24)) >> 25;
+    c3 = (h3 + (1n << 24n)) >> 25n;
     h4 += c3;
-    h3 -= c3 << 25;
-    c7 = (h7 + (1 << 24)) >> 25;
+    h3 -= c3 << 25n;
+    c7 = (h7 + (1n << 24n)) >> 25n;
     h8 += c7;
-    h7 -= c7 << 25;
+    h7 -= c7 << 25n;
 
-    c4 = (h4 + (1 << 25)) >> 26;
+    c4 = (h4 + (1n << 25n)) >> 26n;
     h5 += c4;
-    h4 -= c4 << 26;
-    c8 = (h8 + (1 << 25)) >> 26;
+    h4 -= c4 << 26n;
+    c8 = (h8 + (1n << 25n)) >> 26n;
     h9 += c8;
-    h8 -= c8 << 26;
+    h8 -= c8 << 26n;
 
-    c9 = (h9 + (1 << 24)) >> 25;
-    h0 += c9 * 19;
-    h9 -= c9 << 25;
+    c9 = (h9 + (1n << 24n)) >> 25n;
+    h0 += c9 * 19n;
+    h9 -= c9 << 25n;
 
-    c0 = (h0 + (1 << 25)) >> 26;
+    c0 = (h0 + (1n << 25n)) >> 26n;
     h1 += c0;
-    h0 -= c0 << 26;
+    h0 -= c0 << 26n;
 
-    h.set(0, h0);
-    h.set(1, h1);
-    h.set(2, h2);
-    h.set(3, h3);
-    h.set(4, h4);
-    h.set(5, h5);
-    h.set(6, h6);
-    h.set(7, h7);
-    h.set(8, h8);
-    h.set(9, h9);
+    h.set(0, Number(h0));
+    h.set(1, Number(h1));
+    h.set(2, Number(h2));
+    h.set(3, Number(h3));
+    h.set(4, Number(h4));
+    h.set(5, Number(h5));
+    h.set(6, Number(h6));
+    h.set(7, Number(h7));
+    h.set(8, Number(h8));
+    h.set(9, Number(h9));
 }
+
 
 function FeFromBytes(dst: FieldElement, src: Uint8Array): void {
     if (src.length !== 32) {
@@ -243,45 +207,44 @@ function FeFromBytes(dst: FieldElement, src: Uint8Array): void {
     }
 
     const h0 = load4(src.slice(0, 4));
-    const h1 = load3(src.slice(4, 7)) << 6;
-    const h2 = load3(src.slice(7, 10)) << 5;
-    const h3 = load3(src.slice(10, 13)) << 3;
-    const h4 = load3(src.slice(13, 16)) << 2;
+    const h1 = load3(src.slice(4, 7)) << 6n;
+    const h2 = load3(src.slice(7, 10)) << 5n;
+    const h3 = load3(src.slice(10, 13)) << 3n;
+    const h4 = load3(src.slice(13, 16)) << 2n;
     const h5 = load4(src.slice(16, 20));
-    const h6 = load3(src.slice(20, 23)) << 7;
-    const h7 = load3(src.slice(23, 26)) << 5;
-    const h8 = load3(src.slice(26, 29)) << 4;
-    const h9 = (load3(src.slice(29, 32)) & 8388607) << 2;
+    const h6 = load3(src.slice(20, 23)) << 7n;
+    const h7 = load3(src.slice(23, 26)) << 5n;
+    const h8 = load3(src.slice(26, 29)) << 4n;
+    const h9 = (load3(src.slice(29, 32)) & 8388607n) << 2n;
 
     FeCombine(dst, h0, h1, h2, h3, h4, h5, h6, h7, h8, h9);
 }
+function feSquare(f: FieldElement): [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint] {
+    const f0 = BigInt(f.get(0));
+    const f1 = BigInt(f.get(1));
+    const f2 = BigInt(f.get(2));
+    const f3 = BigInt(f.get(3));
+    const f4 = BigInt(f.get(4));
+    const f5 = BigInt(f.get(5));
+    const f6 = BigInt(f.get(6));
+    const f7 = BigInt(f.get(7));
+    const f8 = BigInt(f.get(8));
+    const f9 = BigInt(f.get(9));
 
-function feSquare(f: FieldElement): [number, number, number, number, number, number, number, number, number, number] {
-    const f0 = f.get(0);
-    const f1 = f.get(1);
-    const f2 = f.get(2);
-    const f3 = f.get(3);
-    const f4 = f.get(4);
-    const f5 = f.get(5);
-    const f6 = f.get(6);
-    const f7 = f.get(7);
-    const f8 = f.get(8);
-    const f9 = f.get(9);
+    const f0_2 = 2n * f0;
+    const f1_2 = 2n * f1;
+    const f2_2 = 2n * f2;
+    const f3_2 = 2n * f3;
+    const f4_2 = 2n * f4;
+    const f5_2 = 2n * f5;
+    const f6_2 = 2n * f6;
+    const f7_2 = 2n * f7;
 
-    const f0_2 = 2 * f0;
-    const f1_2 = 2 * f1;
-    const f2_2 = 2 * f2;
-    const f3_2 = 2 * f3;
-    const f4_2 = 2 * f4;
-    const f5_2 = 2 * f5;
-    const f6_2 = 2 * f6;
-    const f7_2 = 2 * f7;
-
-    const f5_38 = 38 * f5;
-    const f6_19 = 19 * f6;
-    const f7_38 = 38 * f7;
-    const f8_19 = 19 * f8;
-    const f9_38 = 38 * f9;
+    const f5_38 = 38n * f5;
+    const f6_19 = 19n * f6;
+    const f7_38 = 38n * f7;
+    const f8_19 = 19n * f8;
+    const f9_38 = 38n * f9;
 
     const h0 = f0 * f0 + f1_2 * f9_38 + f2_2 * f8_19 + f3_2 * f7_38 + f4_2 * f6_19 + f5 * f5_38;
     const h1 = f0_2 * f1 + f2 * f9_38 + f3_2 * f8_19 + f4 * f7_38 + f5_2 * f6_19;
@@ -301,45 +264,44 @@ function FeSquare(h: FieldElement, f: FieldElement): void {
     const [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9] = feSquare(f);
     FeCombine(h, h0, h1, h2, h3, h4, h5, h6, h7, h8, h9);
 }
-
 function FeMul(h: FieldElement, f: FieldElement, g: FieldElement): void {
-    const f0 = f.get(0);
-    const f1 = f.get(1);
-    const f2 = f.get(2);
-    const f3 = f.get(3);
-    const f4 = f.get(4);
-    const f5 = f.get(5);
-    const f6 = f.get(6);
-    const f7 = f.get(7);
-    const f8 = f.get(8);
-    const f9 = f.get(9);
+    const f0 = BigInt(f.get(0));
+    const f1 = BigInt(f.get(1));
+    const f2 = BigInt(f.get(2));
+    const f3 = BigInt(f.get(3));
+    const f4 = BigInt(f.get(4));
+    const f5 = BigInt(f.get(5));
+    const f6 = BigInt(f.get(6));
+    const f7 = BigInt(f.get(7));
+    const f8 = BigInt(f.get(8));
+    const f9 = BigInt(f.get(9));
 
-    const f1_2 = 2 * f1;
-    const f3_2 = 2 * f3;
-    const f5_2 = 2 * f5;
-    const f7_2 = 2 * f7;
-    const f9_2 = 2 * f9;
+    const f1_2 = 2n * f1;
+    const f3_2 = 2n * f3;
+    const f5_2 = 2n * f5;
+    const f7_2 = 2n * f7;
+    const f9_2 = 2n * f9;
 
-    const g0 = g.get(0);
-    const g1 = g.get(1);
-    const g2 = g.get(2);
-    const g3 = g.get(3);
-    const g4 = g.get(4);
-    const g5 = g.get(5);
-    const g6 = g.get(6);
-    const g7 = g.get(7);
-    const g8 = g.get(8);
-    const g9 = g.get(9);
+    const g0 = BigInt(g.get(0));
+    const g1 = BigInt(g.get(1));
+    const g2 = BigInt(g.get(2));
+    const g3 = BigInt(g.get(3));
+    const g4 = BigInt(g.get(4));
+    const g5 = BigInt(g.get(5));
+    const g6 = BigInt(g.get(6));
+    const g7 = BigInt(g.get(7));
+    const g8 = BigInt(g.get(8));
+    const g9 = BigInt(g.get(9));
 
-    const g1_19 = 19 * g1;
-    const g2_19 = 19 * g2;
-    const g3_19 = 19 * g3;
-    const g4_19 = 19 * g4;
-    const g5_19 = 19 * g5;
-    const g6_19 = 19 * g6;
-    const g7_19 = 19 * g7;
-    const g8_19 = 19 * g8;
-    const g9_19 = 19 * g9;
+    const g1_19 = 19n * g1;
+    const g2_19 = 19n * g2;
+    const g3_19 = 19n * g3;
+    const g4_19 = 19n * g4;
+    const g5_19 = 19n * g5;
+    const g6_19 = 19n * g6;
+    const g7_19 = 19n * g7;
+    const g8_19 = 19n * g8;
+    const g9_19 = 19n * g9;
 
     const h0 = f0 * g0 + f1_2 * g9_19 + f2 * g8_19 + f3_2 * g7_19 + f4 * g6_19 + f5_2 * g5_19 + f6 * g4_19 + f7_2 * g3_19 + f8 * g2_19 + f9_2 * g1_19;
     const h1 = f0 * g1 + f1 * g0 + f2 * g9_19 + f3 * g8_19 + f4 * g7_19 + f5 * g6_19 + f6 * g5_19 + f7 * g4_19 + f8 * g3_19 + f9 * g2_19;
