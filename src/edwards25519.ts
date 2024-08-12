@@ -31,22 +31,6 @@ class FieldElement {
         }
     }
 
-    fromBytes(bytes: Uint8Array): boolean {
-        // Convert bytes to FieldElement
-        // This is a simplified version; actual conversion is more complex
-        if (bytes.length !== 32) {
-            return false;
-        }
-        // Implementation detail for fromBytes
-        return true;
-    }
-
-    toBytes(): Uint8Array {
-        // Convert FieldElement to bytes
-        // This is a simplified version; actual conversion is more complex
-        return new Uint8Array(32);
-    }
-
     sub(other: FieldElement): FieldElement {
         let result = new FieldElement();
         for (let i = 0; i < 10; i++) {
@@ -149,7 +133,6 @@ class ExtendedGroupElement {
         if (FeIsNonZero(check) === 1) {
             FeAdd(check, vxx, u); // vx^2+u
             if (FeIsNonZero(check) === 1) {
-
                 return false;
             }
             FeMul(this.X, this.X, SqrtM1);
@@ -166,32 +149,6 @@ class ExtendedGroupElement {
 
         FeMul(this.T, this.X, this.Y);
         return true;
-    }
-
-    static feOne(): FieldElement {
-        let one = new FieldElement();
-        one.setOne();
-        return one;
-    }
-
-    static feSub(a: FieldElement, b: FieldElement): FieldElement {
-        return a.sub(b);
-    }
-
-    static feInvert(a: FieldElement): FieldElement {
-        return a.invert();
-    }
-
-    static feAdd(a: FieldElement, b: FieldElement): FieldElement {
-        return a.add(b);
-    }
-
-    static feMul(a: FieldElement, b: FieldElement): FieldElement {
-        return a.mul(b);
-    }
-
-    static feToBytes(fe: FieldElement): Uint8Array {
-        return fe.toBytes();
     }
 }
 
