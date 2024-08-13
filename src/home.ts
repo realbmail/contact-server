@@ -4,6 +4,7 @@ import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
 import {DbWallet, newWallet, queryCurWallet} from "./wallet";
+import {BMReq, Operation} from "./proto/bmail_srv";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
@@ -542,21 +543,24 @@ async function freeActiveAccount() {
             console.log("------>>> no valid account address found")
             return
         }
-        const postData = {
-            pay_load: {
-                is_del:false,
-                b_mail_addr:address,
-            },
-            account_id:address,
-            signature:"",
-        };
 
-        const signature = await signData(postData.pay_load);
+        const payload: Operation = Operation.create({
+            isDel: false,
+            address: address
+        });
+
+
+        const signature = await signData(payload);
         if(!signature){
             console.log("------>>> sign data failed")
             return;
         }
-        postData.signature= signature;
+        const postData = BMReq.create({
+            address:address,
+            payload:Operation.encode(payload).finish(),
+            signature:signature,
+        })
+
         const data = await httpApi("/account_create", postData);
         if(!data.success){
             console.log("------>>> error:",data.message);

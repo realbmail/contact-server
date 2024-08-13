@@ -95,7 +95,7 @@ export async function httpApi(path: string, param: any) {
         const response = await fetch(httpServerUrl + path, {
             method: 'POST', // 设置方法为POST
             headers: {
-                'Content-Type': 'application/json' // 指定内容类型为JSON
+                'Content-Type': 'application/x-protobuf' // 指定内容类型为JSON
             },
             body: JSON.stringify(param) // 将数据转换为JSON字符串
         });
