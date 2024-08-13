@@ -9,7 +9,9 @@ import base58 from "bs58";
 import {keccak256} from "js-sha3";
 import {__tableNameWallet, getMaxIdRecord} from "./database";
 import nacl from 'tweetnacl';
-import {decodeHex} from "./common";
+import {decodeHex, encodeHex} from "./common";
+import {ed2CurvePri} from "./edwards25519";
+import naclUtil from "tweetnacl-util";
 
 const BMailAddrPrefix = "BM";
 
@@ -48,14 +50,16 @@ export class MailAddress {
 export class MailKey {
     private readonly priRaw: Uint8Array;
     private readonly ecKey: EC.KeyPair;
-    readonly bmailKey: nacl.BoxKeyPair;
+    readonly bmailKey: nacl.SignKeyPair;
+    readonly curvePriKey: Uint8Array;
     public address: MailAddress;
 
     constructor(priRaw: Uint8Array) {
         this.priRaw = priRaw;
         const ec = new EC('secp256k1');
         this.ecKey = ec.keyFromPrivate(priRaw);
-        this.bmailKey = generateKeyPairFromSecretKey(priRaw);
+        this.bmailKey = nacl.sign.keyPair.fromSeed(priRaw);
+        this.curvePriKey = ed2CurvePri(this.bmailKey.secretKey);
         this.address = new MailAddress(this.getPub(), this.getEthPub());
     }
 
@@ -77,9 +81,25 @@ export class MailKey {
         return this.priRaw;
     }
 
-    static signData(priRaw: Uint8Array, data: any): string|null {
+    static signData(priRaw: Uint8Array, data: any): string {
+        const signKey = nacl.sign.keyPair.fromSeed(priRaw);
+        const jsonString = JSON.stringify(data);
+        const message = naclUtil.decodeUTF8(jsonString);
+        const signature = nacl.sign.detached(message, signKey.secretKey);
+        return encodeHex(signature);
+    }
 
-        return null;
+    static verifySignature(priRaw: Uint8Array, signature: string, obj: any): boolean {
+        try {
+            const signKey = nacl.sign.keyPair.fromSeed(priRaw);
+            const detachedSignature = decodeHex(signature);
+            const jsonString = JSON.stringify(obj);
+            const message = naclUtil.decodeUTF8(jsonString);
+            return nacl.sign.detached.verify(message, detachedSignature, signKey.publicKey);
+        } catch (e) {
+            console.log("------>>> verifySignature failed", e);
+            return false;
+        }
     }
 }
 
@@ -143,7 +163,6 @@ export function decodePubKey(pubKeyStr: string): Uint8Array {
 export function generatePrivateKey(): Uint8Array {
     return nacl.randomBytes(nacl.box.secretKeyLength);
 }
-
 
 export function generateKeyPairFromSecretKey(secretKey: Uint8Array): nacl.BoxKeyPair {
     return nacl.box.keyPair.fromSecretKey(secretKey);

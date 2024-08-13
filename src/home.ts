@@ -544,9 +544,7 @@ async function freeActiveAccount() {
             console.log("------>>> error:",data.message);
             return
         }
-
         console.log("------->>>fetch success:=>", data);
-        // JSON.parse(data.payload)
         navigateTo('#onboarding/account-success');
     } catch (error) {
         const e = error as Error;

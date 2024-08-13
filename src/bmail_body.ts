@@ -2,6 +2,7 @@ import naclUtil from "tweetnacl-util";
 import nacl from "tweetnacl";
 import {decodePubKey, generatePrivateKey, MailKey} from "./wallet";
 import {decodeHex, encodeHex} from "./common";
+import {ed2CurvePub} from "./edwards25519";
 
 export const MailBodyVersion = 1;
 export const MailFlag = "0be465716ad37c9119253196f921e677";
@@ -54,7 +55,11 @@ export function encodeMail(peers: string[], data: string, key: MailKey): BMailBo
 
     peers.forEach(peer => {
         const peerPub = decodePubKey(peer);
-        const sharedKey = nacl.box.before(peerPub, key.bmailKey.secretKey);
+        const peerCurvePub = ed2CurvePub(peerPub);
+        if(!peerCurvePub) {
+            throw new Error("Invalid bmail address,convert to curve pub failed");
+        }
+        const sharedKey = nacl.scalarMult(key.curvePriKey,peerCurvePub!);
         const encryptedKey = nacl.secretbox(aesKey, nonce, sharedKey);
         secrets.set(peer, encodeHex(encryptedKey));
     })
@@ -73,7 +78,11 @@ export function decodeMail(mailData: string, key: MailKey) {
     }
 
     const peerPub = decodePubKey(mail.sender);
-    const sharedKey = nacl.box.before(peerPub, key.bmailKey.secretKey);
+    const peerCurvePub = ed2CurvePub(peerPub);
+    if (!peerCurvePub) {
+        throw new Error("Invalid bmail address,convert to curve pub failed");
+    }
+    const sharedKey = nacl.scalarMult(key.curvePriKey,peerCurvePub);
     const aesKey = nacl.secretbox.open(decodeHex(encryptedKey), mail.nonce, sharedKey);
     if (!aesKey) {
         throw new Error("no aes key valid.");

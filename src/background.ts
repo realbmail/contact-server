@@ -5,7 +5,7 @@ import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_sto
 import {castToMemWallet, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
-import {testEd2curve, testEdCrypto, testEdCrypto2, testOne, testThree, testTwo} from "./testEncrypt";
+import {testEd2curve, testEdCrypto, testEdCrypto2, testOne, testSignAndVerify, testThree, testTwo} from "./testEncrypt";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -34,7 +34,7 @@ function updateIcon(isLoggedIn: boolean) {
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);
-    testThree();
+    // testTwo();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(() => {
@@ -145,6 +145,7 @@ runtime.onSuspend.addListener(() => {
 });
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
+    testSignAndVerify();
     const availableUrl = await currentTabIsValid();
     console.log(`[service work] current url is ${availableUrl}...`);
     if (!availableUrl) {
@@ -178,6 +179,7 @@ async function pluginClicked(sendResponse: (response: any) => void): Promise<voi
 
 async function createWallet(mnemonic: string, password: string, sendResponse: (response: any) => void): Promise<void> {
     try {
+        await checkAndInitDatabase();
         const wallet = newWallet(mnemonic, password);
         await databaseAddItem(__tableNameWallet, wallet);
         const mKey = castToMemWallet(password, wallet);
@@ -190,13 +192,13 @@ async function createWallet(mnemonic: string, password: string, sendResponse: (r
     }
 }
 
-async function openWallet(pwd: string, sendResponse: (response: any) => void): Promise<void> {
+async function openWallet(pwd: string, sendResponse: (response: any) => void): Promise<boolean> {
     await checkAndInitDatabase();
     const wallet = await queryCurWallet();
     if (!wallet) {
         sendResponse({status: false, error: 'no wallet setup'});
         await sessionSet(__key_wallet_status, WalletStatus.NoWallet);
-        return;
+        return false;
     }
 
     const mKey = castToMemWallet(pwd, wallet);
@@ -204,6 +206,7 @@ async function openWallet(pwd: string, sendResponse: (response: any) => void): P
     await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
     sendResponse({status: true, message: mKey.address});
     updateIcon(true);
+    return true;
 }
 
 async function closeWallet(sendResponse: (response: any) => void): Promise<void> {
@@ -340,17 +343,28 @@ async function checkLoginStatus(sendResponse: (response: any) => void) {
 }
 
 async function SigDataInBackground(data: any, sendResponse: (response: any) => void) {
+    const dataToSign = data.dataToSign;
+    const pwd = data.password;
     const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
     if (status !== WalletStatus.Unlocked) {
-        sendResponse({success: false, message: "open wallet first"});
-        return;
+        if (!pwd) {
+            sendResponse({success: false, message: "open wallet first"});
+            return;
+        }
+        const success = await openWallet(pwd, sendResponse);
+        if(!success){
+            sendResponse({success: false, message: "open wallet failed"});
+            return;
+        }
     }
+
     const priData = await sessionGet(__dbKey_cur_key);
     if (!priData) {
         sendResponse({success: false, message: "private raw data lost"});
         return;
     }
-    const signature = MailKey.signData(priData, data);
+
+    const signature = MailKey.signData(priData, dataToSign);
     if (!signature) {
         sendResponse({success: false, message: "sign data failed"});
         return;
