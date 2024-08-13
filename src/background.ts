@@ -28,7 +28,7 @@ const ICON_PATHS = {
 
 function updateIcon(isLoggedIn: boolean) {
     const iconPath = isLoggedIn ? ICON_PATHS.loggedIn : ICON_PATHS.loggedOut;
-    browser.action.setIcon({path: iconPath});
+    browser.action.setIcon({path: iconPath}).then();
 }
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
@@ -361,7 +361,7 @@ async function SigDataInBackground(data: any, sendResponse: (response: any) => v
         return;
     }
 
-    const signature = MailKey.signData(priData, dataToSign);
+    const signature = MailKey.signData(new Uint8Array(priData), dataToSign);
     if (!signature) {
         sendResponse({success: false, message: "sign data failed"});
         return;

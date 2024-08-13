@@ -120,16 +120,16 @@ export async function sendMessageToBackground(data: any, actTyp: string): Promis
     }
 }
 
-export async function signData(data:any, password?:string):Promise<string|null>{
+export async function signData(data: any, password?: string): Promise<string | null> {
     const reqData = {
-        dataToSign:data,
-        password:password,
+        dataToSign: data,
+        password: password,
     }
 
     const rsp = await sendMessageToBackground(reqData, MsgType.SignData);
-    if (rsp.success<0){
+    if (!rsp.success) {
         return null;
     }
 
-    return"";
+    return rsp.data;
 }

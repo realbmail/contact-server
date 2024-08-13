@@ -70,7 +70,7 @@ function populateDashboard() {
         if (!mAddr) {
             //TODO::something wrong with this step.
             console.log("------>>>fatal logic error, no wallet found!");
-            showView('#onboarding/main-login', router);
+            // showView('#onboarding/main-login', router);
             return;
         }
         document.getElementById('bmail-address-val')!.textContent = mAddr.bmailAddress;
