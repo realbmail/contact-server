@@ -9,6 +9,9 @@ type Req struct {
 }
 
 func (r *Req) VerifySig() error {
+	if __httpConf.CheckSignature == false {
+		return nil
+	}
 	return common.VerifySig(r.PayLoad, r.Signature, r.AccountID)
 }
 

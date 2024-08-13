@@ -6,6 +6,7 @@ import (
 )
 
 type HttpCfg struct {
+	CheckSignature      bool   `json:"check_signature"`
 	HttpPort            string `json:"http_port"`
 	RefreshContent      bool   `json:"refresh_content"`
 	UseHttps            bool   `json:"use_https"`
