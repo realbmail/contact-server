@@ -56,11 +56,18 @@ func (dm *DbManager) CreateBMailAccount(accountId string, level UserLevel) error
 	var obj = BMailAccount{
 		UserLel: level,
 	}
-	_, err := docRef.Set(opCtx, obj)
-	if err != nil {
-		return err
+	_, err := docRef.Get(opCtx)
+	if err == nil {
+		common.LogInst().Warn().Str("bmail-account", accountId).Msg("duplicate create action")
+		return nil
+	} else {
+		if status.Code(err) != codes.NotFound {
+			return err
+		}
 	}
-	return nil
+
+	_, err = docRef.Set(opCtx, obj)
+	return err
 }
 
 func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
