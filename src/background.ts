@@ -5,7 +5,6 @@ import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_sto
 import {castToMemWallet, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
-import {testEd2curve, testEdCrypto, testEdCrypto2, testOne, testSignAndVerify, testThree, testTwo} from "./testEncrypt";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -34,7 +33,6 @@ function updateIcon(isLoggedIn: boolean) {
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.tab, sender.url);
-    // testTwo();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(() => {
@@ -145,7 +143,6 @@ runtime.onSuspend.addListener(() => {
 });
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
-    testSignAndVerify();
     const availableUrl = await currentTabIsValid();
     console.log(`[service work] current url is ${availableUrl}...`);
     if (!availableUrl) {
