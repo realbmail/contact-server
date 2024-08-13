@@ -4,7 +4,7 @@ go 1.22.5
 
 require (
 	cloud.google.com/go/firestore v1.16.0
-	github.com/GoKillers/libsodium-go v0.0.0-20171022220152-dd733721c3cb
+	github.com/btcsuite/btcutil v1.0.2
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/hopwesley/fdlimit v1.0.0
 	github.com/rs/zerolog v1.33.0

@@ -1,9 +1,17 @@
 package common
 
 import (
+	"crypto/ed25519"
 	"crypto/sha512"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/realbmail/contact-server/common/edwards25519"
+	"strings"
 )
+
+const BMailAddrPrefix = "BM"
 
 func Ed2CurvePriKey(privateKey []byte) []byte {
 	h := sha512.New()
@@ -47,4 +55,34 @@ func edwardsToMontgomeryX(outX, y *edwards25519.FieldElement) {
 	edwards25519.FeAdd(outX, outX, y)
 
 	edwards25519.FeMul(outX, outX, &oneMinusY)
+}
+
+func VerifySig(obj any, sig, peerAddr string) error {
+	peerPub, err := DecodePubKey(peerAddr)
+	if err != nil {
+		return err
+	}
+	sigBts, err := hex.DecodeString(sig)
+	if err != nil {
+		return err
+	}
+	objStr, err := json.Marshal(obj)
+	if err != nil {
+		return err
+	}
+
+	success := ed25519.Verify(peerPub, objStr, sigBts)
+	if !success {
+		return errors.New("ed25519 verify failed")
+	}
+	return nil
+}
+
+func DecodePubKey(pubKeyStr string) ([]byte, error) {
+	if !strings.HasPrefix(pubKeyStr, BMailAddrPrefix) {
+		return nil, errors.New("invalid public key prefix")
+	}
+	encodedAddress := strings.TrimPrefix(pubKeyStr, BMailAddrPrefix)
+	decoded := base58.Decode(encodedAddress)
+	return decoded, nil
 }

@@ -133,11 +133,16 @@ func AccountCreate(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
 	var operation = request.Operation
 
-	if operation == nil || operation.IsDel {
+	if operation == nil || operation.IsDel || len(request.Signature) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
 	}
 
-	err := database.DbInst().CreateBMailAccount(operation.BMailAddr, database.UserLevelFree)
+	err := common.VerifySig(operation, request.Signature, operation.BMailAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	err = database.DbInst().CreateBMailAccount(operation.BMailAddr, database.UserLevelFree)
 	if err != nil {
 		return nil, err
 	}

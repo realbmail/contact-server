@@ -11,7 +11,8 @@ import (
 type UserLevel uint8
 
 const (
-	UserLevelFree UserLevel = iota
+	UserLevelInActive UserLevel = iota
+	UserLevelFree
 	UserLevelBronze
 	UserLevelSilver
 	UserLevelGold
@@ -79,7 +80,7 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 			return err
 		}
 
-		if contact.UserLel == UserLevelFree {
+		if contact.UserLel <= UserLevelFree {
 			return common.NewBMError(common.BMErrNoRight, "no right to operation")
 		}
 
