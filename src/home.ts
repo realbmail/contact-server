@@ -70,9 +70,9 @@ function router(path: string): void {
     if (path === '#onboarding/account-home') {
         prepareAccountData();
     }
-    // if(path === '#onboarding/buy-vip') {
-    //
-    // }
+    if(path === '#onboarding/buy-vip') {
+        generateQrCodeForVipBuying().then();
+    }
 }
 
 function importWallet(): void {
@@ -506,16 +506,32 @@ function membershipChanged(allCard: NodeListOf<HTMLElement>, current: HTMLElemen
     current.classList.add("selected");
 }
 
+let currentPriceVal = '0'
 function buyVipMembership(e: MouseEvent): void {
     console.log("------>>>target:=>", e.target);
     const btn = e.target as HTMLElement;
-    console.log("------>>>price value:", btn.dataset.priceVal)
-    const qrUrl = createQRCodeImg("")
-    if (!qrUrl) {
-        console.log("------>>>failed to create qr code image");
+    currentPriceVal = btn.dataset.priceVal??'0';
+    console.log("------>>>price value:", currentPriceVal)
+    navigateTo('#onboarding/buy-vip');
+}
+
+async function generateQrCodeForVipBuying() {
+    if (currentPriceVal === '0') {
+        navigateTo('#onboarding/account-home');
         return;
     }
-    navigateTo('#onboarding/buy-vip');
+    const qrUrl = await createQRCodeImg('我正在购买' + currentPriceVal + '元的会员');
+    if (!qrUrl) {
+        navigateTo('#onboarding/account-home');
+        return;
+    }
+
+    const parentDiv = document.getElementById("view-buy-vip") as HTMLDivElement;
+    const qrImg = parentDiv.querySelector("img");
+    if (!qrImg) {
+        return;
+    }
+    qrImg.src = qrUrl;
 }
 
 async function freeActiveAccount() {
