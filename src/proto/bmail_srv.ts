@@ -324,7 +324,7 @@ function createBaseOperation(): Operation {
 
 export const Operation = {
   encode(message: Operation, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.isDel) {
+    if (message.isDel !== false) {
       writer.uint32(8).bool(message.isDel);
     }
     if (message.address !== "") {
@@ -383,7 +383,7 @@ export const Operation = {
 
   toJSON(message: Operation): unknown {
     const obj: any = {};
-    if (message.isDel) {
+    if (message.isDel !== false) {
       obj.isDel = message.isDel;
     }
     if (message.address !== "") {
