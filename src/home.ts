@@ -267,11 +267,11 @@ async function actionOfWalletImport(): Promise<void> {
         return;
     }
 
-    const wallet = newWallet(___mnemonic_in_mem, password);
-    databaseAddItem(__tableNameWallet, wallet).then(result => {
-        console.log("------>>>:", result);
-    }).catch(e => console.error(e));
-
+    const wallet = await createNewWallet(___mnemonic_in_mem, password);
+    if (!wallet){
+        console.log("------>>> create wallet failed")
+        return ;
+    }
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
     navigateTo('#onboarding/account-home');
@@ -279,17 +279,18 @@ async function actionOfWalletImport(): Promise<void> {
 
 
 function checkImportPassword(this: HTMLInputElement): void {
-    const form = this.closest('form') as HTMLFormElement;
-    const okBtn = form.querySelector(".primary-button") as HTMLButtonElement;
+    const parent = document.getElementById("view-password-for-imported") as HTMLElement;//
+    const okBtn = parent.querySelector(".primary-button") as HTMLButtonElement;
 
     const pwd: string[] = [];
-    form.querySelectorAll("input").forEach(input => {
-        if (input.type === 'password' || input.type === 'text') {
-            pwd.push(input.value);
+    parent.querySelectorAll("input").forEach(input  => {
+        const elm = input as HTMLInputElement
+        if (elm.type === 'password' || elm.type === 'text') {
+            pwd.push(elm.value);
         }
     });
 
-    const errMsg = form.querySelector(".error-message") as HTMLElement;
+    const errMsg = parent.querySelector(".error-message") as HTMLElement;
     if (pwd[0].length < 8 && pwd[0].length > 0) {
         errMsg.innerText = "Password must be longer than 8 characters";
         errMsg.style.display = 'block';
@@ -306,8 +307,7 @@ function checkImportPassword(this: HTMLInputElement): void {
 
     errMsg.innerText = '';
     errMsg.style.display = 'none';
-    const checkbox = form.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    okBtn.disabled = !(checkbox.checked && pwd[0].length >= 8);
+    okBtn.disabled = !(pwd[0].length >= 8);
 }
 
 
@@ -352,7 +352,8 @@ function validateRecoveryPhrase(this: HTMLInputElement): void {
     let errMsg = '';
     let everyWordIsOk = true;
     const inputs = document.querySelectorAll<HTMLInputElement>("#recovery-phrase-inputs .recovery-phrase");
-    const length = Number((document.getElementById('recovery-phrase-length') as HTMLInputElement).value);
+    const length = 12;
+    // Number((document.getElementById('recovery-phrase-length') as HTMLInputElement).value);
 
     if (wordsArray.length === 1) {
         const mnemonic = wordsArray[0];

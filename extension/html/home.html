@@ -249,6 +249,15 @@
         .selected {
             background-color: #cceeff; /* 选中时的背景颜色 */
         }
+
+        .recovery-phrase-row {
+            display: grid; /* 使用 grid 布局 */
+            grid-template-columns: 1fr 1fr 1fr; /* 设置三列 */
+            gap: 10px; /* 设置列之间的间距 */
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -306,6 +315,7 @@
         <label for="imported-confirm-password" id="import-password-label2">密码:</label>
         <input type="password" id="imported-confirm-password" placeholder="(确认密码)">
     </div>
+    <div><span class="error-message" style="display: none"></span></div>
     <button id="import-new-account-btn" class="primary-button">创建新账号</button>
 </div>
 
