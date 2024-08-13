@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import {httpApi, MsgType, showView, WalletStatus} from "./common";
 import {initDatabase} from "./database";
-import {MailAddress, MailKey} from "./wallet";
+import {MailAddress} from "./wallet";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
 import {sessionGet, sessionSet} from "./session_storage";

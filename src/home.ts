@@ -543,14 +543,15 @@ async function freeActiveAccount() {
             return
         }
         const postData = {
-            operation: {
+            pay_load: {
                 is_del:false,
                 b_mail_addr:address,
             },
+            account_id:address,
             signature:"",
         };
 
-        const signature = await signData(postData.operation);
+        const signature = await signData(postData.pay_load);
         if(!signature){
             console.log("------>>> sign data failed")
             return;
