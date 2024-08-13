@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	pbs "github.com/realbmail/contact-server/proto"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 )
@@ -22,7 +24,7 @@ func ReadJsonRequest(r *http.Request, val any) error {
 	return nil
 }
 
-func WriteError(w http.ResponseWriter, err error) {
+func WriteJsonError(w http.ResponseWriter, err error) {
 	var rsp = &Rsp{
 		Success: false,
 		Message: err.Error(),
@@ -63,4 +65,37 @@ func doHttp(url, cTyp string, data []byte) ([]byte, error) {
 	}
 
 	return respData, nil
+}
+
+func ReadProtoRequest(w http.ResponseWriter, r *http.Request) (*pbs.BMReq, error) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read body", http.StatusBadRequest)
+		return nil, err
+	}
+
+	var request = &pbs.BMReq{}
+	if err := proto.Unmarshal(body, request); err != nil {
+		return nil, err
+	}
+
+	return request, nil
+}
+
+func WriteProtoResponse(w http.ResponseWriter, response *pbs.BMRsp) {
+	w.Header().Set("Content-Type", "application/x-protobuf")
+	w.WriteHeader(http.StatusOK)
+	data, _ := proto.Marshal(response)
+	_, _ = w.Write(data)
+}
+
+func WriteError(w http.ResponseWriter, err error) {
+	var rsp = &pbs.BMRsp{
+		Success: false,
+		Msg:     err.Error(),
+	}
+	w.Header().Set("Content-Type", "application/x-protobuf")
+	w.WriteHeader(http.StatusInternalServerError)
+	data, _ := json.Marshal(rsp)
+	_, _ = w.Write(data)
 }

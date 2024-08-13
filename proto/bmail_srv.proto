@@ -1,0 +1,27 @@
+syntax = "proto3";
+option go_package = "github.com/realbmail/contact-server/pbs;pbs";
+
+message BMReq {
+  string address = 1;
+  string signature = 2;
+  bytes payload = 3;
+}
+
+message BMRsp{
+  bool  success = 1;
+  string msg = 2;
+  string signature = 3;
+  bytes  payload = 4;
+}
+
+message QueryReq{
+  string  address = 1;
+  string oneEmailAddr = 2;
+  repeated  string  emailList = 3;
+}
+
+message Operation{
+  bool isDel = 1;
+  string address = 2;
+  repeated  string emails = 3;
+}

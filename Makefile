@@ -36,7 +36,7 @@ BINDIR=./bin
 all: pbs mac linux
 
 pbs:
-	cd common/ && $(MAKE)
+	cd proto/ && $(MAKE)
 
 target:=mac
 

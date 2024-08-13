@@ -5,6 +5,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/database"
+	pbs "github.com/realbmail/contact-server/proto"
+	"google.golang.org/protobuf/proto"
 	"net/http"
 
 	"github.com/go-chi/chi/v5/middleware"
@@ -30,25 +32,25 @@ func keepAlive(w http.ResponseWriter, r *http.Request) {
 	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
 }
 
-func callFunc(callback func(request *Req) (*Rsp, error)) func(w http.ResponseWriter, r *http.Request) {
+func callFunc(callback func(request *pbs.BMReq) (*pbs.BMRsp, error)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var request = Req{}
-		var err = ReadJsonRequest(r, &request)
+		request, err := ReadProtoRequest(w, r)
 		if err != nil {
 			common.LogInst().Err(err).Msg("read parameter for query by email failed")
-			WriteError(w, err)
-			return
-		}
-		err = request.VerifySig()
-		if err != nil {
-			common.LogInst().Err(err).Msg("request signature verify failed")
-			WriteError(w, err)
+			WriteJsonError(w, err)
 			return
 		}
 
-		response, err := callback(&request)
+		err = pbs.VerifyProto(request)
 		if err != nil {
-			WriteError(w, err)
+			common.LogInst().Err(err).Msg("request signature verify failed")
+			WriteJsonError(w, err)
+			return
+		}
+
+		response, err := callback(request)
+		if err != nil {
+			WriteJsonError(w, err)
 			common.LogInst().Err(err).Msg("query by email error")
 			return
 		}
@@ -71,10 +73,14 @@ func NewHttpService() *Service {
 	return s
 }
 
-func QueryByOneEmail(request *Req) (*Rsp, error) {
-	var rsp = &Rsp{Success: true}
-	var query, ok = request.PayLoad.(*QueryReq)
-	if !ok || query == nil || len(query.OneEmailAddr) <= 0 {
+func QueryByOneEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var query = &pbs.QueryReq{}
+	err := proto.Unmarshal(request.Payload, query)
+	if err != nil {
+		return nil, err
+	}
+	if query == nil || len(query.OneEmailAddr) <= 0 {
 		common.LogInst().Warn().Msg("invalid parameter for querying by one email")
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
