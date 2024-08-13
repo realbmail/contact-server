@@ -1,9 +1,15 @@
 package service
 
+import "github.com/realbmail/contact-server/common"
+
 type Req struct {
-	QueryReq  *QueryReq  `json:"query_req,omitempty"`
-	Operation *Operation `json:"operation,omitempty"`
-	Signature string     `json:"signature,omitempty"`
+	PayLoad   any    `json:"pay_load"`
+	Signature string `json:"signature"`
+	AccountID string `json:"account_id"`
+}
+
+func (r *Req) VerifySig() error {
+	return common.VerifySig(r.PayLoad, r.Signature, r.AccountID)
 }
 
 type QueryReq struct {
@@ -19,7 +25,8 @@ type Operation struct {
 }
 
 type Rsp struct {
-	Success bool   `json:"success"`
-	Message string `json:"message,omitempty"`
-	Payload any    `json:"payload,omitempty"`
+	Success   bool   `json:"success"`
+	Message   string `json:"message,omitempty"`
+	Payload   any    `json:"payload,omitempty"`
+	Signature any    `json:"signature,omitempty"`
 }

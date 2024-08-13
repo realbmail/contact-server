@@ -39,6 +39,13 @@ func callFunc(callback func(request *Req) (*Rsp, error)) func(w http.ResponseWri
 			WriteError(w, err)
 			return
 		}
+		err = request.VerifySig()
+		if err != nil {
+			common.LogInst().Err(err).Msg("request signature verify failed")
+			WriteError(w, err)
+			return
+		}
+
 		response, err := callback(&request)
 		if err != nil {
 			WriteError(w, err)
@@ -66,8 +73,8 @@ func NewHttpService() *Service {
 
 func QueryByOneEmail(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
-	var query = request.QueryReq
-	if query == nil || len(query.OneEmailAddr) <= 0 {
+	var query, ok = request.PayLoad.(*QueryReq)
+	if !ok || query == nil || len(query.OneEmailAddr) <= 0 {
 		common.LogInst().Warn().Msg("invalid parameter for querying by one email")
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
@@ -83,8 +90,8 @@ func QueryByOneEmail(request *Req) (*Rsp, error) {
 
 func QueryByEmailArray(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
-	var query = request.QueryReq
-	if query == nil || len(query.EmailAddrArr) <= 0 {
+	var query, ok = request.PayLoad.(*QueryReq)
+	if !ok || query == nil || len(query.EmailAddrArr) <= 0 {
 		common.LogInst().Warn().Msg("invalid parameter for querying by email array")
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address array")
 	}
@@ -100,8 +107,8 @@ func QueryByEmailArray(request *Req) (*Rsp, error) {
 
 func QueryAccount(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
-	var query = request.QueryReq
-	if query == nil || len(query.BMailAddr) <= 0 {
+	var query, ok = request.PayLoad.(*QueryReq)
+	if !ok || query == nil || len(query.BMailAddr) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
 	account, err := database.DbInst().QueryAccount(query.BMailAddr)
@@ -115,8 +122,8 @@ func QueryAccount(request *Req) (*Rsp, error) {
 
 func OperateContact(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
-	var operation = request.Operation
-	if operation == nil || len(operation.EmailAddr) == 0 {
+	var operation, ok = request.PayLoad.(*Operation)
+	if !ok || operation == nil || len(operation.EmailAddr) == 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid operation parameter")
 	}
 	err := database.DbInst().OperateAccount(operation.BMailAddr, operation.EmailAddr, operation.IsDel)
@@ -131,18 +138,12 @@ func OperateContact(request *Req) (*Rsp, error) {
 
 func AccountCreate(request *Req) (*Rsp, error) {
 	var rsp = &Rsp{Success: true}
-	var operation = request.Operation
-
-	if operation == nil || operation.IsDel || len(request.Signature) <= 0 {
+	var operation, ok = request.PayLoad.(*Operation)
+	if !ok || operation == nil || operation.IsDel || len(request.Signature) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
 	}
 
-	err := common.VerifySig(operation, request.Signature, operation.BMailAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = database.DbInst().CreateBMailAccount(operation.BMailAddr, database.UserLevelFree)
+	var err = database.DbInst().CreateBMailAccount(operation.BMailAddr, database.UserLevelFree)
 	if err != nil {
 		return nil, err
 	}

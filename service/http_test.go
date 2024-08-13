@@ -50,9 +50,10 @@ func TestKeepAlive(t *testing.T) {
 }
 
 func TestQueryByOneEmail(t *testing.T) {
-	var req = &Req{QueryReq: &QueryReq{
+	obj := &QueryReq{
 		OneEmailAddr: address,
-	}}
+	}
+	var req = &Req{PayLoad: obj, Signature: "", AccountID: ""}
 	api := api_url + "/query_by_one_email"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
@@ -68,12 +69,14 @@ func TestQueryByOneEmail(t *testing.T) {
 }
 
 func TestQueryByEmailArray(t *testing.T) {
-	var req = &Req{QueryReq: &QueryReq{
+	obj := QueryReq{
 		EmailAddrArr: []string{
 			address,
 			address2,
 		},
-	}}
+	}
+
+	var req = &Req{PayLoad: &obj, Signature: "", AccountID: ""}
 	api := api_url + "/query_by_email_array"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
@@ -93,9 +96,10 @@ func TestQueryByEmailArray(t *testing.T) {
 }
 
 func TestQueryAccounts(t *testing.T) {
-	var req = &Req{QueryReq: &QueryReq{
+	obj := &QueryReq{
 		BMailAddr: address,
-	}}
+	}
+	var req = &Req{PayLoad: obj, Signature: "", AccountID: ""}
 	api := api_url + "/query_account"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
@@ -114,18 +118,21 @@ func TestQueryAccounts(t *testing.T) {
 }
 
 func TestAddContact(t *testing.T) {
-	var req = &Req{
-		Operation: &Operation{
-			IsDel:     false,
-			BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
-			EmailAddr: []string{
-				"ribencong@gmail.com",
-				"ribencong@126.com",
-				"ribencong@163.com",
-				"99927800@qq.com",
-				"hopwesley@126.com",
-			},
+	obj := &Operation{
+		IsDel:     false,
+		BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
+		EmailAddr: []string{
+			"ribencong@gmail.com",
+			"ribencong@126.com",
+			"ribencong@163.com",
+			"99927800@qq.com",
+			"hopwesley@126.com",
 		},
+	}
+	var req = &Req{
+		PayLoad:   obj,
+		Signature: "",
+		AccountID: "",
 	}
 	api := api_url + "/operate_contact"
 	reqData, _ := json.Marshal(req)
@@ -142,16 +149,19 @@ func TestAddContact(t *testing.T) {
 }
 
 func TestRemoveContact(t *testing.T) {
-	var req = &Req{
-		Operation: &Operation{
-			IsDel:     true,
-			BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
-			EmailAddr: []string{
-				"ribencong@gmail.com",
-				"99927800@qq.com",
-				"hopwesley@126.com",
-			},
+	obj := &Operation{
+		IsDel:     true,
+		BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
+		EmailAddr: []string{
+			"ribencong@gmail.com",
+			"99927800@qq.com",
+			"hopwesley@126.com",
 		},
+	}
+	var req = &Req{
+		PayLoad:   obj,
+		Signature: "",
+		AccountID: "",
 	}
 
 	api := api_url + "/operate_contact"
