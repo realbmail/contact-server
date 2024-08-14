@@ -1,5 +1,5 @@
 import {__tableNameWallet, databaseAddItem, initDatabase} from "./database";
-import {createQRCodeImg, httpApi, MsgType, sendMessageToBackground, showView, signData} from "./common";
+import {createQRCodeImg, encodeHex, httpApi, MsgType, sendMessageToBackground, showView, signData} from "./common";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
@@ -550,22 +550,19 @@ async function freeActiveAccount() {
         });
 
         const message = Operation.encode(payload).finish()
-        const signature = await signData(message);
+        const signature = await signData(encodeHex(message));
         if(!signature){
             console.log("------>>> sign data failed")
             return;
         }
         const postData = BMReq.create({
             address:address,
-            payload:message,
             signature:signature,
-        })
+            payload:message,
+        });
 
-        const srvRsp = await httpApi("/account_create", postData);
-        if(!srvRsp.success){
-            console.log("------>>> error:",srvRsp.message);
-            return
-        }
+        const rawData = BMReq.encode(postData).finish();
+        const srvRsp = await httpApi("/account_create", rawData);
         console.log("------->>>fetch success:=>", srvRsp);
         navigateTo('#onboarding/account-success');
     } catch (error) {

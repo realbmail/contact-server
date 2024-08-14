@@ -3,7 +3,7 @@ import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailKey, newWallet, queryCurWallet} from "./wallet";
-import {MsgType, WalletStatus} from "./common";
+import {decodeHex, MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
 
 const runtime = browser.runtime;
@@ -32,7 +32,7 @@ function updateIcon(isLoggedIn: boolean) {
 }
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
-     // testSignAndVerify();
+    // testSignAndVerify();
     console.log("[service work] action :=>", request.action, sender.url);
     switch (request.action) {
         case MsgType.PluginClicked:
@@ -343,7 +343,7 @@ async function checkLoginStatus(sendResponse: (response: any) => void) {
 }
 
 async function SigDataInBackground(data: any, sendResponse: (response: any) => void) {
-    const dataToSign = data.dataToSign;
+    const dataToSign = decodeHex(data.dataToSign);
     const pwd = data.password;
     const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
     if (status !== WalletStatus.Unlocked) {
@@ -352,7 +352,7 @@ async function SigDataInBackground(data: any, sendResponse: (response: any) => v
             return;
         }
         const success = await openWallet(pwd, sendResponse);
-        if(!success){
+        if (!success) {
             sendResponse({success: false, message: "open wallet failed"});
             return;
         }

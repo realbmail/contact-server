@@ -1,10 +1,11 @@
 import browser from "webextension-polyfill";
-import {httpApi, MsgType, showView, WalletStatus} from "./common";
+import {encodeHex, httpApi, MsgType, showView, signData, WalletStatus} from "./common";
 import {initDatabase} from "./database";
 import {MailAddress} from "./wallet";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
 import {sessionGet, sessionSet} from "./session_storage";
+import {BMailAccount, BMReq, Operation, QueryReq} from "./proto/bmail_srv";
 
 const __currentWalletKey = "__current_wallet_storage_key_"
 const __systemSetting = "__system_setting_"
@@ -129,22 +130,6 @@ function initDashBoard(): void {
     reloadBindingBtn.addEventListener('click', reloadBindings);
 }
 
-
-class BMailAccount {
-    userLevel: number;
-    emailAddresses: string[];
-
-    constructor(userLevel: number, emailAddresses: []) {
-        this.userLevel = userLevel;
-        this.emailAddresses = emailAddresses;
-    }
-
-    static FromJsonStr(str: string) {
-        const jsonObj = JSON.parse(str);
-        return new BMailAccount(jsonObj.user_lel, jsonObj.e_mail_address);
-    }
-}
-
 async function reloadBindings() {
     const account = await queryLastAccountInfo();
     if (!account) {
@@ -154,7 +139,7 @@ async function reloadBindings() {
 
     const template = document.getElementById("binding-email-address-item") as HTMLElement;
     const parent = document.getElementById("binding-email-address-list") as HTMLElement;
-    account.emailAddresses.forEach((emailAddress) => {
+    account.emails.forEach((emailAddress) => {
         const clone = template.cloneNode(true) as HTMLElement;
         const unbindBtn = clone.querySelector(".binding-email-unbind-btn") as HTMLElement;
         unbindBtn.addEventListener("click", e => {
@@ -170,22 +155,24 @@ async function queryLastAccountInfo(): Promise<BMailAccount | null> {
         return null;
     }
     try {
-        const parameter = {
-            query_req: {
-                b_mail_addr: address,
-            }
-        };
-        const bindings = await httpApi("/query_account", parameter)
-        if (!bindings.success) {
-            console.log("----->>> query bmail account error:", bindings.message)
+        const parameter = QueryReq.create({
+            address:address,
+        })
+        const message = QueryReq.encode(parameter).finish()
+        const signature = await signData(encodeHex(message));
+        if(!signature){
+            console.log("------>>> sign data failed")
             return null;
         }
-        const resultStr = bindings.payload as string;
-        if (!resultStr) {
-            console.log("----->>> query result has no payload:");
-            return null;
-        }
-        return BMailAccount.FromJsonStr(resultStr);
+        const postData = BMReq.create({
+            address:address,
+            signature:signature,
+            payload:message,
+        })
+
+        const rawData = BMReq.encode(postData).finish();
+        const bindings = await httpApi("/query_account", rawData)
+        return BMailAccount.decode(bindings) as BMailAccount;
     } catch (e) {
         console.log('------>>>reload bindings error:', e);
         return null;

@@ -1,5 +1,6 @@
 import * as QRCode from 'qrcode';
 import browser from "webextension-polyfill";
+import {BMRsp, Operation} from "./proto/bmail_srv";
 
 export enum MsgType {
     PluginClicked = 'PluginClicked',
@@ -95,11 +96,20 @@ export async function httpApi(path: string, param: any) {
         const response = await fetch(httpServerUrl + path, {
             method: 'POST', // 设置方法为POST
             headers: {
-                'Content-Type': 'application/x-protobuf' // 指定内容类型为JSON
+                'Content-Type': 'application/x-protobuf'
             },
-            body: JSON.stringify(param) // 将数据转换为JSON字符串
+            body: param,
         });
-        return await response.json();
+        const buffer = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(buffer);
+
+        const decodedResponse = BMRsp.decode(uint8Array) as BMRsp;
+        if (decodedResponse.success) {
+            console.log("------>>>httpApi success")
+            return decodedResponse.payload;
+        } else {
+            throw new Error(decodedResponse.msg);
+        }
     } catch (error) {
         const e = error as Error;
         console.log("------->>>fetch failed:=>", e.message);
@@ -120,7 +130,7 @@ export async function sendMessageToBackground(data: any, actTyp: string): Promis
     }
 }
 
-export async function signData(data: Uint8Array, password?: string): Promise<string | null> {
+export async function signData(data: any, password?: string): Promise<string | null> {
     const reqData = {
         dataToSign: data,
         password: password,

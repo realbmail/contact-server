@@ -34,6 +34,26 @@ export interface Operation {
   emails: string[];
 }
 
+export interface BMailAccount {
+  address: string;
+  level: number;
+  license: Uint8Array;
+  emails: string[];
+}
+
+export interface EmailContact {
+  address: string;
+}
+
+export interface EmailContacts {
+  contacts: { [key: string]: EmailContact };
+}
+
+export interface EmailContacts_ContactsEntry {
+  key: string;
+  value: EmailContact | undefined;
+}
+
 function createBaseBMReq(): BMReq {
   return { address: "", signature: "", payload: new Uint8Array(0) };
 }
@@ -407,6 +427,324 @@ export const Operation = {
   },
 };
 
+function createBaseBMailAccount(): BMailAccount {
+  return { address: "", level: 0, license: new Uint8Array(0), emails: [] };
+}
+
+export const BMailAccount = {
+  encode(message: BMailAccount, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.address !== "") {
+      writer.uint32(10).string(message.address);
+    }
+    if (message.level !== 0) {
+      writer.uint32(16).int32(message.level);
+    }
+    if (message.license.length !== 0) {
+      writer.uint32(26).bytes(message.license);
+    }
+    for (const v of message.emails) {
+      writer.uint32(34).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): BMailAccount {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBMailAccount();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.address = reader.string();
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.level = reader.int32();
+          continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.license = reader.bytes();
+          continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          message.emails.push(reader.string());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BMailAccount {
+    return {
+      address: isSet(object.address) ? globalThis.String(object.address) : "",
+      level: isSet(object.level) ? globalThis.Number(object.level) : 0,
+      license: isSet(object.license) ? bytesFromBase64(object.license) : new Uint8Array(0),
+      emails: globalThis.Array.isArray(object?.emails) ? object.emails.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: BMailAccount): unknown {
+    const obj: any = {};
+    if (message.address !== "") {
+      obj.address = message.address;
+    }
+    if (message.level !== 0) {
+      obj.level = Math.round(message.level);
+    }
+    if (message.license.length !== 0) {
+      obj.license = base64FromBytes(message.license);
+    }
+    if (message.emails?.length) {
+      obj.emails = message.emails;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BMailAccount>, I>>(base?: I): BMailAccount {
+    return BMailAccount.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BMailAccount>, I>>(object: I): BMailAccount {
+    const message = createBaseBMailAccount();
+    message.address = object.address ?? "";
+    message.level = object.level ?? 0;
+    message.license = object.license ?? new Uint8Array(0);
+    message.emails = object.emails?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseEmailContact(): EmailContact {
+  return { address: "" };
+}
+
+export const EmailContact = {
+  encode(message: EmailContact, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.address !== "") {
+      writer.uint32(10).string(message.address);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): EmailContact {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEmailContact();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.address = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EmailContact {
+    return { address: isSet(object.address) ? globalThis.String(object.address) : "" };
+  },
+
+  toJSON(message: EmailContact): unknown {
+    const obj: any = {};
+    if (message.address !== "") {
+      obj.address = message.address;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EmailContact>, I>>(base?: I): EmailContact {
+    return EmailContact.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EmailContact>, I>>(object: I): EmailContact {
+    const message = createBaseEmailContact();
+    message.address = object.address ?? "";
+    return message;
+  },
+};
+
+function createBaseEmailContacts(): EmailContacts {
+  return { contacts: {} };
+}
+
+export const EmailContacts = {
+  encode(message: EmailContacts, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    Object.entries(message.contacts).forEach(([key, value]) => {
+      EmailContacts_ContactsEntry.encode({ key: key as any, value }, writer.uint32(10).fork()).ldelim();
+    });
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): EmailContacts {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEmailContacts();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          const entry1 = EmailContacts_ContactsEntry.decode(reader, reader.uint32());
+          if (entry1.value !== undefined) {
+            message.contacts[entry1.key] = entry1.value;
+          }
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EmailContacts {
+    return {
+      contacts: isObject(object.contacts)
+        ? Object.entries(object.contacts).reduce<{ [key: string]: EmailContact }>((acc, [key, value]) => {
+          acc[key] = EmailContact.fromJSON(value);
+          return acc;
+        }, {})
+        : {},
+    };
+  },
+
+  toJSON(message: EmailContacts): unknown {
+    const obj: any = {};
+    if (message.contacts) {
+      const entries = Object.entries(message.contacts);
+      if (entries.length > 0) {
+        obj.contacts = {};
+        entries.forEach(([k, v]) => {
+          obj.contacts[k] = EmailContact.toJSON(v);
+        });
+      }
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EmailContacts>, I>>(base?: I): EmailContacts {
+    return EmailContacts.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EmailContacts>, I>>(object: I): EmailContacts {
+    const message = createBaseEmailContacts();
+    message.contacts = Object.entries(object.contacts ?? {}).reduce<{ [key: string]: EmailContact }>(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = EmailContact.fromPartial(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    return message;
+  },
+};
+
+function createBaseEmailContacts_ContactsEntry(): EmailContacts_ContactsEntry {
+  return { key: "", value: undefined };
+}
+
+export const EmailContacts_ContactsEntry = {
+  encode(message: EmailContacts_ContactsEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      EmailContact.encode(message.value, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): EmailContacts_ContactsEntry {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEmailContacts_ContactsEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = EmailContact.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EmailContacts_ContactsEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? EmailContact.fromJSON(object.value) : undefined,
+    };
+  },
+
+  toJSON(message: EmailContacts_ContactsEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== undefined) {
+      obj.value = EmailContact.toJSON(message.value);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EmailContacts_ContactsEntry>, I>>(base?: I): EmailContacts_ContactsEntry {
+    return EmailContacts_ContactsEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EmailContacts_ContactsEntry>, I>>(object: I): EmailContacts_ContactsEntry {
+    const message = createBaseEmailContacts_ContactsEntry();
+    message.key = object.key ?? "";
+    message.value = (object.value !== undefined && object.value !== null)
+      ? EmailContact.fromPartial(object.value)
+      : undefined;
+    return message;
+  },
+};
+
 function bytesFromBase64(b64: string): Uint8Array {
   if ((globalThis as any).Buffer) {
     return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
@@ -443,6 +781,10 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
