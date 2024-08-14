@@ -120,7 +120,7 @@ export async function sendMessageToBackground(data: any, actTyp: string): Promis
     }
 }
 
-export async function signData(data: any, password?: string): Promise<string | null> {
+export async function signData(data: Uint8Array, password?: string): Promise<string | null> {
     const reqData = {
         dataToSign: data,
         password: password,

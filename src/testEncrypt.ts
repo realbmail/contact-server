@@ -6,10 +6,11 @@ import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
-import {decodeHex, encodeHex} from "./common";
+import {decodeHex, encodeHex, signData} from "./common";
 import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
 import base58 from "bs58";
 import {ed2CurvePub, ed2CurvePri} from "./edwards25519";
+import {Operation} from "./proto/bmail_srv";
 
 export function testEncryptData() {
 
@@ -290,15 +291,14 @@ export function testThree() {
 
 export function testSignAndVerify() {
     const seed = decodeHex("65a3f3ccb71cb2e2177dbeffa923e527da56cc13172a7d060575e50c080c1f34");
-    const data = {
-        is_del: false,
-        b_mail_addr: "BMBkWA7Mpq6VcTBMhLtmheTtuFGukazYVJjCJPTjbcQQXA",
-    }
-    const signature = MailKey.signData(seed, data);
+    const payload: Operation = Operation.create({
+        isDel: false,
+        address: "BMBkWA7Mpq6VcTBMhLtmheTtuFGukazYVJjCJPTjbcQQXA"
+    });
 
-    const success = MailKey.verifySignature(seed, signature, data)
+    const message = Operation.encode(payload).finish()
+    const signature = MailKey.signData(seed, message);
+
+    const success = MailKey.verifySignature(seed, signature, message)
     console.log("------>>> sig:", signature, "success:", success)
-
-    const success2 = MailKey.verifySignature(seed, signature+"11", data)
-    console.log("------>>> sig:", signature, "success2:", success2)
 }

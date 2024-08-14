@@ -81,20 +81,16 @@ export class MailKey {
         return this.priRaw;
     }
 
-    static signData(priRaw: Uint8Array, data: any): string {
+    static signData(priRaw: Uint8Array, message: Uint8Array): string {
         const signKey = nacl.sign.keyPair.fromSeed(priRaw);
-        const jsonString = JSON.stringify(data);
-        const message = naclUtil.decodeUTF8(jsonString);
         const signature = nacl.sign.detached(message, signKey.secretKey);
         return encodeHex(signature);
     }
 
-    static verifySignature(priRaw: Uint8Array, signature: string, obj: any): boolean {
+    static verifySignature(priRaw: Uint8Array, signature: string, message: Uint8Array): boolean {
         try {
             const signKey = nacl.sign.keyPair.fromSeed(priRaw);
             const detachedSignature = decodeHex(signature);
-            const jsonString = JSON.stringify(obj);
-            const message = naclUtil.decodeUTF8(jsonString);
             return nacl.sign.detached.verify(message, detachedSignature, signKey.publicKey);
         } catch (e) {
             console.log("------>>> verifySignature failed", e);

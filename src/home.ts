@@ -549,24 +549,24 @@ async function freeActiveAccount() {
             address: address
         });
 
-
-        const signature = await signData(payload);
+        const message = Operation.encode(payload).finish()
+        const signature = await signData(message);
         if(!signature){
             console.log("------>>> sign data failed")
             return;
         }
         const postData = BMReq.create({
             address:address,
-            payload:Operation.encode(payload).finish(),
+            payload:message,
             signature:signature,
         })
 
-        const data = await httpApi("/account_create", postData);
-        if(!data.success){
-            console.log("------>>> error:",data.message);
+        const srvRsp = await httpApi("/account_create", postData);
+        if(!srvRsp.success){
+            console.log("------>>> error:",srvRsp.message);
             return
         }
-        console.log("------->>>fetch success:=>", data);
+        console.log("------->>>fetch success:=>", srvRsp);
         navigateTo('#onboarding/account-success');
     } catch (error) {
         const e = error as Error;
