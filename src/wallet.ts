@@ -11,7 +11,6 @@ import {__tableNameWallet, getMaxIdRecord} from "./database";
 import nacl from 'tweetnacl';
 import {decodeHex, encodeHex} from "./common";
 import {ed2CurvePri} from "./edwards25519";
-import naclUtil from "tweetnacl-util";
 
 const BMailAddrPrefix = "BM";
 
@@ -109,12 +108,15 @@ export function newWallet(mnemonic: string, password: string): DbWallet {
     return new DbWallet(key.address, data);
 }
 
+const CryptoKeySize = 8;
+const ScryptN = 1024;
+
 export function decryptAes(data: CipherData, password: string): string {
     const salt = Hex.parse(data.salt);
     const iv = Hex.parse(data.iv);
     const key = PBKDF2(password, salt, {
-        keySize: 256 / 32,
-        iterations: 1000
+        keySize: CryptoKeySize,//keySize: 256 / 32,
+        iterations: ScryptN
     });
     const decrypted = AES.decrypt(data.cipherTxt, key, {iv: iv});
 
@@ -124,8 +126,8 @@ export function decryptAes(data: CipherData, password: string): string {
 export function encryptAes(plainTxt: string, password: string): CipherData {
     const salt = WordArray.random(128 / 8);
     const key = PBKDF2(password, salt, {
-        keySize: 256 / 32,
-        iterations: 1000
+        keySize: CryptoKeySize,
+        iterations: ScryptN
     });
     const iv = WordArray.random(128 / 8);
     const encrypted = AES.encrypt(plainTxt, key, {iv: iv});
