@@ -21,6 +21,7 @@ const (
 type BMailAccount struct {
 	UserLel      UserLevel `json:"user_lel"  firestore:"user_lel"`
 	EMailAddress []string  `json:"e_mail_address" firestore:"e_mail_address"`
+	License      []byte    `json:"license"  firestore:"license"`
 }
 
 type EmailContact struct {

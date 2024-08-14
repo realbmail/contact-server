@@ -25,3 +25,17 @@ message Operation{
   string address = 2;
   repeated  string emails = 3;
 }
+
+message BMailAccount{
+  string address = 1;
+  int32 level = 2;
+  bytes license = 3;
+  repeated string emails = 4;
+}
+
+message EmailContact{
+  string address = 1;
+}
+message EmailContacts {
+  map<string, EmailContact> contacts = 1;
+}

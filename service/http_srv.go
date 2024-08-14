@@ -25,6 +25,7 @@ func (s *Service) Start() {
 		panic(http.ListenAndServe(":"+__httpConf.HttpPort, s.router))
 	}
 }
+
 func keepAlive(w http.ResponseWriter, r *http.Request) {
 	var c = database.BMailAccount{
 		EMailAddress: []string{"ri", "ben", "con"},
@@ -32,29 +33,33 @@ func keepAlive(w http.ResponseWriter, r *http.Request) {
 	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
 }
 
+func keepAlive2(w http.ResponseWriter, r *http.Request) {
+	WriteProtoResponse(w, &pbs.BMRsp{Success: true})
+}
+
 func callFunc(callback func(request *pbs.BMReq) (*pbs.BMRsp, error)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		request, err := ReadProtoRequest(w, r)
 		if err != nil {
 			common.LogInst().Err(err).Msg("read parameter for query by email failed")
-			WriteJsonError(w, err)
+			WriteError(w, err)
 			return
 		}
 
 		err = pbs.VerifyProto(request)
 		if err != nil {
 			common.LogInst().Err(err).Msg("request signature verify failed")
-			WriteJsonError(w, err)
+			WriteError(w, err)
 			return
 		}
 
 		response, err := callback(request)
 		if err != nil {
-			WriteJsonError(w, err)
+			WriteError(w, err)
 			common.LogInst().Err(err).Msg("query by email error")
 			return
 		}
-		WriteJsonRequest(w, response)
+		WriteProtoResponse(w, response)
 	}
 }
 
@@ -63,7 +68,7 @@ func NewHttpService() *Service {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.HandleFunc("/keep_alive", keepAlive)
-	r.MethodFunc(http.MethodPost, "/keep_alive", keepAlive)
+	r.HandleFunc("/keep_alive2", keepAlive2)
 	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryByOneEmail))
 	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
@@ -84,76 +89,124 @@ func QueryByOneEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		common.LogInst().Warn().Msg("invalid parameter for querying by one email")
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
-	account, err := database.DbInst().QueryAccountByOneEmail(query.OneEmailAddr)
+
+	emailContact, err := database.DbInst().QueryAccountByOneEmail(query.OneEmailAddr)
 	if err != nil {
 		common.LogInst().Err(err).Str("email-addr", query.OneEmailAddr).Msg("query database failed for one email")
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
 	}
-	rsp.Payload = common.MustJson(account)
+
+	var contact = &pbs.EmailContact{
+		Address: emailContact.BMailAddress,
+	}
+	rsp.Payload = common.MustProto(contact)
+
 	common.LogInst().Debug().Str("email-addr", query.OneEmailAddr).Msg("query by one email address success")
 	return rsp, nil
 }
 
-func QueryByEmailArray(request *Req) (*Rsp, error) {
-	var rsp = &Rsp{Success: true}
-	var query, ok = request.PayLoad.(*QueryReq)
-	if !ok || query == nil || len(query.EmailAddrArr) <= 0 {
+func QueryByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var query = &pbs.QueryReq{}
+	err := proto.Unmarshal(request.Payload, query)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(query.EmailList) <= 0 {
 		common.LogInst().Warn().Msg("invalid parameter for querying by email array")
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address array")
 	}
-	accountArr, err := database.DbInst().QueryAccountsByEmails(query.EmailAddrArr)
+
+	accountArr, err := database.DbInst().QueryAccountsByEmails(query.EmailList)
 	if err != nil {
-		common.LogInst().Err(err).Msgf("query database failed for email array:%v", query.EmailAddrArr)
+		common.LogInst().Err(err).Msgf("query database failed for email array:%v", query.EmailList)
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email array:"+err.Error())
 	}
-	rsp.Payload = common.MustJson(accountArr)
-	common.LogInst().Debug().Msgf("query by email address array success:%v", query.EmailAddrArr)
+
+	var result = make(map[string]*pbs.EmailContact)
+	for k, v := range accountArr {
+		result[k] = &pbs.EmailContact{
+			Address: v.BMailAddress,
+		}
+	}
+	emailContacts := &pbs.EmailContacts{
+		Contacts: result,
+	}
+
+	rsp.Payload = common.MustProto(emailContacts)
+	common.LogInst().Debug().Msgf("query by email address array success:%v", query.EmailList)
 	return rsp, nil
 }
 
-func QueryAccount(request *Req) (*Rsp, error) {
-	var rsp = &Rsp{Success: true}
-	var query, ok = request.PayLoad.(*QueryReq)
-	if !ok || query == nil || len(query.BMailAddr) <= 0 {
+func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+
+	var query = &pbs.QueryReq{}
+	err := proto.Unmarshal(request.Payload, query)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(query.Address) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
-	account, err := database.DbInst().QueryAccount(query.BMailAddr)
+
+	account, err := database.DbInst().QueryAccount(query.Address)
 	if err != nil {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
 	}
-	rsp.Payload = common.MustJson(account)
+
+	var result = &pbs.BMailAccount{
+		Address: query.Address,
+		Level:   int32(account.UserLel),
+		License: account.License,
+		Emails:  account.EMailAddress,
+	}
+
+	rsp.Payload = common.MustProto(result)
 	common.LogInst().Debug().Msg("query by bmail address success")
+
 	return rsp, nil
 }
 
-func OperateContact(request *Req) (*Rsp, error) {
-	var rsp = &Rsp{Success: true}
-	var operation, ok = request.PayLoad.(*Operation)
-	if !ok || operation == nil || len(operation.EmailAddr) == 0 {
+func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var operation = &pbs.Operation{}
+	err := proto.Unmarshal(request.Payload, operation)
+	if err != nil {
+		return nil, err
+	}
+	if len(operation.Address) == 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid operation parameter")
 	}
-	err := database.DbInst().OperateAccount(operation.BMailAddr, operation.EmailAddr, operation.IsDel)
+	err = database.DbInst().OperateAccount(operation.Address, operation.Emails, operation.IsDel)
 	if err != nil {
 		return nil, err
 	}
 
 	common.LogInst().Debug().Bool("is-deletion", operation.IsDel).
-		Str("bmail", operation.BMailAddr).Msg("operate contact success")
+		Str("bmail", operation.Address).Msgf("operate contact success:%v", operation.Emails)
 	return rsp, nil
 }
 
-func AccountCreate(request *Req) (*Rsp, error) {
-	var rsp = &Rsp{Success: true}
-	var operation, ok = request.PayLoad.(*Operation)
-	if !ok || operation == nil || operation.IsDel || len(request.Signature) <= 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
-	}
-
-	var err = database.DbInst().CreateBMailAccount(operation.BMailAddr, database.UserLevelFree)
+func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var operation = &pbs.Operation{}
+	err := proto.Unmarshal(request.Payload, operation)
 	if err != nil {
 		return nil, err
 	}
 
-	common.LogInst().Debug().Str("bmail", operation.BMailAddr).Msg("account creation success")
+	if operation.IsDel || len(request.Signature) <= 0 {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
+	}
+
+	err = database.DbInst().CreateBMailAccount(operation.Address, database.UserLevelFree)
+	if err != nil {
+		return nil, err
+	}
+
+	common.LogInst().Debug().Str("bmail", operation.Address).Msg("account creation success")
 	return rsp, nil
 }

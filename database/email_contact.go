@@ -16,12 +16,12 @@ func (dm *DbManager) QueryAccountsByEmails(emailAddrs []string) (map[string]Emai
 	collection := dm.fileCli.Collection(DBTableEContact)
 
 	for _, emailAddr := range emailAddrs {
-		docRef := collection.Doc(emailAddr) // 直接使用电子邮件地址作为文档ID
+		docRef := collection.Doc(emailAddr)
 		docSnapshot, err := docRef.Get(opCtx)
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
 				common.LogInst().Info().Str("email-addr", emailAddr).Msg("Email address not found")
-				continue // 如果文档不存在，继续处理下一个
+				continue
 			}
 			common.LogInst().Err(err).Str("email-addr", emailAddr).Msg("Failed to fetch document")
 			return nil, err
