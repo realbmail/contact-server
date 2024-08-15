@@ -16,9 +16,9 @@ const (
 )
 
 type CipherData struct {
-	CipherTxt string
-	Iv        string
-	Salt      string
+	CipherTxt string `json:"cipher_txt"`
+	Iv        string `json:"iv"`
+	Salt      string `json:"salt"`
 }
 
 func EncryptAes(plainTxt, password string) (*CipherData, error) {

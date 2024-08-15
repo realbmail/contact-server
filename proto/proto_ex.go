@@ -4,11 +4,11 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"errors"
-	"github.com/realbmail/contact-server/common"
+	"github.com/realbmail/contact-server/wallet"
 )
 
 func VerifyProto(r *BMReq) error {
-	peerPub, err := common.DecodePubKey(r.Address)
+	peerPub, err := wallet.DecodePubKey(r.Address)
 	if err != nil {
 		return err
 	}

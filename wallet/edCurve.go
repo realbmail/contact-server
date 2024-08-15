@@ -1,4 +1,4 @@
-package common
+package wallet
 
 import (
 	"crypto/ed25519"
@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/realbmail/contact-server/common/edwards25519"
+	"github.com/realbmail/contact-server/wallet/edwards25519"
 	"strings"
 )
 

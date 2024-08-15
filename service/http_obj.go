@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/realbmail/contact-server/common"
 	pbs "github.com/realbmail/contact-server/proto"
+	"github.com/realbmail/contact-server/wallet"
 )
 
 type Req struct {
@@ -15,7 +15,7 @@ func (r *Req) VerifySig() error {
 	if __httpConf.CheckSignature == false {
 		return nil
 	}
-	return common.VerifySig(r.PayLoad, r.Signature, r.AccountID)
+	return wallet.VerifySig(r.PayLoad, r.Signature, r.AccountID)
 }
 
 func VerifyReq(r *pbs.BMReq) error {
@@ -23,7 +23,7 @@ func VerifyReq(r *pbs.BMReq) error {
 		return nil
 	}
 
-	return common.VerifySig(r.Payload, r.Signature, r.Address)
+	return wallet.VerifySig(r.Payload, r.Signature, r.Address)
 }
 
 type QueryReq struct {
