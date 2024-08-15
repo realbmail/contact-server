@@ -536,6 +536,7 @@ async function generateQrCodeForVipBuying() {
 }
 
 async function freeActiveAccount() {
+    showLoading();
     try {
         const walletAddrDiv = document.querySelector(".current-wallet-address-val") as HTMLElement;
         const address = walletAddrDiv.innerText;
@@ -568,6 +569,17 @@ async function freeActiveAccount() {
     } catch (error) {
         const e = error as Error;
         console.log("------->>>fetch failed:=>", e.message);
+    }finally {
+        hideLoading();
     }
 }
 
+function showLoading(): void {
+    document.body.classList.add('loading');
+    document.getElementById("dialog-waiting-overlay")!.style.display = 'flex';
+}
+
+function hideLoading(): void {
+    document.body.classList.remove('loading');
+    document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
+}
