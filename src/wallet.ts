@@ -109,10 +109,11 @@ export class MailKey {
 export function newWallet(mnemonic: string, password: string): DbWallet {
     const seedBuffer = mnemonicToSeedSync(mnemonic);
     const first32Bytes = seedBuffer.subarray(0, 32);
-    const hexPri = first32Bytes.toString('hex');
     const seedUint8Array: Uint8Array = new Uint8Array(first32Bytes);
     const key = new MailKey(seedUint8Array);
-    const data = encryptAes(hexPri, password);
+    const seedHex = encodeHex(seedUint8Array);
+    const data = encryptAes(seedHex, password);
+    console.log("------>>>seed to remove:",seedHex, JSON.stringify(data));
     return new DbWallet(key.address, data);
 }
 
