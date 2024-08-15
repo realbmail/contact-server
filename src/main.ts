@@ -73,7 +73,7 @@ function populateDashboard() {
             showView('#onboarding/main-login', router);
             return;
         }
-        document.getElementById('bmail-address-val')!.textContent = mAddr.bmailAddress;
+        document.getElementById('bmail-address-val')!.textContent = mAddr.bmail_address;
     })
 
     browser.tabs.query({active: true, currentWindow: true}).then(tabList => {
