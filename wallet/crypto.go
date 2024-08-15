@@ -11,17 +11,20 @@ import (
 )
 
 const (
-	CryptoKeySize = 32 // 256 bits
-	ScryptN       = 1024
+	CryptoKeyLen = 32 // 256 bits
+	ScryptN      = 1024
 )
 
 type CipherData struct {
-	CipherTxt string `json:"cipher_txt"`
-	Iv        string `json:"iv"`
-	Salt      string `json:"salt"`
+	CipherTxt  string `json:"cipher_txt"`
+	Iv         string `json:"iv"`
+	Salt       string `json:"salt"`
+	KeySize    int    `json:"key_size"`
+	Iterations int    `json:"iterations"`
 }
 
 func EncryptAes(plainTxt, password string) (*CipherData, error) {
+
 	// Generate a random salt
 	salt := make([]byte, 16)
 	_, err := rand.Read(salt)
@@ -30,7 +33,7 @@ func EncryptAes(plainTxt, password string) (*CipherData, error) {
 	}
 
 	// Derive the key using PBKDF2
-	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeyLen, sha256.New)
 
 	// Generate a random IV
 	iv := make([]byte, aes.BlockSize)
@@ -51,9 +54,11 @@ func EncryptAes(plainTxt, password string) (*CipherData, error) {
 	stream.XORKeyStream(cipherText, plainTextBytes)
 
 	return &CipherData{
-		CipherTxt: hex.EncodeToString(cipherText),
-		Iv:        hex.EncodeToString(iv),
-		Salt:      hex.EncodeToString(salt),
+		CipherTxt:  hex.EncodeToString(cipherText),
+		Iv:         hex.EncodeToString(iv),
+		Salt:       hex.EncodeToString(salt),
+		KeySize:    256 / CryptoKeyLen,
+		Iterations: ScryptN,
 	}, nil
 }
 
@@ -65,7 +70,8 @@ func DecryptAes(data *CipherData, password string) (string, error) {
 	}
 
 	// Derive the key using PBKDF2
-	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
+	var keyLen = 256 / data.KeySize
+	key := pbkdf2.Key([]byte(password), salt, data.Iterations, keyLen, sha256.New)
 
 	// Decode IV
 	iv, err := hex.DecodeString(data.Iv)
@@ -102,7 +108,7 @@ func EncryptAes2(plainTxt, password string) (*CipherData, error) {
 	}
 
 	// Derive the key using PBKDF2
-	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeyLen, sha256.New)
 
 	// 生成一个随机的 IV
 	iv := make([]byte, aes.BlockSize)
@@ -138,7 +144,7 @@ func DecryptAes2(data *CipherData, password string) (string, error) {
 	}
 
 	// 使用 PBKDF2 从密码和盐中导出密钥
-	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeyLen, sha256.New)
 
 	// 解码密文
 	cipherText, err := hex.DecodeString(data.CipherTxt)

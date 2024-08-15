@@ -157,13 +157,6 @@ func TestEncryptAdDecrypt(t *testing.T) {
 	}
 	bt, _ := json.Marshal(data)
 	fmt.Println(string(bt))
-	//
-	//data2 := &CipherData{
-	//	CipherTxt: "cc0ee7b72f79d491d22cb63bae3246dc8c6b99822a634a038d9aced8fc469882",
-	//	Iv:        "cc0ee7b72f79d491d22cb63bae3246dc8c6b99822a634a038d9aced8fc469882",
-	//	Salt:      "4586186a757580866638b71876d0454c",
-	//}
-
 	str, err := DecryptAes(data, "123")
 	if err != nil {
 		t.Fatal(err)
@@ -171,15 +164,14 @@ func TestEncryptAdDecrypt(t *testing.T) {
 	fmt.Println("result=>", str)
 }
 
-func TestEncryptAdDecrypt2(t *testing.T) {
-
-	data := &CipherData{
-		CipherTxt: "c5df56915ead01847bf33e7b3e3d712e",
-		Iv:        "ead48df61623da6e7708f76839e05168",
-		Salt:      "54784942c1987ff4aa7892b32b0dcf40",
+func TestDecryptOfTsEncode(t *testing.T) {
+	var str = `{"cipher_txt":"9d97cd81e6ce67620b21f1597b92a960","iv":"75893604498fbba66518602c28cf026c","salt":"b526a27ddc274452b6737d209c35c775","key_size":8,"iterations":1024}`
+	var data = &CipherData{}
+	err := json.Unmarshal([]byte(str), data)
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	str, err := DecryptAes(data, "123")
+	str, err = DecryptAes(data, "123")
 	if err != nil {
 		t.Fatal(err)
 	}
