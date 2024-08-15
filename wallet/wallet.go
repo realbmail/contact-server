@@ -21,9 +21,13 @@ type MailAddr struct {
 	EthAddress   string `json:"eth_address"`
 }
 
-func (a MailAddr) String() string {
-	bts, _ := json.Marshal(a)
+func (ma *MailAddr) String() string {
+	bts, _ := json.Marshal(ma)
 	return string(bts)
+}
+
+func (ma *MailAddr) Equal(ma2 *MailAddr) bool {
+	return ma.BmailAddress == ma2.BmailAddress && ma.EthAddress == ma2.EthAddress
 }
 
 type MailKey struct {
@@ -107,13 +111,17 @@ func ParseWallet(jsonStr, pwd string) (*Wallet, error) {
 		return nil, err
 	}
 
-	priStr, err := DecryptAes(w.CipherData, pwd)
+	seedHex, err := DecryptAes(w.CipherData, pwd)
 	if err != nil {
 		return nil, err
 	}
 
-	w.key = NewMailKeyFromSeed([]byte(priStr))
-	if w.key.Address != w.Address {
+	seed, err := hex.DecodeString(seedHex)
+	if err != nil {
+		return nil, err
+	}
+	w.key = NewMailKeyFromSeed(seed)
+	if !w.Address.Equal(w.key.Address) {
 		return nil, errors.New("address invalid")
 	}
 	return w, nil
@@ -129,7 +137,7 @@ func (w *Wallet) OpenWallet(pwd string) bool {
 	}
 
 	w.key = NewMailKeyFromSeed([]byte(priStr))
-	if w.key.Address != w.Address {
+	if !w.Address.Equal(w.key.Address) {
 		return false
 	}
 

@@ -195,7 +195,7 @@ func TestProtoQueryByOneEmail(t *testing.T) {
 
 	payload := common.MustProto(obj)
 	sig := key.SignMessage(payload)
-	var req = &pbs.BMReq{Payload: payload, Signature: sig, Address: key.Address}
+	var req = &pbs.BMReq{Payload: payload, Signature: sig, Address: key.Address.BmailAddress}
 	api := api_url + "/query_by_one_email"
 	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(req))
 	if err != nil {
@@ -235,7 +235,7 @@ func TestProtoQueryByEmailArray(t *testing.T) {
 	}
 	payload := common.MustProto(obj)
 	sig := key.SignMessage(payload)
-	var req = &pbs.BMReq{Payload: payload, Signature: sig, Address: key.Address}
+	var req = &pbs.BMReq{Payload: payload, Signature: sig, Address: key.Address.BmailAddress}
 
 	api := api_url + "/query_by_email_array"
 	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(req))
@@ -271,13 +271,13 @@ func TestProtoQueryAccounts(t *testing.T) {
 	key := wallet.NewMailKeyFromSeed(seed)
 
 	obj := &pbs.BMReq{
-		Address: key.Address,
+		Address: key.Address.BmailAddress,
 	}
 
 	payload := common.MustProto(obj)
 	sig := key.SignMessage(payload)
 
-	var req = &pbs.BMReq{Payload: common.MustProto(obj), Signature: sig, Address: key.Address}
+	var req = &pbs.BMReq{Payload: common.MustProto(obj), Signature: sig, Address: key.Address.BmailAddress}
 	api := api_url + "/query_account"
 	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(req))
 	if err != nil {

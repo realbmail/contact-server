@@ -4,6 +4,8 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"golang.org/x/crypto/curve25519"
 	"testing"
@@ -23,8 +25,44 @@ const (
     "version": 1,
     "id": 1
 }`
+
+	walletStr2 = `{
+        "address": {
+                "bmail_address": "BM95mkc8xpkbEkX58i6wdLWJ2XM8j4NMcbhWx7KLjWBaTd",
+                "eth_address": "0xb4cff8aaCe0Ca29074857A2DCa4164fd0E039677"
+        },
+        "cipher_data": {
+                "cipher_txt": "8e02889bba6e806fc452e6a75f047d9b0a71ae3fc2a41c0bc5a4708d11bbfcfa0f74a86cfc8c8e50901c8d5340d6767d25bd9c0233b9e52f1386a7271d9b7117b30b610830a4d30a8f28323c0f28d299",
+                "iv": "8e02889bba6e806fc452e6a75f047d9b",
+                "salt": "4573c52c4ca65ff56e6a75544f6f96f5"
+        },
+        "version": 1
+}
+`
 )
 
+var pwd string
+
+func init() {
+	flag.StringVar(&pwd, "pwd", "12345678", "pwd")
+}
+func TestNewWallet(t *testing.T) {
+	key := NewMailKey()
+	w, err := key.ToWallet(pwd)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(w.String())
+}
+
+func TestParseWallet(t *testing.T) {
+	w, err := ParseWallet(walletStr, pwd)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(w.Address)
+}
 func TestCastToEthPri(t *testing.T) {
 	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
 	if err != nil {
@@ -109,4 +147,41 @@ func TestEncryptByEdPub(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("aesKey:=>", aesKey, hex.EncodeToString(aesKey))
+}
+
+func TestEncryptAdDecrypt(t *testing.T) {
+
+	data, err := EncryptAes("hello, world", "123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	bt, _ := json.Marshal(data)
+	fmt.Println(string(bt))
+	//
+	//data2 := &CipherData{
+	//	CipherTxt: "cc0ee7b72f79d491d22cb63bae3246dc8c6b99822a634a038d9aced8fc469882",
+	//	Iv:        "cc0ee7b72f79d491d22cb63bae3246dc8c6b99822a634a038d9aced8fc469882",
+	//	Salt:      "4586186a757580866638b71876d0454c",
+	//}
+
+	str, err := DecryptAes(data, "123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("result=>", str)
+}
+
+func TestEncryptAdDecrypt2(t *testing.T) {
+
+	data := &CipherData{
+		CipherTxt: "c5df56915ead01847bf33e7b3e3d712e",
+		Iv:        "ead48df61623da6e7708f76839e05168",
+		Salt:      "54784942c1987ff4aa7892b32b0dcf40",
+	}
+
+	str, err := DecryptAes(data, "123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("result=>", str)
 }

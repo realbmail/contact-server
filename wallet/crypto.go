@@ -32,6 +32,78 @@ func EncryptAes(plainTxt, password string) (*CipherData, error) {
 	// Derive the key using PBKDF2
 	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
 
+	// Generate a random IV
+	iv := make([]byte, aes.BlockSize)
+	_, err = rand.Read(iv)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create AES cipher block
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	plainTextBytes := []byte(plainTxt)
+	cipherText := make([]byte, len(plainTextBytes))
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(cipherText, plainTextBytes)
+
+	return &CipherData{
+		CipherTxt: hex.EncodeToString(cipherText),
+		Iv:        hex.EncodeToString(iv),
+		Salt:      hex.EncodeToString(salt),
+	}, nil
+}
+
+func DecryptAes(data *CipherData, password string) (string, error) {
+	// Decode salt
+	salt, err := hex.DecodeString(data.Salt)
+	if err != nil {
+		return "", err
+	}
+
+	// Derive the key using PBKDF2
+	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
+
+	// Decode IV
+	iv, err := hex.DecodeString(data.Iv)
+	if err != nil {
+		return "", err
+	}
+
+	// Decode ciphertext
+	cipherText, err := hex.DecodeString(data.CipherTxt)
+	if err != nil {
+		return "", err
+	}
+
+	// Create AES cipher block
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	// Decrypt ciphertext
+	plainText := make([]byte, len(cipherText))
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(plainText, cipherText)
+
+	return string(plainText), nil
+}
+
+func EncryptAes2(plainTxt, password string) (*CipherData, error) {
+	// Generate a random salt
+	salt := make([]byte, 16)
+	_, err := rand.Read(salt)
+	if err != nil {
+		return nil, err
+	}
+
+	// Derive the key using PBKDF2
+	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
+
 	// 生成一个随机的 IV
 	iv := make([]byte, aes.BlockSize)
 	_, err = rand.Read(iv)
@@ -58,7 +130,7 @@ func EncryptAes(plainTxt, password string) (*CipherData, error) {
 	}, nil
 }
 
-func DecryptAes(data *CipherData, password string) (string, error) {
+func DecryptAes2(data *CipherData, password string) (string, error) {
 	// 解码盐
 	salt, err := hex.DecodeString(data.Salt)
 	if err != nil {
