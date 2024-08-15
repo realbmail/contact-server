@@ -7,7 +7,14 @@ import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import {decodeHex, encodeHex, signData} from "./common";
-import {decodePubKey, generateKeyPairFromSecretKey, generatePrivateKey, MailKey} from "./wallet";
+import {
+    decodePubKey,
+    decryptAes,
+    encryptAes,
+    generateKeyPairFromSecretKey,
+    generatePrivateKey,
+    MailKey
+} from "./wallet";
 import base58 from "bs58";
 import {ed2CurvePub, ed2CurvePri} from "./edwards25519";
 import {Operation} from "./proto/bmail_srv";
@@ -303,9 +310,16 @@ export function testSignAndVerify() {
     console.log("------>>> sig:", signature, "success:", success)
 }
 
-export function testMailkey(){
+export function testMailkey() {
     const seed = decodeHex("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1");
     const key = new MailKey(seed);
-    console.log("======>>>",key.address);
+    console.log("======>>>", key.address);
+}
 
+export function testAes() {
+    const data = encryptAes("hello world", "123");
+    console.log("------>>>", JSON.stringify(data));
+
+    const message = decryptAes(data, "123");
+    console.log("------>>>", message);
 }

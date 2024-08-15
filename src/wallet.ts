@@ -2,6 +2,7 @@ import Hex from "crypto-js/enc-hex";
 import PBKDF2 from "crypto-js/pbkdf2";
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
+import CFB from "crypto-js/mode-cfb";
 import WordArray from "crypto-js/lib-typedarrays";
 import {mnemonicToSeedSync} from "bip39";
 import {ec as EC} from "elliptic";
@@ -112,19 +113,50 @@ export function newWallet(mnemonic: string, password: string): DbWallet {
 const CryptoKeySize = 8;
 const ScryptN = 1024;
 
+export function encryptAes(plainTxt: string, password: string): CipherData {
+    const salt = WordArray.random(128 / 8);
+    const key = PBKDF2(password, salt, {
+        keySize: CryptoKeySize,
+        iterations: ScryptN
+    });
+    const iv = WordArray.random(128 / 8);
+
+    const encrypted = AES.encrypt(plainTxt, key, { iv: iv, mode: CFB });
+
+    return {
+        cipher_txt: encrypted.ciphertext.toString(Hex), // 使用Hex编码ciphertext
+        iv: iv.toString(Hex), // 使用Hex编码iv
+        salt: salt.toString(Hex) // 使用Hex编码salt
+    };
+}
+
 export function decryptAes(data: CipherData, password: string): string {
+    const salt = Hex.parse(data.salt);
+    const iv = Hex.parse(data.iv);
+    const key = PBKDF2(password, salt, {
+        keySize: CryptoKeySize,
+        iterations: ScryptN
+    });
+    const encryptedHex = Hex.parse(data.cipher_txt);
+
+    const decrypted = AES.decrypt({ ciphertext: encryptedHex } as any, key, { iv: iv, mode: CFB });
+    return decrypted.toString(Utf8); // 将解密后的数据转换为UTF-8编码
+}
+
+
+export function decryptAes2(data: CipherData, password: string): string {
     const salt = Hex.parse(data.salt);
     const iv = Hex.parse(data.iv);
     const key = PBKDF2(password, salt, {
         keySize: CryptoKeySize,//keySize: 256 / 32,
         iterations: ScryptN
     });
-    const decrypted = AES.decrypt(data.cipher_txt, key, {iv: iv});
-
+    const encryptedHex = Hex.parse(data.cipher_txt);
+    const decrypted = AES.decrypt({ ciphertext: encryptedHex } as any, key, {iv: iv});
     return decrypted.toString(Utf8);
 }
 
-export function encryptAes(plainTxt: string, password: string): CipherData {
+export function encryptAes2(plainTxt: string, password: string): CipherData {
     const salt = WordArray.random(128 / 8);
     const key = PBKDF2(password, salt, {
         keySize: CryptoKeySize,
@@ -133,7 +165,7 @@ export function encryptAes(plainTxt: string, password: string): CipherData {
     const iv = WordArray.random(128 / 8);
     const encrypted = AES.encrypt(plainTxt, key, {iv: iv});
 
-    return new CipherData(encrypted.toString(), iv.toString(Hex), salt.toString(Hex));
+    return new CipherData(encrypted.ciphertext.toString(Hex), iv.toString(Hex), salt.toString(Hex));
 }
 
 export async function queryCurWallet(): Promise<DbWallet | null> {
