@@ -18,9 +18,11 @@ const (
         "eth_address": "0xd7d1b7204a60af2600392af9a7d490deff12f120"
     },
     "cipher_data": {
-        "cipher_txt": "CNSP9d/6IOszk3nz1mpkck5zzoeCloO634kkig70j3GZixcnE03CTHCDbyIcDzaY7hdFS6CVli7idtBoAoVwb3K5s6Vlnyk/26LvVldgJa0=",
-        "iv": "f5f11187c50524ffca64818837b95723",
-        "salt": "fd5ebf2b786d2005d0dfc851e310fa81"
+        "cipher_txt": "865d31feccae25c5c68a99cb4c77169c37995621ac64a8f93080bf2b41fc0e0fd5dc4739113a71281a0484194e309b96c85f60cf3c765d93906467c9d94ae015d40bde3b14076b939dc3624aad3d545b",
+        "iv": "a0dabe442bae24abeb1389ee4a9287fb",
+        "salt": "1e46689e71119f68daeea9e077f355d4",
+        "key_size": 8,
+        "iterations": 1024
     },
     "version": 1,
     "id": 1
@@ -165,13 +167,15 @@ func TestEncryptAdDecrypt(t *testing.T) {
 }
 
 func TestDecryptOfTsEncode(t *testing.T) {
-	var str = `{"cipher_txt":"9d97cd81e6ce67620b21f1597b92a960","iv":"75893604498fbba66518602c28cf026c","salt":"b526a27ddc274452b6737d209c35c775","key_size":8,"iterations":1024}`
+	var str = `
+{"cipher_txt":"eab9cd58568ce45212f88e1f8badaf443313eb9f33a6e3e3967f7ff463bfb21ba82f58478ab8dc8f53e35b992b3f6a73958db38378ea757154dc92e0c480328de8ad9182483153c1aa6cb29926bdbdc8","iv":"9356eee7ac7d6477ea11121278ce9a09","salt":"2c5b4c54d6a8d8425d63e7f14d0ed7f4","key_size":8,"iterations":1024}
+`
 	var data = &CipherData{}
 	err := json.Unmarshal([]byte(str), data)
 	if err != nil {
 		t.Fatal(err)
 	}
-	str, err = DecryptAes(data, "123")
+	str, err = DecryptAes(data, pwd)
 	if err != nil {
 		t.Fatal(err)
 	}

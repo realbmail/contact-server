@@ -1,22 +1,34 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/ed25519"
-	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
-	"github.com/realbmail/contact-server/common"
+	"github.com/realbmail/contact-server/wallet"
 	"golang.org/x/crypto/curve25519"
-	"golang.org/x/crypto/pbkdf2"
+)
 
-	"crypto/rand"
-	"errors"
+var (
+	walletStr = `{
+    "address": {
+        "bmail_address": "BM6rL3F9gBh6x9aHAWn1MfiM25Y9TjCaxgEzdjWuPRRraT",
+        "eth_address": "0xd7d1b7204a60af2600392af9a7d490deff12f120"
+    },
+    "cipher_data": {
+        "cipher_txt": "eab9cd58568ce45212f88e1f8badaf443313eb9f33a6e3e3967f7ff463bfb21ba82f58478ab8dc8f53e35b992b3f6a73958db38378ea757154dc92e0c480328de8ad9182483153c1aa6cb29926bdbdc8",
+        "iv": "9356eee7ac7d6477ea11121278ce9a09",
+        "salt": "2c5b4c54d6a8d8425d63e7f14d0ed7f4",
+        "key_size": 8,
+        "iterations": 1024
+    },
+    "version": 1,
+    "id": 1
+}`
 )
 
 func main() {
-	test5()
+	test7()
 }
 func testFour() {
 	var alicePrivateKey, alicePublicKey [32]byte
@@ -58,17 +70,17 @@ func testThree() {
 	privateKey := ed25519.NewKeyFromSeed(seed)
 	fmt.Println("self ed pri pub=>", hex.EncodeToString(privateKey))
 
-	curvePri := common.Ed2CurvePriKey(privateKey)
+	curvePri := wallet.Ed2CurvePriKey(privateKey)
 
 	peerEdPub, err := hex.DecodeString("bff41bb9c9568f88c4a7f0fd98ab6a13c4e147c2a233f18be541b063736ef70e")
 	if err != nil {
 		panic(err)
 	}
 
-	curvePub := common.Ed2CurvePubKey(privateKey[32:])
+	curvePub := wallet.Ed2CurvePubKey(privateKey[32:])
 	fmt.Println("self curve pub=>", hex.EncodeToString(curvePub), "self curve pri=>", hex.EncodeToString(curvePri))
 
-	peerCurvePub := common.Ed2CurvePubKey(peerEdPub)
+	peerCurvePub := wallet.Ed2CurvePubKey(peerEdPub)
 	fmt.Println("peer curve pub=>", hex.EncodeToString(peerCurvePub))
 
 	aesKey, err := curve25519.X25519(curvePri, peerCurvePub)
@@ -101,14 +113,14 @@ func testTwo() {
 
 	privateKey := ed25519.NewKeyFromSeed(seed)
 	fmt.Println("self ed pub=>", hex.EncodeToString(privateKey[32:]))
-	curvePub := common.Ed2CurvePubKey(privateKey[32:])
+	curvePub := wallet.Ed2CurvePubKey(privateKey[32:])
 	fmt.Println("self curve pub=>", hex.EncodeToString(curvePub))
 
 	peerEdPub, err := hex.DecodeString("bff41bb9c9568f88c4a7f0fd98ab6a13c4e147c2a233f18be541b063736ef70e")
 	if err != nil {
 		panic(err)
 	}
-	peerCurvePub := common.Ed2CurvePubKey(peerEdPub)
+	peerCurvePub := wallet.Ed2CurvePubKey(peerEdPub)
 	fmt.Println("peer curve pub=>", hex.EncodeToString(peerCurvePub))
 }
 
@@ -121,10 +133,10 @@ func testOne() {
 	privateKey := ed25519.NewKeyFromSeed(seed)
 	fmt.Println("self ed pub=>", privateKey[32:], hex.EncodeToString(privateKey[32:]))
 
-	curvePub := common.Ed2CurvePubKey(privateKey[32:])
+	curvePub := wallet.Ed2CurvePubKey(privateKey[32:])
 	fmt.Println("self curve pub=>", curvePub, hex.EncodeToString(curvePub))
 
-	curvePri := common.Ed2CurvePriKey(privateKey)
+	curvePri := wallet.Ed2CurvePriKey(privateKey)
 	fmt.Println("self curve pri=>", curvePri, hex.EncodeToString(curvePri))
 
 }
@@ -134,7 +146,7 @@ func testPri() {
 	if err != nil {
 		panic(err)
 	}
-	var curvePub = common.Ed2CurvePubKey(edPub)
+	var curvePub = wallet.Ed2CurvePubKey(edPub)
 	fmt.Println("peer curve pub=>", curvePub, hex.EncodeToString(curvePub[:]))
 
 	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
@@ -143,7 +155,7 @@ func testPri() {
 	}
 	privateKey := ed25519.NewKeyFromSeed(seed)
 	fmt.Println("self pub=>", privateKey[:32], hex.EncodeToString(privateKey[:32]))
-	var curPri = common.Ed2CurvePriKey(privateKey)
+	var curPri = wallet.Ed2CurvePriKey(privateKey)
 	aesKey, err := curve25519.X25519(curPri[:], curvePub[:])
 	if err != nil {
 		panic(err)
@@ -162,7 +174,7 @@ func testPub() {
 	//publicKey := make([]byte, ed25519.PublicKeySize)
 	var publicKey = privateKey[32:]
 	fmt.Println("publicKey:=>", publicKey, hex.EncodeToString(publicKey[:]))
-	var curvePub = common.Ed2CurvePubKey(privateKey)
+	var curvePub = wallet.Ed2CurvePubKey(privateKey)
 	fmt.Println("Curve25519 publicKey:=>", curvePub, hex.EncodeToString(curvePub[:]))
 }
 
@@ -171,92 +183,12 @@ const (
 	ScryptN       = 1024
 )
 
-type CipherData struct {
-	CipherTxt string
-	Iv        string
-	Salt      string
-}
-
-func encryptAes(plainTxt, password string) (*CipherData, error) {
-	// Generate a random salt
-	salt := make([]byte, 16)
-	_, err := rand.Read(salt)
-	if err != nil {
-		return nil, err
-	}
-
-	// Derive the key using PBKDF2
-	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
-
-	// 生成一个随机的 IV
-	iv := make([]byte, aes.BlockSize)
-	_, err = rand.Read(iv)
-	if err != nil {
-		return nil, err
-	}
-
-	// 创建 AES 密码块
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
-	plainTextBytes := []byte(plainTxt)
-	cipherText := make([]byte, aes.BlockSize+len(plainTextBytes))
-	copy(cipherText[:aes.BlockSize], iv) // 将 IV 复制到密文的前面
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(cipherText[aes.BlockSize:], plainTextBytes)
-
-	return &CipherData{
-		CipherTxt: hex.EncodeToString(cipherText),
-		Iv:        hex.EncodeToString(iv),
-		Salt:      hex.EncodeToString(salt),
-	}, nil
-}
-func decryptAes(data *CipherData, password string) (string, error) {
-	// 解码盐
-	salt, err := hex.DecodeString(data.Salt)
-	if err != nil {
-		return "", err
-	}
-
-	// 使用 PBKDF2 从密码和盐中导出密钥
-	key := pbkdf2.Key([]byte(password), salt, ScryptN, CryptoKeySize, sha256.New)
-
-	// 解码密文
-	cipherText, err := hex.DecodeString(data.CipherTxt)
-	if err != nil {
-		return "", err
-	}
-
-	if len(cipherText) < aes.BlockSize {
-		return "", errors.New("cipher text too short")
-	}
-
-	// 从密文的开头提取 IV
-	iv := cipherText[:aes.BlockSize]
-	cipherText = cipherText[aes.BlockSize:]
-
-	// 创建 AES 密码块
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
-	}
-
-	// 解密密文
-	plainText := make([]byte, len(cipherText))
-	stream := cipher.NewCFBDecrypter(block, iv)
-	stream.XORKeyStream(plainText, cipherText)
-
-	return string(plainText), nil
-}
-
 func test5() {
 	// Example usage
 	plainText := "Hello, World!"
 	password := "my_secure_password"
 
-	encryptedData, err := encryptAes(plainText, password)
+	encryptedData, err := wallet.EncryptAes(plainText, password)
 	if err != nil {
 		fmt.Println("Error encrypting:", err)
 		return
@@ -264,11 +196,34 @@ func test5() {
 
 	fmt.Println("Encrypted:", encryptedData)
 
-	decryptedText, err := decryptAes(encryptedData, password)
+	decryptedText, err := wallet.DecryptAes(encryptedData, password)
 	if err != nil {
 		fmt.Println("Error decrypting:", err)
 		return
 	}
 
 	fmt.Println("Decrypted:", decryptedText)
+}
+
+func test6() {
+	w, err := wallet.ParseWallet(walletStr, "12345678")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(w.Address)
+}
+func test7() {
+	var str = `
+{"cipher_txt":"eab9cd58568ce45212f88e1f8badaf443313eb9f33a6e3e3967f7ff463bfb21ba82f58478ab8dc8f53e35b992b3f6a73958db38378ea757154dc92e0c480328de8ad9182483153c1aa6cb29926bdbdc8","iv":"9356eee7ac7d6477ea11121278ce9a09","salt":"2c5b4c54d6a8d8425d63e7f14d0ed7f4","key_size":8,"iterations":1024}
+`
+	var data = &wallet.CipherData{}
+	err := json.Unmarshal([]byte(str), data)
+	if err != nil {
+		panic(err)
+	}
+	str, err = wallet.DecryptAes(data, "12345678")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("result=>", str)
 }
