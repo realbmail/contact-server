@@ -15,15 +15,21 @@ import {ed2CurvePri} from "./edwards25519";
 
 const BMailAddrPrefix = "BM";
 
+const CryptoKeySize = 8;
+const ScryptN = 1024;
+
 class CipherData {
     cipher_txt: string;
     iv: string;
     salt: string;
-
-    constructor(cipherTxt: string, iv: string, salt: string) {
+    key_size: number;
+    iterations: number;
+    constructor(cipherTxt: string, iv: string, salt: string,keySize:number,iterations:number) {
         this.cipher_txt = cipherTxt;
         this.iv = iv;
         this.salt = salt;
+        this.key_size = keySize;
+        this.iterations = iterations;
     }
 }
 
@@ -110,8 +116,6 @@ export function newWallet(mnemonic: string, password: string): DbWallet {
     return new DbWallet(key.address, data);
 }
 
-const CryptoKeySize = 8;
-const ScryptN = 1024;
 
 export function encryptAes(plainTxt: string, password: string): CipherData {
     const salt = WordArray.random(128 / 8);
@@ -126,7 +130,9 @@ export function encryptAes(plainTxt: string, password: string): CipherData {
     return {
         cipher_txt: encrypted.ciphertext.toString(Hex), // 使用Hex编码ciphertext
         iv: iv.toString(Hex), // 使用Hex编码iv
-        salt: salt.toString(Hex) // 使用Hex编码salt
+        salt: salt.toString(Hex), // 使用Hex编码salt
+        key_size: CryptoKeySize,
+        iterations: ScryptN
     };
 }
 
@@ -134,38 +140,13 @@ export function decryptAes(data: CipherData, password: string): string {
     const salt = Hex.parse(data.salt);
     const iv = Hex.parse(data.iv);
     const key = PBKDF2(password, salt, {
-        keySize: CryptoKeySize,
-        iterations: ScryptN
+        keySize: data.key_size,
+        iterations: data.iterations
     });
     const encryptedHex = Hex.parse(data.cipher_txt);
 
     const decrypted = AES.decrypt({ ciphertext: encryptedHex } as any, key, { iv: iv, mode: CFB });
     return decrypted.toString(Utf8); // 将解密后的数据转换为UTF-8编码
-}
-
-
-export function decryptAes2(data: CipherData, password: string): string {
-    const salt = Hex.parse(data.salt);
-    const iv = Hex.parse(data.iv);
-    const key = PBKDF2(password, salt, {
-        keySize: CryptoKeySize,//keySize: 256 / 32,
-        iterations: ScryptN
-    });
-    const encryptedHex = Hex.parse(data.cipher_txt);
-    const decrypted = AES.decrypt({ ciphertext: encryptedHex } as any, key, {iv: iv});
-    return decrypted.toString(Utf8);
-}
-
-export function encryptAes2(plainTxt: string, password: string): CipherData {
-    const salt = WordArray.random(128 / 8);
-    const key = PBKDF2(password, salt, {
-        keySize: CryptoKeySize,
-        iterations: ScryptN
-    });
-    const iv = WordArray.random(128 / 8);
-    const encrypted = AES.encrypt(plainTxt, key, {iv: iv});
-
-    return new CipherData(encrypted.ciphertext.toString(Hex), iv.toString(Hex), salt.toString(Hex));
 }
 
 export async function queryCurWallet(): Promise<DbWallet | null> {
