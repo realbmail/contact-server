@@ -10,6 +10,7 @@ import (
 	"github.com/btcsuite/btcutil/base58"
 	cryptoEth "github.com/ethereum/go-ethereum/crypto"
 	"io"
+	"strings"
 )
 
 const (
@@ -27,7 +28,7 @@ func (ma *MailAddr) String() string {
 }
 
 func (ma *MailAddr) Equal(ma2 *MailAddr) bool {
-	return ma.BmailAddress == ma2.BmailAddress && ma.EthAddress == ma2.EthAddress
+	return ma.BmailAddress == ma2.BmailAddress && strings.ToLower(ma.EthAddress) == strings.ToLower(ma2.EthAddress)
 }
 
 type MailKey struct {

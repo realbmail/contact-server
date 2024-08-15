@@ -96,6 +96,12 @@ func DecryptAes(data *CipherData, password string) (string, error) {
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(plainText, cipherText)
 
+	// Remove padding (PKCS#7 padding, if any)
+	paddingLen := int(plainText[len(plainText)-1])
+	if paddingLen > 0 && paddingLen <= aes.BlockSize {
+		plainText = plainText[:len(plainText)-paddingLen]
+	}
+
 	return string(plainText), nil
 }
 

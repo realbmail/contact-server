@@ -28,7 +28,7 @@ var (
 )
 
 func main() {
-	test7()
+	test6()
 }
 func testFour() {
 	var alicePrivateKey, alicePublicKey [32]byte
