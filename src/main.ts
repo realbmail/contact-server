@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
-import {encodeHex, httpApi, MsgType, showView, signData, WalletStatus} from "./common";
+import {encodeHex, httpApi, MsgType, sendMessageToBackground, showView, signData, WalletStatus} from "./common";
 import {initDatabase} from "./database";
-import {MailAddress} from "./wallet";
+import {MailAddress, queryCurWallet} from "./wallet";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
 import {sessionGet, sessionSet} from "./session_storage";
@@ -126,8 +126,19 @@ function openAllWallets(): void {
 
 function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
+
     const reloadBindingBtn = container.querySelector(".bmail-address-query-btn") as HTMLButtonElement;
     reloadBindingBtn.addEventListener('click', reloadBindings);
+
+    const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
+    closeButton.addEventListener('click', () => {
+        hideDialog();
+    });
+
+    const showKeyStore = container.querySelector(".bmail-wallet-export-btn") as HTMLButtonElement
+    showKeyStore.addEventListener('click', () => {
+        showUserKeyStore();
+    })
 }
 
 async function reloadBindings() {
@@ -136,15 +147,16 @@ async function reloadBindings() {
         return;
     }
     const address = document.getElementById('bmail-address-val')?.textContent;
-
     const template = document.getElementById("binding-email-address-item") as HTMLElement;
     const parent = document.getElementById("binding-email-address-list") as HTMLElement;
+    parent.innerHTML = '';
     account.emails.forEach((emailAddress) => {
         const clone = template.cloneNode(true) as HTMLElement;
         const unbindBtn = clone.querySelector(".binding-email-unbind-btn") as HTMLElement;
         unbindBtn.addEventListener("click", e => {
-            unbindMailFromAccount(emailAddress,address!);
+            unbindMailFromAccount(emailAddress, address!);
         })
+        parent.append(clone);
     })
 }
 
@@ -156,18 +168,18 @@ async function queryLastAccountInfo(): Promise<BMailAccount | null> {
     }
     try {
         const parameter = QueryReq.create({
-            address:address,
+            address: address,
         })
         const message = QueryReq.encode(parameter).finish()
         const signature = await signData(encodeHex(message));
-        if(!signature){
+        if (!signature) {
             console.log("------>>> sign data failed")
             return null;
         }
         const postData = BMReq.create({
-            address:address,
-            signature:signature,
-            payload:message,
+            address: address,
+            signature: signature,
+            payload: message,
         })
 
         const rawData = BMReq.encode(postData).finish();
@@ -181,4 +193,70 @@ async function queryLastAccountInfo(): Promise<BMailAccount | null> {
 
 function unbindMailFromAccount(emailAddress: string, address: string): void {
 
+}
+
+
+function showDialog(title: string, message: string, confirmButtonText?: string, confirmCallback?: () => boolean): void {
+    const dialogContainer = document.getElementById('dialog-tips-container') as HTMLDivElement;
+    const dialogTitle = document.getElementById('dialog-tips-title') as HTMLHeadingElement;
+    const dialogMessage = document.getElementById('dialog-tips-message') as HTMLParagraphElement;
+    let confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
+
+    dialogTitle.innerText = title;
+    dialogMessage.innerText = message;
+    if (confirmButtonText) {
+        confirmButton.innerText = confirmButtonText;
+    }
+
+    // Remove previous event listener to avoid multiple callbacks
+    confirmButton.replaceWith(confirmButton.cloneNode(true));
+    confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
+
+    confirmButton.addEventListener('click', () => {
+        if (confirmCallback) {
+            const closeTab = confirmCallback();
+            if (closeTab) {
+                hideDialog();
+            }
+            return;
+        }
+        hideDialog();
+    });
+
+    dialogContainer.style.display = 'flex';
+}
+
+function hideDialog(): void {
+    const dialogContainer = document.getElementById('dialog-tips-container') as HTMLDivElement;
+    dialogContainer.style.display = 'none';
+}
+
+function showLoading(): void {
+    document.body.classList.add('loading');
+    document.getElementById("dialog-waiting-overlay")!.style.display = 'flex';
+}
+
+function hideLoading(): void {
+    document.body.classList.remove('loading');
+    document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
+}
+
+async function showUserKeyStore() {
+    try {
+        const wallet = await queryCurWallet();
+        if (!wallet){
+            throw new Error("Wallet not found");
+        }
+        const keyStoreStr = JSON.stringify(wallet,null, 4);
+
+        showDialog("key store", keyStoreStr, "Copy", function () {
+            navigator.clipboard.writeText(keyStoreStr).then(() => {
+                alert("Copy success");
+            });
+            return true;
+        })
+    } catch (e) {
+        const err = e as Error;
+        showDialog("Error", err.message);
+    }
 }

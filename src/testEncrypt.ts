@@ -113,12 +113,12 @@ export function testBmailPub() {
     const bobSecretKey = generatePrivateKey();
     const bobKeyPair = generateKeyPairFromSecretKey(bobSecretKey);
 
-    console.log("------>>> uint8 array pub:", key.address, decodePubKey(key.address.bmailAddress), bobKeyPair.secretKey)
+    console.log("------>>> uint8 array pub:", key.address, decodePubKey(key.address.bmail_address), bobKeyPair.secretKey)
     const aliceSharedKey = nacl.box.before(bobKeyPair.publicKey, key.bmailKey.secretKey);
     console.log("Alice's Shared Key:", encodeHex(aliceSharedKey));
 
     // Bob 使用自己的私钥和 Alice 的公钥生成共享密钥
-    const alicePub = decodePubKey(key.address.bmailAddress)
+    const alicePub = decodePubKey(key.address.bmail_address)
     const bobSharedKey = nacl.box.before(alicePub, bobKeyPair.secretKey);
     console.log("Bob's Shared Key:", encodeHex(bobSharedKey));
 
@@ -301,4 +301,11 @@ export function testSignAndVerify() {
 
     const success = MailKey.verifySignature(seed, signature, message)
     console.log("------>>> sig:", signature, "success:", success)
+}
+
+export function testMailkey(){
+    const seed = decodeHex("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1");
+    const key = new MailKey(seed);
+    console.log("======>>>",key.address);
+
 }

@@ -15,12 +15,12 @@ import {ed2CurvePri} from "./edwards25519";
 const BMailAddrPrefix = "BM";
 
 class CipherData {
-    cipherTxt: string;
+    cipher_txt: string;
     iv: string;
     salt: string;
 
     constructor(cipherTxt: string, iv: string, salt: string) {
-        this.cipherTxt = cipherTxt;
+        this.cipher_txt = cipherTxt;
         this.iv = iv;
         this.salt = salt;
     }
@@ -28,21 +28,22 @@ class CipherData {
 
 export class DbWallet {
     address: MailAddress;
-    cipherObj: CipherData;
+    cipher_data: CipherData;
+    version: number = 1;
 
     constructor(address: MailAddress, cipherObj: CipherData) {
         this.address = address;
-        this.cipherObj = cipherObj;
+        this.cipher_data = cipherObj;
     }
 }
 
 export class MailAddress {
-    public bmailAddress: string;
-    public ethAddress: string;
+    public bmail_address: string;
+    public eth_address: string;
 
     constructor(address: string, ethAddress: string) {
-        this.bmailAddress = address;
-        this.ethAddress = ethAddress;
+        this.bmail_address = address;
+        this.eth_address = ethAddress;
     }
 }
 
@@ -118,7 +119,7 @@ export function decryptAes(data: CipherData, password: string): string {
         keySize: CryptoKeySize,//keySize: 256 / 32,
         iterations: ScryptN
     });
-    const decrypted = AES.decrypt(data.cipherTxt, key, {iv: iv});
+    const decrypted = AES.decrypt(data.cipher_txt, key, {iv: iv});
 
     return decrypted.toString(Utf8);
 }
@@ -144,7 +145,7 @@ export async function queryCurWallet(): Promise<DbWallet | null> {
 }
 
 export function castToMemWallet(pwd: string, wallet: DbWallet): MailKey {
-    const decryptedPri = decryptAes(wallet.cipherObj, pwd);
+    const decryptedPri = decryptAes(wallet.cipher_data, pwd);
     const priArray = decodeHex(decryptedPri);
     return new MailKey(priArray);
 }

@@ -429,8 +429,8 @@ function changeInputType(this: HTMLElement): void {
 
 function prepareAccountData() {
     queryCurWallet().then((data) => {
-        console.log("------>>> new account details:", data, data?.address.bmailAddress)
-        const address = data?.address.bmailAddress;
+        console.log("------>>> new account details:", data, data?.address.bmail_address)
+        const address = data?.address.bmail_address;
         if (!address) {
             return
         }

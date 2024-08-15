@@ -51,7 +51,7 @@ export function encodeMail(peers: string[], data: string, key: MailKey): BMailBo
     const aesKey = generatePrivateKey();
     let secrets = new Map<string, string>();
 
-    peers.push(key.address.bmailAddress);//add self for decrypt.
+    peers.push(key.address.bmail_address);//add self for decrypt.
 
     peers.forEach(peer => {
         const peerPub = decodePubKey(peer);
@@ -65,14 +65,14 @@ export function encodeMail(peers: string[], data: string, key: MailKey): BMailBo
     })
 
     const encryptedBody = nacl.secretbox(naclUtil.decodeUTF8(data), nonce, aesKey);
-    return new BMailBody(MailBodyVersion, secrets, naclUtil.encodeBase64(encryptedBody), nonce, key.address.bmailAddress)
+    return new BMailBody(MailBodyVersion, secrets, naclUtil.encodeBase64(encryptedBody), nonce, key.address.bmail_address)
 }
 
 export function decodeMail(mailData: string, key: MailKey) {
 
     const mail = BMailBody.fromJSON(mailData);
     const address = key.address;
-    const encryptedKey = mail.receivers.get(address.bmailAddress)
+    const encryptedKey = mail.receivers.get(address.bmail_address)
     if (!encryptedKey) {
         throw new Error("address isn't in receiver list");
     }
