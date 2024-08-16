@@ -1,5 +1,14 @@
 import {__tableNameWallet, databaseAddItem, initDatabase} from "./database";
-import {createQRCodeImg, encodeHex, httpApi, MsgType, sendMessageToBackground, showView, signData} from "./common";
+import {
+    BMRequestToSrv,
+    createQRCodeImg,
+    encodeHex,
+    httpApi,
+    MsgType,
+    sendMessageToBackground,
+    showView,
+    signData
+} from "./common";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
@@ -71,7 +80,7 @@ function router(path: string): void {
     if (path === '#onboarding/account-home') {
         prepareAccountData();
     }
-    if(path === '#onboarding/buy-vip') {
+    if (path === '#onboarding/buy-vip') {
         generateQrCodeForVipBuying().then();
     }
 }
@@ -98,16 +107,16 @@ async function createWallet(): Promise<void> {
     ___mnemonic_in_mem = mnemonic;
     sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
     const wallet = await createNewWallet(mnemonic, password1);
-    if (!wallet){
+    if (!wallet) {
         console.log("------>>> create wallet failed")
-        return ;
+        return;
     }
-    console.log("creat wallet success=>",wallet.address);
+    console.log("creat wallet success=>", wallet.address);
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic();
 }
 
-async function createNewWallet(mnemonic: string, password: string):Promise<DbWallet | null> {
+async function createNewWallet(mnemonic: string, password: string): Promise<DbWallet | null> {
     const request = {
         mnemonic: mnemonic,
         password: password,
@@ -269,9 +278,9 @@ async function actionOfWalletImport(): Promise<void> {
     }
 
     const wallet = await createNewWallet(___mnemonic_in_mem, password);
-    if (!wallet){
+    if (!wallet) {
         console.log("------>>> create wallet failed")
-        return ;
+        return;
     }
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
@@ -284,7 +293,7 @@ function checkImportPassword(this: HTMLInputElement): void {
     const okBtn = parent.querySelector(".primary-button") as HTMLButtonElement;
 
     const pwd: string[] = [];
-    parent.querySelectorAll("input").forEach(input  => {
+    parent.querySelectorAll("input").forEach(input => {
         const elm = input as HTMLInputElement
         if (elm.type === 'password' || elm.type === 'text') {
             pwd.push(elm.value);
@@ -349,7 +358,7 @@ function setRecoverPhaseTips(isValid: boolean, errMsg: string): void {
 
 
 function validateRecoveryPhrase(this: HTMLInputElement): void {
-    const wordsArray = this.value.split(' ');
+    const wordsArray = this.value.trim().split(' ');
     let errMsg = '';
     let everyWordIsOk = true;
     const inputs = document.querySelectorAll<HTMLInputElement>("#recovery-phrase-inputs .recovery-phrase");
@@ -508,10 +517,11 @@ function membershipChanged(allCard: NodeListOf<HTMLElement>, current: HTMLElemen
 }
 
 let currentPriceVal = '0'
+
 function buyVipMembership(e: MouseEvent): void {
     console.log("------>>>target:=>", e.target);
     const btn = e.target as HTMLElement;
-    currentPriceVal = btn.dataset.priceVal??'0';
+    currentPriceVal = btn.dataset.priceVal ?? '0';
     console.log("------>>>price value:", currentPriceVal)
     navigateTo('#onboarding/buy-vip');
 }
@@ -536,11 +546,14 @@ async function generateQrCodeForVipBuying() {
 }
 
 async function freeActiveAccount() {
+    const errorDiv = document.getElementById("account-home-error") as HTMLDivElement;
+    errorDiv.style.display = "none";
+    errorDiv.innerText = "";
     showLoading();
     try {
         const walletAddrDiv = document.querySelector(".current-wallet-address-val") as HTMLElement;
         const address = walletAddrDiv.innerText;
-        if (!address){
+        if (!address) {
             console.log("------>>> no valid account address found")
             return
         }
@@ -551,28 +564,19 @@ async function freeActiveAccount() {
         });
 
         const message = Operation.encode(payload).finish()
-        const signature = await signData(encodeHex(message));
-        if(!signature){
-            console.log("------>>> sign data failed")
-            return;
-        }
-        const postData = BMReq.create({
-            address:address,
-            signature:signature,
-            payload:message,
-        });
-
-        const rawData = BMReq.encode(postData).finish();
-        const srvRsp = await httpApi("/account_create", rawData);
+        const srvRsp = await BMRequestToSrv("/account_create", address, message)
         console.log("------->>>fetch success:=>", srvRsp);
         navigateTo('#onboarding/account-success');
     } catch (error) {
-        const e = error as Error;
-        console.log("------->>>fetch failed:=>", e.message);
-    }finally {
+        console.log("------->>>fetch failed:=>", error);
+        const errorDiv = document.getElementById("account-home-error") as HTMLDivElement;
+        errorDiv.innerText = "fetch failed:" + error;
+        errorDiv.style.display = "block";
+    } finally {
         hideLoading();
     }
 }
+
 
 function showLoading(): void {
     document.body.classList.add('loading');

@@ -1,6 +1,6 @@
 import * as QRCode from 'qrcode';
 import browser from "webextension-polyfill";
-import {BMRsp, Operation} from "./proto/bmail_srv";
+import {BMReq, BMRsp, Operation} from "./proto/bmail_srv";
 
 export enum MsgType {
     PluginClicked = 'PluginClicked',
@@ -15,6 +15,8 @@ export enum MsgType {
     EmailAddrToBmailAddr = 'EmailAddrToBmailAddr',
     CheckIfLogin = 'CheckIfLogin',
     SignData = 'SignData',
+    QueryAccountDetails = 'QueryAccountDetails',
+    EmailBindOp = 'EmailBindOp'
 }
 
 export enum WalletStatus {
@@ -92,28 +94,22 @@ export async function createQRCodeImg(data: string) {
 const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
 
 export async function httpApi(path: string, param: any) {
-    try {
-        const response = await fetch(httpServerUrl + path, {
-            method: 'POST', // 设置方法为POST
-            headers: {
-                'Content-Type': 'application/x-protobuf'
-            },
-            body: param,
-        });
-        const buffer = await response.arrayBuffer();
-        const uint8Array = new Uint8Array(buffer);
+    const response = await fetch(httpServerUrl + path, {
+        method: 'POST', // 设置方法为POST
+        headers: {
+            'Content-Type': 'application/x-protobuf'
+        },
+        body: param,
+    });
+    const buffer = await response.arrayBuffer();
+    const uint8Array = new Uint8Array(buffer);
 
-        const decodedResponse = BMRsp.decode(uint8Array) as BMRsp;
-        if (decodedResponse.success) {
-            console.log("------>>>httpApi success")
-            return decodedResponse.payload;
-        } else {
-            throw new Error(decodedResponse.msg);
-        }
-    } catch (error) {
-        const e = error as Error;
-        console.log("------->>>fetch failed:=>", e.message);
-        throw e;
+    const decodedResponse = BMRsp.decode(uint8Array) as BMRsp;
+    if (decodedResponse.success) {
+        console.log("------>>>httpApi success")
+        return decodedResponse.payload;
+    } else {
+        throw new Error(decodedResponse.msg);
     }
 }
 
@@ -142,4 +138,21 @@ export async function signData(data: any, password?: string): Promise<string | n
     }
 
     return rsp.data;
+}
+
+export async function BMRequestToSrv(url: string, address: string, message: Uint8Array): Promise<any> {
+    const signature = await signData(encodeHex(message));
+    if (!signature) {
+        throw new Error("sign data failed")
+    }
+    const postData = BMReq.create({
+        address: address,
+        signature: signature,
+        payload: message,
+    });
+
+    const rawData = BMReq.encode(postData).finish();
+    const srvRsp = await httpApi(url, rawData);
+    console.log("------->>>fetch success:=>", srvRsp);
+    return srvRsp;
 }

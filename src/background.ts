@@ -2,9 +2,10 @@
 import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, MailKey, newWallet, queryCurWallet} from "./wallet";
-import {decodeHex, MsgType, WalletStatus} from "./common";
+import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
+import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
+import {BMailAccount, Operation, QueryReq} from "./proto/bmail_srv";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -12,6 +13,8 @@ const tabs = browser.tabs;
 const __alarm_name__: string = '__alarm_name__timer__';
 const __key_wallet_status: string = '__key_wallet_status';
 const __dbKey_cur_key: string = '__dbKey_cur_key__';
+const __dbKey_cur_addr: string = '__dbKey_cur_addr__';
+const __dbKey_cur_account_details: string = '__dbKey_cur_account_details__';
 
 const ICON_PATHS = {
     loggedIn: {
@@ -84,6 +87,13 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
 
         case MsgType.SignData:
             SigDataInBackground(request.data, sendResponse).then();
+            return true;
+
+        case MsgType.QueryAccountDetails:
+            getAccount(request.data, sendResponse).then()
+            return true;
+        case MsgType.EmailBindOp:
+            bindingOperation(request.data.isDel,request.data.emails, sendResponse).then();
             return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -184,6 +194,7 @@ async function createWallet(mnemonic: string, password: string, sendResponse: (r
         const mKey = castToMemWallet(password, wallet);
         await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
         await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
+        await sessionSet(__dbKey_cur_addr, mKey.address);
         sendResponse({success: true, data: wallet})
     } catch (error) {
         console.log("[service work] creating wallet failed:", error);
@@ -203,6 +214,7 @@ async function openWallet(pwd: string, sendResponse: (response: any) => void): P
     const mKey = castToMemWallet(pwd, wallet);
     await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
     await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
+    await sessionSet(__dbKey_cur_addr, mKey.address);
     sendResponse({status: true, message: mKey.address});
     updateIcon(true);
     return true;
@@ -211,6 +223,7 @@ async function openWallet(pwd: string, sendResponse: (response: any) => void): P
 async function closeWallet(sendResponse: (response: any) => void): Promise<void> {
     await sessionRemove(__key_wallet_status);
     await sessionRemove(__dbKey_cur_key);
+    await sessionRemove(__dbKey_cur_addr);
     if (sendResponse) {
         sendResponse({status: true});
     }
@@ -370,4 +383,67 @@ async function SigDataInBackground(data: any, sendResponse: (response: any) => v
     }
 
     sendResponse({success: true, data: signature});
+}
+
+async function getAccount(address: string, sendResponse: (response: any) => void) {
+    let account = await sessionGet(__dbKey_cur_account_details);
+    if (account) {
+        sendResponse({success: 1, data: account});
+        return;
+    }
+    account = await loadAccountDetailsFromSrv(address);
+    if (!account) {
+        sendResponse({success: -1, message: "fetch account details failed"});
+        return;
+    }
+    sendResponse({success: 1, data: account});
+}
+
+async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount | null> {
+    if (!address) {
+        console.log("[service work] no address found locally =>");
+        return null;
+    }
+    try {
+        const payload = QueryReq.create({
+            address: address,
+        });
+        const message = QueryReq.encode(payload).finish()
+        const srvRsp = await BMRequestToSrv("/query_account", address, message)
+        if (!srvRsp) {
+            console.log("------->>>fetch failed no response data found");
+            return null;
+        }
+        console.log("------->>>fetch success:=>", srvRsp);
+        const accountDetails = BMailAccount.decode(srvRsp) as BMailAccount;
+        await sessionSet(__dbKey_cur_account_details, accountDetails);
+        return accountDetails;
+    } catch (err) {
+        console.log("[service work] load account details from server =>");
+        return null;
+    }
+}
+
+async function bindingOperation(isDel:boolean,emails: string[], sendResponse: (response: any) => void) {
+    try {
+       const addr = await sessionGet(__dbKey_cur_addr) as MailAddress | null;
+       if (!addr) {
+           sendResponse({success: -1, message: "open wallet first"});
+           return;
+       }
+
+        const payload: Operation = Operation.create({
+            isDel: isDel,
+            address: addr.bmail_address,
+            emails: emails,
+        });
+
+        const message = Operation.encode(payload).finish();
+        const srvRsp = await BMRequestToSrv("/operate_contact", addr.bmail_address, message)
+        console.log("------->>>unbinding success:=>", srvRsp);
+        sendResponse({success: 1, message: "success"});
+
+    } catch (e) {
+        sendResponse({success: -1, message: JSON.stringify(e)});
+    }
 }

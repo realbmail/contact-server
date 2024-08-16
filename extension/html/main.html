@@ -90,8 +90,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
     </style>
@@ -115,15 +119,31 @@
 
 <div id="view-main-dashboard" class="view-main-dashboard page_view">
     <div id="main-header-part" class="main-header-part">
-        <p id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</p>
-        <p id="bmail-address-val" class="bmail-address-val"></p>
-        <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新</button>
-        <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">显示KeyStore</button>
+        <div class="bmail-account-details">
+            <div>
+                <p id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</p>
+                <p id="bmail-address-val" class="bmail-address-val"></p>
+            </div>
+            <div>
+                <p id="bmail-account-level-lbl" class="bmail-account-level-lbl">用户等级:</p>
+                <p id="bmail-account-level-val" class="bmail-account-level-val"></p>
+                <p><img src="../file/logo_16.png" alt="user level image"></p>
+            </div>
+            <div>
+                <p id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</p>
+                <p id="bmail-account-license-val" class="bmail-account-license-val"></p>
+            </div>
+
+            <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新</button>
+            <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">显示KeyStore</button>
+        </div>
         <div class="binding-email-address-area">
             <li class="binding-email-address-item" id="binding-email-address-item" style="display: none">
                 <div class="binding-email-address-item-div">
-                    <span class="binding-email-address-val-">ribencong@gmail.com</span>
-                    <button class="binding-email-unbind-btn">解除绑定</button>
+                    <span class="binding-email-address-val">ribencong@gmail.com</span>
+                    <button class="binding-email-unbind-btn" id="binding-email-unbind-btn" style="display: none">
+                        绑定
+                    </button>
                 </div>
             </li>
             <ul class="binding-email-address-list" id="binding-email-address-list">
