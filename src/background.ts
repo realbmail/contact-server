@@ -451,7 +451,7 @@ async function bindingOperation(isDel: boolean, emails: string[], sendResponse: 
             sendResponse({success: -1, message: "sign data failed"});
             return;
         }
-        const srvRsp = await BMRequestToSrv("/operate_contact", addr.bmail_address, message, sig)
+        const srvRsp = await BMRequestToSrv("/operate_account", addr.bmail_address, message, sig)
         console.log("------->>>unbinding success:=>", srvRsp);
         sendResponse({success: 1, message: "success"});
 

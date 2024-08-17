@@ -29,6 +29,7 @@ async function initDessagePlugin(): Promise<void> {
     checkBackgroundStatus();
     initLoginDiv();
     initDashBoard();
+    initNewContactView();
 }
 
 function checkBackgroundStatus(): void {
@@ -231,6 +232,7 @@ function queryCurrentEmailAddr() {
 async function populateDashboard() {
     await loadAndSetupAccount();
     queryCurrentEmailAddr();
+    await loadContact();
 }
 
 function initLoginDiv(): void {
@@ -281,9 +283,27 @@ function initDashBoard(): void {
     showKeyStore.addEventListener('click', async () => {
         await showUserKeyStore();
     });
+
     const activeBtn = document.getElementById('bmail-active-account') as HTMLButtonElement;
     activeBtn.addEventListener('click', async () => {
         await activeCurrentAccount(activeBtn);
+    });
+
+    const contactAddBtn = document.getElementById("contact-btn-new") as HTMLButtonElement;
+    contactAddBtn.addEventListener('click', async () => {
+        showView('#onboarding/contact-new', router);
+    })
+}
+
+function initNewContactView(): void {
+    const returnBtn = document.getElementById("view-contact-return") as HTMLButtonElement;
+    returnBtn.addEventListener('click', async () => {
+        showView('#onboarding/main-dashboard', router);
+    })
+
+    const addBtn = document.getElementById("contact-new-add-btn") as HTMLButtonElement;
+    addBtn.addEventListener('click', async () => {
+        await addContactToSrv();
     })
 }
 
@@ -383,4 +403,12 @@ async function activeCurrentAccount(actBtn: HTMLButtonElement) {
     } finally {
         hideLoading();
     }
+}
+
+async function loadContact(){
+
+}
+
+async function addContactToSrv(){
+
 }
