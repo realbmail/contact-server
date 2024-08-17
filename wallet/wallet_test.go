@@ -29,16 +29,19 @@ const (
 }`
 
 	walletStr2 = `{
-        "address": {
-                "bmail_address": "BM95mkc8xpkbEkX58i6wdLWJ2XM8j4NMcbhWx7KLjWBaTd",
-                "eth_address": "0xb4cff8aaCe0Ca29074857A2DCa4164fd0E039677"
-        },
-        "cipher_data": {
-                "cipher_txt": "8e02889bba6e806fc452e6a75f047d9b0a71ae3fc2a41c0bc5a4708d11bbfcfa0f74a86cfc8c8e50901c8d5340d6767d25bd9c0233b9e52f1386a7271d9b7117b30b610830a4d30a8f28323c0f28d299",
-                "iv": "8e02889bba6e806fc452e6a75f047d9b",
-                "salt": "4573c52c4ca65ff56e6a75544f6f96f5"
-        },
-        "version": 1
+    "address": {
+        "bmail_address": "BMosv9sni68L1TsKgeJTDmpB6vqccKRLMJEEgYZgXZDse",
+        "eth_address": "0xbde97696c822ff18c1efb78a069cd05f51e7e94a"
+    },
+    "cipher_data": {
+        "cipher_txt": "2d1c7b4f0c0fb91ca21efe0c60706a8babc2488cb9795bf3f33431e06ae6189974b20fb64dc44e39ffa2031ca84252c83e93f33d34867adb2f4e7980b862ec29f1ce07ee8deeb80d0d8a94581e562acc",
+        "iv": "456ab1469b56943b7a429af70e8e5194",
+        "salt": "1adbdaace1e4e749f471b2c12915899b",
+        "key_size": 8,
+        "iterations": 1024
+    },
+    "version": 1,
+    "id": 1
 }
 `
 )
@@ -59,7 +62,7 @@ func TestNewWallet(t *testing.T) {
 }
 
 func TestParseWallet(t *testing.T) {
-	w, err := ParseWallet(walletStr, pwd)
+	w, err := ParseWallet(walletStr2, pwd)
 	if err != nil {
 		t.Fatal(err)
 	}

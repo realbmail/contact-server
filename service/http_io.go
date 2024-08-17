@@ -96,6 +96,6 @@ func WriteError(w http.ResponseWriter, err error) {
 	}
 	w.Header().Set("Content-Type", "application/x-protobuf")
 	w.WriteHeader(http.StatusInternalServerError)
-	data, _ := json.Marshal(rsp)
+	data, _ := proto.Marshal(rsp)
 	_, _ = w.Write(data)
 }
