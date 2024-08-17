@@ -139,7 +139,10 @@ function setupElementByAccountData(accountData: BMailAccount) {
         clone.removeAttribute('id');
         const button = clone.querySelector('button') as HTMLElement;
         button.addEventListener('click', async (e) => {
-            await emailBindingOperate(true, email, clone);
+            const success = await emailBindingOperate(true, email);
+            if (success) {
+                clone.parentNode?.removeChild(clone);
+            }
         })
         const emailSpan = clone.querySelector('.binding-email-address-val') as HTMLElement
         emailSpan.innerText = email;
@@ -147,7 +150,8 @@ function setupElementByAccountData(accountData: BMailAccount) {
     });
 }
 
-async function emailBindingOperate(isDel: boolean, email: string, clone?: HTMLElement) {
+async function emailBindingOperate(isDel: boolean, email: string): Promise<boolean> {
+    showLoading();
     try {
         const data = {
             isDel: isDel,
@@ -156,12 +160,18 @@ async function emailBindingOperate(isDel: boolean, email: string, clone?: HTMLEl
         const rsp = await sendMessageToBackground(data, MsgType.EmailBindOp);
         if (rsp.success < 0) {
             showDialog("error", rsp.message);
-            return;
+            return false;
         }
-        clone?.parentNode?.removeChild(clone);
         await loadAndSetupAccount(true);
+        if (isDel) {
+            queryCurrentEmailAddr();
+        }
+        return true;
     } catch (e) {
         showDialog("error", JSON.stringify(e));
+        return false;
+    } finally {
+        hideLoading();
     }
 }
 
@@ -206,7 +216,10 @@ function queryCurrentEmailAddr() {
                 const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
                 bindOrUnbindBtn.style.display = "block";
                 bindOrUnbindBtn.addEventListener('click', async (e) => {
-                    await emailBindingOperate(false, currentEmail, bindOrUnbindBtn);
+                    const success = await emailBindingOperate(false, currentEmail);
+                    if (success) {
+                        bindOrUnbindBtn.style.display = 'none';
+                    }
                 })
             } else {
                 console.log('------>>>Element not found or has no value');
