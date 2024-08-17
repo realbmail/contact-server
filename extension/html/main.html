@@ -164,11 +164,11 @@
         <div>
             <span class="contact-list-title"> 通讯录 </span>
             <span class="contact-area-addition">
-                <button class="contact-btn-new"id="contact-btn-new">新增联系人</button> </span>
+                <button class="contact-btn-new" id="contact-btn-new">新增联系人</button> </span>
         </div>
         <li id="contact-item-template" class="contact-item" style="display: none">
             <span class="contact-detail-email"></span>
-            <span class="contact-detail-address" ></span>
+            <span class="contact-detail-address"></span>
             <span class="contact-detail-remark"></span>
             <button class="contact-detail-btn-edit" id="contact-detail-btn-edit">编辑</button>
         </li>
@@ -177,18 +177,32 @@
     </div>
 </div>
 
-<div id="view-contact-new" class="view-contact-new">
+<div id="view-contact-new" class="view-contact-new page_view">
     <div>
         <span><button class="view-contact-return" id="view-contact-return">返回</button></span>
     </div>
 
     <div class="contact-new-details" id="contact-new-details">
         <p>联系人信息:</p>
-        <label for="contact-new-email-val" id="contact-new-email-lbl">邮件地址：</label>
-        <input class="contact-new-email-val" id="contact-new-email-val">
-        <label for="contact-new-account-val" id="contact-new-account-lbl">BMail地址：</label>
-        <input class="contact-new-account-val" id="contact-new-account-val">
-        <button class="contact-new-add-btn" id="contact-new-add-btn">保存</button>
+        <p>
+            <label for="contact-new-email-val" id="contact-new-email-lbl">邮件地址：</label>
+            <input class="contact-new-email-val" id="contact-new-email-val">
+        </p>
+        <p>
+            <label for="contact-new-account-val" id="contact-new-account-lbl">BMail地址：</label>
+            <input class="contact-new-account-val" id="contact-new-account-val">
+        </p>
+        <p>
+            <label for="contact-new-nick-val" id="contact-new-nick-lbl">昵称：</label>
+            <input class="contact-new-anick-val" id="contact-new-nick-val">
+        </p>
+        <p>
+            <label for="contact-new-remark-val" id="contact-new-remark-lbl">备注：</label>
+            <input class="contact-new-remark-val" id="contact-new-remark-val">
+        </p>
+        <p>
+            <button class="contact-new-add-btn" id="contact-new-add-btn">保存</button>
+        </p>
     </div>
 
 </div>
