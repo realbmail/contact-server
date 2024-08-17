@@ -29,7 +29,7 @@ message Operation{
 message BMailAccount{
   string address = 1;
   int32 level = 2;
-  bytes license = 3;
+  string license = 3;
   repeated string emails = 4;
 }
 

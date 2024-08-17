@@ -37,7 +37,7 @@ export interface Operation {
 export interface BMailAccount {
   address: string;
   level: number;
-  license: Uint8Array;
+  license: string;
   emails: string[];
 }
 
@@ -428,7 +428,7 @@ export const Operation = {
 };
 
 function createBaseBMailAccount(): BMailAccount {
-  return { address: "", level: 0, license: new Uint8Array(0), emails: [] };
+  return { address: "", level: 0, license: "", emails: [] };
 }
 
 export const BMailAccount = {
@@ -439,8 +439,8 @@ export const BMailAccount = {
     if (message.level !== 0) {
       writer.uint32(16).int32(message.level);
     }
-    if (message.license.length !== 0) {
-      writer.uint32(26).bytes(message.license);
+    if (message.license !== "") {
+      writer.uint32(26).string(message.license);
     }
     for (const v of message.emails) {
       writer.uint32(34).string(v!);
@@ -474,7 +474,7 @@ export const BMailAccount = {
             break;
           }
 
-          message.license = reader.bytes();
+          message.license = reader.string();
           continue;
         case 4:
           if (tag !== 34) {
@@ -496,7 +496,7 @@ export const BMailAccount = {
     return {
       address: isSet(object.address) ? globalThis.String(object.address) : "",
       level: isSet(object.level) ? globalThis.Number(object.level) : 0,
-      license: isSet(object.license) ? bytesFromBase64(object.license) : new Uint8Array(0),
+      license: isSet(object.license) ? globalThis.String(object.license) : "",
       emails: globalThis.Array.isArray(object?.emails) ? object.emails.map((e: any) => globalThis.String(e)) : [],
     };
   },
@@ -509,8 +509,8 @@ export const BMailAccount = {
     if (message.level !== 0) {
       obj.level = Math.round(message.level);
     }
-    if (message.license.length !== 0) {
-      obj.license = base64FromBytes(message.license);
+    if (message.license !== "") {
+      obj.license = message.license;
     }
     if (message.emails?.length) {
       obj.emails = message.emails;
@@ -525,7 +525,7 @@ export const BMailAccount = {
     const message = createBaseBMailAccount();
     message.address = object.address ?? "";
     message.level = object.level ?? 0;
-    message.license = object.license ?? new Uint8Array(0);
+    message.license = object.license ?? "";
     message.emails = object.emails?.map((e) => e) || [];
     return message;
   },
