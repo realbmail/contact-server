@@ -72,8 +72,9 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryByOneEmail))
 	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
-	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
+	r.MethodFunc(http.MethodPost, "/operate_account", callFunc(OperateAccount))
 	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
+	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
 	s.router = r
 	return s
 }
@@ -170,7 +171,7 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
+func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
 	var operation = &pbs.Operation{}
 	err := proto.Unmarshal(request.Payload, operation)
@@ -208,5 +209,26 @@ func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	}
 
 	common.LogInst().Debug().Str("bmail", operation.Address).Msg("account creation success")
+	return rsp, nil
+}
+
+func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var contact = &pbs.EmailContact{}
+	err := proto.Unmarshal(request.Payload, contact)
+	if err != nil {
+		return nil, err
+	}
+	if len(contact.Email) == 0 {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter")
+	}
+	err = database.DbInst().UpdateContactDetails(contact.Email, contact.Address,
+		contact.NickName, contact.Remark)
+	if err != nil {
+		return nil, err
+	}
+
+	common.LogInst().Debug().Str("is-deletion", contact.Email).
+		Str("bmail", contact.Address).Msgf("operate contact success:%v", contact)
 	return rsp, nil
 }

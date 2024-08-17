@@ -139,7 +139,7 @@ func TestAddContact(t *testing.T) {
 		Signature: "",
 		AccountID: "",
 	}
-	api := api_url + "/operate_contact"
+	api := api_url + "/operate_account"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {
@@ -169,7 +169,7 @@ func TestRemoveContact(t *testing.T) {
 		AccountID: "",
 	}
 
-	api := api_url + "/operate_contact"
+	api := api_url + "/operate_account"
 	reqData, _ := json.Marshal(req)
 	respData, err := doHttp(api, "application/json", reqData)
 	if err != nil {
@@ -323,7 +323,7 @@ func TestProtoQueryAccounts(t *testing.T) {
 //		Signature: "",
 //		AccountID: "",
 //	}
-//	api := api_url + "/operate_contact"
+//	api := api_url + "/operate_account"
 //	reqData, _ := json.Marshal(req)
 //	respData, err := doHttp(api, "application/json", reqData)
 //	if err != nil {

@@ -24,10 +24,6 @@ type BMailAccount struct {
 	LicenseHex   string    `json:"license"  firestore:"license"`
 }
 
-type EmailContact struct {
-	BMailAddress string `json:"b_mail_address" firestore:"b_mail_address"`
-}
-
 func (dm *DbManager) QueryAccount(bmailAddr string) (*BMailAccount, error) {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
 	defer cancel()

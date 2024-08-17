@@ -35,6 +35,9 @@ message BMailAccount{
 
 message EmailContact{
   string address = 1;
+  string nickName = 2;
+  string  remark = 3;
+  string email = 4;
 }
 message EmailContacts {
   map<string, EmailContact> contacts = 1;
