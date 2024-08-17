@@ -149,7 +149,5 @@ export async function BMRequestToSrv(url: string, address: string, message: Uint
     });
 
     const rawData = BMReq.encode(postData).finish();
-    const srvRsp = await httpApi(url, rawData);
-    console.log("------->>>fetch success:=>", srvRsp);
-    return srvRsp;
+    return await httpApi(url, rawData);
 }

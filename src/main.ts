@@ -1,8 +1,10 @@
 import browser from "webextension-polyfill";
 import {
+    BMRequestToSrv,
+    encodeHex,
     MsgType,
     sendMessageToBackground,
-    showView,
+    showView, signDataByMessage,
     WalletStatus
 } from "./common";
 import {initDatabase} from "./database";
@@ -10,11 +12,11 @@ import {MailAddress, queryCurWallet} from "./wallet";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
 import {sessionGet, sessionSet} from "./session_storage";
-import {BMailAccount} from "./proto/bmail_srv";
+import {BMailAccount, Operation} from "./proto/bmail_srv";
 
 const __currentAccountAddress = "__current_wallet_storage_key_"
 const __systemSetting = "__system_setting_"
-let __currentAccountData: BMailAccount | null = null;
+let __currentAccountData = "__current_account_data_";
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin as EventListener);
 
@@ -72,7 +74,7 @@ function router(path: string): void {
     }
 }
 
-async function loadAndSetupAccount(force?:boolean) {
+async function loadAndSetupAccount(force?: boolean) {
     const accountAddr = await sessionGet(__currentAccountAddress);
     if (!accountAddr) {
         console.log("------>>>fatal logic error, no wallet found!");
@@ -80,13 +82,19 @@ async function loadAndSetupAccount(force?:boolean) {
         return;
     }
     document.getElementById('bmail-address-val')!.textContent = accountAddr.bmail_address;
-    const accountData = await loadAccountDetailFromSrv(accountAddr.bmail_address, force === true);
-    if (!accountData) {
+
+    const statusRsp = await sendMessageToBackground({
+        address: accountAddr.bmail_address,
+        force: force === true
+    }, MsgType.QueryAccountDetails);
+    if (statusRsp.success < 0) {
         console.log("------>>> account detail load failed")
         return;
     }
+    const accountData = statusRsp.data as BMailAccount;
     console.log("------>>> account query success:", accountData);
     setupElementByAccountData(accountData);
+    await sessionSet(__currentAccountData, accountData);
 }
 
 function levelToStr(level: number): string {
@@ -107,6 +115,12 @@ function levelToStr(level: number): string {
 
 function setupElementByAccountData(accountData: BMailAccount) {
     document.getElementById('bmail-account-level-val')!.textContent = levelToStr(accountData.level);
+    if (accountData.level === 0) {
+        document.getElementById('bmail-active-account')!.style.display = 'block';
+    } else {
+        document.getElementById('bmail-active-account')!.style.display = 'none';
+    }
+
     if (!accountData.license) {
         document.getElementById('bmail-account-license-val')!.textContent = "无License";
     } else {
@@ -115,7 +129,9 @@ function setupElementByAccountData(accountData: BMailAccount) {
     if (accountData.emails.length <= 0) {
         return;
     }
+
     const parentDiv = document.getElementById('binding-email-address-list') as HTMLElement;
+    parentDiv.innerHTML = '';
     const templateDiv = document.getElementById('binding-email-address-item') as HTMLElement;
     accountData.emails.forEach(email => {
         const clone = templateDiv.cloneNode(true) as HTMLElement;
@@ -134,7 +150,7 @@ function setupElementByAccountData(accountData: BMailAccount) {
 async function emailBindingOperate(isDel: boolean, email: string, clone?: HTMLElement) {
     try {
         const data = {
-            idDel: isDel,
+            isDel: isDel,
             emails: [email],
         }
         const rsp = await sendMessageToBackground(data, MsgType.EmailBindOp);
@@ -142,58 +158,55 @@ async function emailBindingOperate(isDel: boolean, email: string, clone?: HTMLEl
             showDialog("error", rsp.message);
             return;
         }
-        if (isDel) {
-            clone?.parentNode?.removeChild(clone);
-        }
+        clone?.parentNode?.removeChild(clone);
         await loadAndSetupAccount(true);
     } catch (e) {
         showDialog("error", JSON.stringify(e));
     }
 }
 
-async function loadAccountDetailFromSrv(address: string, force:boolean) {
-    const statusRsp = await sendMessageToBackground({address:address, force:force}, MsgType.QueryAccountDetails);
-    if (statusRsp.success < 0) {
-        return null;
-    }
-    return statusRsp.data;
-}
+async function hashEmailAddr(email: string): Promise<boolean> {
 
-function hashEmailAddr(email: string, acc?: BMailAccount | null): boolean {
-    if (!acc) {
+    const account = await sessionGet(__currentAccountData) as BMailAccount;
+    if (!account) {
         return false;
     }
-    if (acc.emails.length <= 0) {
+
+    if (account.emails.length <= 0) {
         return false;
     }
-    for (let i = 0; i < acc.emails.length; i++) {
-        if (acc.emails[i] === email) {
+
+    for (let i = 0; i < account.emails.length; i++) {
+        if (account.emails[i] === email) {
             return true;
         }
     }
+
     return false;
 }
 
 function queryCurrentEmailAddr() {
     browser.tabs.query({active: true, currentWindow: true}).then(tabList => {
+
         const activeTab = tabList[0];
         if (!activeTab || !activeTab.id) {
             console.log("------>>> invalid tab")
             return;
         }
-        browser.tabs.sendMessage(activeTab.id, {action: MsgType.QueryCurEmail}).then(response => {
+
+        browser.tabs.sendMessage(activeTab.id, {action: MsgType.QueryCurEmail}).then(async response => {
             if (response && response.value) {
                 console.log('------>>>Element Value:', response.value);
                 const currentEmail = response.value;
                 document.getElementById('bmail-email-address-val')!.textContent = currentEmail;
-                const hasBind = hashEmailAddr(currentEmail, __currentAccountData);
+                const hasBind = await hashEmailAddr(currentEmail);
                 if (hasBind) {
                     return;
                 }
-                const bindOrUnbindBtn = document.getElementById('binding-email-unbind-btn') as HTMLElement;
+                const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
                 bindOrUnbindBtn.style.display = "block";
                 bindOrUnbindBtn.addEventListener('click', async (e) => {
-                    await emailBindingOperate(false, currentEmail);
+                    await emailBindingOperate(false, currentEmail, bindOrUnbindBtn);
                 })
             } else {
                 console.log('------>>>Element not found or has no value');
@@ -254,6 +267,10 @@ function initDashBoard(): void {
     const showKeyStore = container.querySelector(".bmail-wallet-export-btn") as HTMLButtonElement
     showKeyStore.addEventListener('click', async () => {
         await showUserKeyStore();
+    });
+    const activeBtn = document.getElementById('bmail-active-account') as HTMLButtonElement;
+    activeBtn.addEventListener('click', async () => {
+        await activeCurrentAccount(activeBtn);
     })
 }
 
@@ -267,6 +284,8 @@ function showDialog(title: string, message: string, confirmButtonText?: string, 
     dialogMessage.innerText = message;
     if (confirmButtonText) {
         confirmButton.innerText = confirmButtonText;
+    } else {
+        confirmButton.innerText = 'OK';
     }
 
     // Remove previous event listener to avoid multiple callbacks
@@ -319,5 +338,36 @@ async function showUserKeyStore() {
     } catch (e) {
         const err = e as Error;
         showDialog("Error", err.message);
+    }
+}
+
+async function activeCurrentAccount(actBtn: HTMLButtonElement) {
+    showLoading();
+    try {
+        const accountAddr = await sessionGet(__currentAccountAddress);
+        if (!accountAddr) {
+            console.log("------>>>fatal logic error, no wallet found!");
+            showView('#onboarding/main-login', router);
+            return;
+        }
+        const address = accountAddr.bmail_address;
+        const payload: Operation = Operation.create({
+            isDel: false,
+            address: address,
+        });
+
+        const message = Operation.encode(payload).finish()
+        const signature = await signDataByMessage(encodeHex(message));
+        if (!signature) {
+            throw new Error("sign data failed")
+        }
+        const srvRsp = await BMRequestToSrv("/account_create", address, message, signature)
+        console.log("------->>>fetch success:=>", srvRsp);
+        actBtn.style.display = 'none';
+    } catch (e) {
+        console.log("------->>>fetch failed:=>", e);
+        showDialog("error", JSON.stringify(e));
+    } finally {
+        hideLoading();
     }
 }

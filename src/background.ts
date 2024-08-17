@@ -456,7 +456,8 @@ async function bindingOperation(isDel: boolean, emails: string[], sendResponse: 
         sendResponse({success: 1, message: "success"});
 
     } catch (e) {
-        sendResponse({success: -1, message: JSON.stringify(e)});
+        const err = e as Error;
+        sendResponse({success: -1, message:err.message});
     }
 }
 

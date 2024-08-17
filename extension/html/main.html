@@ -121,28 +121,30 @@
     <div id="main-header-part" class="main-header-part">
         <div class="bmail-account-details">
             <div>
-                <p id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</p>
+                <p>
+                    <span id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</span>
+                    <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新</button>
+                    <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">显示KeyStore</button>
+                </p>
                 <p id="bmail-address-val" class="bmail-address-val"></p>
             </div>
             <div>
-                <p id="bmail-account-level-lbl" class="bmail-account-level-lbl">用户等级:</p>
-                <p><img src="../file/logo_16.png" alt="user level image"></p>
-                <p id="bmail-account-level-val" class="bmail-account-level-val"></p>
+                <span id="bmail-account-level-lbl" class="bmail-account-level-lbl">用户等级:</span>
+                <span><img src="../file/logo_16.png" alt="user level image"></span>
+                <span id="bmail-account-level-val" class="bmail-account-level-val"></span>
+                <span><button id="bmail-active-account" class="bmail-active-account" style="display: none">激活</button></span>
             </div>
             <div>
-                <p id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</p>
-                <p id="bmail-account-license-val" class="bmail-account-license-val"></p>
+                <span id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</span>
+                <span id="bmail-account-license-val" class="bmail-account-license-val"></span>
             </div>
-
-            <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新</button>
-            <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">显示KeyStore</button>
         </div>
         <div class="binding-email-address-area">
             <li class="binding-email-address-item" id="binding-email-address-item" style="display: none">
                 <div class="binding-email-address-item-div">
                     <span class="binding-email-address-val">ribencong@gmail.com</span>
-                    <button class="binding-email-unbind-btn" id="binding-email-unbind-btn" style="display: none">
-                        绑定
+                    <button class="binding-email-unbind-btn" id="binding-email-unbind-btn">
+                        解除绑定
                     </button>
                 </div>
             </li>
@@ -155,10 +157,16 @@
     <div id="main-body-part" class="main-body-part">
         <p id="bmail-email-address-lbl">Current Email Address:</p>
         <p id="bmail-email-address-val"></p>
-        <button class="current-email-bind-btn">绑定该地址</button>
+        <button class="current-email-bind-btn" id="current-email-bind-btn" style="display: none">绑定该地址</button>
     </div>
     <hr style="width: 100%;">
-    <div id="main-footer-part" class="main-footer-part">
+    <div id="main-contact-part" class="main-contact-part">
+        <li id="contact-item" class="contact-item" style="display: none">
+
+        </li>
+        <span class="contact-list-lbl"> 通讯录 </span>
+        <ul id="contact-list" class="contact-list">
+        </ul>
     </div>
 </div>
 
