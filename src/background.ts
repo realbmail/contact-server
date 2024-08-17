@@ -90,10 +90,10 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             return true;
 
         case MsgType.QueryAccountDetails:
-            getAccount(request.data, sendResponse).then()
+            getAccount(request.data.address, request.data.force, sendResponse).then()
             return true;
         case MsgType.EmailBindOp:
-            bindingOperation(request.data.isDel,request.data.emails, sendResponse).then();
+            bindingOperation(request.data.isDel, request.data.emails, sendResponse).then();
             return true;
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -385,12 +385,14 @@ async function SigDataInBackground(data: any, sendResponse: (response: any) => v
     sendResponse({success: true, data: signature});
 }
 
-async function getAccount(address: string, sendResponse: (response: any) => void) {
+async function getAccount(address: string, force: boolean, sendResponse: (response: any) => void) {
+    console.log("[service worker] loading account info from server", address);
     let account = await sessionGet(__dbKey_cur_account_details);
-    if (account) {
+    if (account && !force) {
         sendResponse({success: 1, data: account});
         return;
     }
+
     account = await loadAccountDetailsFromSrv(address);
     if (!account) {
         sendResponse({success: -1, message: "fetch account details failed"});
@@ -408,8 +410,13 @@ async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount 
         const payload = QueryReq.create({
             address: address,
         });
-        const message = QueryReq.encode(payload).finish()
-        const srvRsp = await BMRequestToSrv("/query_account", address, message)
+        const message = QueryReq.encode(payload).finish();
+        const sig = await signData(message);
+        if (!sig) {
+            throw new Error("sig not found");
+        }
+
+        const srvRsp = await BMRequestToSrv("/query_account", address, message, sig)
         if (!srvRsp) {
             console.log("------->>>fetch failed no response data found");
             return null;
@@ -419,18 +426,18 @@ async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount 
         await sessionSet(__dbKey_cur_account_details, accountDetails);
         return accountDetails;
     } catch (err) {
-        console.log("[service work] load account details from server =>");
+        console.log("[service work] load account details from server =>", err);
         return null;
     }
 }
 
-async function bindingOperation(isDel:boolean,emails: string[], sendResponse: (response: any) => void) {
+async function bindingOperation(isDel: boolean, emails: string[], sendResponse: (response: any) => void) {
     try {
-       const addr = await sessionGet(__dbKey_cur_addr) as MailAddress | null;
-       if (!addr) {
-           sendResponse({success: -1, message: "open wallet first"});
-           return;
-       }
+        const addr = await sessionGet(__dbKey_cur_addr) as MailAddress | null;
+        if (!addr) {
+            sendResponse({success: -1, message: "open wallet first"});
+            return;
+        }
 
         const payload: Operation = Operation.create({
             isDel: isDel,
@@ -439,11 +446,29 @@ async function bindingOperation(isDel:boolean,emails: string[], sendResponse: (r
         });
 
         const message = Operation.encode(payload).finish();
-        const srvRsp = await BMRequestToSrv("/operate_contact", addr.bmail_address, message)
+        const sig = await signData(message);
+        if (!sig) {
+            sendResponse({success: -1, message: "sign data failed"});
+            return;
+        }
+        const srvRsp = await BMRequestToSrv("/operate_contact", addr.bmail_address, message, sig)
         console.log("------->>>unbinding success:=>", srvRsp);
         sendResponse({success: 1, message: "success"});
 
     } catch (e) {
         sendResponse({success: -1, message: JSON.stringify(e)});
     }
+}
+
+async function signData(message: Uint8Array) {
+    const priData = await sessionGet(__dbKey_cur_key);
+    if (!priData) {
+        return null;
+    }
+
+    const signature = MailKey.signData(new Uint8Array(priData), message);
+    if (!signature) {
+        return null;
+    }
+    return signature;
 }

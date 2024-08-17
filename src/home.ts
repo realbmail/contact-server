@@ -1,19 +1,16 @@
-import {__tableNameWallet, databaseAddItem, initDatabase} from "./database";
+import {initDatabase} from "./database";
 import {
     BMRequestToSrv,
-    createQRCodeImg,
-    encodeHex,
-    httpApi,
+    createQRCodeImg, encodeHex,
     MsgType,
     sendMessageToBackground,
-    showView,
-    signData
+    showView, signDataByMessage
 } from "./common";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
-import {DbWallet, newWallet, queryCurWallet} from "./wallet";
-import {BMReq, Operation} from "./proto/bmail_srv";
+import {DbWallet, queryCurWallet} from "./wallet";
+import {Operation} from "./proto/bmail_srv";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
@@ -564,7 +561,11 @@ async function freeActiveAccount() {
         });
 
         const message = Operation.encode(payload).finish()
-        const srvRsp = await BMRequestToSrv("/account_create", address, message)
+        const signature = await signDataByMessage(encodeHex(message));
+        if (!signature) {
+            throw new Error("sign data failed")
+        }
+        const srvRsp = await BMRequestToSrv("/account_create", address, message, signature)
         console.log("------->>>fetch success:=>", srvRsp);
         navigateTo('#onboarding/account-success');
     } catch (error) {

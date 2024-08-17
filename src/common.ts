@@ -1,6 +1,6 @@
 import * as QRCode from 'qrcode';
 import browser from "webextension-polyfill";
-import {BMReq, BMRsp, Operation} from "./proto/bmail_srv";
+import {BMReq, BMRsp} from "./proto/bmail_srv";
 
 export enum MsgType {
     PluginClicked = 'PluginClicked',
@@ -126,25 +126,22 @@ export async function sendMessageToBackground(data: any, actTyp: string): Promis
     }
 }
 
-export async function signData(data: any, password?: string): Promise<string | null> {
+export async function signDataByMessage(data: any, password?: string): Promise<string | null> {
     const reqData = {
         dataToSign: data,
         password: password,
     }
 
     const rsp = await sendMessageToBackground(reqData, MsgType.SignData);
-    if (!rsp.success) {
+    if (rsp.success < 0) {
         return null;
     }
 
     return rsp.data;
 }
 
-export async function BMRequestToSrv(url: string, address: string, message: Uint8Array): Promise<any> {
-    const signature = await signData(encodeHex(message));
-    if (!signature) {
-        throw new Error("sign data failed")
-    }
+export async function BMRequestToSrv(url: string, address: string, message: Uint8Array,signature:string): Promise<any> {
+
     const postData = BMReq.create({
         address: address,
         signature: signature,

@@ -1,12 +1,8 @@
 import browser from "webextension-polyfill";
 import {
-    BMRequestToSrv,
-    encodeHex,
-    httpApi,
     MsgType,
     sendMessageToBackground,
     showView,
-    signData,
     WalletStatus
 } from "./common";
 import {initDatabase} from "./database";
@@ -14,7 +10,7 @@ import {MailAddress, queryCurWallet} from "./wallet";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
 import {sessionGet, sessionSet} from "./session_storage";
-import {BMailAccount, BMReq, Operation, QueryReq} from "./proto/bmail_srv";
+import {BMailAccount} from "./proto/bmail_srv";
 
 const __currentAccountAddress = "__current_wallet_storage_key_"
 const __systemSetting = "__system_setting_"
@@ -76,15 +72,17 @@ function router(path: string): void {
     }
 }
 
-async function loadAndSetupAccount() {
+async function loadAndSetupAccount(force?:boolean) {
     const accountAddr = await sessionGet(__currentAccountAddress);
     if (!accountAddr) {
         console.log("------>>>fatal logic error, no wallet found!");
         showView('#onboarding/main-login', router);
         return;
     }
-    const accountData = await loadAccountDetailFromSrv(accountAddr.bmail_address);
+    document.getElementById('bmail-address-val')!.textContent = accountAddr.bmail_address;
+    const accountData = await loadAccountDetailFromSrv(accountAddr.bmail_address, force === true);
     if (!accountData) {
+        console.log("------>>> account detail load failed")
         return;
     }
     console.log("------>>> account query success:", accountData);
@@ -108,7 +106,6 @@ function levelToStr(level: number): string {
 }
 
 function setupElementByAccountData(accountData: BMailAccount) {
-    document.getElementById('bmail-address-val')!.textContent = accountData.address;
     document.getElementById('bmail-account-level-val')!.textContent = levelToStr(accountData.level);
     if (!accountData.license) {
         document.getElementById('bmail-account-license-val')!.textContent = "无License";
@@ -126,7 +123,7 @@ function setupElementByAccountData(accountData: BMailAccount) {
         clone.removeAttribute('id');
         const button = clone.querySelector('button') as HTMLElement;
         button.addEventListener('click', async (e) => {
-            await emailBindingOperate(true,email, clone);
+            await emailBindingOperate(true, email, clone);
         })
         const emailSpan = clone.querySelector('.binding-email-address-val') as HTMLElement
         emailSpan.innerText = email;
@@ -134,7 +131,7 @@ function setupElementByAccountData(accountData: BMailAccount) {
     });
 }
 
-async function emailBindingOperate(isDel:boolean, email: string, clone?: HTMLElement) {
+async function emailBindingOperate(isDel: boolean, email: string, clone?: HTMLElement) {
     try {
         const data = {
             idDel: isDel,
@@ -145,17 +142,17 @@ async function emailBindingOperate(isDel:boolean, email: string, clone?: HTMLEle
             showDialog("error", rsp.message);
             return;
         }
-        if(isDel){
+        if (isDel) {
             clone?.parentNode?.removeChild(clone);
         }
-        await loadAndSetupAccount();
+        await loadAndSetupAccount(true);
     } catch (e) {
         showDialog("error", JSON.stringify(e));
     }
 }
 
-async function loadAccountDetailFromSrv(address: string) {
-    const statusRsp = await sendMessageToBackground(address, MsgType.QueryAccountDetails);
+async function loadAccountDetailFromSrv(address: string, force:boolean) {
+    const statusRsp = await sendMessageToBackground({address:address, force:force}, MsgType.QueryAccountDetails);
     if (statusRsp.success < 0) {
         return null;
     }
@@ -177,7 +174,7 @@ function hashEmailAddr(email: string, acc?: BMailAccount | null): boolean {
     return false;
 }
 
-function fineNetEaseEmail() {
+function queryCurrentEmailAddr() {
     browser.tabs.query({active: true, currentWindow: true}).then(tabList => {
         const activeTab = tabList[0];
         if (!activeTab || !activeTab.id) {
@@ -196,7 +193,7 @@ function fineNetEaseEmail() {
                 const bindOrUnbindBtn = document.getElementById('binding-email-unbind-btn') as HTMLElement;
                 bindOrUnbindBtn.style.display = "block";
                 bindOrUnbindBtn.addEventListener('click', async (e) => {
-                   await emailBindingOperate(false,currentEmail);
+                    await emailBindingOperate(false, currentEmail);
                 })
             } else {
                 console.log('------>>>Element not found or has no value');
@@ -207,7 +204,7 @@ function fineNetEaseEmail() {
 
 async function populateDashboard() {
     await loadAndSetupAccount();
-    fineNetEaseEmail();
+    queryCurrentEmailAddr();
 }
 
 function initLoginDiv(): void {
@@ -246,7 +243,7 @@ function initDashBoard(): void {
 
     const reloadBindingBtn = container.querySelector(".bmail-address-query-btn") as HTMLButtonElement;
     reloadBindingBtn.addEventListener('click', async () => {
-        await loadAndSetupAccount();
+        await loadAndSetupAccount(true);
     });
 
     const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
