@@ -160,7 +160,7 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var result = &pbs.BMailAccount{
 		Address: query.Address,
 		Level:   int32(account.UserLel),
-		License: account.License,
+		License: account.LicenseHex,
 		Emails:  account.EMailAddress,
 	}
 
