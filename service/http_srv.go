@@ -67,6 +67,7 @@ func NewHttpService() *Service {
 	var s = &Service{}
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
+	r.HandleFunc("/", keepAlive)
 	r.HandleFunc("/keep_alive", keepAlive)
 	r.HandleFunc("/keep_alive2", keepAlive2)
 	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryReflectByEmail))

@@ -15,7 +15,8 @@ import (
 
 const (
 	//api_url = "http://localhost:8001"
-	api_url = "https://sharp-happy-grouse.ngrok-free.app"
+	//api_url = "https://sharp-happy-grouse.ngrok-free.app"
+	api_url = "https://dessage.xyz/bmail_server"
 )
 
 var address string
