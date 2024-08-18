@@ -112,7 +112,7 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 			return err
 		}
 
-		return dm.updateEmailContact(tx, bmailAddr, emailAddr, isDel)
+		return dm.updateEmailReflect(tx, bmailAddr, emailAddr, isDel)
 	})
 
 	return err

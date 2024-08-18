@@ -69,17 +69,18 @@ func NewHttpService() *Service {
 	r.Use(middleware.Recoverer)
 	r.HandleFunc("/keep_alive", keepAlive)
 	r.HandleFunc("/keep_alive2", keepAlive2)
-	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryByOneEmail))
-	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryByEmailArray))
+	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryReflectByEmail))
+	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryReflectByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
 	r.MethodFunc(http.MethodPost, "/operate_account", callFunc(OperateAccount))
 	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
 	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
+	r.MethodFunc(http.MethodPost, "/query_contact", callFunc(QueryContact))
 	s.router = r
 	return s
 }
 
-func QueryByOneEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
+func QueryReflectByEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
 	var query = &pbs.QueryReq{}
 	err := proto.Unmarshal(request.Payload, query)
@@ -91,13 +92,13 @@ func QueryByOneEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
 
-	emailContact, err := database.DbInst().QueryAccountByOneEmail(query.OneEmailAddr)
+	emailContact, err := database.DbInst().QueryReflectByOneEmail(query.OneEmailAddr)
 	if err != nil {
 		common.LogInst().Err(err).Str("email-addr", query.OneEmailAddr).Msg("query database failed for one email")
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
 	}
 
-	var contact = &pbs.EmailContact{
+	var contact = &pbs.EmailReflect{
 		Address: emailContact.BMailAddress,
 	}
 	rsp.Payload = common.MustProto(contact)
@@ -106,7 +107,7 @@ func QueryByOneEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func QueryByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
+func QueryReflectByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
 	var query = &pbs.QueryReq{}
 	err := proto.Unmarshal(request.Payload, query)
@@ -119,20 +120,20 @@ func QueryByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address array")
 	}
 
-	accountArr, err := database.DbInst().QueryAccountsByEmails(query.EmailList)
+	accountArr, err := database.DbInst().QueryReflectsByEmails(query.EmailList)
 	if err != nil {
 		common.LogInst().Err(err).Msgf("query database failed for email array:%v", query.EmailList)
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email array:"+err.Error())
 	}
 
-	var result = make(map[string]*pbs.EmailContact)
+	var result = make(map[string]*pbs.EmailReflect)
 	for k, v := range accountArr {
-		result[k] = &pbs.EmailContact{
+		result[k] = &pbs.EmailReflect{
 			Address: v.BMailAddress,
 		}
 	}
-	emailContacts := &pbs.EmailContacts{
-		Contacts: result,
+	emailContacts := &pbs.EmailReflects{
+		Reflects: result,
 	}
 
 	rsp.Payload = common.MustProto(emailContacts)
@@ -173,7 +174,7 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
-	var operation = &pbs.Operation{}
+	var operation = &pbs.AccountOperation{}
 	err := proto.Unmarshal(request.Payload, operation)
 	if err != nil {
 		return nil, err
@@ -193,7 +194,7 @@ func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
-	var operation = &pbs.Operation{}
+	var operation = &pbs.AccountOperation{}
 	err := proto.Unmarshal(request.Payload, operation)
 	if err != nil {
 		return nil, err
@@ -214,21 +215,36 @@ func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
-	var contact = &pbs.EmailContact{}
+	var contact = &pbs.ContactOperation{}
 	err := proto.Unmarshal(request.Payload, contact)
 	if err != nil {
 		return nil, err
 	}
-	if len(contact.Email) == 0 {
+	if len(contact.Contacts) == 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter")
 	}
-	err = database.DbInst().UpdateContactDetails(contact.Email, contact.Address,
-		contact.NickName, contact.Remark)
+
+	//TODO:: check user level
+
+	err = database.DbInst().ContactUpdate(contact.OwnerAddress, contact.Contacts, contact.IsDel)
 	if err != nil {
 		return nil, err
 	}
 
-	common.LogInst().Debug().Str("is-deletion", contact.Email).
-		Str("bmail", contact.Address).Msgf("operate contact success:%v", contact)
+	common.LogInst().Debug().Str("is-deletion", contact.OwnerAddress).Msgf("operate contact success:%v", contact.Contacts)
+	return rsp, nil
+}
+
+func QueryContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var query = &pbs.QueryReq{}
+	err := proto.Unmarshal(request.Payload, query)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(query.Address) <= 0 {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
+	}
 	return rsp, nil
 }
