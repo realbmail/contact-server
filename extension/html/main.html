@@ -167,8 +167,9 @@
                 <button class="contact-btn-new" id="contact-btn-new">新增联系人</button> </span>
         </div>
         <li id="contact-item-template" class="contact-item" style="display: none">
-            <span class="contact-detail-email"></span>
             <span class="contact-detail-address"></span>
+            <span class="contact-detail-email"></span>
+            <span class="contact-detail-nickname"></span>
             <span class="contact-detail-remark"></span>
             <button class="contact-detail-btn-edit" id="contact-detail-btn-edit">编辑</button>
         </li>
@@ -177,7 +178,7 @@
     </div>
 </div>
 
-<div id="view-contact-new" class="view-contact-new page_view">
+<div id="view-contact-operation" class="view-contact-operation page_view">
     <div>
         <span><button class="view-contact-return" id="view-contact-return">返回</button></span>
     </div>
@@ -203,9 +204,11 @@
             <input class="contact-new-remark-val" id="contact-new-remark-val">
         </p>
         <p>
-            <button class="contact-new-add-btn" id="contact-new-add-btn">保存</button>
-            <button class="contact-new-update-btn" id="contact-new-update-btn">保存</button>
-            <button class="contact-new-del-btn" id="contact-new-del-btn">保存</button>
+           <span>
+            <button class="contact-new-update-btn" id="contact-new-update-btn">更新</button>
+            <button class="contact-new-del-btn" id="contact-new-del-btn">删除</button>
+           </span>
+            <span><button class="contact-new-add-btn" id="contact-new-add-btn">保存</button></span>
         </p>
     </div>
 

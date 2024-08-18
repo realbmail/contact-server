@@ -27,10 +27,10 @@ message AccountOperation{
 }
 
 message ContactOperation{
-  string ownerAddress = 1;
-  bool isDel = 2;
-  repeated ContactItem contacts = 3;
+  bool isDel = 1;
+  repeated ContactItem contacts = 2;
 }
+
 
 message EmailReflect{
   string address = 1;

@@ -11,6 +11,7 @@ import {
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
 import browser from "webextension-polyfill";
+import {initContactBtn, loadContact} from "./main_contact";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
@@ -37,7 +38,8 @@ export function initDashBoard(): void {
 
     const contactAddBtn = document.getElementById("contact-btn-new") as HTMLButtonElement;
     contactAddBtn.addEventListener('click', async () => {
-        showView('#onboarding/contact-new', router);
+        initContactBtn(true);
+        showView('#onboarding/contact-operation', router);
     })
 }
 
@@ -91,7 +93,6 @@ async function showUserKeyStore() {
         showDialog("Error", err.message);
     }
 }
-
 
 function levelToStr(level: number): string {
     switch (level) {
@@ -247,14 +248,12 @@ async function activeCurrentAccount(actBtn: HTMLButtonElement) {
         const srvRsp = await BMRequestToSrv("/account_create", address, message, signature)
         console.log("------->>>fetch success:=>", srvRsp);
         actBtn.style.display = 'none';
+        await loadAndSetupAccount(true);
+
     } catch (e) {
         console.log("------->>>fetch failed:=>", e);
         showDialog("error", JSON.stringify(e));
     } finally {
         hideLoading();
     }
-}
-
-async function loadContact(){
-
 }

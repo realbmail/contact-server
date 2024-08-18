@@ -35,7 +35,6 @@ export interface AccountOperation {
 }
 
 export interface ContactOperation {
-  ownerAddress: string;
   isDel: boolean;
   contacts: ContactItem[];
 }
@@ -441,19 +440,16 @@ export const AccountOperation = {
 };
 
 function createBaseContactOperation(): ContactOperation {
-  return { ownerAddress: "", isDel: false, contacts: [] };
+  return { isDel: false, contacts: [] };
 }
 
 export const ContactOperation = {
   encode(message: ContactOperation, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.ownerAddress !== "") {
-      writer.uint32(10).string(message.ownerAddress);
-    }
     if (message.isDel !== false) {
-      writer.uint32(16).bool(message.isDel);
+      writer.uint32(8).bool(message.isDel);
     }
     for (const v of message.contacts) {
-      ContactItem.encode(v!, writer.uint32(26).fork()).ldelim();
+      ContactItem.encode(v!, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -466,21 +462,14 @@ export const ContactOperation = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          if (tag !== 10) {
-            break;
-          }
-
-          message.ownerAddress = reader.string();
-          continue;
-        case 2:
-          if (tag !== 16) {
+          if (tag !== 8) {
             break;
           }
 
           message.isDel = reader.bool();
           continue;
-        case 3:
-          if (tag !== 26) {
+        case 2:
+          if (tag !== 18) {
             break;
           }
 
@@ -497,7 +486,6 @@ export const ContactOperation = {
 
   fromJSON(object: any): ContactOperation {
     return {
-      ownerAddress: isSet(object.ownerAddress) ? globalThis.String(object.ownerAddress) : "",
       isDel: isSet(object.isDel) ? globalThis.Boolean(object.isDel) : false,
       contacts: globalThis.Array.isArray(object?.contacts)
         ? object.contacts.map((e: any) => ContactItem.fromJSON(e))
@@ -507,9 +495,6 @@ export const ContactOperation = {
 
   toJSON(message: ContactOperation): unknown {
     const obj: any = {};
-    if (message.ownerAddress !== "") {
-      obj.ownerAddress = message.ownerAddress;
-    }
     if (message.isDel !== false) {
       obj.isDel = message.isDel;
     }
@@ -524,7 +509,6 @@ export const ContactOperation = {
   },
   fromPartial<I extends Exact<DeepPartial<ContactOperation>, I>>(object: I): ContactOperation {
     const message = createBaseContactOperation();
-    message.ownerAddress = object.ownerAddress ?? "";
     message.isDel = object.isDel ?? false;
     message.contacts = object.contacts?.map((e) => ContactItem.fromPartial(e)) || [];
     return message;

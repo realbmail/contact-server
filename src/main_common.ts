@@ -26,7 +26,6 @@ export function hideLoading(): void {
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
-
 export function showDialog(title: string, message: string, confirmButtonText?: string, confirmCallback?: () => boolean): void {
     const dialogContainer = document.getElementById('dialog-tips-container') as HTMLDivElement;
     const dialogTitle = document.getElementById('dialog-tips-title') as HTMLHeadingElement;

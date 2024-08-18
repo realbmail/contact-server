@@ -12,7 +12,7 @@ import {
 } from "./main_common";
 import {initLoginDiv} from "./main_login";
 import {initDashBoard} from "./main_dashboard";
-import {initNewContactView} from "./main_new_contact";
+import {initContactView} from "./main_contact";
 
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin as EventListener);
@@ -26,7 +26,7 @@ async function initDessagePlugin(): Promise<void> {
     checkBackgroundStatus();
     initLoginDiv();
     initDashBoard();
-    initNewContactView();
+    initContactView();
 }
 
 function checkBackgroundStatus(): void {
