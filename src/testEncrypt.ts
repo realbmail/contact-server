@@ -17,7 +17,7 @@ import {
 } from "./wallet";
 import base58 from "bs58";
 import {ed2CurvePub, ed2CurvePri} from "./edwards25519";
-import {Operation} from "./proto/bmail_srv";
+import {AccountOperation} from "./proto/bmail_srv";
 
 export function testEncryptData() {
 
@@ -298,12 +298,12 @@ export function testThree() {
 
 export function testSignAndVerify() {
     const seed = decodeHex("65a3f3ccb71cb2e2177dbeffa923e527da56cc13172a7d060575e50c080c1f34");
-    const payload: Operation = Operation.create({
+    const payload: AccountOperation = AccountOperation.create({
         isDel: false,
         address: "BMBkWA7Mpq6VcTBMhLtmheTtuFGukazYVJjCJPTjbcQQXA"
     });
 
-    const message = Operation.encode(payload).finish()
+    const message = AccountOperation.encode(payload).finish()
     const signature = MailKey.signData(seed, message);
 
     const success = MailKey.verifySignature(seed, signature, message)

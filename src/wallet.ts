@@ -104,6 +104,27 @@ export class MailKey {
             return false;
         }
     }
+
+    static isValidAddress(address: string): boolean {
+        if (!address.startsWith(BMailAddrPrefix)) {
+            return false; // 地址必须以BMailAddrPrefix开头
+        }
+
+        const encodedAddress = address.slice(BMailAddrPrefix.length);
+
+        try {
+            const decoded = base58.decode(encodedAddress);
+            if (decoded.length !== 32) {
+                // 公钥应该是32字节的长度
+                return false;
+            }
+        } catch (e) {
+            // 如果解码失败，则说明不是有效的Base58编码
+            return false;
+        }
+
+        return true; // 如果上述检查都通过，则认为这是一个有效的地址
+    }
 }
 
 export function newWallet(mnemonic: string, password: string): DbWallet {

@@ -38,7 +38,7 @@ export enum HostArr {
 
 export const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
 
-export function showView(hash: string, callback: (hash: string) => void): void {
+export function showView(hash: string, callback?: (hash: string) => void): void {
     const views = document.querySelectorAll<HTMLElement>('.page_view');
     views.forEach(view => view.style.display = 'none');
 
@@ -47,7 +47,9 @@ export function showView(hash: string, callback: (hash: string) => void): void {
     if (targetView) {
         targetView.style.display = 'block';
     }
-    callback(hash);
+    if (callback) {
+        callback(hash);
+    }
 }
 
 const checkInterval = 500; // 检查间隔时间（毫秒）
@@ -140,7 +142,7 @@ export async function signDataByMessage(data: any, password?: string): Promise<s
     return rsp.data;
 }
 
-export async function BMRequestToSrv(url: string, address: string, message: Uint8Array,signature:string): Promise<any> {
+export async function BMRequestToSrv(url: string, address: string, message: Uint8Array, signature: string): Promise<any> {
 
     const postData = BMReq.create({
         address: address,
@@ -150,4 +152,10 @@ export async function BMRequestToSrv(url: string, address: string, message: Uint
 
     const rawData = BMReq.encode(postData).finish();
     return await httpApi(url, rawData);
+}
+
+export function isValidEmail(email: string): boolean {
+    // 正则表达式用于验证邮件地址
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }

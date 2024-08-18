@@ -8,7 +8,7 @@ import {
     showDialog,
     showLoading
 } from "./main_common";
-import {BMailAccount, Operation} from "./proto/bmail_srv";
+import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
 import browser from "webextension-polyfill";
 
@@ -224,7 +224,6 @@ function queryCurrentEmailAddr() {
     })
 }
 
-
 async function activeCurrentAccount(actBtn: HTMLButtonElement) {
     showLoading();
     try {
@@ -235,12 +234,12 @@ async function activeCurrentAccount(actBtn: HTMLButtonElement) {
             return;
         }
         const address = accountAddr.bmail_address;
-        const payload: Operation = Operation.create({
+        const payload: AccountOperation = AccountOperation.create({
             isDel: false,
             address: address,
         });
 
-        const message = Operation.encode(payload).finish()
+        const message = AccountOperation.encode(payload).finish()
         const signature = await signDataByMessage(encodeHex(message));
         if (!signature) {
             throw new Error("sign data failed")

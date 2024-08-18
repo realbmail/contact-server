@@ -5,7 +5,7 @@ import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_sto
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
-import {BMailAccount, Operation, QueryReq} from "./proto/bmail_srv";
+import {BMailAccount, AccountOperation, QueryReq} from "./proto/bmail_srv";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -439,13 +439,13 @@ async function bindingOperation(isDel: boolean, emails: string[], sendResponse: 
             return;
         }
 
-        const payload: Operation = Operation.create({
+        const payload: AccountOperation = AccountOperation.create({
             isDel: isDel,
             address: addr.bmail_address,
             emails: emails,
         });
 
-        const message = Operation.encode(payload).finish();
+        const message = AccountOperation.encode(payload).finish();
         const sig = await signData(message);
         if (!sig) {
             sendResponse({success: -1, message: "sign data failed"});

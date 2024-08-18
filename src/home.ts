@@ -10,7 +10,7 @@ import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
 import {DbWallet, queryCurWallet} from "./wallet";
-import {Operation} from "./proto/bmail_srv";
+import {AccountOperation} from "./proto/bmail_srv";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
@@ -555,12 +555,12 @@ async function freeActiveAccount() {
             return
         }
 
-        const payload: Operation = Operation.create({
+        const payload: AccountOperation = AccountOperation.create({
             isDel: false,
             address: address
         });
 
-        const message = Operation.encode(payload).finish()
+        const message = AccountOperation.encode(payload).finish()
         const signature = await signDataByMessage(encodeHex(message));
         if (!signature) {
             throw new Error("sign data failed")

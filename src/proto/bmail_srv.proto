@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/realbmail/contact-server/pbs;pbs";
+option go_package = "";
 
 message BMReq {
   string address = 1;
@@ -20,10 +20,20 @@ message QueryReq{
   repeated  string  emailList = 3;
 }
 
-message Operation{
+message AccountOperation{
   bool isDel = 1;
   string address = 2;
   repeated  string emails = 3;
+}
+
+message ContactOperation{
+  string ownerAddress = 1;
+  bool isDel = 2;
+  repeated ContactItem contacts = 3;
+}
+
+message EmailReflect{
+  string address = 1;
 }
 
 message BMailAccount{
@@ -33,9 +43,13 @@ message BMailAccount{
   repeated string emails = 4;
 }
 
-message EmailContact{
-  string address = 1;
+message ContactItem{
+  string email = 1;
+  string address = 2;
+  string nickName = 3;
+  string remark = 4;
 }
-message EmailContacts {
-  map<string, EmailContact> contacts = 1;
+
+message EmailReflects {
+  map<string, EmailReflect> reflects = 1;
 }
