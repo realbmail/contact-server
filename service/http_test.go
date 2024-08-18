@@ -211,7 +211,7 @@ func TestProtoQueryByOneEmail(t *testing.T) {
 	if !rsp.Success {
 		t.Fatal("response success")
 	}
-	var contact = pbs.EmailContact{}
+	var contact = pbs.EmailReflect{}
 	err = proto.Unmarshal(rsp.Payload, &contact)
 	if err != nil {
 		t.Fatal(err)
@@ -253,7 +253,7 @@ func TestProtoQueryByEmailArray(t *testing.T) {
 		t.Fatal("response success")
 	}
 
-	var contact = pbs.EmailContacts{}
+	var contact = pbs.EmailReflects{}
 	err = proto.Unmarshal(rsp.Payload, &contact)
 	if err != nil {
 		t.Fatal(err)
