@@ -7,6 +7,7 @@ import {
 } from "./content_common";
 import {MsgType, sendMessageToBackground} from "./common";
 import {MailFlag} from "./bmail_body";
+import {EmailReflects} from "./proto/bmail_srv";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_126");
@@ -209,31 +210,52 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
 }
 
 async function processReceivers(composeDiv: HTMLElement) {
-    const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock");
+    const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
     if (receiverArea.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
         return;
     }
 
     let receiver: string[] = [];
+    let emailDivs = new Map<string, HTMLElement>();
     for (let i = 0; i < receiverArea.length; i++) {
         const emailElement = receiverArea[i].querySelector(".nui-addr-email");
         if (!emailElement) {
+            receiverArea[i].classList.add("bmail_receiver_invalid");
             continue;
         }
+
         const email = emailElement.textContent!.replace(/[<>]/g, "");
-        const mailRsp = await sendMessageToBackground(email, MsgType.EmailAddrToBmailAddr);
-        if (!mailRsp || mailRsp.success === 0) {
-            return;
+        emailDivs.set(email, receiverArea[i]);
+    }
+
+    if (emailDivs.size <= 0) {
+        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
+        return;
+    }
+
+    const emailKeysArray = Array.from(emailDivs.keys());
+    const mailRsp = await sendMessageToBackground(emailKeysArray, MsgType.EmailAddrToBmailAddr);
+    if (!mailRsp || mailRsp.success === 0) {
+        return;
+    }
+
+    if (mailRsp.success < 0) {
+        showTipsDialog("Tips", mailRsp.message);
+        return;
+    }
+
+    const contacts = mailRsp.data as EmailReflects;
+    for (const [email, div] of emailDivs) {
+        const contact = contacts.reflects[email];
+        if(!contact) {
+            console.log("----->>>no address for email address:", email );
+            div.classList.add("bmail_receiver_invalid");
+        }else{
+            receiver.push(contact.address);
+            div.classList.add("bmail_receiver_is_fine");
+            console.log("----->>>email address:", email, "bmail address:", contact.address);
         }
-        if (mailRsp.success < 0) {
-            showTipsDialog("Tips", email + mailRsp.message);
-            receiverArea[i].classList.add("bmail_receiver_invalid");
-            return;
-        }
-        console.log("----->>>email address:", email, "bmail address:", mailRsp);
-        receiver.push(mailRsp.data);
-        receiverArea[i].classList.add("bmail_receiver_is_fine");
     }
     return receiver;
 }

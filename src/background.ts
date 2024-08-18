@@ -3,9 +3,9 @@ import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
-import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
+import {BMRequestToSrv, decodeHex, encodeHex, MsgType, signDataByMessage, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
-import {BMailAccount, AccountOperation, QueryReq} from "./proto/bmail_srv";
+import {BMailAccount, AccountOperation, QueryReq, EmailReflects} from "./proto/bmail_srv";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -79,7 +79,7 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             decryptData(request.data, sendResponse).then();
             return true;
         case MsgType.EmailAddrToBmailAddr:
-            contactQuery(request.data, sendResponse).then();
+            searchAccountByEmails(request.data, sendResponse).then();
             return true;
         case MsgType.CheckIfLogin:
             checkLoginStatus(sendResponse).then();
@@ -320,29 +320,23 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
     }
 }
 
-const contactData: Map<string, string> = new Map([
-    ["hopwesley@126.com", 'BM7PkXCywW3pooVJNcZRnKcnZk8bkKku2rMyr9zp8jKo9M'],
-    ["ribencong@163.com", 'BMCjb9vVp9DpBSZNUs5c7hvhL1BPUZdesCVh38YPDbVMaq'],
-    ["ribencong@126.com", 'BMDCdbe97k8SanmsEwtw6XbHMxAC1ekpnsYXweNM5vTyhk']
-]);
-
-async function contactQuery(emailAddr: string, sendResponse: (response: any) => void) {
-    try {
-        const mKey = await checkWalletStatus(sendResponse);
-        if (!mKey) {
-            return;
-        }
-
-        const bmailAddr = contactData.get(emailAddr);
-        if (!bmailAddr) {
-            sendResponse({success: -1, message: browser.i18n.getMessage("invalid_bmail_account")});
-            return;
-        }
-        sendResponse({success: 1, data: bmailAddr});
-    } catch (err) {
-        sendResponse({success: -1, message: `internal error: ${err}`});
-    }
-}
+// async function contactQuery(emailAddr: string, sendResponse: (response: any) => void) {
+//     try {
+//         const mKey = await checkWalletStatus(sendResponse);
+//         if (!mKey) {
+//             return;
+//         }
+//
+//         const bmailAddr = contactData.get(emailAddr);
+//         if (!bmailAddr) {
+//             sendResponse({success: -1, message: browser.i18n.getMessage("invalid_bmail_account")});
+//             return;
+//         }
+//         sendResponse({success: 1, data: bmailAddr});
+//     } catch (err) {
+//         sendResponse({success: -1, message: `internal error: ${err}`});
+//     }
+// }
 
 async function checkLoginStatus(sendResponse: (response: any) => void) {
     const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
@@ -457,7 +451,7 @@ async function bindingOperation(isDel: boolean, emails: string[], sendResponse: 
 
     } catch (e) {
         const err = e as Error;
-        sendResponse({success: -1, message:err.message});
+        sendResponse({success: -1, message: err.message});
     }
 }
 
@@ -472,4 +466,43 @@ async function signData(message: Uint8Array) {
         return null;
     }
     return signature;
+}
+
+async function searchAccountByEmails(emails: string[], sendResponse: (response: any) => void) {
+    if (emails.length <= 0) {
+        sendResponse({success: -1, message: "no valid email addresses"});
+        return;
+    }
+    const mKey = await checkWalletStatus(sendResponse);
+    if (!mKey) {
+        return;
+    }
+
+    try {
+        const addr = await sessionGet(__dbKey_cur_addr) as MailAddress | null;
+        if (!addr) {
+            sendResponse({success: -1, message: "open wallet first"});
+            return;
+        }
+
+        const query = QueryReq.create({
+            emailList: emails,
+        })
+        const message = QueryReq.encode(query).finish();
+        const signature = await signData(message);
+        if (!signature) {
+            throw new Error("sign data failed")
+        }
+        const rspData = await BMRequestToSrv("/query_by_email_array", addr.bmail_address, message, signature);
+        if (!rspData) {
+            console.log("------>>> no contact data");
+            sendResponse({success: -1, message: "no valid data"});
+            return;
+        }
+        const result = EmailReflects.decode(rspData) as EmailReflects
+
+        sendResponse({success: 1, data: result});
+    } catch (e) {
+        sendResponse({success: -1, message: "network failed"});
+    }
 }
