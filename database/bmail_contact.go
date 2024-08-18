@@ -16,57 +16,78 @@ type BMailContact struct {
 	Remark   string `json:"remark,omitempty" firestore:"remark"`
 }
 
-func (dm *DbManager) ContactUpdate(address string, contacts []*pbs.ContactItem, isDel bool) error {
+func (dm *DbManager) UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
 	defer cancel()
 
-	docRef := dm.fileCli.Collection(DBTableAccount).Doc(address)
-	collectionRef := docRef.Collection("contacts")
+	docRef := dm.fileCli.Collection(DBTableContact).Doc(address)
+	contactsCollectionRef := docRef.Collection("contacts")
 
 	return dm.fileCli.RunTransaction(opCtx, func(ctx context.Context, tx *firestore.Transaction) error {
 		for _, contact := range contacts {
-			// 查询是否存在相同 email 的记录
-			query := collectionRef.Where("email", "==", contact.Email).Limit(1)
-			iter := tx.Documents(query)
-
-			docSnapshot, err := iter.Next()
-			if err != nil && !errors.Is(err, iterator.Done) {
-				return fmt.Errorf("failed to check existing contact: %v", err)
+			contactData := BMailContact{
+				Email:    contact.Email,
+				Address:  contact.Address,
+				NickName: contact.NickName,
+				Remark:   contact.Remark,
 			}
+
+			contactDocRef := contactsCollectionRef.Doc(contact.Email)
 
 			if isDel {
 				// 如果isDel为true，删除数据库中的数据
-				if docSnapshot.Exists() {
-					if err := tx.Delete(docSnapshot.Ref); err != nil {
-						return fmt.Errorf("failed to delete contact: %v", err)
-					}
-				} else {
-					// 如果记录不存在，不执行任何操作
-					continue
+				if err := tx.Delete(contactDocRef); err != nil {
+					return fmt.Errorf("failed to delete contact: %v", err)
 				}
 			} else {
 				// 如果isDel为false，执行增加或更新操作
-				contactData := BMailContact{
-					Email:    contact.Email,
-					Address:  contact.Address,
-					NickName: contact.NickName,
-					Remark:   contact.Remark,
-				}
-
-				if docSnapshot.Exists() {
-					// 如果记录存在，更新该记录
-					if err := tx.Set(docSnapshot.Ref, contactData); err != nil {
-						return fmt.Errorf("failed to update contact: %v", err)
-					}
-				} else {
-					// 如果记录不存在，添加新记录
-					newDocRef := collectionRef.NewDoc()
-					if err := tx.Set(newDocRef, contactData); err != nil {
-						return fmt.Errorf("failed to create new contact: %v", err)
-					}
+				if err := tx.Set(contactDocRef, contactData); err != nil {
+					return fmt.Errorf("failed to set contact: %v", err)
 				}
 			}
 		}
 		return nil
 	})
+}
+
+func (dm *DbManager) QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error) {
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
+	defer cancel()
+
+	docRef := dm.fileCli.Collection(DBTableContact).Doc(address)
+	contactsCollectionRef := docRef.Collection("contacts")
+
+	query := contactsCollectionRef.OrderBy("email", firestore.Asc).Limit(10)
+
+	if startAfterEmail != "" {
+		query = query.StartAfter(startAfterEmail)
+	}
+
+	iter := query.Documents(opCtx)
+	defer iter.Stop()
+
+	var contacts []*pbs.ContactItem
+	for {
+		doc, err := iter.Next()
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to query contacts: %v", err)
+		}
+
+		var contact BMailContact
+		if err := doc.DataTo(&contact); err != nil {
+			return nil, fmt.Errorf("failed to parse contact data: %v", err)
+		}
+		var obj = &pbs.ContactItem{
+			Email:    contact.Email,
+			Address:  contact.Address,
+			NickName: contact.NickName,
+			Remark:   contact.Remark,
+		}
+		contacts = append(contacts, obj)
+	}
+
+	return contacts, nil
 }

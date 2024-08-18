@@ -221,17 +221,17 @@ func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, err
 	}
 	if len(contact.Contacts) == 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter")
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter for operation")
 	}
 
 	//TODO:: check user level
 
-	err = database.DbInst().ContactUpdate(contact.OwnerAddress, contact.Contacts, contact.IsDel)
+	err = database.DbInst().UpdateContactDetails(request.Address, contact.Contacts, contact.IsDel)
 	if err != nil {
 		return nil, err
 	}
 
-	common.LogInst().Debug().Str("is-deletion", contact.OwnerAddress).Msgf("operate contact success:%v", contact.Contacts)
+	common.LogInst().Debug().Str("owner-address", request.Address).Msgf("operate contact success:%v", contact.Contacts)
 	return rsp, nil
 }
 
@@ -243,8 +243,18 @@ func QueryContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, err
 	}
 
-	if len(query.Address) <= 0 {
+	if len(request.Address) <= 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
+
+	contacts, err := database.DbInst().QueryContacts(request.Address, query.OneEmailAddr)
+	if err != nil {
+		return nil, err
+	}
+	var result = &pbs.ContactOperation{
+		Contacts: contacts,
+	}
+	rsp.Payload = common.MustProto(result)
+	common.LogInst().Debug().Msg("query contacts success")
 	return rsp, nil
 }
