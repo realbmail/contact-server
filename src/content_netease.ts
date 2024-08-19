@@ -7,12 +7,15 @@ import {
 } from "./content_common";
 import {
     extractJsonString,
-    MsgType,
+    MsgType, replaceTextInRange,
     sendMessageToBackground
 } from "./common";
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 
+const staticNetEaseHtmlForReply = `
+<div id="spnEditorContent"><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p></div>
+`
 export function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_126");
     if (!clone) {
@@ -125,6 +128,9 @@ function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
     const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
     const isReplyComposing = elmWhenReload != null || elmFromReply != null;
     console.log("------>>> is this a reply div", isReplyComposing, "div id:=>", composeDiv.id);
+    if(isReplyComposing){
+        iframeDocument.body.dataset.theDivIsReply = 'true';
+    }
     checkFrameBody(iframeDocument.body, btn);
 }
 
@@ -143,7 +149,7 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            await encryptMailContent(composeDiv, btn);
+            await encodeOrDecodeMailBody(composeDiv, btn);
         }) as HTMLElement;
 
     if (!cryptoBtnDiv) {
@@ -182,9 +188,22 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
         fElm.dataset.originalHtml = undefined;
         return;
     }
+    const isReply = fElm.dataset.theDivIsReply === 'true';
+    let result = null;
+    let realData = mBody;
+    if (isReply){
+        result = extractJsonString(mBody);
+        console.log(result);
+        if (!result) {
+            console.log("----->>>extract json string failed!")
+            return;
+        }
+        realData = result.json;
+    }
+
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.DecryptData,
-        data: mBody
+        data: realData
     })
 
     if (mailRsp.success <= 0) {
@@ -194,8 +213,12 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
         showTipsDialog("Tips", mailRsp.message);
         return;
     }
-    // fElm.textContent = mailRsp.data;
-    fElm.innerHTML = mailRsp.data;
+
+    if(isReply){
+        fElm.innerHTML = staticNetEaseHtmlForReply + replaceTextInRange(mBody, result!.offset,result!.endOffset,mailRsp.data);
+    }else{
+        fElm.innerHTML = mailRsp.data;
+    }
     console.log("------>>>decrypt mail content success")
 }
 
@@ -263,7 +286,7 @@ async function processReceivers(composeDiv: HTMLElement) {
     return receiver;
 }
 
-async function encryptMailContent(composeDiv: HTMLElement, btn: HTMLElement) {
+async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement) {
 
     const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
     if (statusRsp.success < 0) {
