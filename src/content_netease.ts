@@ -5,7 +5,13 @@ import {
     parseCryptoMailBtn,
     showTipsDialog
 } from "./content_common";
-import {MsgType, sendMessageToBackground} from "./common";
+import {
+    extractJsonString,
+    extractJsonString2,
+    MsgType,
+    replaceTextInRange,
+    sendMessageToBackground
+} from "./common";
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 
@@ -92,12 +98,6 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
         console.log("------>>> no mail content to judge");
         return;
     }
-
-    const element = fBody.getElementById('isReplyContent') as HTMLQuoteElement | null;
-    const element2 = fBody.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
-    const isReplyComposing = !element2 || !element ;
-    console.log("------>>> is this a reply div",isReplyComposing);
-
     if (fBody.body.dataset.mailHasEncrypted !== 'true' && textContent.includes(MailFlag)) {
         fBody.body.dataset.mailHasEncrypted = 'true';
         setBtnStatus(true, btn);
@@ -401,7 +401,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         console.log("----->>> no encrypted mail body found:=>");
         return;
     }
-    addDecryptBtnToHeader(composeDiv, template, mailContent, mailData)
+    addDecryptBtnToHeader(composeDiv, template, mailContent, mailData.json)
 }
 
 async function decryptMailInReading(mailContent: HTMLElement, mailData: string, cryptoBtn?: HTMLElement | undefined | null) {
@@ -437,11 +437,3 @@ async function decryptMailInReading(mailContent: HTMLElement, mailData: string, 
     setBtnStatus(false, cryptoBtn);
 }
 
-function extractJsonString(input: string): string | null {
-    if (!input.includes(MailFlag)) {
-        return null;
-    }
-    const jsonRegex = /[{[].*[\]}]/;
-    const match = input.match(jsonRegex);
-    return match ? match[0] : null;
-}
