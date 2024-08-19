@@ -95,20 +95,17 @@ function checkFrameBody(fBody: HTMLElement, btn: HTMLElement) {
         console.log("------>>> no mail content to judge");
         return;
     }
-    if (fBody.dataset.mailHasEncrypted !== 'true' && textContent.includes(MailFlag)) {
+
+    if ( textContent.includes(MailFlag)) {
         fBody.dataset.mailHasEncrypted = 'true';
         setBtnStatus(true, btn);
         fBody.contentEditable = 'false';
         console.log("change to decrypt model....")
-        return;
-    }
-
-    if (fBody.dataset.mailHasEncrypted !== 'false') {
+    }else {
         fBody.dataset.mailHasEncrypted = 'false';
         setBtnStatus(false, btn);
         fBody.contentEditable = 'true';
         console.log("change to encrypt model....")
-        return;
     }
 }
 
