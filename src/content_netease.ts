@@ -95,11 +95,8 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
 
     const element = fBody.getElementById('isReplyContent') as HTMLQuoteElement | null;
     const element2 = fBody.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
-    if (!element && !element2) {
-        console.log("------>>> not a reply div")
-    } else {
-        console.log("------>>> this is  a reply div")
-    }
+    const isReplyComposing = !element2 || !element ;
+    console.log("------>>> is this a reply div",isReplyComposing);
 
     if (fBody.body.dataset.mailHasEncrypted !== 'true' && textContent.includes(MailFlag)) {
         fBody.body.dataset.mailHasEncrypted = 'true';
@@ -108,6 +105,7 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
         console.log("change to decrypt model....")
         return;
     }
+
     if (fBody.body.dataset.mailHasEncrypted !== 'false') {
         fBody.body.dataset.mailHasEncrypted = 'false';
         setBtnStatus(false, btn);
@@ -117,48 +115,52 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
     }
 }
 
-const MailFrameHandler = (iframe: HTMLIFrameElement, btn: HTMLElement) => {
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDocument) {
-        console.log("----->>> no frame body found:=>");
-        return null;
-    }
-
-    const observer = new MutationObserver(() => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            checkFrameBody(iframeDocument, btn);
-        }, 500);
-    });
-
-    let debounceTimer: NodeJS.Timeout;
-    const config = {characterData: true, childList: true, subtree: true};
-    observer.observe(iframeDocument.body, config);
-}
-
 function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
     const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
         return null;
     }
-    const mailFrameLoadHandler = () => {
-        console.log("------>>>addMailBodyListener: div id=>", composeDiv.id)
-        MailFrameHandler(iframe, btn);
-    };
 
-    if (!iframe.dataset.loadListenerAdded) {
-        iframe.addEventListener('load', mailFrameLoadHandler);
-        iframe.dataset.loadListenerAdded = "true";
+    if (iframe.dataset.loadListenerAdded) {
+        return;
     }
 
-    return;
+    iframe.addEventListener('load', () => {
+        if (iframe.dataset.loadListenerAdded) {
+            console.log("------>>> iframe body duplicate loaded");
+            return;
+        }
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDocument) {
+            console.log("----->>> no frame body found:=>");
+            return null;
+        }
+
+        let debounceTimer: NodeJS.Timeout;
+        const observer = new MutationObserver(() => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                iframe.dataset.loadListenerAdded = "true";
+                console.log("------>>>addMailBodyListener: div id=>", composeDiv.id)
+                checkFrameBody(iframeDocument, btn);
+            }, 500);
+        });
+
+        const config = {characterData: true, childList: true, subtree: true};
+        observer.observe(iframeDocument.body, config);
+    });
+
+    if (iframe.contentDocument?.readyState === 'complete' && !iframe.dataset.loadListenerAdded) {
+        const loadEvent = new Event('load');
+        iframe.dispatchEvent(loadEvent);
+    }
 }
 
 function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     let cryptoBtn = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
     if (cryptoBtn) {
-        console.log("------>>> crypto btn has been added");
+        console.log("------>>> crypto btn already been added before for mail composing");
         addMailBodyListener(composeDiv, cryptoBtn);
         return;
     }
@@ -384,7 +386,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
 
     const decryptBtn = composeDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
     if (decryptBtn) {
-        console.log("------>>> decrypt button has been added");
+        console.log("------>>> decrypt button already been added for reading");
         return;
     }
     const iframe = composeDiv.querySelector("iframe") as HTMLIFrameElement | null;
