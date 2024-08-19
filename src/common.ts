@@ -152,20 +152,7 @@ export function isValidEmail(email: string): boolean {
 //     return match ? match[0] : null;
 // }
 
-export function extractJsonString(input: string): { json: string, offset: number } | null {
-    if (!input.includes(MailFlag)) {
-        return null;
-    }
-    const jsonRegex = /[{[].*[\]}]/;
-    const match = input.match(jsonRegex);
-    if (match) {
-        const offset = input.indexOf(match[0]);
-        return { json: match[0], offset: offset };
-    }
-    return null;
-}
-
-export function extractJsonString2(input: string): { json: string, offset: number, endOffset: number } | null {
+export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
     if (!input.includes(MailFlag)) {
         return null;
     }

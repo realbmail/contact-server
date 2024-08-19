@@ -7,9 +7,7 @@ import {
 } from "./content_common";
 import {
     extractJsonString,
-    extractJsonString2,
     MsgType,
-    replaceTextInRange,
     sendMessageToBackground
 } from "./common";
 import {MailFlag} from "./bmail_body";
@@ -49,13 +47,10 @@ function addActionForHomePage(clone: HTMLElement): void {
 }
 
 function checkHasMailContent(template: HTMLTemplateElement) {
-    const composDivClass = 'div[aria-label="写信"]';
-    const composeDiv = document.querySelectorAll(composDivClass) as NodeListOf<HTMLElement>;
+    const composeDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_compose.ComposeModule']");
     composeDiv.forEach(div => {
-        // console.log("------>>>div id:=>", div.id);
         addMailEncryptLogicForComposition(div, template);
     });
-
     let debounceTimer = setTimeout(() => {
         clearTimeout(debounceTimer);
         const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
