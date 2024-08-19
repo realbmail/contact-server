@@ -46,6 +46,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
     const composDivClass = 'div[aria-label="写信"]';
     const composeDiv = document.querySelectorAll(composDivClass) as NodeListOf<HTMLElement>;
     composeDiv.forEach(div => {
+        // console.log("------>>>div id:=>", div.id);
         addMailEncryptLogicForComposition(div, template);
     });
 
@@ -55,7 +56,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         readDiv.forEach(div => {
             addMailDecryptForReading(div, template);
         });
-    }, 500);
+    }, 1500);
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -91,6 +92,15 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
         console.log("------>>> no mail content to judge");
         return;
     }
+
+    const element = fBody.getElementById('isReplyContent') as HTMLQuoteElement | null;
+    const element2 = fBody.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
+    if (!element && !element2) {
+        console.log("------>>> not a reply div")
+    } else {
+        console.log("------>>> this is  a reply div")
+    }
+
     if (fBody.body.dataset.mailHasEncrypted !== 'true' && textContent.includes(MailFlag)) {
         fBody.body.dataset.mailHasEncrypted = 'true';
         setBtnStatus(true, btn);
@@ -107,35 +117,41 @@ function checkFrameBody(fBody: Document, btn: HTMLElement) {
     }
 }
 
+const MailFrameHandler = (iframe: HTMLIFrameElement, btn: HTMLElement) => {
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDocument) {
+        console.log("----->>> no frame body found:=>");
+        return null;
+    }
+
+    const observer = new MutationObserver(() => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            checkFrameBody(iframeDocument, btn);
+        }, 500);
+    });
+
+    let debounceTimer: NodeJS.Timeout;
+    const config = {characterData: true, childList: true, subtree: true};
+    observer.observe(iframeDocument.body, config);
+}
+
 function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
     const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
         return null;
     }
-    iframe.addEventListener('load', () => {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!iframeDocument) {
-            console.log("----->>> no frame body found:=>");
-            return null;
-        }
-        const observer = new MutationObserver(() => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                checkFrameBody(iframeDocument, btn);
-            }, 300);
-        });
+    const mailFrameLoadHandler = () => {
+        console.log("------>>>addMailBodyListener: div id=>", composeDiv.id)
+        MailFrameHandler(iframe, btn);
+    };
 
-        let debounceTimer: NodeJS.Timeout;
-        const config = {characterData: true, childList: true, subtree: true};
-        observer.observe(iframeDocument.body, config);
-        checkFrameBody(iframeDocument, btn);
-    });
-
-    if (iframe.contentDocument?.readyState === 'complete') {
-        const loadEvent = new Event('load');
-        iframe.dispatchEvent(loadEvent);
+    if (!iframe.dataset.loadListenerAdded) {
+        iframe.addEventListener('load', mailFrameLoadHandler);
+        iframe.dataset.loadListenerAdded = "true";
     }
+
     return;
 }
 
@@ -248,10 +264,10 @@ async function processReceivers(composeDiv: HTMLElement) {
     const contacts = mailRsp.data as EmailReflects;
     for (const [email, div] of emailDivs) {
         const contact = contacts.reflects[email];
-        if(!contact) {
-            console.log("----->>>no address for email address:", email );
+        if (!contact) {
+            console.log("----->>>no address for email address:", email);
             div.classList.add("bmail_receiver_invalid");
-        }else{
+        } else {
             receiver.push(contact.address);
             div.classList.add("bmail_receiver_is_fine");
             console.log("----->>>email address:", email, "bmail address:", contact.address);
