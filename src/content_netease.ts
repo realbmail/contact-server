@@ -223,7 +223,8 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
         showTipsDialog("Tips", mailRsp.message);
         return;
     }
-    fElm.textContent = mailRsp.data;
+    // fElm.textContent = mailRsp.data;
+    fElm.innerHTML = mailRsp.data;
     console.log("------>>>decrypt mail content success")
 }
 
@@ -310,7 +311,7 @@ async function encryptMailContent(composeDiv: HTMLElement) {
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.EncryptData,
         receivers: receiver,
-        data: bodyTextContent
+        data: mailBody.innerHTML
     })
 
     if (mailRsp.success <= 0) {
