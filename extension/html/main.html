@@ -9,6 +9,11 @@
             margin: 0;
         }
 
+        p {
+            font-weight: normal;
+            font-size: 14px;
+            color: #04062E;
+        }
         button{
             width: 100%;
             padding: 14px 24px;
@@ -73,6 +78,37 @@
 
     </style>
     <style>
+        .view-main-dashboard {
+            padding: 0 24px;
+        }
+
+        .bmail-account-header {
+            height: 88px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bmail-address-query-btn {
+            width: 32px;
+            height: 32px;
+            background-image: url("../file/queryBtn.png");
+            background-color: transparent;
+            background-repeat: no-repeat; /* 防止背景图重复 */
+            background-position: center; /* 背景图水平和垂直居中 */
+            margin: 0;
+        }
+        .bmail-account-header  .bmail-address-query-btn :hover{
+            background-color: #F28552;
+        }
+
+        .bmail-wallet-export-btn {
+            color: #04062E;
+            background-color: #F6F8F9;
+            margin: 0;
+        }
+
         .dialog-tips-container {
             position: fixed;
             top: 0;
@@ -87,16 +123,41 @@
         }
 
         .dialog-tips-content {
+            width: 82%;
             background-color: #fff;
-            padding: 20px;
+            padding: 12px;
             border-radius: 5px;
             text-align: center;
         }
 
-        .dialog-tips-content button {
-            margin: 10px;
+        .dialog-tips-content p {
+            padding: 12px;
+            background-color: #F3F6F7;
+            border: 2px solid #EEEFF0;
+            border-radius: 5px;
+            font-size: 12px;
+            line-height: 18px;
+            word-wrap: break-word; /* 允许在单词中间换行 */
+            overflow-wrap: break-word; /* 现代浏览器中的同样功能 */
+            white-space: normal; /* 正常的换行行为 */
+            margin-top: 12px;
         }
-
+        .dialog-tips-content button {
+            width: calc(50% - 16px);
+        }
+        .dialog-tips-close-button{
+            color: #F28552;
+            background-color: #F6F8F9;
+        }
+        .dialog-tips-close-button:hover {
+            color: #fff;
+            background-color: #F28552;
+        }
+        .bmail-address-area {
+            width: 100%;
+            padding: 24px;
+            display: flex;
+        }
     </style>
 
     <style>
@@ -167,19 +228,21 @@
 <div id="view-main-dashboard" class="view-main-dashboard page_view">
     <div id="main-header-part" class="main-header-part">
         <div class="bmail-account-details">
-            <div>
-                <p>
-                    <span id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</span>
-                    <button id="bmail-address-query-btn" class="bmail-address-query-btn">刷新</button>
-                    <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">显示KeyStore</button>
-                </p>
-                <p id="bmail-address-val" class="bmail-address-val"></p>
+            <div class="bmail-account-header">
+                <div>
+                    <span id="bmail-account-level-lbl" class="bmail-account-level-lbl">用户等级:</span>
+                    <span><img src="../file/logo_16.png" alt="user level image"></span>
+                    <span id="bmail-account-level-val" class="bmail-account-level-val"></span>
+                    <span><button id="bmail-active-account" class="bmail-active-account" style="display: none">激活</button></span>
+                </div>
+                <div style="display: flex">
+                    <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">KeyStore</button>
+                    <button id="bmail-address-query-btn" class="bmail-address-query-btn"></button>
+                </div>
             </div>
-            <div>
-                <span id="bmail-account-level-lbl" class="bmail-account-level-lbl">用户等级:</span>
-                <span><img src="../file/logo_16.png" alt="user level image"></span>
-                <span id="bmail-account-level-val" class="bmail-account-level-val"></span>
-                <span><button id="bmail-active-account" class="bmail-active-account" style="display: none">激活</button></span>
+            <div class="bmail-address-area">
+                <span id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</span>
+                <p id="bmail-address-val" class="bmail-address-val"></p>
             </div>
             <div>
                 <span id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</span>
@@ -207,11 +270,12 @@
         <button class="current-email-bind-btn" id="current-email-bind-btn" style="display: none">绑定该地址</button>
     </div>
     <hr style="width: 100%;">
-    <div id="main-contact-part" class="main-contact-part">
+    <div id="main-contact-part" class="main-contact-part" style="display: none">
         <div>
             <span class="contact-list-title"> 通讯录 </span>
             <span class="contact-area-addition">
-                <button class="contact-btn-new" id="contact-btn-new">新增联系人</button> </span>
+                <button class="contact-btn-new" id="contact-btn-new">新增联系人</button>
+            </span>
         </div>
         <li id="contact-item-template" class="contact-item" style="display: none">
             <span class="contact-detail-address"></span>
@@ -272,8 +336,10 @@
     <div class="dialog-tips-content">
         <h2 id="dialog-tips-title"></h2>
         <p id="dialog-tips-message"></p>
-        <button id="dialog-tips-confirm-button">OK</button>
-        <button id="dialog-tips-close-button">Close</button>
+        <div style="display: flex; align-items: center;justify-content:space-around;width: 100% ">
+            <button id="dialog-tips-close-button"  class="dialog-tips-close-button" >Close</button>
+            <button id="dialog-tips-confirm-button">OK</button>
+        </div>
     </div>
 </div>
 
