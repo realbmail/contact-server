@@ -9,6 +9,14 @@
             margin: 0;
         }
 
+        ul{
+            padding: 0;
+        }
+        ul li {
+            font-weight: 500;
+            font-size: 16px;
+        }
+
         p {
             font-weight: normal;
             font-size: 14px;
@@ -78,12 +86,17 @@
 
     </style>
     <style>
+
         .view-main-dashboard {
-            padding: 0 24px;
+            padding: 0 12px;
+            height: 100%;
+            background-color: #ffffff;
+            color: #04062E;
+            position: relative;
         }
 
         .bmail-account-header {
-            height: 88px;
+            height: 52px;
             width: 100%;
             display: flex;
             justify-content: space-between;
@@ -91,22 +104,31 @@
         }
 
         .bmail-address-query-btn {
-            width: 32px;
-            height: 32px;
-            background-image: url("../file/queryBtn.png");
-            background-color: transparent;
-            background-repeat: no-repeat; /* 防止背景图重复 */
-            background-position: center; /* 背景图水平和垂直居中 */
+            padding: 4px;
             margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
         }
-        .bmail-account-header  .bmail-address-query-btn :hover{
+
+        .bmail-address-query-btn img{
+            width: 22px;
+            height: 22px;
+        }
+
+        .bmail-wallet-export-btn:hover,
+        .bmail-address-query-btn:hover{
             background-color: #F28552;
+            color: white;
         }
 
         .bmail-wallet-export-btn {
+            padding: 6px 12px;
             color: #04062E;
             background-color: #F6F8F9;
             margin: 0;
+            text-align: center;
         }
 
         .dialog-tips-container {
@@ -153,10 +175,138 @@
             color: #fff;
             background-color: #F28552;
         }
+
         .bmail-address-area {
-            width: 100%;
-            padding: 24px;
+            width: calc(100% - 24px);
+            padding: 12px;
             display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background-color: #04062E;
+            border-radius: 5px;
+            color: white;
+            margin-bottom: 24px;
+        }
+        .bmail-address-lbl{
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .tooltip p{
+            font-size: 12px;
+            word-wrap: break-word; /* 允许在单词中间换行 */
+            overflow-wrap: break-word; /* 现代浏览器中的同样功能 */
+            white-space: normal; /* 正常的换行行为 */
+            margin-top: 8px;
+            background-color: #2C2D47;
+            padding: 6px;
+            color: rgba(255, 255, 255, 0.64);
+            cursor: pointer;
+        }
+        .tooltip p:hover{
+            color: #F28552;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            height: 18px;
+            visibility: hidden;
+            background-color: black;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px 12px;
+            position: absolute;
+            top: -32px;
+            z-index: 1;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -60px; /* Adjust as needed */
+            opacity: 0;
+            transition: opacity 0.5s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .bmail-account-license-card{
+            border-top: 1px solid #2C2D47;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 12px;
+        }
+
+        .bmail-account-license-lbl {
+            font-weight: 300;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.64);
+        }
+        .bmail-account-license-val {
+            color: #F28552;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .binding-email-address-area{
+            width: 100%;
+        }
+        .binding-email-address-list {
+            margin-top: 0;
+        }
+
+        .binding-email-address-item {
+            padding: 16px 12px;
+            background-color: white;
+            border-radius: 5px;
+            border-bottom: 1px solid #F3F6F7;
+        }
+        .binding-email-address-area span{
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .binding-email-address-item-div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .binding-email-unbind-btn {
+            padding: 0;
+            margin: 0;
+            color: #A3A3A4;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .binding-email-unbind-btn:hover{
+            background-color: transparent;
+            color: #F28552;
+        }
+
+        .main-body-part {
+            padding: 12px;
+            border: 2px solid #F3F6F7;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .main-body-part span{
+            color: #2C2D47;
+        }
+        .main-body-part p{
+            color: #04062E;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 12px;
         }
     </style>
 
@@ -237,17 +387,21 @@
                 </div>
                 <div style="display: flex">
                     <button id="bmail-wallet-export-btn" class="bmail-wallet-export-btn">KeyStore</button>
-                    <button id="bmail-address-query-btn" class="bmail-address-query-btn"></button>
+                    <button id="bmail-address-query-btn" class="bmail-address-query-btn"><img src="../file/queryBtn.png"></button>
                 </div>
             </div>
             <div class="bmail-address-area">
                 <span id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</span>
-                <p id="bmail-address-val" class="bmail-address-val"></p>
+                <div class="tooltip">
+                    <p id="bmail-address-val" class="bmail-address-val"></p>
+                    <span class="tooltiptext">Copy to Clipboard</span>
+                </div>
+                <div class="bmail-account-license-card">
+                    <span id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</span>
+                    <span id="bmail-account-license-val" class="bmail-account-license-val"></span>
+                </div>
             </div>
-            <div>
-                <span id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</span>
-                <span id="bmail-account-license-val" class="bmail-account-license-val"></span>
-            </div>
+
         </div>
         <div class="binding-email-address-area">
             <li class="binding-email-address-item" id="binding-email-address-item" style="display: none">
@@ -263,13 +417,11 @@
             </ul>
         </div>
     </div>
-    <hr style="width: 100%;">
     <div id="main-body-part" class="main-body-part">
-        <p id="bmail-email-address-lbl">Current Email Address:</p>
+        <span id="bmail-email-address-lbl">Current Email Address:</span>
         <p id="bmail-email-address-val"></p>
         <button class="current-email-bind-btn" id="current-email-bind-btn" style="display: none">绑定该地址</button>
     </div>
-    <hr style="width: 100%;">
     <div id="main-contact-part" class="main-contact-part" style="display: none">
         <div>
             <span class="contact-list-title"> 通讯录 </span>
