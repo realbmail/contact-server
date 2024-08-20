@@ -9,7 +9,7 @@
         body {
             color: #04062E;
             background-color: #FAFCFF;
-            padding-top: 10%;
+            padding-top: 6%;
         }
 
         button{
@@ -31,7 +31,8 @@
             display: none;
         }
 
-        .contain_view {
+        .contain_view,
+        .password-container{
             background-color: white;
             width: 430px;
             padding: 48px 24px;
@@ -91,7 +92,6 @@
         .password-container .logo-container {
             width: 150px;
             height: 150px;
-            border: 1px solid #000;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -131,7 +131,8 @@
     </style>
     <style>
 
-        .recovery-container {
+        .recovery-container,
+        .view-import-wallet {
             text-align: center;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
@@ -158,10 +159,7 @@
 
         }
 
-        .hidden-seed-phrase {
-            background-color: #333;
-            color: #333;
-        }
+
 
         .actions {
             display: flex;
@@ -284,6 +282,17 @@
             border: 2px solid #EEEFF0;
             text-align: center;
             transition: background-color 0.3s;
+            padding-top: 32px;
+        }
+        .membership img{
+            width: 22px;
+            height: auto;
+            margin-right: 6px;
+        }
+        .membership-title {
+            display: flex;
+            justify-content: center;
+            align-content: center;
         }
 
         .selected {
@@ -297,6 +306,43 @@
             gap: 10px; /* 设置列之间的间距 */
             width: 100%;
             margin-bottom: 10px;
+        }
+        .recovery-phrase-input{
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .recovery-phrase-inputs{
+            background-color: #F6F8F9;
+            border: 2px solid #EEEFF0;
+            padding: 24px;
+            border-radius: 5px;
+            width: 72%;
+            margin: auto;
+        }
+        .recovery-phrase {
+            width: 80%;
+            height: 32px;
+            text-align: center;
+            border: 1px solid #ccc;
+            font-size: 12px;
+            border-radius: 5px 0 0 5px;
+
+        }
+
+        .toggle-visibility{
+            width: 20%;
+            margin: 0;
+            padding: 0 2px;
+            background-color: #EEEFF0;
+            height: 33px;
+            border-radius: 0 5px 5px 0;
+
+
+        }
+        .toggle-visibility:hover{
+            background-color: #F28552;
         }
         h1 {
             font-size: 32px;
@@ -347,9 +393,20 @@
             100% { transform: rotate(360deg); }
         }
 
+        .error-message {
+            background: rgba(246, 87, 66, 0.1);
+            border: 1px solid rgba(246, 87, 66, 0.5);
+            color: #f65742;
+            padding: 8px 4px;
+            width: calc( 72% + 40px);
+            margin: 8px auto 0;
+            text-align: left;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
+<div style="width: 100%; height: 25%; z-index: -1; position: absolute;top: 0;left: 0;background-color: #F28552"></div>
 <div id="view-welcome" class="page_view welcome-container contain_view">
     <div class="logo-container">
         <img src="../file/logo.png" alt="logo">
@@ -397,11 +454,11 @@
         <img src="../file/logo.png" alt="logo">
     </div>
     <div class="input-container">
-        <label for="imported-new-password" id="import-password-label1">密码：</label>
+        <h2 for="imported-new-password" id="import-password-label1">密码：</h2>
         <input type="password" id="imported-new-password" placeholder="(最少8字符)">
     </div>
     <div class="input-container">
-        <label for="imported-confirm-password" id="import-password-label2">密码:</label>
+        <h2 for="imported-confirm-password" id="import-password-label2">密码:</h2>
         <input type="password" id="imported-confirm-password" placeholder="(确认密码)">
     </div>
     <div><span class="error-message" style="display: none"></span></div>
@@ -423,7 +480,7 @@
     <button type="button" class="primary-button" disabled>Confirm</button>
 </div>
 
-<div id="view-import-wallet" class="page_view">
+<div id="view-import-wallet" class="view-import-wallet page_view">
     <p class="import-container-tip" id="import-container-tip">You can paste your entire secret recovery phrase into any
         field</p>
     <div class="recovery-phrase-row" id="recovery-phrase-row-template" style="display: none;">
@@ -455,8 +512,10 @@
     </div>
     <div class="membership-container">
         <div class="membership" id="membership_type_free" data-price-val="false">
-            <img src="../file/free.png" alt="Free Membership">
-            <h2>免费会员</h2>
+            <div class="membership-title">
+                <img src="../file/free.png" alt="Free Membership">
+                <h2>免费会员</h2>
+            </div>
             <h1 class="membership-price">¥0/月</h1>
             <ul>
                 <li>基本内容访问</li>
@@ -464,8 +523,10 @@
             </ul>
         </div>
         <div class="membership" id="membership_type_bronze" data-price-val="29">
-            <img src="../file/bronze.png" alt="Bronze Membership">
-            <h2>青铜会员</h2>
+            <div class="membership-title">
+                <img src="../file/bronze.png" alt="Bronze Membership">
+                <h2>青铜会员</h2>
+            </div>
             <h1 class="membership-price">¥29/月</h1>
             <ul>
                 <li>视频教程</li>
@@ -473,8 +534,10 @@
             </ul>
         </div>
         <div class="membership" id="membership_type_silver" data-price-val="59">
-            <img src="../file/silver.png" alt="Silver Membership">
-            <h2 class="membership-price">白银会员</h2>
+            <div class="membership-title">
+                <img src="../file/silver.png" alt="Silver Membership">
+                <h2 class="membership-price">白银会员</h2>
+            </div>
             <h1>¥59/月</h1>
             <ul>
                 <li>包括青铜权益</li>
@@ -482,8 +545,11 @@
             </ul>
         </div>
         <div class="membership" id="membership_type_gold" data-price-val="99">
-            <img src="../file/gold.png" alt="Gold Membership">
-            <h2>黄金会员</h2>
+            <div class="membership-title">
+                <img src="../file/goldvip.png" alt="Gold Membership">
+                <h2>黄金会员</h2>
+            </div>
+
             <h1 class="membership-price">¥99/月</h1>
             <ul>
                 <li>包括白银权益</li>
