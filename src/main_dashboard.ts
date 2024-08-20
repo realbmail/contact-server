@@ -11,14 +11,21 @@ import {
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
 import browser from "webextension-polyfill";
-import {initContactBtn, loadContact} from "./main_contact";
+import {initContactBtn} from "./main_contact";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
 
     const reloadBindingBtn = container.querySelector(".bmail-address-query-btn") as HTMLButtonElement;
     reloadBindingBtn.addEventListener('click', async () => {
-        await loadAndSetupAccount(true);
+        try {
+            showLoading();
+            await loadAndSetupAccount(true);
+        } catch (error) {
+            console.log("------>> load setup account error:=>", error);
+        } finally {
+            hideLoading();
+        }
     });
 
     const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
@@ -69,9 +76,16 @@ export async function loadAndSetupAccount(force?: boolean) {
 
 
 export async function populateDashboard() {
-    await loadAndSetupAccount();
-    queryCurrentEmailAddr();
-    await loadContact();
+    try {
+        showLoading();
+        await loadAndSetupAccount();
+        queryCurrentEmailAddr();
+    } catch (err) {
+        console.log("------>>> populate dashboard failed:", err);
+    } finally {
+        hideLoading();
+    }
+    // await loadContact();
 }
 
 async function showUserKeyStore() {
