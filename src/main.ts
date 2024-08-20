@@ -15,9 +15,9 @@ import {initDashBoard} from "./main_dashboard";
 import {initContactView} from "./main_contact";
 
 
-document.addEventListener("DOMContentLoaded", initDessagePlugin as EventListener);
+document.addEventListener("DOMContentLoaded", initBMailExtension as EventListener);
 
-async function initDessagePlugin(): Promise<void> {
+async function initBMailExtension(): Promise<void> {
     await initDatabase();
     loadLastSystemSetting().then(setting => {
         sessionSet(__systemSetting, setting);

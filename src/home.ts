@@ -88,9 +88,11 @@ function importWallet(): void {
 }
 
 async function createWallet(): Promise<void> {
-    const password1 = (document.getElementById("home-create-password") as HTMLInputElement).value;
-    const password2 = (document.getElementById("home-confirm-password") as HTMLInputElement).value;
+    const passwordBtn1 = document.getElementById("home-create-password") as HTMLInputElement;
+    const passwordBtn2 = document.getElementById("home-confirm-password") as HTMLInputElement;
 
+    const password1 = passwordBtn1.value.trim()
+    const password2 = passwordBtn2.value.trim()
     if (password1.length < 8) {
         alert("Password is invalid");
         return;
@@ -109,6 +111,8 @@ async function createWallet(): Promise<void> {
         return;
     }
     console.log("creat wallet success=>", wallet.address);
+    passwordBtn1.value = ''
+    passwordBtn2.value = ''
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic();
 }
@@ -267,7 +271,7 @@ function initImportPasswordDiv(): void {
 
 async function actionOfWalletImport(): Promise<void> {
     const passwordInput = document.getElementById("imported-new-password") as HTMLInputElement;
-    const password = passwordInput.value;
+    const password = passwordInput.value.trim();
 
     if (!___mnemonic_in_mem) {
         navigateTo('#onboarding/welcome');
@@ -281,6 +285,7 @@ async function actionOfWalletImport(): Promise<void> {
     }
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
+    passwordInput.value = '';
     navigateTo('#onboarding/account-home');
 }
 

@@ -28,7 +28,7 @@ function openAllWallets(): void {
         console.log("------------>>>", response.message);
         const mAddr = response.message as MailAddress;
         await sessionSet(__currentAccountAddress, mAddr);
-
+        inputElement.value = '';
         showView('#onboarding/main-dashboard', router);
         return;
     }).catch(error => {

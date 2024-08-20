@@ -125,13 +125,13 @@ button:hover {
     height: 22px;
 }
 
-.bmail-wallet-export-btn:hover,
+.bmail-wallet-exit-btn:hover,
 .bmail-address-query-btn:hover {
     background-color: #F28552;
     color: white;
 }
 
-.bmail-wallet-export-btn {
+.bmail-wallet-exit-btn {
     padding: 6px 12px;
     color: #04062E;
     background-color: #F6F8F9;

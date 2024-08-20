@@ -33,9 +33,20 @@ export function initDashBoard(): void {
         hideDialog();
     });
 
-    const showKeyStore = container.querySelector(".bmail-wallet-export-btn") as HTMLButtonElement
-    showKeyStore.addEventListener('click', async () => {
-        await showUserKeyStore();
+    const addrValDiv = document.getElementById("bmail-address-val") as HTMLElement;
+    addrValDiv.addEventListener('click', () => {
+        const address = addrValDiv.innerText.trim();
+        if (!address) {
+            return;
+        }
+        navigator.clipboard.writeText(address).then(() => {
+            showDialog("Success", "copy success");
+        });
+    })
+
+    const exitBtn = container.querySelector(".bmail-wallet-exit-btn") as HTMLButtonElement
+    exitBtn.addEventListener('click', async () => {
+        await quitThisAccount();
     });
 
     const activeBtn = document.getElementById('bmail-active-account') as HTMLButtonElement;
@@ -86,6 +97,15 @@ export async function populateDashboard() {
         hideLoading();
     }
     // await loadContact();
+}
+
+async function quitThisAccount() {
+    const rsp = await sendMessageToBackground(null, MsgType.WalletClose);
+    if (!rsp || rsp.success <= 0) {
+        showDialog("Error", "failed to quit");
+        return
+    }
+    showView('#onboarding/main-login', router);
 }
 
 async function showUserKeyStore() {
