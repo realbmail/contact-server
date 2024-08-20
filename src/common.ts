@@ -1,6 +1,7 @@
 import * as QRCode from 'qrcode';
 import browser from "webextension-polyfill";
 import {BMReq, BMRsp} from "./proto/bmail_srv";
+import {MailFlag} from "./bmail_body";
 
 export enum MsgType {
     PluginClicked = 'PluginClicked',
@@ -50,25 +51,6 @@ export function showView(hash: string, callback?: (hash: string) => void): void 
     if (callback) {
         callback(hash);
     }
-}
-
-const checkInterval = 500; // 检查间隔时间（毫秒）
-const maxAttempts = 20; // 最大尝试次数
-
-export function waitForElement(callback: () => boolean) {
-    let attempts = 0;
-    const intervalId = setInterval(() => {
-        if (callback()) {
-            console.log("------>>> timer found!")
-            clearInterval(intervalId);
-        } else {
-            attempts++;
-            if (attempts >= maxAttempts) {
-                console.log("------>>> time out after maximum attempts.");
-                clearInterval(intervalId);
-            }
-        }
-    }, checkInterval);
 }
 
 export function encodeHex(array: Uint8Array): string {
@@ -159,4 +141,42 @@ export function isValidEmail(email: string): boolean {
     // 正则表达式用于验证邮件地址
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+}
+
+// export function extractJsonString(input: string): string | null {
+//     if (!input.includes(MailFlag)) {
+//         return null;
+//     }
+//     const jsonRegex = /[{[].*[\]}]/;
+//     const match = input.match(jsonRegex);
+//     return match ? match[0] : null;
+// }
+
+export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
+    if (!input.includes(MailFlag)) {
+        return null;
+    }
+    const jsonRegex = /[{[].*[\]}]/;
+    const match = input.match(jsonRegex);
+    if (match) {
+        const jsonString = match[0];
+        const offset = input.indexOf(jsonString);
+        const endOffset = offset + jsonString.length; // 计算 JSON 字符串的结束位置
+        return { json: jsonString, offset, endOffset };
+    }
+    return null;
+}
+
+export function replaceTextInRange(input: string, offset: number, end: number, newText: string): string {
+    // 确保 offset 和 end 在合法范围内
+    if (offset < 0 || end < offset || end > input.length) {
+        throw new Error("Offset or end is out of bounds");
+    }
+
+    // 分割原始字符串
+    const beforeOffset = input.substring(0, offset);
+    const afterEnd = input.substring(end);
+
+    // 拼接替换后的字符串
+    return beforeOffset + newText + afterEnd;
 }

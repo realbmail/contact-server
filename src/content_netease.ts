@@ -5,10 +5,17 @@ import {
     parseCryptoMailBtn,
     showTipsDialog
 } from "./content_common";
-import {MsgType, sendMessageToBackground} from "./common";
+import {
+    extractJsonString,
+    MsgType, replaceTextInRange,
+    sendMessageToBackground
+} from "./common";
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 
+const staticNetEaseHtmlForReply = `
+<div id="spnEditorContent"><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p></div>
+`
 export function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_126");
     if (!clone) {
@@ -43,19 +50,19 @@ function addActionForHomePage(clone: HTMLElement): void {
 }
 
 function checkHasMailContent(template: HTMLTemplateElement) {
-    const composDivClass = 'div[aria-label="写信"]';
-    const composeDiv = document.querySelectorAll(composDivClass) as NodeListOf<HTMLElement>;
-    composeDiv.forEach(div => {
-        addMailEncryptLogicForComposition(div, template);
-    });
-
     let debounceTimer = setTimeout(() => {
+
+        const composeDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_compose.ComposeModule']");
+        composeDiv.forEach(div => {
+            addMailEncryptLogicForComposition(div, template);
+        });
+
         clearTimeout(debounceTimer);
         const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
         readDiv.forEach(div => {
             addMailDecryptForReading(div, template);
         });
-    }, 500);
+    }, 1000);
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -85,25 +92,23 @@ export function queryEmailAddrNetEase() {
     return mailAddr.textContent;
 }
 
-function checkFrameBody(fBody: Document, btn: HTMLElement) {
-    let textContent = fBody.body.innerText.trim();
+function checkFrameBody(fBody: HTMLElement, btn: HTMLElement) {
+    let textContent = fBody.innerText.trim();
     if (textContent.length <= 0) {
         console.log("------>>> no mail content to judge");
         return;
     }
-    if (fBody.body.dataset.mailHasEncrypted !== 'true' && textContent.includes(MailFlag)) {
-        fBody.body.dataset.mailHasEncrypted = 'true';
+
+    if ( textContent.includes(MailFlag)) {
+        fBody.dataset.mailHasEncrypted = 'true';
         setBtnStatus(true, btn);
-        fBody.body.contentEditable = 'false';
+        fBody.contentEditable = 'false';
         console.log("change to decrypt model....")
-        return;
-    }
-    if (fBody.body.dataset.mailHasEncrypted !== 'false') {
-        fBody.body.dataset.mailHasEncrypted = 'false';
+    }else {
+        fBody.dataset.mailHasEncrypted = 'false';
         setBtnStatus(false, btn);
-        fBody.body.contentEditable = 'true';
+        fBody.contentEditable = 'true';
         console.log("change to encrypt model....")
-        return;
     }
 }
 
@@ -113,36 +118,26 @@ function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
         console.log('----->>> encrypt failed to find iframe:=>');
         return null;
     }
-    iframe.addEventListener('load', () => {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!iframeDocument) {
-            console.log("----->>> no frame body found:=>");
-            return null;
-        }
-        const observer = new MutationObserver(() => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                checkFrameBody(iframeDocument, btn);
-            }, 300);
-        });
-
-        let debounceTimer: NodeJS.Timeout;
-        const config = {characterData: true, childList: true, subtree: true};
-        observer.observe(iframeDocument.body, config);
-        checkFrameBody(iframeDocument, btn);
-    });
-
-    if (iframe.contentDocument?.readyState === 'complete') {
-        const loadEvent = new Event('load');
-        iframe.dispatchEvent(loadEvent);
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDocument) {
+        console.log("----->>> no frame body found:=>");
+        return null;
     }
-    return;
+
+    const elmFromReply = iframeDocument.getElementById('isReplyContent') as HTMLQuoteElement | null;
+    const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
+    const isReplyComposing = elmWhenReload != null || elmFromReply != null;
+    console.log("------>>> is this a reply div", isReplyComposing, "div id:=>", composeDiv.id);
+    if(isReplyComposing){
+        iframeDocument.body.dataset.theDivIsReply = 'true';
+    }
+    checkFrameBody(iframeDocument.body, btn);
 }
 
 function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     let cryptoBtn = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
     if (cryptoBtn) {
-        console.log("------>>> crypto btn has been added");
+        console.log("------>>> crypto btn already been added before for mail composing");
         addMailBodyListener(composeDiv, cryptoBtn);
         return;
     }
@@ -154,7 +149,7 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            await encryptMailContent(composeDiv);
+            await encodeOrDecodeMailBody(composeDiv, btn);
         }) as HTMLElement;
 
     if (!cryptoBtnDiv) {
@@ -193,9 +188,22 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
         fElm.dataset.originalHtml = undefined;
         return;
     }
+    const isReply = fElm.dataset.theDivIsReply === 'true';
+    let result = null;
+    let realData = mBody;
+    if (isReply){
+        result = extractJsonString(mBody);
+        console.log(result);
+        if (!result) {
+            console.log("----->>>extract json string failed!")
+            return;
+        }
+        realData = result.json;
+    }
+
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.DecryptData,
-        data: mBody
+        data: realData
     })
 
     if (mailRsp.success <= 0) {
@@ -205,9 +213,16 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
         showTipsDialog("Tips", mailRsp.message);
         return;
     }
-    fElm.textContent = mailRsp.data;
+
+    if(isReply){
+        fElm.innerHTML = staticNetEaseHtmlForReply + replaceTextInRange(mBody, result!.offset,result!.endOffset,mailRsp.data);
+    }else{
+        fElm.innerHTML = mailRsp.data;
+    }
     console.log("------>>>decrypt mail content success")
 }
+
+let __tmpContactMap = new Map<string, string>();
 
 async function processReceivers(composeDiv: HTMLElement) {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
@@ -226,12 +241,22 @@ async function processReceivers(composeDiv: HTMLElement) {
         }
 
         const email = emailElement.textContent!.replace(/[<>]/g, "");
+        const address = __tmpContactMap.get(email);
+        if(address){
+            receiver.push(address);
+            receiverArea[i].classList.add("bmail_receiver_is_fine");
+            console.log("------>>> from cache:",email," address:=>", address);
+            continue;
+        }
         emailDivs.set(email, receiverArea[i]);
     }
 
     if (emailDivs.size <= 0) {
-        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-        return;
+        if( receiver.length <= 0){
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
+            return;
+        }
+        return receiver;
     }
 
     const emailKeysArray = Array.from(emailDivs.keys());
@@ -248,19 +273,20 @@ async function processReceivers(composeDiv: HTMLElement) {
     const contacts = mailRsp.data as EmailReflects;
     for (const [email, div] of emailDivs) {
         const contact = contacts.reflects[email];
-        if(!contact) {
-            console.log("----->>>no address for email address:", email );
+        if (!contact) {
+            console.log("----->>>no address for email address:", email);
             div.classList.add("bmail_receiver_invalid");
-        }else{
+        } else {
+            __tmpContactMap.set(email, contact.address);
             receiver.push(contact.address);
             div.classList.add("bmail_receiver_is_fine");
-            console.log("----->>>email address:", email, "bmail address:", contact.address);
+            console.log("----->>>from server email address:", email, "bmail address:", contact.address);
         }
     }
     return receiver;
 }
 
-async function encryptMailContent(composeDiv: HTMLElement) {
+async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement) {
 
     const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
     if (statusRsp.success < 0) {
@@ -281,6 +307,7 @@ async function encryptMailContent(composeDiv: HTMLElement) {
 
     if (mailBody.dataset.mailHasEncrypted === 'true') {
         await decryptMailInComposing(mailBody, bodyTextContent);
+        checkFrameBody(mailBody, btn);
         return;
     }
 
@@ -292,7 +319,7 @@ async function encryptMailContent(composeDiv: HTMLElement) {
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.EncryptData,
         receivers: receiver,
-        data: bodyTextContent
+        data: mailBody.innerHTML
     })
 
     if (mailRsp.success <= 0) {
@@ -305,6 +332,7 @@ async function encryptMailContent(composeDiv: HTMLElement) {
 
     mailBody.dataset.originalHtml = mailBody.innerHTML;
     mailBody.innerText = mailRsp.data;
+    checkFrameBody(mailBody, btn);
 }
 
 function monitorTabMenu(callback?: (isDelete: boolean) => void) {
@@ -368,7 +396,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
 
     const decryptBtn = composeDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
     if (decryptBtn) {
-        console.log("------>>> decrypt button has been added");
+        console.log("------>>> decrypt button already been added for reading");
         return;
     }
     const iframe = composeDiv.querySelector("iframe") as HTMLIFrameElement | null;
@@ -383,7 +411,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         console.log("----->>> no encrypted mail body found:=>");
         return;
     }
-    addDecryptBtnToHeader(composeDiv, template, mailContent, mailData)
+    addDecryptBtnToHeader(composeDiv, template, mailContent, mailData.json)
 }
 
 async function decryptMailInReading(mailContent: HTMLElement, mailData: string, cryptoBtn?: HTMLElement | undefined | null) {
@@ -393,7 +421,7 @@ async function decryptMailInReading(mailContent: HTMLElement, mailData: string, 
     }
 
     if (mailContent.dataset.hasDecrypted === 'true') {
-        mailContent.innerText = mailContent.dataset.orignCrpted!;
+        mailContent.innerHTML = mailContent.dataset.orignCrpted!;
         mailContent.dataset.hasDecrypted = "false";
         setBtnStatus(true, cryptoBtn);
         return;
@@ -413,17 +441,9 @@ async function decryptMailInReading(mailContent: HTMLElement, mailData: string, 
     }
 
     console.log("------>>> decrypt mail body success");
-    mailContent.innerText = mailRsp.data;
+    mailContent.innerHTML = mailRsp.data;
     mailContent.dataset.orignCrpted = mailData;
     mailContent.dataset.hasDecrypted = "true";
     setBtnStatus(false, cryptoBtn);
 }
 
-function extractJsonString(input: string): string | null {
-    if (!input.includes(MailFlag)) {
-        return null;
-    }
-    const jsonRegex = /[{[].*[\]}]/;
-    const match = input.match(jsonRegex);
-    return match ? match[0] : null;
-}
