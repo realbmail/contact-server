@@ -372,3 +372,8 @@ body.loading #dialog-waiting-overlay {
         transform: rotate(360deg);
     }
 }
+
+.secondary-button:hover {
+    background-color: #F28552;
+    color: white;
+}

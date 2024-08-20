@@ -415,7 +415,7 @@ async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount 
             console.log("------->>>fetch failed no response data found");
             return null;
         }
-        console.log("------->>>fetch success:=>", srvRsp);
+        console.log("------->>>load account details success:=>");
         const accountDetails = BMailAccount.decode(srvRsp) as BMailAccount;
         await sessionSet(__dbKey_cur_account_details, accountDetails);
         return accountDetails;

@@ -286,6 +286,8 @@ async function actionOfWalletImport(): Promise<void> {
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
     passwordInput.value = '';
+    const importedConfirmPassword = document.getElementById("imported-confirm-password") as HTMLInputElement;
+    importedConfirmPassword.value = '';
     navigateTo('#onboarding/account-home');
 }
 

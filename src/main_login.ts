@@ -5,10 +5,13 @@ import {sessionSet} from "./session_storage";
 import {__currentAccountAddress, router} from "./main_common";
 
 export function initLoginDiv(): void {
-    const button = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;
-    button.addEventListener('click', openAllWallets);
-}
+    const unlock = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;
+    unlock.addEventListener('click', openAllWallets);
 
+
+    const newAccBtn = document.querySelector(".view-main-login .secondary-button") as HTMLButtonElement;
+    newAccBtn.addEventListener('click', newAccountToReplaceCurrent);
+}
 
 function openAllWallets(): void {
     const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
@@ -34,4 +37,11 @@ function openAllWallets(): void {
     }).catch(error => {
         console.error('Error sending message:', error);
     });
+}
+
+function newAccountToReplaceCurrent() {
+    browser.tabs.create({
+        url: browser.runtime.getURL("html/home.html#onboarding/welcome")
+    }).then();
+    return;
 }
