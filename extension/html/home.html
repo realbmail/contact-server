@@ -6,20 +6,45 @@
     <script src="../js/home.js"></script>
     <link rel="stylesheet" href="../file/home.css">
     <style>
+        body {
+            color: #353232;
+            background-color: #FAFCFF;
+            padding-top: 10%;
+        }
+
+        button{
+            width: calc(72% + 52px);
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 16px;
+            background-color: #F28552;
+            color: white;
+        }
+        button:hover{
+            background-color: #04062E ;
+        }
         .page_view {
             display: none;
         }
 
-        .welcome-container {
+        .contain_view {
+            background-color: white;
+            width: 430px;
+            padding: 48px 24px;
             text-align: center;
-            padding: 20px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
         }
 
         .welcome-container .logo-container {
             width: 150px;
             height: 150px;
-            border: 1px solid #000;
-            border-radius: 10px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -44,39 +69,25 @@
             margin-right: 10px;
         }
 
-        .primary-button,
-        .secondary-button {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-
-        .primary-button {
-            background-color: #007bff;
-            color: #fff;
-        }
-
         .primary-button:disabled {
-            background-color: #cccccc;
+            background-color:rgba(4, 6, 46, 0.2);
             cursor: not-allowed;
+            color: #04062E;
         }
-
-        .secondary-button {
-            background-color: #e0e0e0;
-            color: #333;
+        .welcome-container .secondary-button {
+            background-color: rgba(4, 6, 46, 0.2);
+            cursor: not-allowed;
+            color: #04062E;
         }
 
         .secondary-button:hover {
-            background-color: #1C86EE;
+            background-color: #F28552;
+            color: white;
         }
-
 
     </style>
     <style>
+
         .password-container .logo-container {
             width: 150px;
             height: 150px;
@@ -97,9 +108,10 @@
 
         .password-container .input-container {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: auto;
+            width: calc(72% + 52px);
         }
 
         .password-container .input-container label {
@@ -107,81 +119,107 @@
         }
 
         .password-container .input-container input {
-            padding: 5px;
-            border: 1px solid #000;
-            border-radius: 5px;
-        }
-
-        .password-container button {
-            width: 80%;
-            padding: 10px;
-            margin: 5px auto;
-            background-color: #1E90FF;
-            color: white;
+            width: calc(100% - 16px);
+            padding: 14px 8px;
+            font-weight: 400;
+            font-size: 14px;
             border: none;
+            background-color: #EEF0F1;
             border-radius: 5px;
-            cursor: pointer;
         }
 
-        .password-container button:hover {
-            background-color: #1C86EE;
-        }
     </style>
     <style>
+
         .recovery-container {
             text-align: center;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
-            padding: 20px;
-            max-width: 400px;
+            padding: 48px 24px;
+            max-width: 430px;
             width: 100%;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 20px auto;
         }
 
-
         .hidden-seed-phrase {
             background-color: #333;
             color: #333;
-        }
-
-        .recovery-phrase-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between; /* 调整元素间的间距 */
-            padding: 0 10px; /* 可选：为容器添加内边距，以便更好的间隔 */
         }
 
         .recovery-phrase-item {
-            width: calc(33.33% - 20px); /* 调整计算公式以适应间隔 */
-            padding: 10px;
-            margin-bottom: 10px;
+            width: 100%; /* 调整计算公式以适应间隔 */
+            padding: 8px 0;
             box-sizing: border-box; /* 将内边距和边框计入宽度计算 */
-            text-align: left;
+            text-align: center;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 12px;
+
         }
 
         .hidden-seed-phrase {
             background-color: #333;
             color: #333;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: calc(72% + 52px);
+            margin: auto;
+        }
+
+        .actions button {
+            width: 50% ;
+            font-size: 14px;
+            color: #F28552;
+            border-radius: 0 0 5px 5px;
+            margin: 0;
+            background-color: #F6F8F9;
+            padding: 0;
+            height: 32px;
+            text-align: center;
+        }
+        .recovery-phrase-container {
+            border-radius: 5px 5px 0;
         }
     </style>
 
     <style>
         .recovery-input {
-            padding: 10px;
+            height: 32px;
+            width: 92%;
             font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            text-align: center;
         }
 
+        .recovery-phrase-container,
         .recovery-phrase-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin:auto;
+            background-color: #F6F8F9;
+            border: 2px solid #EEEFF0;
+            padding: 24px;
+            width: 72%;
+        }
+
+        .recovery-phrase-grid{
+            border-radius: 5px;
+        }
+        .recovery-phrase-grid label {
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(4, 6, 46, 0.5);
+            min-height: 50px;
+            flex-direction: column;
+            align-items: center;
         }
 
         .hidden-word {
@@ -198,8 +236,9 @@
         }
 
         .membership h2 {
-            font-size: 18px;
-            color: #333;
+            font-size: 16px;
+            font-weight: 400;
+            margin: 0;
         }
 
         .membership p {
@@ -211,12 +250,13 @@
         ul {
             padding: 0;
             list-style: none;
-            text-align: left;
-            margin-top: 10px;
+            width: 100%;
+            margin: 12px 0 24px 0;
         }
 
         ul li {
             padding: 2px 0;
+            align-items: center;
         }
 
         .confirm-button {
@@ -224,30 +264,31 @@
             width: 200px;
             padding: 10px;
             margin: 20px auto;
-            background-color: #007BFF;
+            background-color: #F28552;
             color: white;
             border: none;
             cursor: pointer;
         }
 
         .membership-container {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            background-color: #f4f4f4;
+            display: grid;
+            grid-template-columns: repeat(2 , 1fr);
+            gap:12px;
+            margin-top: 24px;
         }
 
         .membership {
-            width: 22%;
-            padding: 10px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            background: #F6F8F9;
+            border-radius: 5px;
+            border: 2px solid #EEEFF0;
             text-align: center;
             transition: background-color 0.3s;
         }
 
         .selected {
-            background-color: #cceeff; /* 选中时的背景颜色 */
+            background-color: #04062E; /* 选中时的背景颜色 */
+            color:#F28552;
         }
 
         .recovery-phrase-row {
@@ -257,6 +298,12 @@
             width: 100%;
             margin-bottom: 10px;
         }
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin: 6px 0 0 0;
+        }
+
 
     </style>
 
@@ -303,7 +350,7 @@
     </style>
 </head>
 <body>
-<div id="view-welcome" class="page_view welcome-container">
+<div id="view-welcome" class="page_view welcome-container contain_view">
     <div class="logo-container">
         <img src="../file/logo.png" alt="logo">
     </div>
@@ -315,22 +362,22 @@
     <button id="import-account-btn" class="secondary-button">导入账号</button>
 </div>
 
-<div id="view-create-password" class="password-container page_view">
+<div id="view-create-password" class="password-container page_view contain_view">
     <div class="logo-container">
         <img src="../file/logo.png" alt="logo">
     </div>
     <div class="input-container">
-        <label for="home-create-password" id="confirm-password-label1">密码：</label>
+        <h2 for="home-create-password" id="confirm-password-label1">密码：</h2>
         <input type="password" id="home-create-password" placeholder="(最少8字符)">
     </div>
     <div class="input-container">
-        <label for="home-confirm-password" id="confirm-password-label2">密码:</label>
+        <h2 for="home-confirm-password" id="confirm-password-label2">密码:</h2>
         <input type="password" id="home-confirm-password" placeholder="(确认密码)">
     </div>
     <button id="create-new-account-btn" class="primary-button">创建新账号</button>
 </div>
 
-<div id="view-recovery-phrase" class="recovery-container page_view">
+<div id="view-recovery-phrase" class="recovery-container page_view contain_view">
     <div class="recovery-phrase-item" id="recovery-phrase-item-template" style="display: none">
         <span class="phrase-item-index">1</span>. <span class="phrase-item-value"></span>
     </div>
@@ -361,13 +408,13 @@
     <button id="import-new-account-btn" class="primary-button">创建新账号</button>
 </div>
 
-<div id="view-confirm-recovery" class="recovery-confirm-container page_view">
+<div id="view-confirm-recovery" class="recovery-confirm-container page_view contain_view">
     <label id="phrase-item-readOnly" style="display: none">
-        <span class="phrase-item-index"></span>.
+        <span class="phrase-item-index"></span>
         <input type="text" class="recovery-input" disabled>
     </label>
     <label id="phrase-item-writeOnly" style="display: none">
-        <span class="phrase-item-index"></span>.
+        <span class="phrase-item-index"></span>
         <input type="text" class="recovery-input">
     </label>
     <div class="recovery-phrase-grid">
@@ -400,8 +447,8 @@
     <button type="button" disabled class="primary-button">Confirm Secret Recovery Phrase</button>
 </div>
 
-<div id="view-account-home" class="account-home-container page_view">
-    <div>
+<div id="view-account-home" class="account-home-container page_view contain_view">
+    <div >
         <span class="current-wallet-address-lbl">当前账号:</span>
         <br>
         <span class="current-wallet-address-val"></span>
@@ -410,7 +457,7 @@
         <div class="membership" id="membership_type_free" data-price-val="false">
             <img src="../file/free.png" alt="Free Membership">
             <h2>免费会员</h2>
-            <p class="membership-price">¥0/月</p>
+            <h1 class="membership-price">¥0/月</h1>
             <ul>
                 <li>基本内容访问</li>
                 <li>有限下载次数</li>
@@ -419,7 +466,7 @@
         <div class="membership" id="membership_type_bronze" data-price-val="29">
             <img src="../file/bronze.png" alt="Bronze Membership">
             <h2>青铜会员</h2>
-            <p class="membership-price">¥29/月</p>
+            <h1 class="membership-price">¥29/月</h1>
             <ul>
                 <li>视频教程</li>
                 <li>无限下载</li>
@@ -428,7 +475,7 @@
         <div class="membership" id="membership_type_silver" data-price-val="59">
             <img src="../file/silver.png" alt="Silver Membership">
             <h2 class="membership-price">白银会员</h2>
-            <p>¥59/月</p>
+            <h1>¥59/月</h1>
             <ul>
                 <li>包括青铜权益</li>
                 <li>在线研讨会</li>
@@ -437,7 +484,7 @@
         <div class="membership" id="membership_type_gold" data-price-val="99">
             <img src="../file/gold.png" alt="Gold Membership">
             <h2>黄金会员</h2>
-            <p class="membership-price">¥99/月</p>
+            <h1 class="membership-price">¥99/月</h1>
             <ul>
                 <li>包括白银权益</li>
                 <li>个人顾问</li>
@@ -448,7 +495,7 @@
     <button class="confirm-button free-active" style="display: block">免费激活</button>
     <div class="account-home-error" id="account-home-error" style="display: none"></div>
 </div>
-<div id="view-account-success" class="account-success page_view">
+<div id="view-account-success" class="account-success page_view contain_view">
     请把该插件pin到右上角
 </div>
 <div id="view-buy-vip" class="account-buy-vip page_view">

@@ -5,15 +5,42 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../file/main.css">
     <style>
+        h1,h2,p {
+            margin: 0;
+        }
+
+        button{
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 16px;
+            background-color: #F28552;
+            color: white;
+        }
+
+        button:hover{
+            background-color: #04062E ;
+        }
+
+        .view-main-login {
+            text-align: center;
+            padding: 62px 48px;
+        }
+        .view-main-login h1{
+            margin-bottom: 6px;
+        }
         .page_view {
             display: none;
         }
 
         .logo-container {
-            width: 150px;
-            height: 150px;
-            border: 1px solid #000;
-            border-radius: 10px;
+            width: 72px;
+            height: 72px;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -26,6 +53,24 @@
             height: 100%;
             object-fit: cover;
         }
+
+        .login-input input {
+            width: calc(100% - 16px);
+            padding: 14px 8px;
+            font-weight: 400;
+            font-size: 14px;
+            border: none;
+            background-color: #EEF0F1;
+            border-radius: 5px;
+        }
+
+        .login-input {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 32px;
+        }
+
     </style>
     <style>
         .dialog-tips-container {
@@ -109,8 +154,10 @@
     </div>
     <h1>Welcome back!</h1>
     <p>The decentralized web awaits</p>
-    <label for="login-password">Password</label>
-    <input type="password" id="login-password" name="password" required>
+    <div class="login-input">
+        <h2 for="login-password">Password</h2>
+        <input type="password" id="login-password" name="password" required>
+    </div>
     <div class="error-tips-area"><p class="login-error"></p></div>
     <div>
         <button type="button" class="primary-button">Unlock</button>
