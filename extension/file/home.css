@@ -133,8 +133,25 @@ button:hover {
 }
 
 .hidden-seed-phrase {
-    background-color: #333;
-    color: #333;
+    position: relative;
+}
+
+.hidden-seed-phrase::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #3b3c3e;
+    border-radius: 5px 5px 0 0;
+    border: 2px solid #718096;
+    z-index: 1;
+}
+
+.hidden-seed-phrase * {
+    color: transparent;
+    background-color: transparent !important;
 }
 
 .recovery-phrase-item {
@@ -170,7 +187,14 @@ button:hover {
 }
 
 .recovery-phrase-container {
-    border-radius: 5px 5px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* 调整元素间的间距 */
+    border: 2px solid #ECEFF2;
+    background-color: #F5F7F8;
+    border-radius: 5px 5px 0 0;
+    padding: 6px 12px;
+    position: relative; /* 确保内容遮蔽覆盖在容器上 */
 }
 
 .recovery-input {
