@@ -355,7 +355,7 @@ function setRecoverPhaseTips(isValid: boolean, errMsg: string): void {
 
 
 function validateRecoveryPhrase(this: HTMLInputElement): void {
-    const wordsArray = this.value.trim().split(' ');
+    const wordsArray = this.value.trim().split(/\s+/).filter(word => word.length > 0);
     let errMsg = '';
     let everyWordIsOk = true;
     const inputs = document.querySelectorAll<HTMLInputElement>("#recovery-phrase-inputs .recovery-phrase");
