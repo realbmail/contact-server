@@ -26,7 +26,7 @@ export function hideLoading(): void {
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
-export function showDialog(title: string, message: string, confirmButtonText?: string, confirmCallback?: () => boolean): void {
+export function showDialog(title: string, message: string, confirmButtonText?: string, confirmCallback?: () => Promise<boolean>): void {
     const dialogContainer = document.getElementById('dialog-tips-container') as HTMLDivElement;
     const dialogTitle = document.getElementById('dialog-tips-title') as HTMLHeadingElement;
     const dialogMessage = document.getElementById('dialog-tips-message') as HTMLParagraphElement;
@@ -44,9 +44,9 @@ export function showDialog(title: string, message: string, confirmButtonText?: s
     confirmButton.replaceWith(confirmButton.cloneNode(true));
     confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
 
-    confirmButton.addEventListener('click', () => {
+    confirmButton.addEventListener('click', async () => {
         if (confirmCallback) {
-            const closeTab = confirmCallback();
+            const closeTab = await confirmCallback();
             if (closeTab) {
                 hideDialog();
             }

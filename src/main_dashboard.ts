@@ -116,10 +116,9 @@ async function showUserKeyStore() {
         }
         const keyStoreStr = JSON.stringify(wallet, null, 4);
 
-        showDialog("key store", keyStoreStr, "Copy", function () {
-            navigator.clipboard.writeText(keyStoreStr).then(() => {
-                alert("Copy success");
-            });
+        showDialog("key store", keyStoreStr, "Copy", async function () {
+            await navigator.clipboard.writeText(keyStoreStr);
+            alert("Copy success");
             return true;
         })
     } catch (e) {

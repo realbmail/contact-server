@@ -2,7 +2,8 @@ import browser from "webextension-polyfill";
 import {MsgType, showView} from "./common";
 import {MailAddress} from "./wallet";
 import {sessionSet} from "./session_storage";
-import {__currentAccountAddress, router} from "./main_common";
+import {__currentAccountAddress, hideLoading, router, showDialog, showLoading} from "./main_common";
+import {__tableNameWallet, databaseDeleteByFilter} from "./database";
 
 export function initLoginDiv(): void {
     const unlock = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;
@@ -10,7 +11,9 @@ export function initLoginDiv(): void {
 
 
     const newAccBtn = document.querySelector(".view-main-login .secondary-button") as HTMLButtonElement;
-    newAccBtn.addEventListener('click', newAccountToReplaceCurrent);
+    newAccBtn.addEventListener('click', () => {
+        showDialog("Warning", "Are you sure to remove the old account", "I'm Sure", newAccountToReplaceCurrent);
+    });
 }
 
 function openAllWallets(): void {
@@ -39,9 +42,22 @@ function openAllWallets(): void {
     });
 }
 
-function newAccountToReplaceCurrent() {
-    browser.tabs.create({
-        url: browser.runtime.getURL("html/home.html#onboarding/welcome")
-    }).then();
-    return;
+async function newAccountToReplaceCurrent() {
+    showLoading();
+
+    try {
+        await databaseDeleteByFilter(__tableNameWallet, (val) => {
+            console.log("-------->>> value to remove:", val);
+            return true
+        });
+
+        await browser.tabs.create({
+            url: browser.runtime.getURL("html/home.html#onboarding/welcome")
+        })
+    } catch (error) {
+        console.log('-------->>> action failed:', error);
+    } finally {
+        hideLoading();
+    }
+    return true;
 }

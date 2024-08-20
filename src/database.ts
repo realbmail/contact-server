@@ -164,7 +164,7 @@ function databaseDelete(storeName: string, id: any): Promise<string> {
     });
 }
 
-function databaseDeleteByFilter(storeName: string, conditionFn: (value: any) => boolean): Promise<string> {
+export function databaseDeleteByFilter(storeName: string, conditionFn: (value: any) => boolean): Promise<string> {
     return new Promise((resolve, reject) => {
         if (!__databaseObj) {
             reject('Database is not initialized');
@@ -251,7 +251,7 @@ export function getMaxIdRecord(storeName: string): Promise<any> {
         }
         const transaction = __databaseObj.transaction([storeName], 'readonly');
         const objectStore = transaction.objectStore(storeName);
-        const cursorRequest = objectStore.openCursor(); // 只传入一个参数
+        const cursorRequest = objectStore.openCursor(null, 'prev');
         cursorRequest.onsuccess = function (event) {
             const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
             if (cursor) {
