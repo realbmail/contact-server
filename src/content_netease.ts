@@ -17,7 +17,7 @@ const staticNetEaseHtmlForReply = `
 <div id="spnEditorContent"><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p></div>
 `
 export function appendForNetEase(template: HTMLTemplateElement) {
-    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_126");
+    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
     if (!clone) {
         console.warn("------>>> failed to parse bmail inbox button");
         return
@@ -41,7 +41,7 @@ function addActionForHomePage(clone: HTMLElement): void {
     const tabMenus = document.querySelectorAll('li[title="首页"]');
     if (tabMenus.length > 0) {
         tabMenus[0].addEventListener('click', () => {
-            const dynamicBtn = document.getElementById('bmail_left_menu_btn_126');
+            const dynamicBtn = document.getElementById('bmail_left_menu_btn_netEase');
             if (!dynamicBtn) {
                 appendBtnToMenu(clone)
             }
