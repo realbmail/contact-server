@@ -154,6 +154,13 @@ runtime.onSuspend.addListener(() => {
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
 
+
+    const availableUrl = await currentTabIsValid();
+    if (!availableUrl) {
+        sendResponse({status: WalletStatus.InvalidTarget, message: ''});
+        return;
+    }
+
     await checkAndInitDatabase();
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
     if (walletStatus === WalletStatus.Init) {
@@ -162,12 +169,6 @@ async function pluginClicked(sendResponse: (response: any) => void): Promise<voi
         if (!wallet) {
             console.log('[service work] Wallet not found');
             sendResponse({status: WalletStatus.NoWallet, message: ''});
-            return;
-        }
-
-        const availableUrl = await currentTabIsValid();
-        if (!availableUrl) {
-            sendResponse({status: WalletStatus.InvalidTarget, message: ''});
             return;
         }
 
