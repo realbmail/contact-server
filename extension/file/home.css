@@ -26,7 +26,8 @@ button:hover {
 }
 
 .contain_view,
-.password-container {
+.password-container,
+.account-home {
     background-color: white;
     width: 430px;
     padding: 48px 24px;
