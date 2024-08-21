@@ -135,11 +135,11 @@ function levelToStr(level: number) {
         case UserLevel.UserLevelFree:
             return {name: "免费用户", url: "../file/level_free.png"};
         case UserLevel.UserLevelBronze:
-            return {name: "青铜用户", url: "../file/level_bronze.png"};
+            return {name: "普通会员", url: "../file/level_bronze.png"};
         case UserLevel.UserLevelSilver:
-            return {name: "白银用户", url: "../file/level_silver.png"};
+            return {name: "Plus会员", url: "../file/level_silver.png"};
         case UserLevel.UserLevelGold:
-            return {name: "金牌用户", url: "../file/level_gold.png"};
+            return {name: "企业用户", url: "../file/level_gold.png"};
     }
 }
 
