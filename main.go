@@ -44,7 +44,7 @@ func init() {
 	flags.StringVarP(&param.config, "conf",
 		"c", ConfigFIleName, "contactSrv.lnx -c config.json")
 	flags.StringVarP(&param.port, "port",
-		"p", DefaultSrvPort, "contactSrv.lnx -p [PORT]")
+		"p", "", "contactSrv.lnx -p [PORT]")
 }
 
 func main() {
