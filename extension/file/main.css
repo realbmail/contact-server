@@ -111,6 +111,15 @@ button:hover {
     align-items: center;
 }
 
+.bmail-active-account{
+    color: #F28552;
+    background-color: transparent;
+    font-size: 14px;
+    font-weight: 500;
+}
+.bmail-active-account:hover{
+    background-color: #f6f8f9;
+}
 .bmail-address-query-btn {
     padding: 4px;
     margin: 0;
