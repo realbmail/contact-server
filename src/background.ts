@@ -153,8 +153,6 @@ runtime.onSuspend.addListener(() => {
 });
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
-
-
     const availableUrl = await currentTabIsValid();
     if (!availableUrl) {
         sendResponse({status: WalletStatus.InvalidTarget, message: ''});

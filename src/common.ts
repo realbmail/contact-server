@@ -170,15 +170,22 @@ export function extractJsonString(input: string): { json: string, offset: number
 }
 
 export function replaceTextInRange(input: string, offset: number, end: number, newText: string): string {
-    // 确保 offset 和 end 在合法范围内
     if (offset < 0 || end < offset || end > input.length) {
         throw new Error("Offset or end is out of bounds");
     }
 
-    // 分割原始字符串
     const beforeOffset = input.substring(0, offset);
     const afterEnd = input.substring(end);
 
-    // 拼接替换后的字符串
     return beforeOffset + newText + afterEnd;
+}
+
+export function showLoading(): void {
+    document.body.classList.add('loading');
+    document.getElementById("dialog-waiting-overlay")!.style.display = 'flex';
+}
+
+export function hideLoading(): void {
+    document.body.classList.remove('loading');
+    document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }

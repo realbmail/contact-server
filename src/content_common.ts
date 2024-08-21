@@ -78,22 +78,6 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc:string,
     return clone;
 }
 
-export function appendTipDialog(template: HTMLTemplateElement) {
-    const dialog = template.content.getElementById("bmail_dialog_container");
-    if (!dialog) {
-        console.log("------>>>failed to find tip dialog");
-        return;
-    }
-
-    const clone = dialog.cloneNode(true) as HTMLElement;
-    const okBtn = clone.querySelector(".bmail_dialog_button") as HTMLElement;
-    okBtn.textContent = browser.i18n.getMessage('OK');
-    okBtn.addEventListener('click', async () => {
-        clone.style.display = "none";
-    });
-    document.body.appendChild(clone);
-}
-
 export function showTipsDialog(title: string, message: string) {
     const dialog = document.getElementById("bmail_dialog_container");
     if (!dialog) {

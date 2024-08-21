@@ -45,6 +45,7 @@
     {
       "resources": [
         "file/inject.css",
+        "file/common.css",
         "html/inject.html",
         "js/inject.js",
         "file/logo_16.png",

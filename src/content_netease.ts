@@ -1,14 +1,13 @@
 import browser from "webextension-polyfill";
 import {
-    appendTipDialog,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
     showTipsDialog
 } from "./content_common";
 import {
-    extractJsonString,
+    extractJsonString, hideLoading,
     MsgType, replaceTextInRange,
-    sendMessageToBackground
+    sendMessageToBackground, showLoading
 } from "./common";
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
@@ -16,6 +15,7 @@ import {EmailReflects} from "./proto/bmail_srv";
 const staticNetEaseHtmlForReply = `
 <div id="spnEditorContent"><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p></div>
 `
+
 export function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
     if (!clone) {
@@ -27,7 +27,6 @@ export function appendForNetEase(template: HTMLTemplateElement) {
     addActionForHomePage(clone);
     checkHasMailContent(template);
 
-    appendTipDialog(template);
     monitorTabMenu((isDelete: boolean) => {
         if (isDelete) {
             //TODO::
@@ -35,6 +34,7 @@ export function appendForNetEase(template: HTMLTemplateElement) {
         }
         checkHasMailContent(template);
     });
+
 }
 
 function addActionForHomePage(clone: HTMLElement): void {
@@ -99,12 +99,12 @@ function checkFrameBody(fBody: HTMLElement, btn: HTMLElement) {
         return;
     }
 
-    if ( textContent.includes(MailFlag)) {
+    if (textContent.includes(MailFlag)) {
         fBody.dataset.mailHasEncrypted = 'true';
         setBtnStatus(true, btn);
         fBody.contentEditable = 'false';
         console.log("change to decrypt model....")
-    }else {
+    } else {
         fBody.dataset.mailHasEncrypted = 'false';
         setBtnStatus(false, btn);
         fBody.contentEditable = 'true';
@@ -128,7 +128,7 @@ function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
     const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
     const isReplyComposing = elmWhenReload != null || elmFromReply != null;
     console.log("------>>> is this a reply div", isReplyComposing, "div id:=>", composeDiv.id);
-    if(isReplyComposing){
+    if (isReplyComposing) {
         iframeDocument.body.dataset.theDivIsReply = 'true';
     }
     checkFrameBody(iframeDocument.body, btn);
@@ -149,7 +149,15 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            await encodeOrDecodeMailBody(composeDiv, btn);
+            showLoading();
+            try {
+                await encodeOrDecodeMailBody(composeDiv, btn);
+            } catch (err) {
+                //TODO::
+                console.log("------>>> mail crypto err:", err);
+            } finally {
+                hideLoading();
+            }
         }) as HTMLElement;
 
     if (!cryptoBtnDiv) {
@@ -191,7 +199,7 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
     const isReply = fElm.dataset.theDivIsReply === 'true';
     let result = null;
     let realData = mBody;
-    if (isReply){
+    if (isReply) {
         result = extractJsonString(mBody);
         console.log(result);
         if (!result) {
@@ -214,9 +222,9 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
         return;
     }
 
-    if(isReply){
-        fElm.innerHTML = staticNetEaseHtmlForReply + replaceTextInRange(mBody, result!.offset,result!.endOffset,mailRsp.data);
-    }else{
+    if (isReply) {
+        fElm.innerHTML = staticNetEaseHtmlForReply + replaceTextInRange(mBody, result!.offset, result!.endOffset, mailRsp.data);
+    } else {
         fElm.innerHTML = mailRsp.data;
     }
     console.log("------>>>decrypt mail content success")
@@ -242,17 +250,17 @@ async function processReceivers(composeDiv: HTMLElement) {
 
         const email = emailElement.textContent!.replace(/[<>]/g, "");
         const address = __tmpContactMap.get(email);
-        if(address){
+        if (address) {
             receiver.push(address);
             receiverArea[i].classList.add("bmail_receiver_is_fine");
-            console.log("------>>> from cache:",email," address:=>", address);
+            console.log("------>>> from cache:", email, " address:=>", address);
             continue;
         }
         emailDivs.set(email, receiverArea[i]);
     }
 
     if (emailDivs.size <= 0) {
-        if( receiver.length <= 0){
+        if (receiver.length <= 0) {
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
             return;
         }
@@ -377,7 +385,14 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-            await decryptMailInReading(mailContent, mailData, btn);
+            showLoading();
+            try {
+                await decryptMailInReading(mailContent, mailData, btn);
+            } catch (e) {
+                console.log("------>>> crypto in mail reading err:=>", e)
+            } finally {
+                hideLoading();
+            }
         });
 
     if (!cryptoBtn) {

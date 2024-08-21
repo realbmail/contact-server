@@ -1,12 +1,20 @@
-import {BMRequestToSrv, encodeHex, MsgType, sendMessageToBackground, showView, signDataByMessage} from "./common";
+import {
+    BMRequestToSrv,
+    encodeHex, hideLoading,
+    MsgType,
+    sendMessageToBackground,
+    showLoading,
+    showView,
+    signDataByMessage
+} from "./common";
 import {sessionGet, sessionSet} from "./session_storage";
 import {
     __currentAccountAddress,
     __currentAccountData,
-    hideDialog, hideLoading,
+    hideDialog,
     router,
     showDialog,
-    showLoading, showToastMessage, UserLevel
+    showToastMessage, UserLevel
 } from "./main_common";
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";

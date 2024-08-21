@@ -11,6 +11,7 @@ export enum UserLevel {
     UserLevelSilver,
     UserLevelGold
 }
+
 export function router(path: string): void {
     if (path === '#onboarding/main-dashboard') {
         populateDashboard().then();
@@ -20,16 +21,6 @@ export function router(path: string): void {
 export function hideDialog(): void {
     const dialogContainer = document.getElementById('dialog-tips-container') as HTMLDivElement;
     dialogContainer.style.display = 'none';
-}
-
-export function showLoading(): void {
-    document.body.classList.add('loading');
-    document.getElementById("dialog-waiting-overlay")!.style.display = 'flex';
-}
-
-export function hideLoading(): void {
-    document.body.classList.remove('loading');
-    document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
 export function showDialog(title: string, message: string, confirmButtonText?: string, confirmCallback?: () => Promise<boolean>): void {
@@ -46,7 +37,6 @@ export function showDialog(title: string, message: string, confirmButtonText?: s
         confirmButton.innerText = 'OK';
     }
 
-    // Remove previous event listener to avoid multiple callbacks
     confirmButton.replaceWith(confirmButton.cloneNode(true));
     confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
 

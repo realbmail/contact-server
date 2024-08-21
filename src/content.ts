@@ -40,6 +40,7 @@ async function addCustomElements(htmlFilePath: string, targetSelectorMap: {
                 break;
             }
         }
+        appendTipDialog(template);
     } catch (error) {
         console.error('Error loading custom elements:', error);
     }
@@ -60,10 +61,32 @@ function translateInjectedElm() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    addBmailObject('js/inject.js');
+    addCustomStyles('file/common.css');
+    addCustomStyles('file/inject.css');
     addCustomElements('html/inject.html', targetSelectorMap).then(() => {
         console.log("++++++>>>content js run success");
         translateInjectedElm();
     });
-    addBmailObject('js/inject.js');
-    addCustomStyles('file/inject.css');
 });
+
+
+export function appendTipDialog(template: HTMLTemplateElement) {
+    const dialog = template.content.getElementById("bmail_dialog_container");
+    if (!dialog) {
+        console.log("------>>>failed to find tip dialog");
+        return;
+    }
+
+    const clone = dialog.cloneNode(true) as HTMLElement;
+    const okBtn = clone.querySelector(".bmail_dialog_button") as HTMLElement;
+    okBtn.textContent = browser.i18n.getMessage('OK');
+    okBtn.addEventListener('click', async () => {
+        clone.style.display = "none";
+    });
+    document.body.appendChild(clone);
+
+    const waitingDiv = template.content.getElementById("dialog-waiting-overlay") as HTMLDivElement;
+    const waitClone = waitingDiv.cloneNode(true) as HTMLElement;
+    document.body.appendChild(waitClone);
+}

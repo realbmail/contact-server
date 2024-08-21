@@ -1,7 +1,7 @@
-import {BMRequestToSrv, encodeHex, isValidEmail, showView, signDataByMessage} from "./common";
-import {__currentAccountAddress, hideLoading, router, showDialog, showLoading} from "./main_common";
+import {BMRequestToSrv, encodeHex, hideLoading, isValidEmail, showLoading, showView, signDataByMessage} from "./common";
+import {__currentAccountAddress, router, showDialog} from "./main_common";
 import {MailKey} from "./wallet";
-import {ContactOperation, ContactItem, QueryReq, BMailAccount} from "./proto/bmail_srv";
+import {ContactOperation, ContactItem, QueryReq} from "./proto/bmail_srv";
 import {sessionGet} from "./session_storage";
 
 export function initContactView(): void {
@@ -41,10 +41,10 @@ export function initContactBtn(isAdd: boolean, contact?: ContactItem) {
         updateBtn.style.display = "none";
         delBtn.style.display = "none";
         emailInput.readOnly = false;
-        emailInput.value  = "";
+        emailInput.value = "";
         bmailInput.value = "";
-        nickName.value  = "";
-        remark.value  ="";
+        nickName.value = "";
+        remark.value = "";
         return;
     }
 
@@ -53,14 +53,14 @@ export function initContactBtn(isAdd: boolean, contact?: ContactItem) {
     delBtn.style.display = "block";
     emailInput.readOnly = true;
 
-    if(!contact) {
+    if (!contact) {
         return;
     }
 
-    emailInput.value  = contact.email;
+    emailInput.value = contact.email;
     bmailInput.value = contact.address;
-    nickName.value  = contact.nickName;
-    remark.value  = contact.remark;
+    nickName.value = contact.nickName;
+    remark.value = contact.remark;
 }
 
 function parseContactValue(): ContactItem | null {
