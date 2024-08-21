@@ -399,7 +399,8 @@ body.loading #dialog-waiting-overlay {
     background-color: #F28552;
     color: white;
 }
-.copy-tip {
+
+.toast-tip-dialog {
     background-color: #F28552;
     position: absolute;
     padding: 12px 16px;
@@ -408,7 +409,8 @@ body.loading #dialog-waiting-overlay {
     left: calc(50% - 58px);
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
 }
-.copy-tip p{
+
+.toast-tip-dialog p {
     color: white;
     font-size: 14px;
     font-weight: bold;

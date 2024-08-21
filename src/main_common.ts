@@ -63,3 +63,20 @@ export function showDialog(title: string, message: string, confirmButtonText?: s
 
     dialogContainer.style.display = 'flex';
 }
+
+export function showToastMessage(content: string): void {
+    const tipElement = document.getElementById('toast-tip-dialog');
+    const contentElement = tipElement?.getElementsByClassName('tip-content')[0] as HTMLElement;
+
+    if (contentElement) {
+        contentElement.textContent = content;
+    }
+
+    if (tipElement) {
+        tipElement.style.display = 'block';
+
+        setTimeout(() => {
+            tipElement.style.display = 'none';
+        }, 2000);
+    }
+}

@@ -6,7 +6,7 @@ import {
     hideDialog, hideLoading,
     router,
     showDialog,
-    showLoading, UserLevel
+    showLoading, showToastMessage, UserLevel
 } from "./main_common";
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
@@ -40,7 +40,7 @@ export function initDashBoard(): void {
             return;
         }
         navigator.clipboard.writeText(address).then(() => {
-            showDialog("Success", "copy success");
+            showToastMessage("copy success");
         });
     })
 
