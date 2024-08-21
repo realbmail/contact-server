@@ -60,6 +60,7 @@
     justify-content: flex-start;
     cursor: pointer;
 }
+
 .bmail_left_menu_btn_div:hover {
     background-color: #04062E;
 }
@@ -67,6 +68,22 @@
     color: #F28552;
     margin-left: 4px;
 
+}
+.bmail-decrypt-logo{
+    width: 60%;
+}
+
+.bmail-decrypt-div {
+    background-color: rgba(242, 133, 82, 0.2);
+    border: 1px solid rgba(242, 133, 82, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.bmail-decrypt-div span {
+    color: #F28552;
+    margin-left: 4px;
+    font-weight: 600;
 }
 .bmail-crypto-btn :hover {
     background-color: #2C2D47;
