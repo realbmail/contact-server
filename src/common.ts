@@ -76,7 +76,9 @@ export async function createQRCodeImg(data: string) {
 }
 
 // const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
-const httpServerUrl = "http://bmail.simplenets.org:8001"
+// const httpServerUrl = "http://bmail.simplenets.org:8001"
+const httpServerUrl = "https://bmail.simplenets.org:8443"
+
 
 export async function httpApi(path: string, param: any) {
     const response = await fetch(httpServerUrl + path, {
