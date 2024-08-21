@@ -6,7 +6,7 @@ import {
     hideDialog, hideLoading,
     router,
     showDialog,
-    showLoading
+    showLoading, UserLevel
 } from "./main_common";
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
@@ -127,24 +127,29 @@ async function showUserKeyStore() {
     }
 }
 
-function levelToStr(level: number): string {
+function levelToStr(level: number) {
     switch (level) {
-        case 0:
+        case UserLevel.UserLevelInActive:
         default:
-            return "未激活";
-        case 1:
-            return "免费用户";
-        case 2:
-            return "青铜用户";
-        case 3:
-            return "白银用户";
-        case 4:
-            return "金牌用户";
+            return {name: "未激活", url: "../file/level_inactive.png"};
+        case UserLevel.UserLevelFree:
+            return {name: "免费用户", url: "../file/level_free.png"};
+        case UserLevel.UserLevelBronze:
+            return {name: "青铜用户", url: "../file/level_bronze.png"};
+        case UserLevel.UserLevelSilver:
+            return {name: "白银用户", url: "../file/level_silver.png"};
+        case UserLevel.UserLevelGold:
+            return {name: "金牌用户", url: "../file/level_gold.png"};
     }
 }
 
 function setupElementByAccountData(accountData: BMailAccount) {
-    document.getElementById('bmail-account-level-val')!.textContent = levelToStr(accountData.level);
+    const imgElm = document.getElementById("bmail-account-level-img") as HTMLImageElement;
+    const levelStr = document.getElementById('bmail-account-level-val') as HTMLElement;
+    const levelInfo = levelToStr(accountData.level);
+    levelStr.textContent = levelInfo.name;
+    imgElm.src = levelInfo.url;
+
     if (accountData.level === 0) {
         document.getElementById('bmail-active-account')!.style.display = 'block';
     } else {

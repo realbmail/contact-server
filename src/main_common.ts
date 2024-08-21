@@ -4,7 +4,13 @@ export const __currentAccountAddress = "__current_wallet_storage_key_"
 export const __systemSetting = "__system_setting_"
 export const __currentAccountData = "__current_account_data_";
 
-
+export enum UserLevel {
+    UserLevelInActive = 0,
+    UserLevelFree,
+    UserLevelBronze,
+    UserLevelSilver,
+    UserLevelGold
+}
 export function router(path: string): void {
     if (path === '#onboarding/main-dashboard') {
         populateDashboard().then();
