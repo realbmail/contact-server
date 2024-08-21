@@ -133,7 +133,9 @@ button:hover {
     color: #F28552;
     background-color: transparent;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
+    padding: 4px;
+    margin: 0;
 }
 .bmail-active-account:hover{
     background-color: #f6f8f9;
@@ -376,8 +378,8 @@ body.loading #dialog-waiting-overlay {
 }
 
 .dialog-waiting-spinner {
-    border: 8px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #000;
+    border: 8px solid rgba(4, 6, 46, 0.5);
+    border-left-color: #F28552;
     border-radius: 50%;
     width: 50px;
     height: 50px;

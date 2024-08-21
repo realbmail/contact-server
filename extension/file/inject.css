@@ -30,27 +30,49 @@
 }
 
 .bmail_dialog_title {
-    font-size: 1.5em;
-    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 .bmail-dialog-message {
-    font-size: 1em;
-    margin-bottom: 20px;
+    font-size: 14px;
+    color: rgba(4, 6, 46, 0.8);
 }
+
 
 .bmail_dialog_button {
-    background-color: #007bff;
+    width: 50%;
+    background-color: #F28552;
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+    padding: 14px 0;
+    border-radius: 5px;
     font-size: 1em;
     cursor: pointer;
+    margin-top: 12px;
 }
+.bmail_left_menu_btn_div {
+    background-color: rgba(242, 133, 82, 0.2);
+    padding: 6px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+.bmail_left_menu_btn_div:hover {
+    background-color: #04062E;
+}
+.bmail-send-action {
+    color: #F28552;
+    margin-left: 4px;
 
+}
+.bmail-crypto-btn :hover {
+    background-color: #2C2D47;
+}
 .bmail_dialog_button:hover {
-    background-color: #0056b3;
+    background-color: #04062E;
 }
 .bmail_receiver_is_fine{
     background-color: #f6e977;
