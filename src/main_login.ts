@@ -44,7 +44,6 @@ function openAllWallets(): void {
 
 async function newAccountToReplaceCurrent() {
     showLoading();
-
     try {
         await databaseDeleteByFilter(__tableNameWallet, (val) => {
             console.log("-------->>> value to remove:", val);
