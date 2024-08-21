@@ -227,6 +227,7 @@ async function closeWallet(sendResponse: (response: any) => void): Promise<void>
     if (sendResponse) {
         sendResponse({status: true});
     }
+    updateIcon(false);
 }
 
 const urlsToMatch = [

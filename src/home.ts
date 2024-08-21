@@ -326,7 +326,7 @@ function checkImportPassword(this: HTMLInputElement): void {
 
 
 function generateRecoveryPhraseInputs(): void {
-    setRecoverPhaseTips(false, '');
+    setRecoverPhaseTips(true, '');
 
     const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs') as HTMLElement;
     const template = document.getElementById("recovery-phrase-row-template") as HTMLTemplateElement;
