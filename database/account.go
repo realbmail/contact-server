@@ -8,20 +8,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type UserLevel uint8
-
-const (
-	UserLevelInActive UserLevel = iota
-	UserLevelFree
-	UserLevelBronze
-	UserLevelSilver
-	UserLevelGold
-)
-
 type BMailAccount struct {
-	UserLel      UserLevel `json:"user_lel"  firestore:"user_lel"`
-	EMailAddress []string  `json:"e_mail_address" firestore:"e_mail_address"`
-	LicenseHex   string    `json:"license"  firestore:"license"`
+	UserLel      int8     `json:"user_lel"  firestore:"user_lel"`
+	EMailAddress []string `json:"e_mail_address" firestore:"e_mail_address"`
+	LicenseHex   string   `json:"license"  firestore:"license"`
 }
 
 func (dm *DbManager) QueryAccount(bmailAddr string) (*BMailAccount, error) {
@@ -46,7 +36,7 @@ func (dm *DbManager) QueryAccount(bmailAddr string) (*BMailAccount, error) {
 	return &contact, nil
 }
 
-func (dm *DbManager) CreateBMailAccount(accountId string, level UserLevel) error {
+func (dm *DbManager) CreateBMailAccount(accountId string, level int8) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()
 	docRef := dm.fileCli.Collection(DBTableAccount).Doc(accountId)
@@ -68,7 +58,7 @@ func (dm *DbManager) CreateBMailAccount(accountId string, level UserLevel) error
 }
 
 func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
-	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*20)
 	defer cancel()
 
 	err := dm.fileCli.RunTransaction(opCtx, func(ctx context.Context, tx *firestore.Transaction) error {
@@ -89,6 +79,11 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 			emailAddrInterface[i] = v
 		}
 
+		oldAccToUpdate, err := dm.updateEmailReflect(tx, bmailAddr, emailAddr, isDel)
+		if err != nil {
+			return err
+		}
+
 		if isDel {
 			err = tx.Update(docRef, []firestore.Update{
 				{
@@ -104,11 +99,30 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 				},
 			})
 		}
+
 		if err != nil {
 			return err
 		}
 
-		return dm.updateEmailReflect(tx, bmailAddr, emailAddr, isDel)
+		if len(oldAccToUpdate) == 0 {
+			return nil
+		}
+
+		for email, addr := range oldAccToUpdate {
+			docRef = dm.fileCli.Collection(DBTableAccount).Doc(addr)
+			if err != nil {
+				continue
+			}
+
+			err = tx.Update(docRef, []firestore.Update{
+				{
+					Path:  "e_mail_address",
+					Value: firestore.ArrayRemove(email),
+				},
+			})
+		}
+
+		return nil
 	})
 
 	return err

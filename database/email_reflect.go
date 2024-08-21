@@ -67,23 +67,42 @@ func (dm *DbManager) QueryReflectByOneEmail(emailAddr string) (*EmailReflect, er
 	return &contact, nil
 }
 
-func (dm *DbManager) updateEmailReflect(tx *firestore.Transaction, bmail string, email []string, isDel bool) error {
-	for _, address := range email {
-		docRef := dm.fileCli.Collection(DBTableReflect).Doc(address)
+func (dm *DbManager) updateEmailReflect(tx *firestore.Transaction, accountAddr string, email []string, isDel bool) (map[string]string, error) {
+	var oldAccountToUpdate = make(map[string]string)
+	for _, emailAddr := range email {
+		docRef := dm.fileCli.Collection(DBTableReflect).Doc(emailAddr)
 		if isDel {
 			err := tx.Delete(docRef)
 			if err != nil && status.Code(err) != codes.NotFound {
-				return err
+				return oldAccountToUpdate, err
 			}
 		} else {
-			var obj = EmailReflect{
-				BMailAddress: bmail,
+			docSnap, err := tx.Get(docRef)
+			if err != nil && status.Code(err) != codes.NotFound {
+				return oldAccountToUpdate, err
 			}
-			err := tx.Set(docRef, obj)
-			if err != nil {
-				return err
+
+			var obj EmailReflect
+			if docSnap.Exists() {
+				if err := docSnap.DataTo(&obj); err != nil {
+					return oldAccountToUpdate, err
+				}
+				if obj.BMailAddress != accountAddr {
+					oldAccountToUpdate[emailAddr] = obj.BMailAddress
+					obj.BMailAddress = accountAddr
+				} else {
+					continue
+				}
+			} else {
+				obj = EmailReflect{
+					BMailAddress: accountAddr,
+				}
+			}
+			if err := tx.Set(docRef, obj); err != nil {
+				return oldAccountToUpdate, err
 			}
 		}
 	}
-	return nil
+
+	return oldAccountToUpdate, nil
 }

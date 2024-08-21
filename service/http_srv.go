@@ -206,6 +206,12 @@ func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	if len(operation.Address) == 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid operation parameter")
 	}
+
+	err = checkRightsOfAccount(operation)
+	if err != nil {
+		return nil, err
+	}
+
 	err = database.DbInst().OperateAccount(operation.Address, operation.Emails, operation.IsDel)
 	if err != nil {
 		return nil, err
@@ -228,7 +234,7 @@ func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
 	}
 
-	err = database.DbInst().CreateBMailAccount(operation.Address, database.UserLevelFree)
+	err = database.DbInst().CreateBMailAccount(operation.Address, int8(UserLevelFree))
 	if err != nil {
 		return nil, err
 	}
