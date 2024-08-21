@@ -18,6 +18,7 @@ message QueryReq{
   string  address = 1;
   string oneEmailAddr = 2;
   repeated  string  emailList = 3;
+  string signInTime = 4;
 }
 
 message AccountOperation{

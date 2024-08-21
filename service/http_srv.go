@@ -3,13 +3,12 @@ package service
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/database"
 	pbs "github.com/realbmail/contact-server/proto"
 	"google.golang.org/protobuf/proto"
 	"net/http"
-
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 type Service struct {
@@ -73,6 +72,7 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryReflectByEmail))
 	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryReflectByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
+	r.MethodFunc(http.MethodPost, "/account_singIn", callFunc(AccountSignIn))
 	r.MethodFunc(http.MethodPost, "/operate_account", callFunc(OperateAccount))
 	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
 	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
@@ -139,6 +139,29 @@ func QueryReflectByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 	rsp.Payload = common.MustProto(emailContacts)
 	common.LogInst().Debug().Msgf("query by email address array success:%v", query.EmailList)
+	return rsp, nil
+}
+
+func AccountSignIn(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	if len(request.Address) <= 0 {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid sign in address")
+	}
+	var query = &pbs.QueryReq{}
+
+	account, err := database.DbInst().QueryAccount(request.Address)
+	if err != nil {
+		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
+	}
+
+	var result = &pbs.BMailAccount{
+		Address: query.Address,
+		Level:   int32(account.UserLel),
+		License: account.LicenseHex,
+		Emails:  account.EMailAddress,
+	}
+	rsp.Payload = common.MustProto(result)
+	common.LogInst().Debug().Str("address", request.Address).Msg("account sign in success")
 	return rsp, nil
 }
 
@@ -224,8 +247,6 @@ func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	if len(contact.Contacts) == 0 {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter for operation")
 	}
-
-	//TODO:: check user level
 
 	err = database.DbInst().UpdateContactDetails(request.Address, contact.Contacts, contact.IsDel)
 	if err != nil {

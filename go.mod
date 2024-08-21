@@ -1,12 +1,15 @@
 module github.com/realbmail/contact-server
 
-go 1.22.5
+go 1.23
+
+toolchain go1.23.0
 
 require (
 	cloud.google.com/go/firestore v1.16.0
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/ethereum/go-ethereum v1.14.7
 	github.com/go-chi/chi/v5 v5.1.0
+	github.com/gorilla/sessions v1.4.0
 	github.com/hopwesley/fdlimit v1.0.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
@@ -34,6 +37,7 @@ require (
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.13.0 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/holiman/uint256 v1.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

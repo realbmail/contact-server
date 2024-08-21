@@ -84,10 +84,6 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 			return err
 		}
 
-		if contact.UserLel <= UserLevelFree {
-			return common.NewBMError(common.BMErrNoRight, "no right to operation")
-		}
-
 		emailAddrInterface := make([]interface{}, len(emailAddr))
 		for i, v := range emailAddr {
 			emailAddrInterface[i] = v
