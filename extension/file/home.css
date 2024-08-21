@@ -248,13 +248,18 @@ ul {
     list-style: none;
     width: 100%;
     margin: 12px 0 24px 0;
+    counter-reset: list-counter; /* 初始化计数器 */
 }
 
 ul li {
     padding: 2px 0;
     align-items: center;
+    counter-increment: list-counter; /* 每个 li 元素递增计数器 */
 }
-
+li::before {
+    content: counter(list-counter) ". "; /* 在每个 li 元素前面添加数字 */
+    font-weight: bold;
+}
 .confirm-button {
     display: block;
     width: 200px;

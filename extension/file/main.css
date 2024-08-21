@@ -7,6 +7,15 @@ body {
     display: flex;
     flex-direction: column;
 }
+.view-invalid-service-target {
+    width: 80%;
+    margin: 50% auto;
+    text-align: center;
+}
+.view-invalid-service-target img{
+    height: 50%;
+    margin-bottom: 12px;
+}
 
 .login-error {
     color: #f50505;
