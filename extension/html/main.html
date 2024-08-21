@@ -21,7 +21,7 @@
     <div class="error-tips-area"><p class="login-error"></p></div>
     <div>
         <button type="button" class="primary-button">Unlock</button>
-        <button class="secondary-button" type="button">New Account</button>
+        <button class="secondary-button newAccount" type="button" >New Account</button>
     </div>
 </div>
 
@@ -36,7 +36,8 @@
                     <span><button id="bmail-active-account" class="bmail-active-account" style="display: none">激活</button></span>
                 </div>
                 <div style="display: flex">
-                    <button class="bmail-wallet-exit-btn" id="bmail-wallet-exit-btn">Quit</button>
+                    <button class="bmail-wallet-exit-btn" id="bmail-wallet-exit-btn"><img alt="query image"
+                                                                                          src="../file/quit-icon.png"></button>
                     <button class="bmail-address-query-btn" id="bmail-address-query-btn"><img alt="query image"
                                                                                               src="../file/queryBtn.png">
                     </button>
@@ -138,7 +139,10 @@
 
 <div id="dialog-tips-container" class="dialog-tips-container" style="display: none;">
     <div class="dialog-tips-content">
-        <h2 id="dialog-tips-title"></h2>
+        <img src="../file/warning-img.png">
+        <h2 id="dialog-tips-title" style="margin-top: 6px">
+
+        </h2>
         <p id="dialog-tips-message"></p>
         <div style="display: flex; align-items: center;justify-content:space-around;width: 100% ">
             <button id="dialog-tips-close-button"  class="dialog-tips-close-button" >Close</button>

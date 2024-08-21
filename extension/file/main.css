@@ -77,7 +77,16 @@ button:hover {
     height: 100%;
     object-fit: cover;
 }
-
+.newAccount {
+    color: #98989A;
+    background-color: transparent;
+    text-align: right;
+    padding: 2px 0;
+}
+.view-main-login .newAccount:hover{
+    color: #F28552;
+    background-color: transparent;
+}
 .login-input input {
     width: calc(100% - 16px);
     padding: 14px 8px;
@@ -120,7 +129,8 @@ button:hover {
 .bmail-active-account:hover{
     background-color: #f6f8f9;
 }
-.bmail-address-query-btn {
+.bmail-address-query-btn,
+.bmail-wallet-exit-btn {
     padding: 4px;
     margin: 0;
     display: flex;
@@ -128,7 +138,7 @@ button:hover {
     justify-content: center;
     background-color: transparent;
 }
-
+.bmail-wallet-exit-btn img,
 .bmail-address-query-btn img {
     width: 22px;
     height: 22px;
@@ -138,14 +148,6 @@ button:hover {
 .bmail-address-query-btn:hover {
     background-color: #F28552;
     color: white;
-}
-
-.bmail-wallet-exit-btn {
-    padding: 6px 12px;
-    color: #04062E;
-    background-color: #F6F8F9;
-    margin: 0;
-    text-align: center;
 }
 
 .dialog-tips-container {
