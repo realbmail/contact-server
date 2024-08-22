@@ -74,11 +74,11 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
         }
 
         const mailBodyDiv = tdDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
+        const titleForm = tdDiv.querySelector("form") as HTMLElement;
         const title = browser.i18n.getMessage('crypto_and_send');
-
         const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
             "bmail_crypto_btn_in_compose_google", async btn => {
-                await enOrDecryptCompose(mailBodyDiv, btn);
+                await enOrDecryptCompose(mailBodyDiv, btn, titleForm);
             });
         if (!clone) {
             console.log("------>>> node not found");
@@ -96,7 +96,8 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     });
 }
 
-async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement) {
+async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement) {
+    showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {
@@ -108,13 +109,17 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement) {
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
             return;
         }
+
         if (mailBody.dataset.mailHasEncrypted === 'true') {
             resetEncryptMailBody(mailBody, bodyTextContent);
             checkFrameBody(mailBody, btn);
             return;
         }
 
-        showLoading();
+        const receiver = await processReceivers(titleForm);
+        if (!receiver) {
+            return;
+        }
 
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
@@ -148,3 +153,6 @@ function resetEncryptMailBody(mailBody: HTMLElement, mailContent: string) {
 
 }
 
+async function processReceivers(titleForm: HTMLElement): Promise<string[] | null> {
+    return null;
+}

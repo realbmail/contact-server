@@ -192,11 +192,11 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
 
 let __tmpContactMap = new Map<string, string>();
 
-async function processReceivers(composeDiv: HTMLElement) {
+async function processReceivers(composeDiv: HTMLElement): Promise<string[] | null> {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
     if (receiverArea.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-        return;
+        return null;
     }
 
     let receiver: string[] = [];
@@ -222,7 +222,7 @@ async function processReceivers(composeDiv: HTMLElement) {
     if (emailDivs.size <= 0) {
         if (receiver.length <= 0) {
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-            return;
+            return null;
         }
         return receiver;
     }
@@ -230,12 +230,12 @@ async function processReceivers(composeDiv: HTMLElement) {
     const emailKeysArray = Array.from(emailDivs.keys());
     const mailRsp = await sendMessageToBackground(emailKeysArray, MsgType.EmailAddrToBmailAddr);
     if (!mailRsp || mailRsp.success === 0) {
-        return;
+        return null;
     }
 
     if (mailRsp.success < 0) {
         showTipsDialog("Tips", mailRsp.message);
-        return;
+        return null;
     }
 
     const contacts = mailRsp.data as EmailReflects;
