@@ -124,3 +124,28 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
         img!.src = browser.runtime.getURL('file/logo_16.png');
     }
 }
+
+export async function cryptMailBody(mailBody: HTMLElement, btn: HTMLElement, receiver: string[] | null) {
+    if (!receiver || receiver.length === 0) {
+        return;
+    }
+
+    const mailRsp = await browser.runtime.sendMessage({
+        action: MsgType.EncryptData,
+        receivers: receiver,
+        data: mailBody.innerHTML
+    })
+
+    if (mailRsp.success <= 0) {
+        if (mailRsp.success === 0) {
+            return;
+        }
+        showTipsDialog("Tips", mailRsp.message);
+        return;
+    }
+
+    mailBody.dataset.originalHtml = mailBody.innerHTML;
+    mailBody.innerText = mailRsp.data;
+    checkFrameBody(mailBody, btn);
+}
+

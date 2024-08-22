@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import {
-    checkFrameBody,
+    checkFrameBody, cryptMailBody,
     parseBmailInboxBtn,
     parseCryptoMailBtn, setBtnStatus,
     showTipsDialog
@@ -281,28 +281,7 @@ async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement)
         }
 
         const receiver = await processReceivers(composeDiv);
-        if (!receiver) {
-            return;
-        }
-
-        const mailRsp = await browser.runtime.sendMessage({
-            action: MsgType.EncryptData,
-            receivers: receiver,
-            data: mailBody.innerHTML
-        })
-
-        if (mailRsp.success <= 0) {
-            if (mailRsp.success === 0) {
-                return;
-            }
-            showTipsDialog("Tips", mailRsp.message);
-            return;
-        }
-
-        mailBody.dataset.originalHtml = mailBody.innerHTML;
-        mailBody.innerText = mailRsp.data;
-        checkFrameBody(mailBody, btn);
-
+        await cryptMailBody(mailBody, btn, receiver);
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
     } finally {

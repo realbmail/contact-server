@@ -1,4 +1,4 @@
-import {checkFrameBody, parseBmailInboxBtn, parseCryptoMailBtn, showTipsDialog} from "./content_common";
+import {checkFrameBody, cryptMailBody, parseBmailInboxBtn, parseCryptoMailBtn, showTipsDialog} from "./content_common";
 import {emailRegex, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
 import {EmailReflects} from "./proto/bmail_srv";
@@ -116,30 +116,8 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
             checkFrameBody(mailBody, btn);
             return;
         }
-
         const receiver = await processReceivers(titleForm);
-        if (!receiver) {
-            return;
-        }
-
-        const mailRsp = await browser.runtime.sendMessage({
-            action: MsgType.EncryptData,
-            receivers: receiver,
-            data: mailBody.innerHTML
-        })
-
-        if (mailRsp.success <= 0) {
-            if (mailRsp.success === 0) {
-                return;
-            }
-            showTipsDialog("Tips", mailRsp.message);
-            return;
-        }
-
-        mailBody.dataset.originalHtml = mailBody.innerHTML;
-        mailBody.innerText = mailRsp.data;
-        checkFrameBody(mailBody, btn);
-
+        await cryptMailBody(mailBody, btn, receiver);
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
     } finally {
