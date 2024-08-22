@@ -68,13 +68,15 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
     allComposeDiv.forEach(tdDiv => {
-        const node = tdDiv.querySelector(".bmail-crypto-btn");
+        const mailBodyDiv = tdDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
+
+        const node = tdDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
         if (node) {
             console.log("------>>> node already exists");
+            checkFrameBody(mailBodyDiv, node);
             return;
         }
 
-        const mailBodyDiv = tdDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
         const titleForm = tdDiv.querySelector("form") as HTMLElement;
         const title = browser.i18n.getMessage('crypto_and_send');
         const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
@@ -94,6 +96,7 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
         if (secondTd) {
             toolBarTr.insertBefore(newTd, secondTd);
         }
+        checkFrameBody(mailBodyDiv, clone.querySelector(".bmail-crypto-btn") as HTMLElement);
     });
 }
 
