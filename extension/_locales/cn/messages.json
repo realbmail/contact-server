@@ -3,10 +3,6 @@
     "message": "区块链邮箱插件",
     "description": "The title of the extension page"
   },
-  "home_content": {
-    "message": "Hello world!",
-    "description": "The content of the extension page"
-  },
   "home_user_content": {
     "message": "用户须知",
     "description": ""

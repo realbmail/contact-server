@@ -65,7 +65,7 @@
     background-color: #04062E;
 }
 .bmail-send-action {
-    color: #F28552;
+    color: #F28552 !important;
     margin-left: 4px;
 
 }

@@ -3,10 +3,6 @@
     "message": "Mail Extension Based On Blockchain",
     "description": "The title of the extension page"
   },
-  "home_content": {
-    "message": "Hello world!",
-    "description": "The content of the extension page"
-  },
   "home_user_content": {
     "message": "User Consent",
     "description": ""
