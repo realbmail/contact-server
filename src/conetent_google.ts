@@ -122,6 +122,24 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
             return;
         }
 
+        const mailRsp = await browser.runtime.sendMessage({
+            action: MsgType.EncryptData,
+            receivers: receiver,
+            data: mailBody.innerHTML
+        })
+
+        if (mailRsp.success <= 0) {
+            if (mailRsp.success === 0) {
+                return;
+            }
+            showTipsDialog("Tips", mailRsp.message);
+            return;
+        }
+
+        mailBody.dataset.originalHtml = mailBody.innerHTML;
+        mailBody.innerText = mailRsp.data;
+        checkFrameBody(mailBody, btn);
+
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
     } finally {
