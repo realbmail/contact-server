@@ -1,5 +1,5 @@
 import {parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
-import {emailRegex} from "./common";
+import {emailRegex, MsgType, sendMessageToBackground} from "./common";
 import browser from "webextension-polyfill";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
@@ -60,16 +60,13 @@ function observeForElement(foundFunc: () => HTMLElement | null, callback: () => 
     observer.observe(document.body, {childList: true, subtree: true});
 }
 
+
+const _composeBtnParentClass = "tr.btC"
 function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
-    const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
+    const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
-    allComposeDiv.forEach(sendBtn => {
-        const parentNode = sendBtn.parentNode as HTMLElement;
-        if (!parentNode) {
-            console.log("-------->>>failed to find send button:=>");
-            return
-        }
-        const node = parentNode.parentNode?.querySelector(".bmail-crypto-btn");
+    allComposeDiv.forEach(trDiv => {
+        const node = trDiv.querySelector(".bmail-crypto-btn");
         if (node) {
             console.log("------>>> node already exists");
             return;
@@ -78,14 +75,24 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
         const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
             "bmail_crypto_btn_in_compose_google", encryptMailContent);
         if (!clone) {
+            console.log("------>>> node not found");
             return;
         }
-        parentNode.insertAdjacentElement('afterend', clone);
+        const newTd = document.createElement('td');
+        newTd.append(clone);
+
+        const secondTd = trDiv.querySelector('td:nth-child(2)');
+        if (secondTd) {
+            trDiv.insertBefore(newTd, secondTd);
+        }
     });
 }
 
 async function encryptMailContent(sendBtn: HTMLElement) {
-    console.log("------>>> crypto mail content");
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return;
+    }
 }
 
 function addActionForComposeBtn(template: HTMLTemplateElement) {
@@ -94,10 +101,11 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
         console.warn("------>>> compose button not found");
         return;
     }
+
     composBtn.addEventListener('click', () => {
         observeForElement(
             () => {
-                const allComposeDiv = document.querySelectorAll(".T-I.J-J5-Ji.aoO.v7.T-I-atl.L3");
+                const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
                 if (allComposeDiv.length > 0) {
                     return allComposeDiv[allComposeDiv.length - 1] as HTMLElement;
                 }
