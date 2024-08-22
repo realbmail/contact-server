@@ -190,7 +190,7 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
     console.log("------>>>decrypt mail content success")
 }
 
-let __tmpContactMap = new Map<string, string>();
+let __netEaseContactMap = new Map<string, string>();
 
 async function processReceivers(composeDiv: HTMLElement): Promise<string[] | null> {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
@@ -209,7 +209,7 @@ async function processReceivers(composeDiv: HTMLElement): Promise<string[] | nul
         }
 
         const email = emailElement.textContent!.replace(/[<>]/g, "");
-        const address = __tmpContactMap.get(email);
+        const address = __netEaseContactMap.get(email);
         if (address) {
             receiver.push(address);
             receiverArea[i].classList.add("bmail_receiver_is_fine");
@@ -245,7 +245,7 @@ async function processReceivers(composeDiv: HTMLElement): Promise<string[] | nul
             console.log("----->>>no address for email address:", email);
             div.classList.add("bmail_receiver_invalid");
         } else {
-            __tmpContactMap.set(email, contact.address);
+            __netEaseContactMap.set(email, contact.address);
             receiver.push(contact.address);
             div.classList.add("bmail_receiver_is_fine");
             console.log("----->>>from server email address:", email, "bmail address:", contact.address);
