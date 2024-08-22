@@ -73,7 +73,7 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc:string,
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
     const cryptoBtn = clone.querySelector(btnClass) as HTMLElement;
     cryptoBtn.textContent = title;
-    clone.addEventListener('click', async () => {
+    cryptoBtnDiv.addEventListener('click', async () => {
         await action(cryptoBtn);
     });
     return clone;
