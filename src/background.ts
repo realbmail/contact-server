@@ -233,6 +233,7 @@ const urlsToMatch = [
     "https://mail.google.com/*",
     "https://mail.163.com/*",
     "https://wx.mail.qq.com/*",
+    "https://mail.qq.com/*",
     "https://mail.126.com/*",
     "https://*.mail.google.com/*",
     "https://*.mail.163.com/*",
