@@ -10,7 +10,6 @@ import {
     MsgType, replaceTextInRange,
     sendMessageToBackground, showLoading
 } from "./common";
-import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 
 const staticNetEaseHtmlForReply = `

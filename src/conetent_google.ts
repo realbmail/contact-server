@@ -112,7 +112,7 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
         }
 
         if (mailBody.dataset.mailHasEncrypted === 'true') {
-            resetEncryptMailBody(mailBody, bodyTextContent);
+            await resetEncryptMailBody(mailBody, bodyTextContent);
             checkFrameBody(mailBody, btn);
             return;
         }
@@ -146,8 +146,26 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
     })
 }
 
-function resetEncryptMailBody(mailBody: HTMLElement, mailContent: string) {
+async function resetEncryptMailBody(mailBody: HTMLElement, mailContent: string) {
+    if (mailBody.dataset.originalHtml) {
+        mailBody.innerHTML = mailBody.dataset.originalHtml!;
+        mailBody.dataset.originalHtml = undefined;
+        return;
+    }
 
+    const mailRsp = await browser.runtime.sendMessage({
+        action: MsgType.DecryptData,
+        data: mailContent
+    })
+
+    if (mailRsp.success <= 0) {
+        if (mailRsp.success === 0) {
+            return;
+        }
+        showTipsDialog("Tips", mailRsp.message);
+        return;
+    }
+    mailBody.innerHTML = mailRsp.data;
 }
 
 let __googleContactMap = new Map<string, string>();
@@ -206,5 +224,5 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
         return null;
     }
 
-    return null;
+    return receiver;
 }
