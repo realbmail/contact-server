@@ -55,7 +55,8 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
         img.src = browser.runtime.getURL('file/logo_16.png');
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
-    (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInboxAction);
+    // (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInboxAction);
+    clone.addEventListener('click', bmailInboxAction);
     return clone;
 }
 
@@ -73,7 +74,7 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc:string,
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
     const cryptoBtn = clone.querySelector(btnClass) as HTMLElement;
     cryptoBtn.textContent = title;
-    cryptoBtnDiv.addEventListener('click', async () => {
+    clone.addEventListener('click', async () => {
         await action(cryptoBtn);
     });
     return clone;
