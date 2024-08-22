@@ -1,7 +1,8 @@
 import browser from "webextension-polyfill";
 import {
+    checkFrameBody,
     parseBmailInboxBtn,
-    parseCryptoMailBtn,
+    parseCryptoMailBtn, setBtnStatus,
     showTipsDialog
 } from "./content_common";
 import {
@@ -92,26 +93,6 @@ export function queryEmailAddrNetEase() {
     return mailAddr.textContent;
 }
 
-function checkFrameBody(fBody: HTMLElement, btn: HTMLElement) {
-    let textContent = fBody.innerText.trim();
-    if (textContent.length <= 0) {
-        console.log("------>>> no mail content to judge");
-        return;
-    }
-
-    if (textContent.includes(MailFlag)) {
-        fBody.dataset.mailHasEncrypted = 'true';
-        setBtnStatus(true, btn);
-        fBody.contentEditable = 'false';
-        console.log("change to decrypt model....")
-    } else {
-        fBody.dataset.mailHasEncrypted = 'false';
-        setBtnStatus(false, btn);
-        fBody.contentEditable = 'true';
-        console.log("change to encrypt model....")
-    }
-}
-
 function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
     const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
@@ -168,20 +149,6 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     console.log("------>>> encrypt button add success")
 }
 
-function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
-    let img = (btn.parentNode as HTMLImageElement | null)?.querySelector('img') as HTMLImageElement | null;
-    if (!img) {
-        console.log("------>>>logo element not found");
-        return;
-    }
-    if (hasEncrypted) {
-        btn.textContent = browser.i18n.getMessage('decrypt_mail_body');
-        img!.src = browser.runtime.getURL('file/logo_16_out.png');
-    } else {
-        btn.textContent = browser.i18n.getMessage('crypto_and_send');
-        img!.src = browser.runtime.getURL('file/logo_16.png');
-    }
-}
 
 async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
     if (fElm.dataset.originalHtml) {

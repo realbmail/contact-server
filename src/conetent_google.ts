@@ -1,4 +1,4 @@
-import {parseBmailInboxBtn, parseCryptoMailBtn} from "./content_common";
+import {checkFrameBody, parseBmailInboxBtn, parseCryptoMailBtn, showTipsDialog} from "./content_common";
 import {emailRegex, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
 
@@ -96,13 +96,26 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     });
 }
 
-async function enOrDecryptCompose(composeDiv: HTMLElement, btn: HTMLElement) {
-    showLoading();
+async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement) {
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {
             return;
         }
+
+        let bodyTextContent = mailBody.innerText.trim();
+        if (bodyTextContent.length <= 0) {
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
+            return;
+        }
+        if (mailBody.dataset.mailHasEncrypted === 'true') {
+            resetEncryptMailBody(mailBody, bodyTextContent);
+            checkFrameBody(mailBody, btn);
+            return;
+        }
+
+        showLoading();
+
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
     } finally {
@@ -130,3 +143,8 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
             });
     })
 }
+
+function resetEncryptMailBody(mailBody: HTMLElement, mailContent: string) {
+
+}
+
