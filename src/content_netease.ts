@@ -149,16 +149,9 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            showLoading();
-            try {
-                await encodeOrDecodeMailBody(composeDiv, btn);
-            } catch (err) {
-                //TODO::
-                console.log("------>>> mail crypto err:", err);
-            } finally {
-                hideLoading();
-            }
-        }) as HTMLElement;
+            await encodeOrDecodeMailBody(composeDiv, btn);
+        }
+    ) as HTMLElement;
 
     if (!cryptoBtnDiv) {
         console.log("------>>> no crypto button found in template!")
@@ -295,52 +288,59 @@ async function processReceivers(composeDiv: HTMLElement) {
 }
 
 async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement) {
-
-    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0) {
-        return;
-    }
-
-    const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
-    const mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
-    if (!mailBody) {
-        console.log("----->>> no frame body found:=>");
-        return null;
-    }
-    let bodyTextContent = mailBody.innerText.trim();
-    if (bodyTextContent.length <= 0) {
-        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
-        return;
-    }
-
-    if (mailBody.dataset.mailHasEncrypted === 'true') {
-        await decryptMailInComposing(mailBody, bodyTextContent);
-        checkFrameBody(mailBody, btn);
-        return;
-    }
-
-    const receiver = await processReceivers(composeDiv);
-    if (!receiver) {
-        return;
-    }
-
-    const mailRsp = await browser.runtime.sendMessage({
-        action: MsgType.EncryptData,
-        receivers: receiver,
-        data: mailBody.innerHTML
-    })
-
-    if (mailRsp.success <= 0) {
-        if (mailRsp.success === 0) {
+    showLoading();
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
             return;
         }
-        showTipsDialog("Tips", mailRsp.message);
-        return;
-    }
 
-    mailBody.dataset.originalHtml = mailBody.innerHTML;
-    mailBody.innerText = mailRsp.data;
-    checkFrameBody(mailBody, btn);
+        const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
+        const mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
+        if (!mailBody) {
+            console.log("----->>> no frame body found:=>");
+            return null;
+        }
+        let bodyTextContent = mailBody.innerText.trim();
+        if (bodyTextContent.length <= 0) {
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
+            return;
+        }
+
+        if (mailBody.dataset.mailHasEncrypted === 'true') {
+            await decryptMailInComposing(mailBody, bodyTextContent);
+            checkFrameBody(mailBody, btn);
+            return;
+        }
+
+        const receiver = await processReceivers(composeDiv);
+        if (!receiver) {
+            return;
+        }
+
+        const mailRsp = await browser.runtime.sendMessage({
+            action: MsgType.EncryptData,
+            receivers: receiver,
+            data: mailBody.innerHTML
+        })
+
+        if (mailRsp.success <= 0) {
+            if (mailRsp.success === 0) {
+                return;
+            }
+            showTipsDialog("Tips", mailRsp.message);
+            return;
+        }
+
+        mailBody.dataset.originalHtml = mailBody.innerHTML;
+        mailBody.innerText = mailRsp.data;
+        checkFrameBody(mailBody, btn);
+
+    } catch (err) {
+        console.log("------>>> mail crypto err:", err);
+    } finally {
+        hideLoading();
+    }
 }
 
 function monitorTabMenu(callback?: (isDelete: boolean) => void) {
