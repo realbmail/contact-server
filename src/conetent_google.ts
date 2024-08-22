@@ -18,7 +18,9 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             addBMailInboxToMenu(clone);
             addCryptoBtnToComposeDiv(template);
             addActionForComposeBtn(template);
+            monitorMainArea();
         });
+
 }
 
 function addBMailInboxToMenu(clone: HTMLElement) {
@@ -228,4 +230,21 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
     }
 
     return receiver;
+}
+
+function monitorMainArea() {
+
+    const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
+    mainArea.addEventListener('click', () => {
+        console.log('-------->>>> A child node has been added or removed.');
+    })
+    // const observer = new MutationObserver((mutations) => {
+    //     mutations.forEach((mutation) => {
+    //         if (mutation.type === 'childList') {
+    //             console.log('-------->>>> A child node has been added or removed.');
+    //         }
+    //     });
+    // });
+    // const config = { attributes: true, childList: true, subtree: true };
+    // observer.observe(mainArea, config);
 }
