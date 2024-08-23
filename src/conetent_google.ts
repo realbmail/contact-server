@@ -247,7 +247,8 @@ function monitorMainArea(template: HTMLTemplateElement) {
         console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
         const trDiv = targetElement.closest('tr') as HTMLElement | null;
-        if (!trDiv && targetElement.className != "gE hI") {
+        const isCollapseMail = targetElement.className === "gE hI" || targetElement.querySelector('.gE.hI') != null;
+        if (!trDiv && !isCollapseMail) {
             console.log("------>>> no target element to check", targetElement);
             return;
         }
@@ -308,7 +309,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
                 await decryptMailInReading(mailContentDiv, mailData.json, btn);
             });
 
-        mailParentDiv.insertBefore(cryptoBtnDiv!, mailContentDiv);
+        mailParentDiv.append(cryptoBtnDiv!);
         const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
         if (blockquote) {
             const quoteBody = blockquote.firstChild as HTMLElement;
