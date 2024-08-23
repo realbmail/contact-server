@@ -1,9 +1,8 @@
 import {
     checkFrameBody,
-    cryptMailBody,
+    cryptMailBody, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn,
-    setBtnStatus,
+    parseCryptoMailBtn, setBtnStatus,
     showTipsDialog
 } from "./content_common";
 import {emailRegex, extractJsonString, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
@@ -32,8 +31,12 @@ export function appendForGoogle(template: HTMLTemplateElement) {
 }
 
 function addBMailInboxToMenu(clone: HTMLElement) {
-    const googleMenu = document.querySelector('.TK') as HTMLElement;
-    googleMenu.insertBefore(clone, googleMenu.children[1]);
+    const composBtn = document.querySelector(".T-I.T-I-KE.L3");
+    if (!composBtn) {
+        console.warn("------>>> compose button not found");
+        return;
+    }
+    composBtn.parentNode!.appendChild(clone);
     console.log("------>>> add bmail inbox button success=>")
 }
 
@@ -277,19 +280,21 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     const mailBodyList = parentDiv.querySelectorAll(".adn.ads") as NodeListOf<HTMLElement>;
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
-        const mailHeader = oneMail.querySelector(".gE.iv.gt");
+        // const mailHeader = oneMail.querySelector(".gE.iv.gt");
         const mailContentDiv = oneMail.querySelector(".a3s.aiL")?.childNodes[0] as HTMLElement | null;
-        if (!mailHeader || !mailContentDiv) {
+        if (!mailContentDiv) {
             console.log("------>>> mail div not found:");
             return;
         }
+
         const mailData = extractJsonString(mailContentDiv.innerText as string);
         if (!mailData) {
             console.log("------->>> this is not a bmail body......")
             return;
         }
 
-        console.log("------>>> mail content:", mailData)
+        console.log("------>>> mail content:", mailData);
+
         const bmailBtn = oneMail.querySelector(".bmail-crypto-btn-div") as HTMLElement;
         if (bmailBtn) {
             console.log("------>>> duplicate bmail button found for mail reading......")
@@ -300,7 +305,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
         const title = browser.i18n.getMessage('decrypt_mail_body')
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
             title, 'bmail_decrypt_btn_in_compose_google', async btn => {
-                // await decryptMailInReading(oneMail, mailData, btn);
+                await decryptMailInReading(mailContentDiv, mailData.json, btn);
             });
 
         if (!cryptoBtnDiv) {
@@ -308,16 +313,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             return;
         }
 
-        // const table = mailHeader.querySelector("table");
-        // const firstRow = table ? table.querySelector("tr") : null;
-        // const firstTd = firstRow?.querySelector("td");
-        // if(!firstTd) {
-        //     console.log("------>>> no table found in mail header");
-        //     return;
-        // }
-        // const newTd = document.createElement("td");
-        // newTd.append(cryptoBtnDiv);
         mailContentDiv.parentNode!.insertBefore(cryptoBtnDiv, mailContentDiv);
+        console.log("------>>> add decrypt button to reading mail success......")
     })
 }
-

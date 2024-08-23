@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {HostArr, MsgType} from "./common";
+import {hideLoading, HostArr, MsgType, sendMessageToBackground, showLoading} from "./common";
 import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 import {MailFlag} from "./bmail_body";
@@ -150,3 +150,42 @@ export async function cryptMailBody(mailBody: HTMLElement, btn: HTMLElement, rec
     checkFrameBody(mailBody, btn);
 }
 
+
+export async function decryptMailInReading(mailContent: HTMLElement, content: string, cryptoBtn: HTMLElement): Promise<void> {
+    showLoading();
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+        if (mailContent.dataset.hasDecrypted === 'true') {
+            mailContent.innerHTML = mailContent.dataset.orignCrpted!;
+            mailContent.dataset.hasDecrypted = "false";
+            setBtnStatus(true, cryptoBtn);
+            return;
+        }
+
+        const mailRsp = await browser.runtime.sendMessage({
+            action: MsgType.DecryptData,
+            data: content
+        })
+
+        if (mailRsp.success <= 0) {
+            if (mailRsp.success === 0) {
+                return;
+            }
+            showTipsDialog("Tips", mailRsp.message);
+            return;
+        }
+        console.log("------>>> decrypt mail body success");
+        mailContent.innerHTML = mailRsp.data;
+        mailContent.dataset.orignCrpted = content;
+        mailContent.dataset.hasDecrypted = "true";
+        setBtnStatus(false, cryptoBtn);
+
+    } catch (error) {
+        console.log("------>>>failed to decrypt mail data in reading:=>", error);
+    } finally {
+        hideLoading();
+    }
+}
