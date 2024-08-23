@@ -235,7 +235,7 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
 function monitorMainArea(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
     mainArea.addEventListener('click', (event) => {
-        console.log('-------->>>> A child node has been added or removed.');
+        console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
         const trDiv = targetElement.closest('tr') as HTMLElement | null;
         if (!trDiv) {
@@ -244,17 +244,20 @@ function monitorMainArea(template: HTMLTemplateElement) {
         }
 
         const className = trDiv.className as string;
-        if (className != "zA yO aqw" && className != "zA zE aqw") {
-            console.log("------>>> not target tr", trDiv.textContent);
+        const collapseTitle = trDiv.querySelector(".iA.g6")
+        if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null) {
+            console.log("------>>> not target tr", trDiv);
             return;
         }
 
-
         let idleTimer = setTimeout(() => {
-            const mailBody = mainArea.querySelectorAll(".a3s.aiL") as NodeListOf<HTMLElement>;
-            console.log("------>>> target hint, check elements and add bmail buttons", mailBody);
-            addCryptoBtnToComposeDiv(template);
+            const mailBodyList = mainArea.querySelectorAll(".a3s.aiL") as NodeListOf<HTMLElement>;
+            console.log("------>>> target hint, check elements and add bmail buttons");
             clearTimeout(idleTimer);
+            addCryptoBtnToComposeDiv(template);
+            mailBodyList.forEach((mailBody) => {
+                //todo::
+            })
         }, 1000);
 
     });
