@@ -330,14 +330,7 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-            showLoading();
-            try {
-                await decryptMailInReading(mailContent, mailData, btn);
-            } catch (e) {
-                console.log("------>>> crypto in mail reading err:=>", e)
-            } finally {
-                hideLoading();
-            }
+            await decryptMailInReading(mailContent, mailData, btn);
         });
 
     if (!cryptoBtn) {
@@ -375,35 +368,41 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
 }
 
 async function decryptMailInReading(mailContent: HTMLElement, mailData: string, cryptoBtn?: HTMLElement | undefined | null) {
-    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0 || !mailContent || !cryptoBtn) {
-        return;
-    }
-
-    if (mailContent.dataset.hasDecrypted === 'true') {
-        mailContent.innerHTML = mailContent.dataset.orignCrpted!;
-        mailContent.dataset.hasDecrypted = "false";
-        setBtnStatus(true, cryptoBtn);
-        return;
-    }
-
-    const mailRsp = await browser.runtime.sendMessage({
-        action: MsgType.DecryptData,
-        data: mailData
-    })
-
-    if (mailRsp.success <= 0) {
-        if (mailRsp.success === 0) {
+    showLoading();
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0 || !mailContent || !cryptoBtn) {
             return;
         }
-        showTipsDialog("Tips", mailRsp.message);
-        return;
-    }
 
-    console.log("------>>> decrypt mail body success");
-    mailContent.innerHTML = mailRsp.data;
-    mailContent.dataset.orignCrpted = mailData;
-    mailContent.dataset.hasDecrypted = "true";
-    setBtnStatus(false, cryptoBtn);
+        if (mailContent.dataset.hasDecrypted === 'true') {
+            mailContent.innerHTML = mailContent.dataset.orignCrpted!;
+            mailContent.dataset.hasDecrypted = "false";
+            setBtnStatus(true, cryptoBtn);
+            return;
+        }
+
+        const mailRsp = await browser.runtime.sendMessage({
+            action: MsgType.DecryptData,
+            data: mailData
+        })
+
+        if (mailRsp.success <= 0) {
+            if (mailRsp.success === 0) {
+                return;
+            }
+            showTipsDialog("Tips", mailRsp.message);
+            return;
+        }
+        console.log("------>>> decrypt mail body success");
+        mailContent.innerHTML = mailRsp.data;
+        mailContent.dataset.orignCrpted = mailData;
+        mailContent.dataset.hasDecrypted = "true";
+        setBtnStatus(false, cryptoBtn);
+    } catch (e) {
+        console.log("------>>> crypto in mail reading err:=>", e)
+    } finally {
+        hideLoading();
+    }
 }
 
