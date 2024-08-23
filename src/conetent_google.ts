@@ -18,7 +18,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             addBMailInboxToMenu(clone);
             addCryptoBtnToComposeDiv(template);
             addActionForComposeBtn(template);
-            monitorMainArea();
+            monitorMainArea(template);
         });
 
 }
@@ -42,7 +42,7 @@ export function queryEmailAddrGoogle() {
 }
 
 function observeForElement(foundFunc: () => HTMLElement | null, callback: () => void) {
-    const idleThreshold = 500; // 无变化的时间阈值（毫秒）
+    const idleThreshold = 500;
     let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const cb: MutationCallback = (mutationsList, observer) => {
@@ -232,19 +232,22 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
     return receiver;
 }
 
-function monitorMainArea() {
-
+function monitorMainArea(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
-    mainArea.addEventListener('click', () => {
+    mainArea.addEventListener('click', (event) => {
         console.log('-------->>>> A child node has been added or removed.');
-    })
-    // const observer = new MutationObserver((mutations) => {
-    //     mutations.forEach((mutation) => {
-    //         if (mutation.type === 'childList') {
-    //             console.log('-------->>>> A child node has been added or removed.');
-    //         }
-    //     });
-    // });
-    // const config = { attributes: true, childList: true, subtree: true };
-    // observer.observe(mainArea, config);
+        const targetElement = event.target as HTMLElement;
+        const trDiv = targetElement.closest('tr') as HTMLElement | null;
+        if (!trDiv) {
+            console.log("------>>> no target element to check");
+            return;
+        }
+
+        console.log('-------->>>> Clicked element:', trDiv);
+
+        let idleTimer = setTimeout(() => {
+            addCryptoBtnToComposeDiv(template);
+            clearTimeout(idleTimer);
+        }, 1500);
+    });
 }
