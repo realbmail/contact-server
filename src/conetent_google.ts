@@ -243,11 +243,19 @@ function monitorMainArea(template: HTMLTemplateElement) {
             return;
         }
 
-        console.log('-------->>>> Clicked element:', trDiv);
+        const className = trDiv.className as string;
+        if (className != "zA yO aqw" && className != "zA zE aqw") {
+            console.log("------>>> not target tr", trDiv.textContent);
+            return;
+        }
+
 
         let idleTimer = setTimeout(() => {
+            const mailBody = mainArea.querySelectorAll(".a3s.aiL") as NodeListOf<HTMLElement>;
+            console.log("------>>> target hint, check elements and add bmail buttons", mailBody);
             addCryptoBtnToComposeDiv(template);
             clearTimeout(idleTimer);
-        }, 1500);
+        }, 1000);
+
     });
 }
