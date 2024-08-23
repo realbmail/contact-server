@@ -284,7 +284,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     mailBodyList.forEach((oneMail) => {
         const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
         const mailContentDiv = mailParentDiv?.children[0] as HTMLElement | null;
-        if (!mailContentDiv) {
+        if (!mailParentDiv || !mailContentDiv) {
             console.log("------>>> mail div not found:");
             return;
         }
@@ -308,7 +308,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
                 await decryptMailInReading(mailContentDiv, mailData.json, btn);
             });
 
-        mailContentDiv.parentNode!.insertBefore(cryptoBtnDiv!, mailContentDiv);
+        mailParentDiv.insertBefore(cryptoBtnDiv!, mailContentDiv);
         const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
         if (blockquote) {
             const quoteBody = blockquote.firstChild as HTMLElement;
