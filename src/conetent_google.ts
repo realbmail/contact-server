@@ -2,8 +2,7 @@ import {
     checkFrameBody,
     cryptMailBody, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, setBtnStatus,
-    showTipsDialog
+    parseCryptoMailBtn, showTipsDialog
 } from "./content_common";
 import {emailRegex, extractJsonString, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
@@ -27,7 +26,6 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             addCryptoBtnToComposeDiv(template);
             addCryptoBtnToReadingMail(template);
         });
-
 }
 
 function addBMailInboxToMenu(clone: HTMLElement) {
@@ -249,16 +247,20 @@ function monitorMainArea(template: HTMLTemplateElement) {
         console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
         const trDiv = targetElement.closest('tr') as HTMLElement | null;
-        if (!trDiv) {
-            console.log("------>>> no target element to check");
+        if (!trDiv && targetElement.className != "gE hI") {
+            console.log("------>>> no target element to check", targetElement);
             return;
         }
 
-        const className = trDiv.className as string;
-        const collapseTitle = trDiv.querySelector(".iA.g6")
-        if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null) {
-            console.log("------>>> not target tr", trDiv);
-            return;
+        if (trDiv) {
+            const className = trDiv!.className as string;
+            const collapseTitle = trDiv!.querySelector(".iA.g6")
+            const replayOrForwardDiv = trDiv!.querySelector(".amn") as HTMLElement | null;
+
+            if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null && replayOrForwardDiv === null) {
+                console.log("------>>> not target tr", trDiv);
+                return;
+            }
         }
 
         let idleTimer = setTimeout(() => {
@@ -280,7 +282,6 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     const mailBodyList = parentDiv.querySelectorAll(".adn.ads") as NodeListOf<HTMLElement>;
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
-        // const mailHeader = oneMail.querySelector(".gE.iv.gt");
         const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
         const mailContentDiv = mailParentDiv?.children[0] as HTMLElement | null;
         if (!mailContentDiv) {
@@ -288,17 +289,16 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             return;
         }
 
-
-        const mailData = extractJsonString(mailContentDiv.innerText as string);
-        if (!mailData) {
-            console.log("------->>> this is not a bmail body......")
-            return;
-        }
-
         const bmailBtn = oneMail.querySelector(".bmail-crypto-btn-div") as HTMLElement;
         if (bmailBtn) {
             console.log("------>>> duplicate bmail button found for mail reading......")
             checkFrameBody(mailContentDiv, bmailBtn);
+            return;
+        }
+
+        const mailData = extractJsonString(mailContentDiv.innerText as string);
+        if (!mailData) {
+            console.log("------->>> this is not a bmail body......[", mailData, "]mailContentDiv=>", mailContentDiv)
             return;
         }
 
