@@ -13,12 +13,13 @@ export function appendForGoogle(template: HTMLTemplateElement) {
     observeForElement(
         () => {
             return document.querySelector('.TK') as HTMLElement;
-        }, () => {
+        }, async () => {
             console.log("------>>>start to populate google area");
+            monitorComposeBtnAction(template);
+            monitorMainArea(template);
             addBMailInboxToMenu(clone);
             addCryptoBtnToComposeDiv(template);
-            addActionForComposeBtn(template);
-            monitorMainArea(template);
+            addCryptoBtnToReadingMail(template);
         });
 
 }
@@ -41,8 +42,8 @@ export function queryEmailAddrGoogle() {
     return null
 }
 
-function observeForElement(foundFunc: () => HTMLElement | null, callback: () => void) {
-    const idleThreshold = 500;
+function observeForElement(foundFunc: () => HTMLElement | null, callback: () => Promise<void>) {
+    const idleThreshold = 300;
     let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const cb: MutationCallback = (mutationsList, observer) => {
@@ -52,8 +53,8 @@ function observeForElement(foundFunc: () => HTMLElement | null, callback: () => 
         const element = foundFunc();
         if (element) {
             idleTimer = setTimeout(() => {
-                callback();
                 console.log('---------->>> document body load finished');
+                callback().then();
                 observer.disconnect();
             }, idleThreshold);
         }
@@ -130,7 +131,7 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
     }
 }
 
-function addActionForComposeBtn(template: HTMLTemplateElement) {
+function monitorComposeBtnAction(template: HTMLTemplateElement) {
     const composBtn = document.querySelector(".T-I.T-I-KE.L3");
     if (!composBtn) {
         console.warn("------>>> compose button not found");
@@ -145,7 +146,7 @@ function addActionForComposeBtn(template: HTMLTemplateElement) {
                     return allComposeDiv[allComposeDiv.length - 1] as HTMLElement;
                 }
                 return null;
-            }, () => {
+            }, async () => {
                 addCryptoBtnToComposeDiv(template);
             });
     })
@@ -251,14 +252,29 @@ function monitorMainArea(template: HTMLTemplateElement) {
         }
 
         let idleTimer = setTimeout(() => {
-            const mailBodyList = mainArea.querySelectorAll(".a3s.aiL") as NodeListOf<HTMLElement>;
             console.log("------>>> target hint, check elements and add bmail buttons");
             clearTimeout(idleTimer);
             addCryptoBtnToComposeDiv(template);
-            mailBodyList.forEach((mailBody) => {
-                //todo::
-            })
+            addCryptoBtnToReadingMail(template, mainArea);
         }, 1000);
 
     });
+}
+
+function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTMLElement) {
+    let parentDiv = document.body;
+    if (mainArea) {
+        parentDiv = mainArea;
+    }
+
+    const mailBodyList = parentDiv.querySelectorAll(".a3s.aiL") as NodeListOf<HTMLElement>;
+
+    mailBodyList.forEach((mailBody) => {
+        const mailContentDiv = mailBody.childNodes[0];
+        if (!mailContentDiv) {
+            console.log("------>>> mail content div not found:");
+            return;
+        }
+        console.log("------>>> mail content:", mailContentDiv, mailContentDiv.textContent);
+    })
 }

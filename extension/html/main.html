@@ -28,14 +28,15 @@
         <div style="display: flex; justify-content: flex-start; width: 50%">
             <button class="secondary-button forget-help" type="button">Forget Password</button>
             <button class="help-icon" title="Need help?">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+                <svg class="bi bi-question-circle" fill="currentColor" height="16" viewBox="0 0 16 16"
+                     width="16" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 13A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/>
                     <path d="M5.255 5.786a.237.237 0 0 0 .241-.247c0-.527.595-.877 1.196-.877.65 0 1.216.31 1.216.857 0 .352-.291.543-.585.779-.44.357-.772.766-.772 1.292v.247c0 .26.22.414.447.414h.005c.228 0 .41-.177.411-.39v-.234c0-.326.2-.494.534-.776.412-.355.861-.795.861-1.541 0-1.071-.922-1.717-2.064-1.717-1.26 0-2.011.62-2.011 1.513 0 .275.174.49.445.49h.03zm.766 4.82c0 .396.355.678.777.678.428 0 .778-.282.778-.678 0-.4-.35-.682-.778-.682-.422 0-.777.282-.777.682z"/>
                 </svg>
             </button>
         </div>
 
-        </div>
+    </div>
 
 </div>
 
@@ -44,15 +45,18 @@
         <div class="bmail-account-details">
             <div class="bmail-account-header">
                 <div style="display: flex; justify-content: flex-start;align-items: center">
-                    <span id="bmail-account-level-lbl" class="bmail-account-level-lbl" style="margin-right: 4px; color: #98989A">用户等级:</span>
+                    <span class="bmail-account-level-lbl" id="bmail-account-level-lbl"
+                          style="margin-right: 4px; color: #98989A">用户等级:</span>
                     <span><img alt="user level image" id="bmail-account-level-img"
                                src="../file/level_silver.png"></span>
                     <span id="bmail-account-level-val" class="bmail-account-level-val" style="margin-left: 2px "></span>
-                    <span><button id="bmail-active-account" class="bmail-active-account" style="display: none">激活</button></span>
+                    <span><button class="bmail-active-account" id="bmail-active-account"
+                                  style="display: none">激活</button></span>
                 </div>
                 <div style="display: flex">
                     <button class="bmail-wallet-exit-btn" id="bmail-wallet-exit-btn"><img alt="query image"
-                                                                                          src="../file/quit-icon.png"></button>
+                                                                                          src="../file/quit-icon.png">
+                    </button>
                     <button class="bmail-address-query-btn" id="bmail-address-query-btn"><img alt="query image"
                                                                                               src="../file/queryBtn.png">
                     </button>
@@ -153,9 +157,15 @@
     <div class="supported-emails ">
         <p>请点击一下网站后,在点开插件</p>
         <div class="supported-emails-grid">
-            <img src="../file/qqmail.png">
-            <img src="../file/163mail.png">
-            <img src="../file/gmail.png" >
+            <a href="https://mail.qq.com" target="_blank">
+                <img src="../file/qqmail.png" style="cursor: pointer;">
+            </a>
+            <a href="https://mail.163.com" target="_blank">
+                <img src="../file/163mail.png" style="cursor: pointer;">
+            </a>
+            <a href="https://mail.google.com" target="_blank">
+                <img src="../file/gmail.png" style="cursor: pointer;">
+            </a>
         </div>
     </div>
     <div style="position: absolute; bottom: 24px; left: 120px">
@@ -172,7 +182,7 @@
         </h2>
         <p id="dialog-tips-message"></p>
         <div style="display: flex; align-items: center;justify-content:space-around;width: 100% ">
-            <button id="dialog-tips-close-button"  class="dialog-tips-close-button" >Close</button>
+            <button class="dialog-tips-close-button" id="dialog-tips-close-button">Close</button>
             <button id="dialog-tips-confirm-button">OK</button>
         </div>
     </div>
@@ -196,7 +206,7 @@
             <p><strong>2.</strong>将该账号的密钥填写在下图中</p>
             <img src="../file/secret.png">
         </div>
-        <button class="dialog-tips-close-button" >Close</button>
+        <button class="dialog-tips-close-button">Close</button>
     </div>
 </div>
 
