@@ -281,19 +281,19 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
         // const mailHeader = oneMail.querySelector(".gE.iv.gt");
-        const mailContentDiv = oneMail.querySelector(".a3s.aiL")?.childNodes[0] as HTMLElement | null;
+        const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
+        const mailContentDiv = mailParentDiv?.children[0] as HTMLElement | null;
         if (!mailContentDiv) {
             console.log("------>>> mail div not found:");
             return;
         }
+
 
         const mailData = extractJsonString(mailContentDiv.innerText as string);
         if (!mailData) {
             console.log("------->>> this is not a bmail body......")
             return;
         }
-
-        console.log("------>>> mail content:", mailData);
 
         const bmailBtn = oneMail.querySelector(".bmail-crypto-btn-div") as HTMLElement;
         if (bmailBtn) {
@@ -308,12 +308,16 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
                 await decryptMailInReading(mailContentDiv, mailData.json, btn);
             });
 
-        if (!cryptoBtnDiv) {
-            console.log("------>>> no decrypt button found in template!")
-            return;
+        mailContentDiv.parentNode!.insertBefore(cryptoBtnDiv!, mailContentDiv);
+        const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
+        if (blockquote) {
+            const quoteBody = blockquote.firstChild as HTMLElement;
+            const cryptoBtnDivQuote = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+                title, 'bmail_decrypt_btn_in_compose_google', async btn => {
+                    await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), btn);
+                });
+            blockquote.insertBefore(cryptoBtnDivQuote!, quoteBody);
         }
-
-        mailContentDiv.parentNode!.insertBefore(cryptoBtnDiv, mailContentDiv);
         console.log("------>>> add decrypt button to reading mail success......")
     })
 }
