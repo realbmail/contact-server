@@ -13,7 +13,7 @@ body {
     text-align: center;
 }
 .view-invalid-service-target img{
-    height: 50%;
+    height: 30%;
     margin-bottom: 12px;
 }
 
@@ -127,7 +127,7 @@ button:hover {
 .help-icon svg {
     vertical-align: middle;
     height: 20px;
-    margin-left: 4px;
+    margin: 0 4px 2px;
 }
 .account-options .newAccount:hover,
 .account-options .forget-help:hover{
@@ -173,7 +173,7 @@ button:hover {
     border: 2px solid #EEEFF0;
     padding: 24px 12px 12px;
     position: relative;
-    margin-top: 77px;
+    margin-top: 66px;
 
 }
 .supported-emails p{
@@ -182,7 +182,7 @@ button:hover {
     padding: 0 16px;
     position: absolute;
     top: -10px;
-    left: calc(50% - 47px);
+    left: calc(50% - 109px);
 }
 .supported-emails-grid {
     display: grid;
@@ -275,7 +275,34 @@ button:hover {
     color: #fff;
     background-color: #F28552;
 }
+.supported-emails-dialog {
+    overflow-y: auto; /* Adds a scrollbar if content exceeds the max height */
+}
+.supported-emails-dialog h2{
+    text-align: center;
+    margin-top: 12px;
+}
+.supported-emails-contain {
+    margin: 32px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+}
 
+.supported-emails-contain p {
+    background-color: transparent;
+    border: none;
+    margin: 24px 0 8px;
+}
+.supported-emails-contain img{
+    width: 100%;
+    height: auto;
+}
+.supported-emails-contain strong{
+    color: #F28552;
+    margin-right: 2px;
+}
 .bmail-address-area {
     width: calc(100% - 24px);
     padding: 12px;
