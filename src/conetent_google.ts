@@ -314,11 +314,16 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
         const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
         if (blockquote) {
             const quoteBody = blockquote.firstChild as HTMLElement;
-            const cryptoBtnDivQuote = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
-                title, 'bmail_decrypt_btn_in_compose_google', async btn => {
-                    await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), btn);
-                });
-            blockquote.insertBefore(cryptoBtnDivQuote!, quoteBody);
+            cryptoBtnDiv?.addEventListener('click', async () => {
+                await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement);
+            });
+
+            //
+            // const cryptoBtnDivQuote = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+            //     title, 'bmail_decrypt_btn_in_compose_google', async btn => {
+            //         await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), btn);
+            //     });
+            // blockquote.insertBefore(cryptoBtnDivQuote!, quoteBody);
         }
         console.log("------>>> add decrypt button to reading mail success......")
     })
