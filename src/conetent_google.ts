@@ -101,7 +101,6 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
 
         const newTd = document.createElement('td');
         newTd.append(clone);
-
         const toolBarTr = tdDiv.querySelector("tr.btC") as HTMLElement;
         const secondTd = toolBarTr.querySelector('td:nth-child(2)');
         if (secondTd) {
@@ -246,6 +245,7 @@ function monitorMainArea(template: HTMLTemplateElement) {
     mainArea.addEventListener('click', (event) => {
         console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
+        console.log("------>>>target element", targetElement)
         const trDiv = targetElement.closest('tr') as HTMLElement | null;
         const isCollapseMail = targetElement.className === "gE hI" || targetElement.querySelector('.gE.hI') != null;
         if (!trDiv && !isCollapseMail) {
