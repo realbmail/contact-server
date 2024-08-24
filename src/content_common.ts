@@ -159,7 +159,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
         if (statusRsp.success < 0) {
             return;
         }
-        if (mailContent.dataset.hasDecrypted === 'true') {
+        if (mailContent.dataset && mailContent.dataset.hasDecrypted === 'true') {
             mailContent.innerHTML = mailContent.dataset.orignCrpted!;
             mailContent.dataset.hasDecrypted = "false";
             setBtnStatus(true, cryptoBtn);

@@ -330,7 +330,9 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-            await decryptMailInReading(mailContent, mailData, btn);
+            const childDiv = mailContent.querySelector('div[dir="ltr"]') as HTMLElement;
+            console.log("------>>>>childDiv =>", childDiv);
+            await decryptMailInReading(childDiv, mailData, btn);
         }) as HTMLElement;
     headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
 
