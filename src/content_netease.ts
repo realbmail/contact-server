@@ -334,10 +334,13 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
         }) as HTMLElement;
     headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
 
-    // const mailQuoteDiv = mailContent.querySelector("blockquote.gmail_quote") as HTMLElement;
-    // if (mailQuoteDiv) {
-    //     console.log("----->>> mail quote found in template!", mailQuoteDiv.textContent);
-    // }
+    const mailQuoteDiv = mailContent.querySelector("blockquote.gmail_quote") as HTMLElement;
+    if (mailQuoteDiv) {
+        const quoteBody = mailQuoteDiv.firstChild as HTMLElement;
+        cryptoBtn?.addEventListener('click', async () => {
+            await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), cryptoBtn.querySelector(".bmail-decrypt-btn") as HTMLElement);
+        });
+    }
 
     console.log("------>>> decrypt button add success")
 }
