@@ -331,23 +331,14 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
     const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
             await decryptMailInReading(mailContent, mailData, btn);
-        });
+        }) as HTMLElement;
+    headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
 
-    if (!cryptoBtn) {
-        console.log("------>>> no decrypt button found in template!")
-        return;
-    }
+    // const mailQuoteDiv = mailContent.querySelector("blockquote.gmail_quote") as HTMLElement;
+    // if (mailQuoteDiv) {
+    //     console.log("----->>> mail quote found in template!", mailQuoteDiv.textContent);
+    // }
 
-    const mailQuoteDiv = mailContent.querySelector("blockquote.gmail_quote") as HTMLElement;
-    if (mailQuoteDiv) {
-        console.log("----->>> mail quote found in template!", mailQuoteDiv.textContent);
-    }
-
-    if (headerBtnList.children.length > 1) {
-        headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
-    } else {
-        headerBtnList.appendChild(cryptoBtn);
-    }
     console.log("------>>> decrypt button add success")
 }
 

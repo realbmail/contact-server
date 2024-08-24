@@ -310,6 +310,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             });
 
         mailParentDiv.insertBefore(cryptoBtnDiv!, mailContentDiv);
+
         const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
         if (blockquote) {
             const quoteBody = blockquote.firstChild as HTMLElement;
