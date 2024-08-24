@@ -337,6 +337,12 @@ function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateEl
         console.log("------>>> no decrypt button found in template!")
         return;
     }
+
+    const mailQuoteDiv = mailContent.querySelector("blockquote.gmail_quote") as HTMLElement;
+    if (mailQuoteDiv) {
+        console.log("----->>> mail quote found in template!", mailQuoteDiv.textContent);
+    }
+
     if (headerBtnList.children.length > 1) {
         headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
     } else {
@@ -366,44 +372,4 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     }
     addDecryptBtnToHeader(composeDiv, template, mailContent, mailData.json)
 }
-
-//
-// async function decryptMailInReading(mailContent: HTMLElement, mailData: string, cryptoBtn?: HTMLElement | undefined | null) {
-//     showLoading();
-//     try {
-//         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-//         if (statusRsp.success < 0 || !mailContent || !cryptoBtn) {
-//             return;
-//         }
-//
-//         if (mailContent.dataset.hasDecrypted === 'true') {
-//             mailContent.innerHTML = mailContent.dataset.orignCrpted!;
-//             mailContent.dataset.hasDecrypted = "false";
-//             setBtnStatus(true, cryptoBtn);
-//             return;
-//         }
-//
-//         const mailRsp = await browser.runtime.sendMessage({
-//             action: MsgType.DecryptData,
-//             data: mailData
-//         })
-//
-//         if (mailRsp.success <= 0) {
-//             if (mailRsp.success === 0) {
-//                 return;
-//             }
-//             showTipsDialog("Tips", mailRsp.message);
-//             return;
-//         }
-//         console.log("------>>> decrypt mail body success");
-//         mailContent.innerHTML = mailRsp.data;
-//         mailContent.dataset.orignCrpted = mailData;
-//         mailContent.dataset.hasDecrypted = "true";
-//         setBtnStatus(false, cryptoBtn);
-//     } catch (e) {
-//         console.log("------>>> crypto in mail reading err:=>", e)
-//     } finally {
-//         hideLoading();
-//     }
-// }
 

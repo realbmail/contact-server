@@ -179,8 +179,8 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
             return;
         }
         console.log("------>>> decrypt mail body success");
+        mailContent.dataset.orignCrpted = mailContent.innerHTML;
         mailContent.innerHTML = mailRsp.data;
-        mailContent.dataset.orignCrpted = content;
         mailContent.dataset.hasDecrypted = "true";
         setBtnStatus(false, cryptoBtn);
 
