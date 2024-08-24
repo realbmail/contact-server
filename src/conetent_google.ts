@@ -290,7 +290,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             return;
         }
 
-        const bmailBtn = oneMail.querySelector(".bmail-crypto-btn-div") as HTMLElement;
+        const bmailBtn = oneMail.querySelector(".bmail-decrypt-btn") as HTMLElement;
         if (bmailBtn) {
             console.log("------>>> duplicate bmail button found for mail reading......")
             checkFrameBody(mailContentDiv, bmailBtn);
@@ -309,7 +309,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
                 await decryptMailInReading(mailContentDiv, mailData.json, btn);
             });
 
-        mailParentDiv.append(cryptoBtnDiv!);
+        mailParentDiv.insertBefore(cryptoBtnDiv!, mailContentDiv);
         const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
         if (blockquote) {
             const quoteBody = blockquote.firstChild as HTMLElement;
