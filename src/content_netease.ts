@@ -150,28 +150,6 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     console.log("------>>> encrypt button add success")
 }
 
-async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
-    if (fElm.dataset.originalHtml) {
-        fElm.innerHTML = fElm.dataset.originalHtml!;
-        fElm.dataset.originalHtml = undefined;
-        return;
-    }
-    const mailRsp = await browser.runtime.sendMessage({
-        action: MsgType.DecryptData,
-        data: mBody
-    })
-
-    if (mailRsp.success <= 0) {
-        if (mailRsp.success === 0) {
-            return;
-        }
-        showTipsDialog("Tips", mailRsp.message);
-        return;
-    }
-    fElm.innerHTML = mailRsp.data;
-    console.log("------>>>decrypt mail content success")
-}
-
 let __netEaseContactMap = new Map<string, string>();
 
 async function processReceivers(composeDiv: HTMLElement): Promise<string[] | null> {
@@ -262,8 +240,6 @@ async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement,
         }
 
         if (mailBody.dataset.mailHasEncrypted === 'true') {
-            await decryptMailInComposing(mailBody, bodyTextContent);
-            checkFrameBody(mailBody, btn);
             return;
         }
 
@@ -356,6 +332,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         console.log("----->>> no encrypted mail body found:=>");
         return;
     }
+
     addDecryptBtnToHeader(composeDiv, template, mailContent, mailData.json)
 }
 

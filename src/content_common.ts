@@ -130,7 +130,6 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
     if (!receiver || receiver.length === 0) {
         return;
     }
-
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.EncryptData,
         receivers: receiver,
@@ -144,8 +143,6 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
         showTipsDialog("Tips", mailRsp.message);
         return;
     }
-
-    mailBody.dataset.originalHtml = mailBody.innerHTML;
     mailBody.innerText = mailRsp.data;
     checkFrameBody(mailBody, btn);
 }
