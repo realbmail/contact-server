@@ -90,7 +90,7 @@ export function queryEmailAddrNetEase() {
     return mailAddr.textContent;
 }
 
-function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
+function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HTMLElement) {
     const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
@@ -106,17 +106,20 @@ function addMailBodyListener(composeDiv: HTMLElement, btn: HTMLElement) {
     const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
     const isReplyComposing = elmWhenReload != null || elmFromReply != null;
     console.log("------>>> is this a reply div", isReplyComposing, "div id:=>", composeDiv.id);
-    if (isReplyComposing) {
-        iframeDocument.body.dataset.theDivIsReply = 'true';
+    if (!isReplyComposing) {
+        checkFrameBody(iframeDocument.body, btn);
+        return;
     }
-    checkFrameBody(iframeDocument.body, btn);
+    iframeDocument.body.dataset.theDivIsReply = 'true';
+    const div = iframeDocument.getElementById('spnEditorContent') as HTMLElement;
+    checkFrameBody(div, btn);
 }
 
 function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     let cryptoBtn = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
     if (cryptoBtn) {
         console.log("------>>> crypto btn already been added before for mail composing");
-        addMailBodyListener(composeDiv, cryptoBtn);
+        parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtn);
         return;
     }
     const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
@@ -136,7 +139,7 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
         return;
     }
 
-    addMailBodyListener(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
+    parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
 
     if (headerBtnList.children.length > 1) {
         headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);

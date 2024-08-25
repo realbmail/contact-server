@@ -162,6 +162,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
             mailContent.innerHTML = mailContent.dataset.orignCrpted!;
             mailContent.dataset.hasDecrypted = "false";
             setBtnStatus(true, cryptoBtn);
+            mailContent.dataset.orignCrpted = '';
             return;
         }
 
