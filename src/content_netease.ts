@@ -2,8 +2,7 @@ import browser from "webextension-polyfill";
 import {
     checkFrameBody, cryptMailBody, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, setBtnStatus,
-    showTipsDialog
+    parseCryptoMailBtn, showTipsDialog
 } from "./content_common";
 import {
     extractJsonString, hideLoading,
@@ -160,7 +159,6 @@ async function decryptMailInComposing(fElm: HTMLElement, mBody: string) {
     let realData = mBody;
     if (isReply) {
         result = extractJsonString(mBody);
-        console.log(result);
         if (!result) {
             console.log("----->>>extract json string failed!")
             return;

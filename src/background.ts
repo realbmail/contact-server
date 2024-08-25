@@ -3,7 +3,7 @@ import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
-import {BMRequestToSrv, decodeHex, encodeHex, MsgType, signDataByMessage, WalletStatus} from "./common";
+import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
 import {BMailAccount, AccountOperation, QueryReq, EmailReflects} from "./proto/bmail_srv";
 
