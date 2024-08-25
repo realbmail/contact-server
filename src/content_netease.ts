@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import {
-    checkFrameBody, cryptMailBody, decryptMailInReading,
+    checkFrameBody, encryptMailInComposing, decryptMailInReading,
     parseBmailInboxBtn,
     parseCryptoMailBtn, showTipsDialog
 } from "./content_common";
@@ -267,7 +267,7 @@ async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement)
         }
 
         const receiver = await processReceivers(composeDiv);
-        await cryptMailBody(mailBody, btn, receiver);
+        await encryptMailInComposing(mailBody, btn, receiver);
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
     } finally {

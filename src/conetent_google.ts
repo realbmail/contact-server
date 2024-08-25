@@ -1,6 +1,6 @@
 import {
     checkFrameBody,
-    cryptMailBody, decryptMailInReading,
+    encryptMailInComposing, decryptMailInReading,
     parseBmailInboxBtn,
     parseCryptoMailBtn, showTipsDialog
 } from "./content_common";
@@ -133,7 +133,7 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
             return;
         }
         const receiver = await processReceivers(titleForm);
-        await cryptMailBody(mailBody, btn, receiver);
+        await encryptMailInComposing(mailBody, btn, receiver);
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
     } finally {
