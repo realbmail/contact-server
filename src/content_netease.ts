@@ -60,7 +60,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         readDiv.forEach(div => {
             addMailDecryptForReading(div, template);
         });
-    }, 1000);
+    }, 1500);
 }
 
 function appendBtnToMenu(clone: HTMLElement) {
@@ -244,11 +244,16 @@ async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement)
         }
 
         const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
-        const mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
+        let mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
         if (!mailBody) {
             console.log("----->>> no frame body found:=>");
             return null;
         }
+
+        if (mailBody.dataset.theDivIsReply === 'true') {
+            mailBody = iframe?.contentDocument?.getElementById('spnEditorContent') as HTMLElement;
+        }
+
         let bodyTextContent = mailBody.innerText.trim();
         if (bodyTextContent.length <= 0) {
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
