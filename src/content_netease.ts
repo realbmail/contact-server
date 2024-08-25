@@ -287,30 +287,6 @@ function monitorTabMenu(callback?: (isDelete: boolean) => void) {
     observer.observe(ul, {childList: true});
 }
 
-function addDecryptBtnToHeader(composeDiv: HTMLElement, template: HTMLTemplateElement, mailContent: HTMLElement, mailData: string) {
-    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar")
-
-    if (!headerBtnList) {
-        console.log("------>>> header list not found for mail reading");
-        return;
-    }
-    const title = browser.i18n.getMessage('decrypt_mail_body')
-    const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
-        title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-            await decryptMailInReading(mailContent, mailData, btn);
-        }) as HTMLElement;
-    headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
-
-    const mailQuoteDiv = mailContent.querySelector("blockquote.gmail_quote") as HTMLElement;
-    if (mailQuoteDiv) {
-        const quoteBody = mailQuoteDiv.firstChild as HTMLElement;
-        cryptoBtn?.addEventListener('click', async () => {
-            await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), cryptoBtn.querySelector(".bmail-decrypt-btn") as HTMLElement);
-        });
-    }
-    console.log("------>>> decrypt button add success")
-}
-
 function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplateElement) {
 
     const decryptBtn = composeDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
@@ -326,13 +302,46 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const mailContent = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
-    const mailData = extractJsonString(mailContent.innerText);
+    const mailArea = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
+    const blockquotes = mailArea.querySelectorAll('blockquote');
+
+    let firstMailBody = mailArea;
+    if (blockquotes && blockquotes.length > 0) {
+        firstMailBody = mailArea?.querySelector('div[data-mail-has-encrypted="true"]') as HTMLElement;
+    }
+
+    const mailData = extractJsonString(firstMailBody.innerText.trim());
     if (!mailData) {
         console.log("----->>> no encrypted mail body found:=>");
         return;
     }
 
-    addDecryptBtnToHeader(composeDiv, template, mailContent, mailData.json)
+    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar")
+    if (!headerBtnList) {
+        console.log("------>>> header list not found for mail reading");
+        return;
+    }
+
+    const title = browser.i18n.getMessage('decrypt_mail_body')
+    const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+        title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
+            await decryptMailInReading(firstMailBody, mailData.json, btn);
+        }) as HTMLElement;
+    headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
+    console.log("------>>> decrypt button add success")
+
+    if (!blockquotes) {
+        return;
+    }
+    blockquotes.forEach((mailQuoteDiv) => {
+        const quoteBody = mailQuoteDiv.firstChild as HTMLElement;
+        const quotedMailData = extractJsonString(quoteBody.innerText.trim());
+        if (!quotedMailData) {
+            return;
+        }
+        cryptoBtn?.addEventListener('click', async () => {
+            await decryptMailInReading(quoteBody, quotedMailData.json, cryptoBtn.querySelector(".bmail-decrypt-btn") as HTMLElement);
+        });
+    });
 }
 
