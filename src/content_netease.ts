@@ -6,8 +6,7 @@ import {
 } from "./content_common";
 import {
     extractJsonString, hideLoading,
-    MsgType, replaceTextInRange,
-    sendMessageToBackground, showLoading
+    MsgType, sendMessageToBackground, showLoading
 } from "./common";
 import {EmailReflects} from "./proto/bmail_srv";
 
