@@ -23,7 +23,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse: (response:
         const emailAddr = readCurrentMailAddress();
         sendResponse({value: emailAddr});
     }
-    return true; // Keep the message channel open for sendResponse
+    return true;
 });
 
 function bmailInboxAction() {
@@ -55,7 +55,6 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
         img.src = browser.runtime.getURL('file/logo_16.png');
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
-    // (clone.querySelector(".bmail-send-action") as HTMLElement).addEventListener('click', bmailInboxAction);
     clone.addEventListener('click', bmailInboxAction);
     return clone;
 }
