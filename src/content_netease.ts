@@ -106,10 +106,11 @@ function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HT
     }
 
     const elmFromReply = iframeDocument.getElementById('isReplyContent') as HTMLQuoteElement | null;
+    const elmForward = iframeDocument.getElementById('isForwardContent') as HTMLQuoteElement | null;
     const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
-    const isReplyComposing = elmWhenReload != null || elmFromReply != null;
-    console.log("------>>> is this a reply div", isReplyComposing, "div id:=>", composeDiv.id);
-    if (!isReplyComposing) {
+    const isReplyOrForward = elmWhenReload || elmFromReply || elmForward;
+    console.log("------>>> is this a reply div", isReplyOrForward, "div id:=>", composeDiv.id);
+    if (!isReplyOrForward) {
         checkFrameBody(iframeDocument.body, btn);
         return;
     }
