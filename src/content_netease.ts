@@ -277,7 +277,15 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const mailArea = iframeDocument.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
+    const mailArea = iframeDocument.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement | null;
+    if (!mailArea) {
+        let debounceTimer = setTimeout(() => {
+            checkHasMailContent(template);
+            clearTimeout(debounceTimer);
+        }, 1500);
+        return;
+    }
+
     let firstMailBody = mailArea.querySelector('div[data-ntes="ntes_mail_body_root"]') as HTMLElement;
     const blockquotes = firstMailBody.querySelectorAll('blockquote');
     const subContent = firstMailBody.querySelector('div[id$="spnEditorContent"]')
