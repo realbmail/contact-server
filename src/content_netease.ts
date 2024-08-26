@@ -133,14 +133,9 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     const sendDiv = composeDiv.querySelector(".js-component-button.nui-mainBtn.nui-btn.nui-btn-hasIcon.nui-mainBtn-hasIcon") as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            await encodeOrDecodeMailBody(composeDiv, btn, sendDiv);
+            await encryptDataAndSendNetEase(composeDiv, btn, sendDiv);
         }
     ) as HTMLElement;
-
-    if (!cryptoBtnDiv) {
-        console.log("------>>> no crypto button found in template!")
-        return;
-    }
 
     parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
 
@@ -218,7 +213,7 @@ async function processReceivers(composeDiv: HTMLElement): Promise<{ fine: string
     return {fine: receiver, invalid: invalidReceiver};
 }
 
-async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
+async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)

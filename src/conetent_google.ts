@@ -73,7 +73,7 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
         const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
         const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
             "bmail_crypto_btn_in_compose_google", async btn => {
-                await enOrDecryptCompose(mailBodyDiv, btn, titleForm, sendDiv);
+                await encryptMailAndSendGoogle(mailBodyDiv, btn, titleForm, sendDiv);
             });
         if (!clone) {
             console.log("------>>> node not found");
@@ -91,7 +91,7 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     });
 }
 
-async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
+async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
