@@ -52,22 +52,69 @@
     cursor: pointer;
     margin-top: 12px;
 }
-.bmail_left_menu_btn_div {
+
+.bmail_left_menu_btn_div-163 {
     background-color: rgba(242, 133, 82, 0.2);
-    padding: 6px 24px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     cursor: pointer;
+    margin-left: 4px;
+    height: 36px;
+}
+.bmail_left_menu_btn_div-google{
+    background-color: rgba(242, 133, 82, 0.2);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    margin-left: 4px;
+    border-radius: 16px;
+    height: 56px;
+}
+.bmail_left_menu_btn_div-google div,
+.bmail-crypto-action-google {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-.bmail_left_menu_btn_div:hover {
+.bmail_left_menu_btn_div-google:hover,
+.bmail_left_menu_btn_div-163:hover{
     background-color: #04062E;
+}
+.bmail_left_menu_btn_div-google img{
+    width: 22px;
+    height: auto;
+}
+.bmail-crypto-btn-div-google{
+    padding: 0 16px;
+    border-radius: 18px;
+    background-color: #04062E;
+    height: 36px;
+    cursor: pointer;
+
+}
+.bmail-crypto-action-google {
+    height: 36px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #F28552;
+    margin-left: 6px;
 }
 .bmail-send-action {
     color: #F28552 !important;
     margin-left: 4px;
 
+}
+.bmail-crypto-action img{
+  width: 18px;
+    height: auto;
+}
+.bmail-crypto-btn{
+    margin-left: 4px;
 }
 .bmail-decrypt-logo{
     width: 60%;
