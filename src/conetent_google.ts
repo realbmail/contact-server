@@ -116,7 +116,10 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
         }
 
         const receiver = await processReceivers(titleForm);
-        await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        if (!success) {
+            return;
+        }
         sendDiv.click();
     } catch (e) {
         console.log("------>>> decode or encode error:", e);

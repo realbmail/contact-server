@@ -246,7 +246,10 @@ async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement,
         }
 
         const receiver = await processReceivers(composeDiv);
-        await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        if (!success) {
+            return;
+        }
 
         sendDiv.click();
 

@@ -131,9 +131,10 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
 }
 
-export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLElement, receiver: string[] | null) {
+export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLElement, receiver: string[] | null): Promise<boolean> {
     if (!receiver || receiver.length === 0) {
-        return;
+        showTipsDialog("Warning", "No valid receiver");
+        return false;
     }
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.EncryptData,
@@ -143,13 +144,14 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
 
     if (mailRsp.success <= 0) {
         if (mailRsp.success === 0) {
-            return;
+            return false;
         }
         showTipsDialog("Tips", mailRsp.message);
-        return;
+        return false;
     }
     mailBody.innerText = mailRsp.data;
     checkFrameBody(mailBody, btn);
+    return true;
 }
 
 

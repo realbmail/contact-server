@@ -57,6 +57,7 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
         return;
     }
     composeBtnDiv.addEventListener("click", () => {
-
+        const toolBar = document.querySelector(".xm_new_toolbar_container");
+        console.log("------>>> compose button clicked=>", toolBar);
     })
 }
