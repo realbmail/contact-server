@@ -1,4 +1,5 @@
 import {observeForElement, parseBmailInboxBtn} from "./content_common";
+import {emailRegex} from "./common";
 
 export function appendForQQ(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -14,7 +15,6 @@ export function appendForQQ(template: HTMLTemplateElement) {
             console.log("------>>>start to populate qq mail area");
             appendBmailInboxMenu(clone);
         });
-
 }
 
 function appendBmailInboxMenu(clone: HTMLElement) {
@@ -28,4 +28,22 @@ function appendBmailInboxMenu(clone: HTMLElement) {
     } else {
         menuParentDiv.appendChild(clone);
     }
+}
+
+export function queryEmailAddrQQ() {
+    const parentDiv = document.querySelector(".profile-user-info");
+    const userEmailSpan = parentDiv?.querySelector('span.user-email');
+    if (!userEmailSpan) {
+        console.log("-------->>> failed to parse bmail inbox button");
+        return null;
+    }
+
+    const mailAddress = userEmailSpan.textContent as string;
+    const match = mailAddress.match(emailRegex);
+    if (!match) {
+        console.log("------>>> failed to parse bmail address");
+        return null;
+    }
+    console.log("------>>> qq mail address success:", match[0]);
+    return match[0];
 }

@@ -3,6 +3,7 @@ import {hideLoading, HostArr, MsgType, sendMessageToBackground, showLoading} fro
 import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 import {MailFlag} from "./bmail_body";
+import {queryEmailAddrQQ} from "./content_qq";
 
 
 window.addEventListener('message', (event) => {
@@ -40,6 +41,10 @@ function readCurrentMailAddress() {
     }
     if (hostname.includes(HostArr.Google)) {
         return queryEmailAddrGoogle();
+    }
+
+    if (hostname.includes(HostArr.QQ)) {
+        return queryEmailAddrQQ();
     }
 }
 
