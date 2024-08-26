@@ -271,7 +271,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
         const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
-        const mailContentDiv = mailParentDiv?.children[0] as HTMLElement | null;
+        const mailContentDiv = mailParentDiv?.firstChild as HTMLElement | null;
         if (!mailParentDiv || !mailContentDiv) {
             console.log("------>>> mail div not found:");
             return;
@@ -289,7 +289,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             console.log("------->>> this is not a bmail body......[", mailData, "]mailContentDiv=>", mailContentDiv)
             return;
         }
-
+        console.log("------>>>first body =>", mailContentDiv);
         const title = browser.i18n.getMessage('decrypt_mail_body')
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
             title, 'bmail_decrypt_btn_in_compose_google', async btn => {
@@ -298,13 +298,22 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
 
         mailParentDiv.insertBefore(cryptoBtnDiv!, mailContentDiv);
 
-        const blockquote = mailParentDiv!.querySelector('blockquote.gmail_quote');
-        if (blockquote) {
-            const quoteBody = blockquote.firstChild as HTMLElement;
-            cryptoBtnDiv?.addEventListener('click', async () => {
-                await decryptMailInReading(quoteBody, quoteBody.innerText.trim(), cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement);
-            });
+        const blockquotes = mailParentDiv.querySelectorAll('blockquote');
+        if (!blockquotes) {
+            console.log("------>>> no quoted mail body found!")
+            return;
         }
+        blockquotes.forEach((mailQuoteDiv) => {
+            const quoteBody = mailQuoteDiv.firstChild as HTMLElement;
+            const quotedMailData = extractJsonString(quoteBody.innerText.trim());
+            if (!quotedMailData) {
+                return;
+            }
+            console.log("------>>>quoted body =>", quoteBody);
+            cryptoBtnDiv?.addEventListener('click', async () => {
+                await decryptMailInReading(quoteBody, quotedMailData.json, cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement);
+            });
+        });
         console.log("------>>> add decrypt button to reading mail success......")
     })
 }

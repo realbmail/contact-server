@@ -303,12 +303,8 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     }
 
     const mailArea = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
-    console.log("------>>>>mail area:", mailArea, mailArea.children.length);
     const blockquotes = mailArea.querySelectorAll('blockquote');
-
     let firstMailBody = mailArea.children[0] as HTMLElement;
-    console.log("------>>>>first mail body:", firstMailBody);
-
     const mailData = extractJsonString(firstMailBody.innerText.trim());
     if (!mailData) {
         console.log("----->>> no encrypted mail body found:=>");
