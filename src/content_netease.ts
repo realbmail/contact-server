@@ -10,10 +10,6 @@ import {
 } from "./common";
 import {EmailReflects} from "./proto/bmail_srv";
 
-const staticNetEaseHtmlForReply = `
-<div id="spnEditorContent"><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p><p style="margin: 0;"><br></p></div>
-`
-
 export function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
     if (!clone) {
