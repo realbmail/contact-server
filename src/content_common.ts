@@ -187,3 +187,25 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
         hideLoading();
     }
 }
+
+export function observeForElement(foundFunc: () => HTMLElement | null, callback: () => Promise<void>) {
+    const idleThreshold = 300;
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const cb: MutationCallback = (mutationsList, observer) => {
+        if (idleTimer) {
+            clearTimeout(idleTimer);
+        }
+        const element = foundFunc();
+        if (element) {
+            idleTimer = setTimeout(() => {
+                console.log('---------->>> document body load finished');
+                callback().then();
+                observer.disconnect();
+            }, idleThreshold);
+        }
+    };
+
+    const observer = new MutationObserver(cb);
+    observer.observe(document.body, {childList: true, subtree: true});
+}

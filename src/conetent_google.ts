@@ -2,7 +2,7 @@ import {
     checkFrameBody,
     encryptMailInComposing, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, showTipsDialog
+    parseCryptoMailBtn, showTipsDialog, observeForElement
 } from "./content_common";
 import {emailRegex, extractJsonString, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
@@ -49,28 +49,6 @@ export function queryEmailAddrGoogle() {
     }
     console.log('------>>>No email address found in the page title.');
     return null
-}
-
-function observeForElement(foundFunc: () => HTMLElement | null, callback: () => Promise<void>) {
-    const idleThreshold = 300;
-    let idleTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const cb: MutationCallback = (mutationsList, observer) => {
-        if (idleTimer) {
-            clearTimeout(idleTimer);
-        }
-        const element = foundFunc();
-        if (element) {
-            idleTimer = setTimeout(() => {
-                console.log('---------->>> document body load finished');
-                callback().then();
-                observer.disconnect();
-            }, idleThreshold);
-        }
-    };
-
-    const observer = new MutationObserver(cb);
-    observer.observe(document.body, {childList: true, subtree: true});
 }
 
 
