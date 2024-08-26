@@ -14,6 +14,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
         }, async () => {
             console.log("------>>>start to populate qq mail area");
             appendBmailInboxMenu(clone);
+            monitorComposeBtnAction(template)
         });
 }
 
@@ -46,4 +47,16 @@ export function queryEmailAddrQQ() {
     }
     console.log("------>>> qq mail address success:", match[0]);
     return match[0];
+}
+
+function monitorComposeBtnAction(template: HTMLTemplateElement) {
+
+    const composeBtnDiv = document.querySelector(".sidebar-header");
+    if (!composeBtnDiv) {
+        console.warn("------>>> compose button not found");
+        return;
+    }
+    composeBtnDiv.addEventListener("click", () => {
+
+    })
 }
