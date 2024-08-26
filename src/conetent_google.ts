@@ -271,10 +271,18 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
         const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
-        const mailContentDiv = mailParentDiv?.firstChild as HTMLElement | null;
+        let mailContentDiv = mailParentDiv?.firstChild as HTMLElement | null;
         if (!mailParentDiv || !mailContentDiv) {
             console.log("------>>> mail div not found:");
             return;
+        }
+
+        if (mailContentDiv.querySelector(".adm")) {
+            mailContentDiv = mailContentDiv.children[0] as HTMLElement;
+            if (!mailContentDiv) {
+                console.log("------>>> unknown html architecture!")
+                return;
+            }
         }
 
         const bmailBtn = oneMail.querySelector(".bmail-decrypt-btn") as HTMLElement;
@@ -296,7 +304,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
                 await decryptMailInReading(mailContentDiv, mailData.json, btn);
             });
 
-        mailParentDiv.insertBefore(cryptoBtnDiv!, mailContentDiv);
+        mailParentDiv.insertBefore(cryptoBtnDiv!, mailParentDiv.firstChild);
 
         const blockquotes = mailParentDiv.querySelectorAll('blockquote');
         if (!blockquotes) {
