@@ -18,7 +18,7 @@ export function appendForNetEase(template: HTMLTemplateElement) {
     }
 
     appendBtnToMenu(clone);
-    addActionForHomePage(clone);
+    checkBmailInboxMenuAgain(clone);
     checkHasMailContent(template);
 
     monitorTabMenu((isDelete: boolean) => {
@@ -31,15 +31,21 @@ export function appendForNetEase(template: HTMLTemplateElement) {
 
 }
 
-function addActionForHomePage(clone: HTMLElement): void {
-    const tabMenus = document.querySelectorAll('li[title="首页"]');
-    if (tabMenus.length > 0) {
-        tabMenus[0].addEventListener('click', () => {
-            const dynamicBtn = document.getElementById('bmail_left_menu_btn_netEase');
-            if (!dynamicBtn) {
-                appendBtnToMenu(clone)
-            }
-        });
+function checkBmailInboxMenuAgain(clone: HTMLElement): void {
+    const checkBmailMenuAgain = () => {
+        const dynamicBtn = document.getElementById('bmail_left_menu_btn_netEase');
+        if (!dynamicBtn) {
+            appendBtnToMenu(clone)
+        }
+    }
+    const homePageMenu = document.querySelector('li[title="首页"]');
+    if (homePageMenu) {
+        homePageMenu.addEventListener('click', checkBmailMenuAgain);
+    }
+
+    const inboxMenu = document.querySelector('li[title="收件箱"]');
+    if (inboxMenu) {
+        inboxMenu.addEventListener('click', checkBmailMenuAgain);
     }
 }
 
