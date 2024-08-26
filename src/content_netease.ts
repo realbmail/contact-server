@@ -271,13 +271,13 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     }
 
     const iframe = composeDiv.querySelector("iframe") as HTMLIFrameElement | null;
-    const mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
-    if (!mailBody) {
+    const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
+    if (!iframeDocument) {
         console.log("----->>> no mail body found:=>");
         return;
     }
 
-    const mailArea = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
+    const mailArea = iframeDocument.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
     let firstMailBody = mailArea.querySelector('div[data-ntes="ntes_mail_body_root"]') as HTMLElement;
     const blockquotes = firstMailBody.querySelectorAll('blockquote');
     const subContent = firstMailBody.querySelector('div[id$="spnEditorContent"]')
@@ -285,7 +285,6 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         firstMailBody = subContent as HTMLElement;
     }
 
-    console.log("------>>>first mail body:", firstMailBody);
     const mailData = extractJsonString(firstMailBody.innerText.trim());
     if (!mailData) {
         console.log("----->>> no encrypted mail body found:=>");
@@ -299,17 +298,21 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     }
 
     const title = browser.i18n.getMessage('decrypt_mail_body')
-    const cryptoBtn = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
             await decryptMailInReading(firstMailBody, mailData.json, btn);
         }) as HTMLElement;
-    headerBtnList.insertBefore(cryptoBtn, headerBtnList.children[1]);
+    headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     console.log("------>>> decrypt button add success")
 
-    if (!blockquotes) {
-        console.log("------>>> no quoted mail body found!")
+    const forwardDivs = iframeDocument.querySelectorAll('div[id$="isForwardContent"]')
+
+    if ((!blockquotes || blockquotes.length <= 0) && (!forwardDivs || forwardDivs.length <= 0)) {
+        console.log("------>>> no quoted or forward mail body found!")
         return;
     }
+
+    const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
     blockquotes.forEach((mailQuoteDiv) => {
         const quoteBody1 = mailQuoteDiv.querySelector('div[dir="ltr"]') as HTMLElement | null;
         const quoteBody2 = mailQuoteDiv.querySelector('div[id$="spnEditorContent"]') as HTMLElement | null;
@@ -321,11 +324,32 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
 
         const quotedMailData = extractJsonString(quoteBody.innerText.trim());
         if (!quotedMailData) {
+            console.log("------>>>no crypto mail content in quote div")
             return;
         }
-        cryptoBtn?.addEventListener('click', async () => {
-            console.log("------>>>quoted mail data:->", quotedMailData);
-            await decryptMailInReading(quoteBody, quotedMailData.json, cryptoBtn.querySelector(".bmail-decrypt-btn") as HTMLElement);
+        cryptoBtnDiv?.addEventListener('click', async () => {
+            await decryptMailInReading(quoteBody, quotedMailData.json, cryptoBtn);
+        });
+    });
+    forwardDivs.forEach((forwardDiv) => {
+        let forwardContentDiv = forwardDiv.querySelector('div[data-ntes="ntes_mail_body_root"]') as HTMLElement | null;
+        if (!forwardContentDiv) {
+            console.log("----->>> forwardContentDiv not found.");
+            return;
+        }
+
+        const subForwardContent = forwardContentDiv.querySelector('div[id$="spnEditorContent"]')
+        if (subForwardContent) {
+            forwardContentDiv = subForwardContent as HTMLElement;
+        }
+
+        const quotedMailData = extractJsonString(forwardContentDiv.innerText.trim());
+        if (!quotedMailData) {
+            console.log("------>>>no crypto mail content in forward div")
+            return;
+        }
+        cryptoBtnDiv?.addEventListener('click', async () => {
+            await decryptMailInReading(forwardContentDiv, quotedMailData.json, cryptoBtn);
         });
     });
 }
