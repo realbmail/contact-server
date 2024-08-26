@@ -4,6 +4,7 @@ import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 import {MailFlag} from "./bmail_body";
 import {queryEmailAddrQQ} from "./content_qq";
+import {EmailReflects} from "./proto/bmail_srv";
 
 
 window.addEventListener('message', (event) => {
@@ -64,8 +65,8 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
     return clone;
 }
 
-export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc:string, btnClass: string,
-                                   title:string, elmId: string, action: (btn: HTMLElement) => Promise<void>) {
+export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc: string, btnClass: string,
+                                   title: string, elmId: string, action: (btn: HTMLElement) => Promise<void>) {
     const cryptoBtnDiv = template.content.getElementById(elmId);
     if (!cryptoBtnDiv) {
         console.log("------>>>failed to find bmailElement");
@@ -214,4 +215,47 @@ export function observeForElement(foundFunc: () => HTMLElement | null, callback:
 
     const observer = new MutationObserver(cb);
     observer.observe(document.body, {childList: true, subtree: true});
+}
+
+export let __localContactMap = new Map<string, string>();
+
+export async function queryContactFromSrv(emailToQuery: string[], receiver: string[]): Promise<string[] | null> {
+
+    if (emailToQuery.length <= 0) {
+        if (receiver.length <= 0) {
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
+            return null;
+        }
+        return receiver;
+    }
+
+    const mailRsp = await sendMessageToBackground(emailToQuery, MsgType.EmailAddrToBmailAddr);
+    if (!mailRsp || mailRsp.success === 0) {
+        return null;
+    }
+
+    if (mailRsp.success < 0) {
+        showTipsDialog("Warning", "no blockchain address for:" + emailToQuery);
+        return null;
+    }
+
+    const invalidReceiver: string[] = []
+    const contacts = mailRsp.data as EmailReflects;
+    for (let i = 0; i < emailToQuery.length; i++) {
+        const email = emailToQuery[i];
+        const contact = contacts.reflects[email];
+        if (!contact || !contact.address) {
+            invalidReceiver.push(email);
+            continue;
+        }
+        __localContactMap.set(email, contact.address);
+        receiver.push(contact.address);
+        console.log("----->>>from server email address:", email, "bmail address:", contact.address);
+    }
+    if (invalidReceiver.length > 0) {
+        showTipsDialog("Warning", "no blockchain address found for email:" + invalidReceiver);
+        return null;
+    }
+
+    return receiver;
 }

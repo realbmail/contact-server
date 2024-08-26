@@ -2,9 +2,10 @@ import browser from "webextension-polyfill";
 import {
     checkFrameBody, encryptMailInComposing, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, showTipsDialog
+    parseCryptoMailBtn, showTipsDialog, queryContactFromSrv, __localContactMap
 } from "./content_common";
 import {
+    extractEmail,
     extractJsonString, hideLoading,
     MsgType, sendMessageToBackground, showLoading
 } from "./common";
@@ -147,70 +148,36 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
     console.log("------>>> encrypt button add success")
 }
 
-let __netEaseContactMap = new Map<string, string>();
-
-async function processReceivers(composeDiv: HTMLElement): Promise<{ fine: string[]; invalid: string[] }> {
+async function processReceivers(composeDiv: HTMLElement): Promise<string[] | null> {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
-    if (receiverArea.length <= 0) {
+    if (!receiverArea || receiverArea.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-        return {fine: [], invalid: []};
+        return null;
     }
 
     let receiver: string[] = [];
-    let emailDivs = new Map<string, HTMLElement>();
+    let emailToQuery: string[] = [];
+
     for (let i = 0; i < receiverArea.length; i++) {
         const emailElement = receiverArea[i].querySelector(".nui-addr-email");
         if (!emailElement) {
-            receiverArea[i].classList.add("bmail_receiver_invalid");
+            continue;
+        }
+        const email = extractEmail(emailElement.textContent ?? "");
+        if (!email) {
             continue;
         }
 
-        const email = emailElement.textContent!.replace(/[<>]/g, "");
-        const address = __netEaseContactMap.get(email);
+        const address = __localContactMap.get(email);
         if (address) {
             receiver.push(address);
-            receiverArea[i].classList.add("bmail_receiver_is_fine");
             console.log("------>>> from cache:", email, " address:=>", address);
             continue;
         }
-        emailDivs.set(email, receiverArea[i]);
-    }
-    const invalidReceiver: string[] = []
-    if (emailDivs.size <= 0) {
-        if (receiver.length <= 0) {
-            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-            return {fine: [], invalid: []};
-        }
-        return {fine: receiver, invalid: invalidReceiver};
+        emailToQuery.push(email);
     }
 
-    const emailKeysArray = Array.from(emailDivs.keys());
-    const mailRsp = await sendMessageToBackground(emailKeysArray, MsgType.EmailAddrToBmailAddr);
-    if (!mailRsp || mailRsp.success === 0) {
-        return {fine: [], invalid: []};
-    }
-
-    if (mailRsp.success < 0) {
-        showTipsDialog("Tips", mailRsp.message);
-        return {fine: [], invalid: []};
-    }
-
-    const contacts = mailRsp.data as EmailReflects;
-    for (const [email, div] of emailDivs) {
-        const contact = contacts.reflects[email];
-        if (!contact) {
-            console.log("----->>>no address for email address:", email);
-            div.classList.add("bmail_receiver_invalid");
-            invalidReceiver.push(email);
-        } else {
-            __netEaseContactMap.set(email, contact.address);
-            receiver.push(contact.address);
-            div.classList.add("bmail_receiver_is_fine");
-            console.log("----->>>from server email address:", email, "bmail address:", contact.address);
-        }
-    }
-
-    return {fine: receiver, invalid: invalidReceiver};
+    return queryContactFromSrv(emailToQuery, receiver);
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
@@ -243,12 +210,11 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
         }
 
         const receiver = await processReceivers(composeDiv);
-        if (receiver.invalid.length > 0) {
-            showTipsDialog("Warning", "no blockchain address for:" + receiver.invalid);
+        if (!receiver) {
             return;
         }
 
-        const success = await encryptMailInComposing(mailBody, btn, receiver.fine);
+        const success = await encryptMailInComposing(mailBody, btn, receiver);
         if (!success) {
             return;
         }
@@ -257,6 +223,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
 
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
+        showTipsDialog("error", "encrypt mail content failed");
     } finally {
         hideLoading();
     }

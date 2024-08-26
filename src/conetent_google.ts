@@ -2,7 +2,7 @@ import {
     checkFrameBody,
     encryptMailInComposing, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, showTipsDialog, observeForElement
+    parseCryptoMailBtn, showTipsDialog, observeForElement, __localContactMap, queryContactFromSrv
 } from "./content_common";
 import {emailRegex, extractJsonString, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
@@ -96,7 +96,6 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {
-            showDialog("Error", statusRsp.message);
             return;
         }
 
@@ -119,6 +118,7 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
         sendDiv.click();
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
+        showTipsDialog("error", "encrypt mail content failed");
     } finally {
         hideLoading();
     }
@@ -145,7 +145,6 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
     })
 }
 
-let __googleContactMap = new Map<string, string>();
 
 async function processReceivers(titleForm: HTMLElement): Promise<string[] | null> {
     let receiver: string[] = [];
@@ -157,7 +156,7 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
         const emailAddr = div.getAttribute('data-hovercard-id') as string;
         console.log("------>>> mail address found:=>", emailAddr);
 
-        const address = __googleContactMap.get(emailAddr);
+        const address = __localContactMap.get(emailAddr);
         if (address) {
             receiver.push(address);
             console.log("------>>> from cache:", emailAddr, " address:=>", address);
@@ -166,42 +165,7 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
         emailToQuery.push(emailAddr);
     }
 
-    if (emailToQuery.length <= 0) {
-        if (receiver.length <= 0) {
-            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-            return null;
-        }
-        return receiver;
-    }
-
-    const mailRsp = await sendMessageToBackground(emailToQuery, MsgType.EmailAddrToBmailAddr);
-    if (!mailRsp || mailRsp.success === 0) {
-        return null;
-    }
-
-    if (mailRsp.success < 0) {
-        showTipsDialog("Warning", "no blockchain address for:" + emailToQuery);
-        return null;
-    }
-
-    let invalidEmail = "";
-    const contacts = mailRsp.data as EmailReflects;
-    for (let i = 0; i < emailToQuery.length; i++) {
-        const email = emailToQuery[i];
-        const contact = contacts.reflects[email];
-        if (!contact || !contact.address) {
-            invalidEmail += email + " , ";
-            continue;
-        }
-        __googleContactMap.set(email, contact.address);
-        receiver.push(contact.address);
-    }
-    if (invalidEmail.length > 2) {
-        showTipsDialog("Warning", "no blockchain address found for email:" + invalidEmail);
-        return null;
-    }
-
-    return receiver;
+    return queryContactFromSrv(emailToQuery, receiver);
 }
 
 function monitorMainArea(template: HTMLTemplateElement) {
