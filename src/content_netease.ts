@@ -17,7 +17,7 @@ export function appendForNetEase(template: HTMLTemplateElement) {
         return
     }
 
-    appendBtnToMenu(clone);
+    appendBmailInboxMenu(clone);
     checkBmailInboxMenuAgain(clone);
     checkHasMailContent(template);
 
@@ -35,7 +35,7 @@ function checkBmailInboxMenuAgain(clone: HTMLElement): void {
     const checkBmailMenuAgain = () => {
         const dynamicBtn = document.getElementById('bmail_left_menu_btn_netEase');
         if (!dynamicBtn) {
-            appendBtnToMenu(clone)
+            appendBmailInboxMenu(clone)
         }
     }
     const homePageMenu = document.querySelector('li[title="首页"]');
@@ -65,7 +65,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
     }, 1500);
 }
 
-function appendBtnToMenu(clone: HTMLElement) {
+function appendBmailInboxMenu(clone: HTMLElement) {
     const ulElements = document.querySelectorAll('ul[aria-label="左侧导航"]');
 
     const targetElement = Array.from(ulElements).find((element) => {
