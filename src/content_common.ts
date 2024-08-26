@@ -133,7 +133,6 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
 
 export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLElement, receiver: string[] | null): Promise<boolean> {
     if (!receiver || receiver.length === 0) {
-        showTipsDialog("Warning", "No valid receiver");
         return false;
     }
     const mailRsp = await browser.runtime.sendMessage({
@@ -196,7 +195,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
 }
 
 export function observeForElement(foundFunc: () => HTMLElement | null, callback: () => Promise<void>) {
-    const idleThreshold = 300;
+    const idleThreshold = 1000;
     let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const cb: MutationCallback = (mutationsList, observer) => {

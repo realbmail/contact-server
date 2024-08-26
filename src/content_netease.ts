@@ -154,11 +154,11 @@ function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HT
 
 let __netEaseContactMap = new Map<string, string>();
 
-async function processReceivers(composeDiv: HTMLElement): Promise<string[] | null> {
+async function processReceivers(composeDiv: HTMLElement): Promise<{ fine: string[]; invalid: string[] }> {
     const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
     if (receiverArea.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-        return null;
+        return {fine: [], invalid: []};
     }
 
     let receiver: string[] = [];
@@ -180,24 +180,24 @@ async function processReceivers(composeDiv: HTMLElement): Promise<string[] | nul
         }
         emailDivs.set(email, receiverArea[i]);
     }
-
+    const invalidReceiver: string[] = []
     if (emailDivs.size <= 0) {
         if (receiver.length <= 0) {
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-            return null;
+            return {fine: [], invalid: []};
         }
-        return receiver;
+        return {fine: receiver, invalid: invalidReceiver};
     }
 
     const emailKeysArray = Array.from(emailDivs.keys());
     const mailRsp = await sendMessageToBackground(emailKeysArray, MsgType.EmailAddrToBmailAddr);
     if (!mailRsp || mailRsp.success === 0) {
-        return null;
+        return {fine: [], invalid: []};
     }
 
     if (mailRsp.success < 0) {
         showTipsDialog("Tips", mailRsp.message);
-        return null;
+        return {fine: [], invalid: []};
     }
 
     const contacts = mailRsp.data as EmailReflects;
@@ -206,6 +206,7 @@ async function processReceivers(composeDiv: HTMLElement): Promise<string[] | nul
         if (!contact) {
             console.log("----->>>no address for email address:", email);
             div.classList.add("bmail_receiver_invalid");
+            invalidReceiver.push(email);
         } else {
             __netEaseContactMap.set(email, contact.address);
             receiver.push(contact.address);
@@ -213,7 +214,8 @@ async function processReceivers(composeDiv: HTMLElement): Promise<string[] | nul
             console.log("----->>>from server email address:", email, "bmail address:", contact.address);
         }
     }
-    return receiver;
+
+    return {fine: receiver, invalid: invalidReceiver};
 }
 
 async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
@@ -246,7 +248,12 @@ async function encodeOrDecodeMailBody(composeDiv: HTMLElement, btn: HTMLElement,
         }
 
         const receiver = await processReceivers(composeDiv);
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        if (receiver.invalid.length > 0) {
+            showTipsDialog("Warning", "no blockchain address for:" + receiver.invalid);
+            return;
+        }
+
+        const success = await encryptMailInComposing(mailBody, btn, receiver.fine);
         if (!success) {
             return;
         }

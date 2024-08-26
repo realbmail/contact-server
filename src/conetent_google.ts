@@ -59,10 +59,6 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
     allComposeDiv.forEach(tdDiv => {
         const mailBodyDiv = tdDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
-        const mailQuoteDiv = mailBodyDiv.querySelector("blockquote.gmail_quote") as HTMLElement;
-        if (mailQuoteDiv) {
-            console.log("----->>> mail quote found in template!", mailQuoteDiv.textContent);
-        }
         const node = tdDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
         if (node) {
             console.log("------>>> node already exists");
@@ -184,7 +180,7 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
     }
 
     if (mailRsp.success < 0) {
-        showTipsDialog("Tips", mailRsp.message);
+        showTipsDialog("Warning", "no blockchain address for:" + emailToQuery);
         return null;
     }
 
