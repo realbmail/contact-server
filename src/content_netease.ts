@@ -303,12 +303,11 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     }
 
     const mailArea = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
+    console.log("------>>>>mail area:", mailArea, mailArea.children.length);
     const blockquotes = mailArea.querySelectorAll('blockquote');
 
-    let firstMailBody = mailArea;
-    if (blockquotes && blockquotes.length > 0) {
-        firstMailBody = mailArea?.querySelector('div[data-mail-has-encrypted="true"]') as HTMLElement;
-    }
+    let firstMailBody = mailArea.children[0] as HTMLElement;
+    console.log("------>>>>first mail body:", firstMailBody);
 
     const mailData = extractJsonString(firstMailBody.innerText.trim());
     if (!mailData) {
@@ -331,6 +330,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     console.log("------>>> decrypt button add success")
 
     if (!blockquotes) {
+        console.log("------>>> no quoted mail body found!")
         return;
     }
     blockquotes.forEach((mailQuoteDiv) => {

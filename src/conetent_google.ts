@@ -7,6 +7,7 @@ import {
 import {emailRegex, extractJsonString, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
 import {EmailReflects} from "./proto/bmail_srv";
+import {showDialog} from "./main_common";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google');
@@ -93,9 +94,12 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
 
         const titleForm = tdDiv.querySelector("form") as HTMLElement;
         const title = browser.i18n.getMessage('crypto_and_send');
+
+        const toolBarTr = tdDiv.querySelector("tr.btC") as HTMLElement;
+        const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
         const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
             "bmail_crypto_btn_in_compose_google", async btn => {
-                await enOrDecryptCompose(mailBodyDiv, btn, titleForm);
+                await enOrDecryptCompose(mailBodyDiv, btn, titleForm, sendDiv);
             });
         if (!clone) {
             console.log("------>>> node not found");
@@ -104,7 +108,7 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
 
         const newTd = document.createElement('td');
         newTd.append(clone);
-        const toolBarTr = tdDiv.querySelector("tr.btC") as HTMLElement;
+
         const secondTd = toolBarTr.querySelector('td:nth-child(2)');
         if (secondTd) {
             toolBarTr.insertBefore(newTd, secondTd);
@@ -113,11 +117,12 @@ function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     });
 }
 
-async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement) {
+async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {
+            showDialog("Error", statusRsp.message);
             return;
         }
 
@@ -128,12 +133,13 @@ async function enOrDecryptCompose(mailBody: HTMLElement, btn: HTMLElement, title
         }
 
         if (mailBody.dataset.mailHasEncrypted === 'true') {
-            await resetEncryptMailBody(mailBody, bodyTextContent);
-            checkFrameBody(mailBody, btn);
+            console.log("------>>> already encrypted data")
             return;
         }
+
         const receiver = await processReceivers(titleForm);
         await encryptMailInComposing(mailBody, btn, receiver);
+        sendDiv.click();
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
     } finally {
@@ -160,28 +166,6 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
                 addCryptoBtnToComposeDiv(template);
             });
     })
-}
-
-async function resetEncryptMailBody(mailBody: HTMLElement, mailContent: string) {
-    if (mailBody.dataset.originalHtml) {
-        mailBody.innerHTML = mailBody.dataset.originalHtml!;
-        mailBody.dataset.originalHtml = undefined;
-        return;
-    }
-
-    const mailRsp = await browser.runtime.sendMessage({
-        action: MsgType.DecryptData,
-        data: mailContent
-    })
-
-    if (mailRsp.success <= 0) {
-        if (mailRsp.success === 0) {
-            return;
-        }
-        showTipsDialog("Tips", mailRsp.message);
-        return;
-    }
-    mailBody.innerHTML = mailRsp.data;
 }
 
 let __googleContactMap = new Map<string, string>();
