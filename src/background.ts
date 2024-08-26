@@ -304,6 +304,7 @@ async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (
         console.log("[service work] encrypted mail body =>", mail);
         sendResponse({success: true, data: JSON.stringify(mail)});
     } catch (err) {
+        console.log("[service worker]  encrypt data failed:", err)
         sendResponse({success: -1, message: `internal error: ${err}`});
     }
 }
@@ -317,27 +318,10 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
         const mailBody = decodeMail(mail, mKey);
         sendResponse({success: 1, data: mailBody});
     } catch (err) {
+        console.log("[service worker] decrypt data failed:", err)
         sendResponse({success: -1, message: browser.i18n.getMessage("decrypt_mail_body_failed") + ` error: ${err}`});
     }
 }
-
-// async function contactQuery(emailAddr: string, sendResponse: (response: any) => void) {
-//     try {
-//         const mKey = await checkWalletStatus(sendResponse);
-//         if (!mKey) {
-//             return;
-//         }
-//
-//         const bmailAddr = contactData.get(emailAddr);
-//         if (!bmailAddr) {
-//             sendResponse({success: -1, message: browser.i18n.getMessage("invalid_bmail_account")});
-//             return;
-//         }
-//         sendResponse({success: 1, data: bmailAddr});
-//     } catch (err) {
-//         sendResponse({success: -1, message: `internal error: ${err}`});
-//     }
-// }
 
 async function checkLoginStatus(sendResponse: (response: any) => void) {
     const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
@@ -408,15 +392,15 @@ async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount 
         const message = QueryReq.encode(payload).finish();
         const sig = await signData(message);
         if (!sig) {
+            console.log("[service work]  signature not found");
             throw new Error("sig not found");
         }
 
         const srvRsp = await BMRequestToSrv("/query_account", address, message, sig)
         if (!srvRsp) {
-            console.log("------->>>fetch failed no response data found");
+            console.log("[service work]  fetch failed no response data found");
             return null;
         }
-        console.log("------->>>load account details success:=>");
         const accountDetails = BMailAccount.decode(srvRsp) as BMailAccount;
         await sessionSet(__dbKey_cur_account_details, accountDetails);
         return accountDetails;
@@ -447,11 +431,12 @@ async function bindingOperation(isDel: boolean, emails: string[], sendResponse: 
             return;
         }
         const srvRsp = await BMRequestToSrv("/operate_account", addr.bmail_address, message, sig)
-        console.log("------->>>unbinding success:=>", srvRsp);
+        console.log("[service worker] unbinding success:=>", srvRsp);
         sendResponse({success: 1, message: "success"});
 
     } catch (e) {
         const err = e as Error;
+        console.log("[service worker] bind account failed:", err);
         sendResponse({success: -1, message: err.message});
     }
 }
@@ -492,11 +477,12 @@ async function searchAccountByEmails(emails: string[], sendResponse: (response: 
         const message = QueryReq.encode(query).finish();
         const signature = await signData(message);
         if (!signature) {
+            console.log("[service worker] sign data failed");
             throw new Error("sign data failed")
         }
         const rspData = await BMRequestToSrv("/query_by_email_array", addr.bmail_address, message, signature);
         if (!rspData) {
-            console.log("------>>> no contact data");
+            console.log("[service worker] no contact data");
             sendResponse({success: -1, message: "no valid data"});
             return;
         }
@@ -504,6 +490,7 @@ async function searchAccountByEmails(emails: string[], sendResponse: (response: 
 
         sendResponse({success: 1, data: result});
     } catch (e) {
+        console.log("[service worker] search bmail accounts failed:", e)
         sendResponse({success: -1, message: "network failed"});
     }
 }

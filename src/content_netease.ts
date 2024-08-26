@@ -277,8 +277,14 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     }
 
     const mailArea = mailBody.querySelector(".netease_mail_readhtml.netease_mail_readhtml_webmail") as HTMLElement;
-    const blockquotes = mailArea.querySelectorAll('blockquote');
-    let firstMailBody = mailArea.children[0] as HTMLElement;
+    let firstMailBody = mailArea.querySelector('div[data-ntes="ntes_mail_body_root"]') as HTMLElement;
+    const blockquotes = firstMailBody.querySelectorAll('blockquote');
+    const subContent = firstMailBody.querySelector('div[id$="spnEditorContent"]')
+    if (subContent) {
+        firstMailBody = subContent as HTMLElement;
+    }
+
+    console.log("------>>>first mail body:", firstMailBody);
     const mailData = extractJsonString(firstMailBody.innerText.trim());
     if (!mailData) {
         console.log("----->>> no encrypted mail body found:=>");
@@ -304,12 +310,20 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
     blockquotes.forEach((mailQuoteDiv) => {
-        const quoteBody = mailQuoteDiv.firstChild as HTMLElement;
+        const quoteBody1 = mailQuoteDiv.querySelector('div[dir="ltr"]') as HTMLElement | null;
+        const quoteBody2 = mailQuoteDiv.querySelector('div[id$="spnEditorContent"]') as HTMLElement | null;
+        const quoteBody = quoteBody1 || quoteBody2
+        if (!quoteBody) {
+            console.log("----->>> quote body not found.");
+            return;
+        }
+
         const quotedMailData = extractJsonString(quoteBody.innerText.trim());
         if (!quotedMailData) {
             return;
         }
         cryptoBtn?.addEventListener('click', async () => {
+            console.log("------>>>quoted mail data:->", quotedMailData);
             await decryptMailInReading(quoteBody, quotedMailData.json, cryptoBtn.querySelector(".bmail-decrypt-btn") as HTMLElement);
         });
     });
