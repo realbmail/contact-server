@@ -286,15 +286,23 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    let firstMailBody = mailArea.querySelector('div[data-ntes="ntes_mail_body_root"]') as HTMLElement;
-    const blockquotes = firstMailBody.querySelectorAll('blockquote');
+    let firstMailBody1 = mailArea.querySelector('div[data-ntes="ntes_mail_body_root"]') as HTMLElement | null;
+    let firstMailBody2 = mailArea.querySelector('div[dir="ltr"]') as HTMLElement | null;
+    let firstMailBody = firstMailBody1 || firstMailBody2;
+    if (!firstMailBody) {
+        console.log("no mail body found:=>", mailArea);
+        return;
+    }
+
     const subContent = firstMailBody.querySelector('div[id$="spnEditorContent"]')
     if (subContent) {
         firstMailBody = subContent as HTMLElement;
     }
 
+    const blockquotes = firstMailBody.querySelectorAll('blockquote') as NodeListOf<HTMLElement>;
+    const forwardDivs = iframeDocument.querySelectorAll('div[id$="isForwardContent"]') as NodeListOf<HTMLElement>;
     const mailData = extractJsonString(firstMailBody.innerText.trim());
-    if (!mailData) {
+    if (!mailData && blockquotes.length <= 0 && forwardDivs.length <= 0) {
         console.log("----->>> no encrypted mail body found:=>");
         return;
     }
@@ -308,14 +316,14 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-            await decryptMailInReading(firstMailBody, mailData.json, btn);
+            if (mailData) {
+                await decryptMailInReading(firstMailBody, mailData.json, btn);
+            }
         }) as HTMLElement;
     headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     console.log("------>>> decrypt button add success")
 
-    const forwardDivs = iframeDocument.querySelectorAll('div[id$="isForwardContent"]')
-
-    if ((!blockquotes || blockquotes.length <= 0) && (!forwardDivs || forwardDivs.length <= 0)) {
+    if (blockquotes.length <= 0 && forwardDivs.length <= 0) {
         console.log("------>>> no quoted or forward mail body found!")
         return;
     }
