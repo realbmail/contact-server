@@ -30,7 +30,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
         }, async () => {
             console.log("------>>>start to populate google area");
             // monitorComposeBtnAction(template).then();
-            monitorMainArea(template).then();
+            monitorGmailMainArea(template).then();
             addBMailInboxToMenu(clone).then();
             // addCryptoBtnToComposeDiv(template).then();
             addCryptoBtnToReadingMail(template).then();
@@ -176,7 +176,7 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
     return queryContactFromSrv(emailToQuery, receiver);
 }
 
-async function monitorMainArea(template: HTMLTemplateElement) {
+async function monitorGmailMainArea(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
     mainArea.addEventListener('click', (event) => {
         console.log('-------->>>> click found in main area.');

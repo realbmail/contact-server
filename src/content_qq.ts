@@ -1,5 +1,5 @@
 import {
-    __localContactMap,
+    __localContactMap, addCryptButtonForEveryBmailDiv,
     checkFrameBody, encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
@@ -10,7 +10,7 @@ import {emailRegex, extractEmail, hideLoading, MsgType, sendMessageToBackground,
 import browser from "webextension-polyfill";
 
 export function appendForQQ(template: HTMLTemplateElement) {
-    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
+    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_qq");
     if (!clone) {
         console.warn("------>>> failed to parse bmail inbox button");
         return
@@ -21,13 +21,15 @@ export function appendForQQ(template: HTMLTemplateElement) {
             return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
         }, async () => {
             console.log("------>>>start to populate qq mail area");
-            appendBmailInboxMenu(clone);
-            monitorComposeBtnAction(template)
-            addCryptoBtnToComposeDiv(template);
+            appendBmailInboxMenu(clone).then();
+            monitorComposeBtnAction(template).then();
+            addCryptoBtnToComposeDiv(template).then();
+            monitorQQMainArea(template).then();
+            addCryptoBtnToReadingMail(template).then();
         });
 }
 
-function appendBmailInboxMenu(clone: HTMLElement) {
+async function appendBmailInboxMenu(clone: HTMLElement) {
     const menuParentDiv = document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
     if (!menuParentDiv) {
         console.log("------>>> menu parent div not found");
@@ -58,7 +60,7 @@ export function queryEmailAddrQQ() {
     return match[0];
 }
 
-function monitorComposeBtnAction(template: HTMLTemplateElement) {
+async function monitorComposeBtnAction(template: HTMLTemplateElement) {
 
     const composeBtnDiv = document.querySelector(".sidebar-header");
     if (!composeBtnDiv) {
@@ -70,12 +72,12 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
             () => {
                 return document.querySelector(".compose_body");
             }, async () => {
-                addCryptoBtnToComposeDiv(template);
+                await addCryptoBtnToComposeDiv(template);
             });
     })
 }
 
-function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
+async function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     const composeBodyDiv = document.querySelector(".compose_body");
     if (!composeBodyDiv) {
         console.log("------>>> no compose body found");
@@ -182,4 +184,54 @@ async function processReceivers(receiverTable: HTMLElement): Promise<string[] | 
     }
 
     return queryContactFromSrv(emailToQuery, receiver);
+}
+
+async function monitorQQMainArea(template: HTMLTemplateElement) {
+    const mainArea = document.querySelector(".frame-main .mail-list-page") as HTMLElement | null;
+    if (!mainArea) {
+        console.log("------>>> no mail reading area found");
+        return;
+    }
+    mainArea.addEventListener("click", (event) => {
+        console.log('-------->>>> click found in main area.');
+        const targetElement = event.target as HTMLElement;
+        console.log("------>>>target element", targetElement)
+        const mailItemDiv = targetElement.closest('div.mail-list-page-item') as HTMLElement | null;
+        if (!mailItemDiv) {
+            console.log("------>>> this is not a mail reading action");
+            return;
+        }
+
+        let idleTimer = setTimeout(() => {
+            console.log("------>>> target hint, check elements and add bmail buttons");
+            clearTimeout(idleTimer);
+            addCryptoBtnToReadingMail(template, mainArea);
+        }, 800);
+    });
+}
+
+async function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTMLElement) {
+    console.log("------>>> try to add button to mail reading div");
+    let parentDiv = document.body;
+    if (mainArea) {
+        parentDiv = mainArea;
+    }
+
+    const mailArea = parentDiv.querySelector(".xmail-ui-float-scroll .mail-detail-content") as HTMLElement | null;
+    if (!mailArea) {
+        console.log("------>>> no reading mail body found");
+        return;
+    }
+    const toolBar = parentDiv.querySelector(".mail-list-page-toolbar.toolbar-only-reader") as HTMLElement | null;
+    if (!toolBar) {
+        console.log("------>>> tool bar for crypt button not found");
+        return;
+    }
+
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq');
+    if (!cryptoBtnDiv) {
+        return;
+    }
+
+    toolBar.insertBefore(cryptoBtnDiv, toolBar.children[1]);
 }
