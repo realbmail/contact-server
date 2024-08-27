@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import {hideLoading, HostArr, MsgType, sendMessageToBackground, showLoading} from "./common";
+import {BMailDivQuery, hideLoading, HostArr, MsgType, sendMessageToBackground, showLoading} from "./common";
 import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./conetent_google";
 import {MailFlag} from "./bmail_body";
@@ -260,7 +260,14 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
     return receiver;
 }
 
-export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, btnParent: HTMLElement, BMailDivs: HTMLElement[]) {
+export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, mailArea: HTMLElement): HTMLElement | null {
+
+    const BMailDivs = BMailDivQuery(mailArea) as HTMLElement[];
+    if (BMailDivs.length <= 0) {
+        console.log("------>>> no bmail content found");
+        return null;
+    }
+
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
         title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
@@ -268,12 +275,11 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, bt
 
     const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
 
-    btnParent.insertBefore(cryptoBtnDiv, btnParent.children[1]);
-    console.log("------>>> decrypt button add success");
-
     BMailDivs.forEach(bmailBody => {
         cryptoBtnDiv!.addEventListener('click', async () => {
             await decryptMailInReading(bmailBody, bmailBody.textContent!.trim(), cryptoBtn);
         });
     });
+
+    return cryptoBtnDiv;
 }

@@ -237,12 +237,11 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             return;
         }
 
-        const BMailDivs = BMailDivQuery(oneMail) as HTMLElement[];
-        if (BMailDivs.length <= 0) {
-            console.log("------>>> no bmail content found");
+        const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, oneMail);
+        if (!cryptoBtnDiv) {
             return;
         }
 
-        addCryptButtonForEveryBmailDiv(template, mailParentDiv, BMailDivs);
+        mailParentDiv.insertBefore(cryptoBtnDiv, mailParentDiv.firstChild);
     })
 }

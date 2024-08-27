@@ -293,12 +293,12 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const BMailDivs = BMailDivQuery(mailArea) as HTMLElement[];
-    if (BMailDivs.length <= 0) {
-        console.log("------>>> no bmail content found");
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea);
+    if (!cryptoBtnDiv) {
         return;
     }
 
-    addCryptButtonForEveryBmailDiv(template, headerBtnList, BMailDivs);
+    headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
+    console.log("------>>> decrypt button add success");
 }
 
