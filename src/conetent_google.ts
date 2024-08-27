@@ -22,7 +22,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
         addDecryptBtnToSimpleMailAllDiv(template, viewAllMailDiv as HTMLElement);
         return;
     }
-    monitorComposeAction(template).then();
+    monitorComposeActionGoogle(template).then();
 
     observeForElement(document.body, 1000,
         () => {
@@ -240,7 +240,7 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
     })
 }
 
-async function monitorComposeAction(template: HTMLTemplateElement) {
+async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
     let composeDivArray: HTMLElement[] = [];
     observeForElement(document.body, 800, () => {
         const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);

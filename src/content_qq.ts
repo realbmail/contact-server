@@ -15,15 +15,15 @@ export function appendForQQ(template: HTMLTemplateElement) {
         console.warn("------>>> failed to parse bmail inbox button");
         return
     }
-
     observeForElement(document.body, 1000,
         () => {
             return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
         }, async () => {
-            console.log("------>>>start to populate qq mail area");
+            console.log("------->>>start to populate qq mail area",);
+            monitorComposeActionQQ(template).then();
             appendBmailInboxMenu(clone).then();
-            monitorComposeBtnAction(template).then();
-            addCryptoBtnToComposeDivQQ(template).then();
+            // monitorComposeBtnAction(template).then();
+            // addCryptoBtnToComposeDivQQ(template).then();
             monitorQQMainArea(template).then();
             addCryptoBtnToReadingMailQQ(template).then();
         });
@@ -95,7 +95,12 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         return null;
     }
 
-    const mailContentDiv = iframeDocument.querySelector(".rooster-content-body") as HTMLElement;
+    let mailContentDiv = iframeDocument.querySelector(".rooster-content-body") as HTMLElement;
+    const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
+    if (replyOrQuoteDiv) {
+        mailContentDiv = mailContentDiv.firstChild as HTMLElement;
+    }
+
     const cryptoBtn = composeBodyDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (cryptoBtn) {
         console.log("------>>> node already exists");
@@ -241,22 +246,22 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
 
     toolBar.insertBefore(cryptoBtnDiv, toolBar.firstChild);
 
-    const actionBar = parentDiv.querySelector(".xmail-ui-ellipsis-toolbar") as HTMLElement | null;
-    if (actionBar) {
-        actionBar.addEventListener("click", () => {
-            let idleTimer = setTimeout(() => {
-                clearTimeout(idleTimer);
-                addCryptoBtnToComposeDivQQ(template).then();
-            }, 1200);
-        })
-    }
+    // const actionBar = parentDiv.querySelector(".xmail-ui-ellipsis-toolbar") as HTMLElement | null;
+    // if (actionBar) {
+    //     actionBar.addEventListener("click", () => {
+    //         let idleTimer = setTimeout(() => {
+    //             clearTimeout(idleTimer);
+    //             addCryptoBtnToComposeDivQQ(template).then();
+    //         }, 1200);
+    //     })
+    // }
 
     const replayBar = parentDiv.querySelector(".mail-detail-reply") as HTMLElement | null;
     if (replayBar) {
         replayBar.addEventListener("click", () => {
             let idleTimer = setTimeout(() => {
                 clearTimeout(idleTimer);
-                addCryptoBtnToComposeDivQQ(template).then();
+                // addCryptoBtnToComposeDivQQ(template).then();
                 addCryptoBtnToSimpleReply(template, replayBar).then();
             }, 1200);
         })
@@ -269,4 +274,19 @@ async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBa
         console.log("------>>> no simple reply content found");
         return;
     }
+}
+
+async function monitorComposeActionQQ(template: HTMLTemplateElement) {
+    const frameMainDiv = document.querySelector(".frame-main") as HTMLElement;
+    let iframe = frameMainDiv.querySelector(".editor_iframe") as HTMLElement | null;
+    observeForElement(frameMainDiv, 800, () => {
+        const newFrame = frameMainDiv.querySelector(".editor_iframe") as HTMLElement | null;
+        if (iframe === newFrame) {
+            return null;
+        }
+        iframe = newFrame;
+        return newFrame;
+    }, async () => {
+        addCryptoBtnToComposeDivQQ(template).then()
+    }, true);
 }
