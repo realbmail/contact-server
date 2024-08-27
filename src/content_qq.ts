@@ -1,6 +1,6 @@
 import {
     __localContactMap,
-    checkFrameBody,
+    checkFrameBody, encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
     parseCryptoMailBtn, queryContactFromSrv,
@@ -139,6 +139,13 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, rec
         if (!receiver) {
             return;
         }
+
+        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        if (!success) {
+            return;
+        }
+        sendDiv.click();
+
     } catch (e) {
         console.log("------>>> mail crypto err:", e);
         showTipsDialog("error", "encrypt mail content failed");
