@@ -34,7 +34,8 @@ export enum HostArr {
     Google = 'mail.google.com',
     Mail163 = 'mail.163.com',
     Mail126 = 'mail.126.com',
-    QQ = 'mail.qq.com'
+    QQ = 'mail.qq.com',
+    OutLook = 'outlook.live.com'
 }
 
 export const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;

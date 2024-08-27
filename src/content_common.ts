@@ -1,10 +1,11 @@
 import browser from "webextension-polyfill";
 import {BMailDivQuery, hideLoading, HostArr, MsgType, sendMessageToBackground, showLoading} from "./common";
 import {queryEmailAddrNetEase} from "./content_netease";
-import {queryEmailAddrGoogle} from "./conetent_google";
+import {queryEmailAddrGoogle} from "./content_google";
 import {MailFlag} from "./bmail_body";
 import {queryEmailAddrQQ} from "./content_qq";
 import {EmailReflects} from "./proto/bmail_srv";
+import {queryEmailAddrOutLook} from "./content_outlook";
 
 
 window.addEventListener('message', (event) => {
@@ -46,6 +47,10 @@ function readCurrentMailAddress() {
 
     if (hostname.includes(HostArr.QQ)) {
         return queryEmailAddrQQ();
+    }
+
+    if (hostname.includes(HostArr.OutLook)) {
+        return queryEmailAddrOutLook();
     }
 }
 

@@ -235,10 +235,12 @@ const urlsToMatch = [
     "https://wx.mail.qq.com/*",
     "https://mail.qq.com/*",
     "https://mail.126.com/*",
+    "https://outlook.live.com/*",
     "https://*.mail.google.com/*",
     "https://*.mail.163.com/*",
     "https://*.mail.qq.com/*",
-    "https://*.mail.126.com/*"
+    "https://*.mail.126.com/*",
+    "https://*.outlook.live.com/*"
 ];
 
 tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {

@@ -1,8 +1,9 @@
 import browser from "webextension-polyfill";
 import {HostArr} from "./common";
 import {appendForNetEase} from "./content_netease";
-import {appendForGoogle} from "./conetent_google";
+import {appendForGoogle} from "./content_google";
 import {appendForQQ} from "./content_qq";
+import {appendForOutLook} from "./content_outlook";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -50,7 +51,8 @@ const targetSelectorMap = {
     [HostArr.Google]: appendForGoogle,
     [HostArr.Mail163]: appendForNetEase,
     [HostArr.Mail126]: appendForNetEase,
-    [HostArr.QQ]: appendForQQ
+    [HostArr.QQ]: appendForQQ,
+    [HostArr.OutLook]: appendForOutLook
 };
 
 function translateInjectedElm() {
