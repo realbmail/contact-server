@@ -237,7 +237,7 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
             return;
         }
 
-        const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, oneMail);
+        const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, oneMail, 'bmail_decrypt_btn_in_compose_google');
         if (!cryptoBtnDiv) {
             return;
         }

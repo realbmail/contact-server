@@ -293,7 +293,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea);
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_netEase');
     if (!cryptoBtnDiv) {
         return;
     }

@@ -260,7 +260,7 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
     return receiver;
 }
 
-export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, mailArea: HTMLElement): HTMLElement | null {
+export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, mailArea: HTMLElement, btnId: string): HTMLElement | null {
 
     const BMailDivs = BMailDivQuery(mailArea) as HTMLElement[];
     if (BMailDivs.length <= 0) {
@@ -270,7 +270,7 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
-        title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
+        title, btnId, async btn => {
         }) as HTMLElement;
 
     const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
