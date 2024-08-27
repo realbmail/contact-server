@@ -187,7 +187,7 @@ async function processReceivers(receiverTable: HTMLElement): Promise<string[] | 
 }
 
 async function monitorQQMainArea(template: HTMLTemplateElement) {
-    const mainArea = document.querySelector(".frame-main .mail-list-page") as HTMLElement | null;
+    const mainArea = document.querySelector(".frame-main") as HTMLElement | null;
     if (!mainArea) {
         console.log("------>>> no mail reading area found");
         return;
@@ -216,15 +216,21 @@ async function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea
     if (mainArea) {
         parentDiv = mainArea;
     }
+    const toolBar = parentDiv.querySelector(".basic-body-item .mail-detail-basic-action-bar") as HTMLElement | null;
+    if (!toolBar) {
+        console.log("------>>> tool bar for crypt button not found");
+        return;
+    }
+
+    const decryptBtn = toolBar.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    if (decryptBtn) {
+        console.log("------>>> decrypt button already been added for reading");
+        return;
+    }
 
     const mailArea = parentDiv.querySelector(".xmail-ui-float-scroll .mail-detail-content") as HTMLElement | null;
     if (!mailArea) {
         console.log("------>>> no reading mail body found");
-        return;
-    }
-    const toolBar = parentDiv.querySelector(".mail-list-page-toolbar.toolbar-only-reader") as HTMLElement | null;
-    if (!toolBar) {
-        console.log("------>>> tool bar for crypt button not found");
         return;
     }
 
@@ -233,5 +239,5 @@ async function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea
         return;
     }
 
-    toolBar.insertBefore(cryptoBtnDiv, toolBar.children[1]);
+    toolBar.insertBefore(cryptoBtnDiv, toolBar.firstChild);
 }
