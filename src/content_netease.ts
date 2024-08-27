@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import {
     checkFrameBody, encryptMailInComposing, decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, showTipsDialog, queryContactFromSrv, __localContactMap
+    parseCryptoMailBtn, showTipsDialog, queryContactFromSrv, __localContactMap, addCryptButtonForEveryBmailDiv
 } from "./content_common";
 import {
     BMailDivQuery,
@@ -278,7 +278,7 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar")
+    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar") as HTMLElement | null;
     if (!headerBtnList) {
         console.log("------>>> header list not found for netease mail reading");
         return;
@@ -299,20 +299,6 @@ function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const title = browser.i18n.getMessage('decrypt_mail_body')
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
-        title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
-        }) as HTMLElement;
-
-    const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
-
-    headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
-    console.log("------>>> decrypt button add success");
-
-    BMailDivs.forEach(bmailBody => {
-        cryptoBtnDiv!.addEventListener('click', async () => {
-            await decryptMailInReading(bmailBody, bmailBody.textContent!.trim(), cryptoBtn);
-        });
-    });
+    addCryptButtonForEveryBmailDiv(template, headerBtnList, BMailDivs);
 }
 

@@ -259,3 +259,21 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
 
     return receiver;
 }
+
+export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, btnParent: HTMLElement, BMailDivs: HTMLElement[]) {
+    const title = browser.i18n.getMessage('decrypt_mail_body')
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+        title, 'bmail_decrypt_btn_in_compose_netEase', async btn => {
+        }) as HTMLElement;
+
+    const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
+
+    btnParent.insertBefore(cryptoBtnDiv, btnParent.children[1]);
+    console.log("------>>> decrypt button add success");
+
+    BMailDivs.forEach(bmailBody => {
+        cryptoBtnDiv!.addEventListener('click', async () => {
+            await decryptMailInReading(bmailBody, bmailBody.textContent!.trim(), cryptoBtn);
+        });
+    });
+}

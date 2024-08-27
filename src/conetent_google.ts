@@ -1,10 +1,24 @@
 import {
     checkFrameBody,
-    encryptMailInComposing, decryptMailInReading,
+    encryptMailInComposing,
+    decryptMailInReading,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, showTipsDialog, observeForElement, __localContactMap, queryContactFromSrv
+    parseCryptoMailBtn,
+    showTipsDialog,
+    observeForElement,
+    __localContactMap,
+    queryContactFromSrv,
+    addCryptButtonForEveryBmailDiv
 } from "./content_common";
-import {emailRegex, extractJsonString, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
+import {
+    BMailDivQuery,
+    emailRegex,
+    extractJsonString,
+    hideLoading,
+    MsgType,
+    sendMessageToBackground,
+    showLoading
+} from "./common";
 import browser from "webextension-polyfill";
 import {EmailReflects} from "./proto/bmail_srv";
 import {showDialog} from "./main_common";
@@ -212,57 +226,23 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
         const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
-        let mailContentDiv = mailParentDiv?.firstChild as HTMLElement | null;
-        if (!mailParentDiv || !mailContentDiv) {
-            console.log("------>>> mail div not found:");
+        if (!mailParentDiv) {
+            console.log("------>>> no mail content parent div found");
             return;
         }
-
-        if (mailContentDiv.querySelector(".adm")) {
-            mailContentDiv = mailContentDiv.children[0] as HTMLElement;
-            if (!mailContentDiv) {
-                console.log("------>>> unknown html architecture!")
-                return;
-            }
-        }
-
         const bmailBtn = oneMail.querySelector(".bmail-decrypt-btn") as HTMLElement;
         if (bmailBtn) {
             console.log("------>>> duplicate bmail button found for mail reading......")
-            checkFrameBody(mailContentDiv, bmailBtn);
+            checkFrameBody(mailParentDiv, bmailBtn);
             return;
         }
 
-        const mailData = extractJsonString(mailContentDiv.innerText as string);
-        if (!mailData) {
-            console.log("------->>> this is not a bmail body......[", mailData, "]mailContentDiv=>", mailContentDiv)
+        const BMailDivs = BMailDivQuery(oneMail) as HTMLElement[];
+        if (BMailDivs.length <= 0) {
+            console.log("------>>> no bmail content found");
             return;
         }
-        console.log("------>>>first body =>", mailContentDiv);
-        const title = browser.i18n.getMessage('decrypt_mail_body')
-        const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
-            title, 'bmail_decrypt_btn_in_compose_google', async btn => {
-                await decryptMailInReading(mailContentDiv, mailData.json, btn);
-            });
 
-        mailParentDiv.insertBefore(cryptoBtnDiv!, mailParentDiv.firstChild);
-
-        const blockquotes = mailParentDiv.querySelectorAll('blockquote');
-        if (!blockquotes) {
-            console.log("------>>> no quoted mail body found!")
-            return;
-        }
-        blockquotes.forEach((mailQuoteDiv) => {
-            const quoteBody = mailQuoteDiv.firstChild as HTMLElement;
-            const quotedMailData = extractJsonString(quoteBody.innerText.trim());
-            if (!quotedMailData) {
-                return;
-            }
-            console.log("------>>>quoted body =>", quoteBody);
-            cryptoBtnDiv?.addEventListener('click', async () => {
-                await decryptMailInReading(quoteBody, quotedMailData.json, cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement);
-            });
-        });
-        console.log("------>>> add decrypt button to reading mail success......")
+        addCryptButtonForEveryBmailDiv(template, mailParentDiv, BMailDivs);
     })
 }
