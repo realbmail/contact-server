@@ -246,33 +246,91 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
 
     toolBar.insertBefore(cryptoBtnDiv, toolBar.firstChild);
 
-    // const actionBar = parentDiv.querySelector(".xmail-ui-ellipsis-toolbar") as HTMLElement | null;
-    // if (actionBar) {
-    //     actionBar.addEventListener("click", () => {
-    //         let idleTimer = setTimeout(() => {
-    //             clearTimeout(idleTimer);
-    //             addCryptoBtnToComposeDivQQ(template).then();
-    //         }, 1200);
-    //     })
-    // }
-
     const replayBar = parentDiv.querySelector(".mail-detail-reply") as HTMLElement | null;
     if (replayBar) {
         replayBar.addEventListener("click", () => {
             let idleTimer = setTimeout(() => {
                 clearTimeout(idleTimer);
-                // addCryptoBtnToComposeDivQQ(template).then();
                 addCryptoBtnToSimpleReply(template, replayBar).then();
-            }, 1200);
+            }, 1000);
         })
     }
 }
 
 async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBar: HTMLElement) {
+
     const mailBody = replayBar.querySelector(".reply-editor") as HTMLElement | null;
     if (!mailBody) {
         console.log("------>>> no simple reply content found");
         return;
+    }
+
+    let iframe = mailBody.querySelector(".editor_iframe") as HTMLIFrameElement | null;
+    const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
+    if (!iframeDocument) {
+        console.log("----->>> no frame body found in simple replay area:=>");
+        return null;
+    }
+
+    const toolbar = replayBar.querySelector(".mail-reader-page-reply-footer");
+    const sendDiv = toolbar?.children[0] as HTMLElement | null;
+    if (!sendDiv) {
+        console.log("------>>> send button not found for simple reply area");
+        return;
+    }
+
+    const title = browser.i18n.getMessage('crypto_and_send');
+    const mailContentDiv = iframeDocument.querySelector(".rooster-content-body") as HTMLElement;
+    const receiverDiv = replayBar.querySelector('.cmp-account-email') as HTMLElement;
+    const email = extractEmail(receiverDiv.textContent ?? "");
+    if (!email) {
+        console.log("------>>> no receiver in simple reply");
+        return;
+    }
+
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+        title, 'bmail_crypto_btn_in_compose_qq', async btn => {
+            await encryptSimpleMailReplyQQ(mailContentDiv, email, btn, sendDiv);
+        }
+    ) as HTMLElement;
+    toolbar?.insertBefore(cryptoBtnDiv, toolbar?.children[1]);
+}
+
+async function encryptSimpleMailReplyQQ(mailBody: HTMLElement, email: string, btn: HTMLElement, sendDiv: HTMLElement) {
+    showLoading();
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+        let bodyTextContent = mailBody.innerText.trim();
+
+        if (bodyTextContent.length <= 0) {
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
+            return;
+        }
+
+        let address = __localContactMap.get(email);
+        if (!address) {
+            const receiver = await queryContactFromSrv([email], []);
+            if (!receiver || receiver.length <= 0) {
+                showTipsDialog("Warning", "no blockchain address found for email:" + email);
+                return;
+            }
+            address = receiver[0];
+        }
+        const success = await encryptMailInComposing(mailBody, btn, [address]);
+        if (!success) {
+            return;
+        }
+
+        sendDiv.click();
+
+    } catch (err) {
+        console.log("------>>> mail crypto err:", err);
+        showTipsDialog("error", "encrypt mail content failed");
+    } finally {
+        hideLoading();
     }
 }
 

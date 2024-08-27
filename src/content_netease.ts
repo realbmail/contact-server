@@ -209,7 +209,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
         }
 
         const receiver = await processReceivers(composeDiv);
-        if (!receiver) {
+        if (!receiver || receiver.length <= 0) {
             return;
         }
 
