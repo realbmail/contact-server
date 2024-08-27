@@ -199,3 +199,24 @@ export function hideLoading(): void {
     document.body.classList.remove('loading');
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
+
+export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
+    // 匹配 JSON 字符串的正则表达式
+    const jsonRegex = /^\{.*\}$|^\[.*\]$/;
+    const matchingElements: HTMLElement[] = [];
+
+    mailArea.querySelectorAll('div').forEach((element) => {
+        const textContent = element.textContent?.trim();
+        if (textContent && jsonRegex.test(textContent)) {
+            try {
+                JSON.parse(textContent);
+                matchingElements.push(element);  // 将包含 JSON 字符串的 div 元素加入数组
+                console.log("------>>>json element:=>", element);
+            } catch (e) {
+                // 解析失败，说明不是有效的 JSON，忽略该元素
+            }
+        }
+    });
+    console.log("------------------>>matchingElements size:=>", matchingElements.length)
+    return matchingElements;
+}
