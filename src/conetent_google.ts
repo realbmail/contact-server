@@ -33,7 +33,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             monitorGmailMainArea(template).then();
             addBMailInboxToMenu(clone).then();
             // addCryptoBtnToComposeDiv(template).then();
-            addCryptoBtnToReadingMail(template).then();
+            addCryptoBtnToReadingMailGoogle(template).then();
         });
 }
 
@@ -62,7 +62,7 @@ export function queryEmailAddrGoogle() {
 
 const _composeBtnParentClass = "td.I5"
 
-async function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
+async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
     allComposeDiv.forEach(tdDiv => {
@@ -148,7 +148,7 @@ async function monitorComposeBtnAction(template: HTMLTemplateElement) {
                 }
                 return null;
             }, async () => {
-                await addCryptoBtnToComposeDiv(template);
+                await addCryptoBtnToComposeDivGoogle(template);
             });
     })
 }
@@ -203,14 +203,14 @@ async function monitorGmailMainArea(template: HTMLTemplateElement) {
         let idleTimer = setTimeout(() => {
             console.log("------>>> target hint, check elements and add bmail buttons");
             clearTimeout(idleTimer);
-            addCryptoBtnToComposeDiv(template);
-            addCryptoBtnToReadingMail(template, mainArea);
+            addCryptoBtnToComposeDivGoogle(template);
+            addCryptoBtnToReadingMailGoogle(template, mainArea);
         }, 1000);
 
     });
 }
 
-async function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTMLElement) {
+async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, mainArea?: HTMLElement) {
     let parentDiv = document.body;
     if (mainArea) {
         parentDiv = mainArea;
@@ -256,7 +256,7 @@ async function monitorComposeAction(template: HTMLTemplateElement) {
             console.log("------>>> no dialog compose:");
             return;
         }
-        await addCryptoBtnToComposeDiv(template);
+        await addCryptoBtnToComposeDivGoogle(template);
     }, true);
 }
 

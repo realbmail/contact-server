@@ -53,13 +53,13 @@ function checkHasMailContent(template: HTMLTemplateElement) {
 
         const composeDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_compose.ComposeModule']");
         composeDiv.forEach(div => {
-            addMailEncryptLogicForComposition(div, template);
+            addCryptoBtnToComposeDivNetease(div, template);
         });
 
         clearTimeout(debounceTimer);
         const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
         readDiv.forEach(div => {
-            addMailDecryptForReading(div, template);
+            addMailDecryptForReadingNetease(div, template);
         });
     }, 1500);
 }
@@ -117,7 +117,7 @@ function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HT
     checkFrameBody(div, btn);
 }
 
-function addMailEncryptLogicForComposition(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     let cryptoBtn = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
     if (cryptoBtn) {
         console.log("------>>> crypto btn already been added before for mail composing");
@@ -260,7 +260,7 @@ function monitorTabMenu(callback?: (isDelete: boolean) => void) {
     observer.observe(ul, {childList: true});
 }
 
-function addMailDecryptForReading(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTMLTemplateElement) {
 
     const decryptBtn = composeDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
     if (decryptBtn) {
