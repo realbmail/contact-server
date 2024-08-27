@@ -1,30 +1,27 @@
 import {
+    __localContactMap,
+    addCryptButtonForEveryBmailDiv,
     checkFrameBody,
     encryptMailInComposing,
+    observeForElement,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
-    showTipsDialog,
-    observeForElement,
-    __localContactMap,
     queryContactFromSrv,
-    addCryptButtonForEveryBmailDiv
+    showTipsDialog
 } from "./content_common";
-import {
-    emailRegex,
-    hideLoading,
-    MsgType,
-    sendMessageToBackground,
-    showLoading
-} from "./common";
+import {emailRegex, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 import browser from "webextension-polyfill";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
-    const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google');
-    if (!clone) {
-        console.warn("------>>> failed to parse bmail inbox button");
-        return
-    }
+    const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google') as HTMLElement;
 
+    console.log("------>>> start to append element to google mail");
+    const viewAllMailDiv = document.querySelector(".bodycontainer");
+    if (viewAllMailDiv) {
+        console.log("------>>> this is view all mail content");
+        addDecryptBtnToSimpleMailAllDiv(template, viewAllMailDiv as HTMLElement);
+        return;
+    }
     observeForElement(1500,
         () => {
             return document.querySelector('.TK') as HTMLElement;
@@ -35,7 +32,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             addBMailInboxToMenu(clone);
             addCryptoBtnToComposeDiv(template);
             addCryptoBtnToReadingMail(template);
-            monitorContactAction();
+            monitorContactAction(template);
         });
 }
 
@@ -242,29 +239,52 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     })
 }
 
-function monitorContactAction() {
+function monitorContactAction(template: HTMLTemplateElement) {
     const contactDiv = document.getElementById("gsc-gab-9");
     if (!contactDiv) {
         console.log("------>>> no contactDiv found");
         return
     }
     contactDiv.addEventListener('click', () => {
+        observeForElement(800,
+            () => {
+                const contactFrameParentDiv = document.querySelector(".brC-brG-Jz-bBA.brC-brG-bsf");
+                return contactFrameParentDiv?.querySelector("iframe") as HTMLIFrameElement | null;
+            }, async () => {
+                const contactFrameParentDiv = document.querySelector(".brC-brG-Jz-bBA.brC-brG-bsf");
+                const contactFrame = contactFrameParentDiv?.querySelector("iframe") as HTMLIFrameElement | null;
+                const frameDocument = contactFrame?.contentDocument || contactFrame?.contentWindow?.document;
+                if (!frameDocument) {
+                    return;
+                }
 
-        const contactFrameParentDiv = document.querySelector(".brC-brG-Jz-bBA.brC-brG-bsf");
-        const contactFrame = contactFrameParentDiv?.querySelector("iframe") as HTMLIFrameElement | null;
-        if (!contactFrame) {
-            console.log("------>>> no contact frame found");
-            return;
-        }
-        console.log("------>>> contact frame found");
-
-        // observeForElement(1500,
-        //     () => {
-        //         return document.querySelector('.TK') as HTMLElement;
-        //     }, async () => {
-        //         console.log("------>>>contact iframe found");
-        //
-        //     });
-
+                frameDocument.addEventListener("click", async () => {
+                    const linkElement = frameDocument.querySelector('a[aria-label="Send email"]');
+                    if (!linkElement) {
+                        console.log("------>>> no send mail link found");
+                        return;
+                    }
+                    linkElement.addEventListener("click", async () => {
+                        addCryptoBtnToComposeDiv(template);
+                    })
+                })
+            });
     });
+}
+
+function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllMailDiv: HTMLElement) {
+    const maincontent = viewAllMailDiv.querySelector(".maincontent") as HTMLElement;
+    const bmailBtn = maincontent.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    if (bmailBtn) {
+        console.log("------>>> duplicate bmail button found for mail reading......")
+        checkFrameBody(viewAllMailDiv, bmailBtn);
+        return;
+    }
+
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, maincontent, 'bmail_decrypt_btn_in_compose_google');
+    if (!cryptoBtnDiv) {
+        return;
+    }
+
+    maincontent.insertBefore(cryptoBtnDiv, maincontent.firstChild);
 }

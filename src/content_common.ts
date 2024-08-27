@@ -98,8 +98,8 @@ export function showTipsDialog(title: string, message: string) {
 
 
 export function checkFrameBody(fBody: HTMLElement, btn: HTMLElement) {
-    let textContent = fBody.innerText.trim();
-    if (textContent.length <= 0) {
+    let textContent = fBody.textContent?.trim();
+    if (!textContent || textContent.length <= 0) {
         console.log("------>>> no mail content to judge");
         return;
     }
