@@ -22,21 +22,22 @@ export function appendForGoogle(template: HTMLTemplateElement) {
         addDecryptBtnToSimpleMailAllDiv(template, viewAllMailDiv as HTMLElement);
         return;
     }
-    observeForElement(1500,
+    monitorComposeAction(template).then();
+
+    observeForElement(document.body, 1000,
         () => {
             return document.querySelector('.TK') as HTMLElement;
         }, async () => {
             console.log("------>>>start to populate google area");
-            monitorComposeBtnAction(template);
-            monitorMainArea(template);
-            addBMailInboxToMenu(clone);
-            addCryptoBtnToComposeDiv(template);
-            addCryptoBtnToReadingMail(template);
-            monitorContactAction(template);
+            // monitorComposeBtnAction(template).then();
+            monitorMainArea(template).then();
+            addBMailInboxToMenu(clone).then();
+            // addCryptoBtnToComposeDiv(template).then();
+            addCryptoBtnToReadingMail(template).then();
         });
 }
 
-function addBMailInboxToMenu(clone: HTMLElement) {
+async function addBMailInboxToMenu(clone: HTMLElement) {
     const composBtn = document.querySelector(".T-I.T-I-KE.L3");
     if (!composBtn) {
         console.warn("------>>> compose button not found");
@@ -61,7 +62,7 @@ export function queryEmailAddrGoogle() {
 
 const _composeBtnParentClass = "td.I5"
 
-function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
+async function addCryptoBtnToComposeDiv(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
     allComposeDiv.forEach(tdDiv => {
@@ -131,7 +132,7 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
     }
 }
 
-function monitorComposeBtnAction(template: HTMLTemplateElement) {
+async function monitorComposeBtnAction(template: HTMLTemplateElement) {
     const composBtn = document.querySelector(".T-I.T-I-KE.L3");
     if (!composBtn) {
         console.warn("------>>> compose button not found");
@@ -139,7 +140,7 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
     }
 
     composBtn.addEventListener('click', () => {
-        observeForElement(800,
+        observeForElement(document.body, 800,
             () => {
                 const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
                 if (allComposeDiv.length > 0) {
@@ -147,7 +148,7 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
                 }
                 return null;
             }, async () => {
-                addCryptoBtnToComposeDiv(template);
+                await addCryptoBtnToComposeDiv(template);
             });
     })
 }
@@ -175,7 +176,7 @@ async function processReceivers(titleForm: HTMLElement): Promise<string[] | null
     return queryContactFromSrv(emailToQuery, receiver);
 }
 
-function monitorMainArea(template: HTMLTemplateElement) {
+async function monitorMainArea(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
     mainArea.addEventListener('click', (event) => {
         console.log('-------->>>> click found in main area.');
@@ -209,7 +210,7 @@ function monitorMainArea(template: HTMLTemplateElement) {
     });
 }
 
-function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTMLElement) {
+async function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTMLElement) {
     let parentDiv = document.body;
     if (mainArea) {
         parentDiv = mainArea;
@@ -239,52 +240,40 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
     })
 }
 
-function monitorContactAction(template: HTMLTemplateElement) {
-    const contactDiv = document.getElementById("gsc-gab-9");
-    if (!contactDiv) {
-        console.log("------>>> no contactDiv found");
-        return
-    }
-    contactDiv.addEventListener('click', () => {
-        observeForElement(800,
-            () => {
-                const contactFrameParentDiv = document.querySelector(".brC-brG-Jz-bBA.brC-brG-bsf");
-                return contactFrameParentDiv?.querySelector("iframe") as HTMLIFrameElement | null;
-            }, async () => {
-                const contactFrameParentDiv = document.querySelector(".brC-brG-Jz-bBA.brC-brG-bsf");
-                const contactFrame = contactFrameParentDiv?.querySelector("iframe") as HTMLIFrameElement | null;
-                const frameDocument = contactFrame?.contentDocument || contactFrame?.contentWindow?.document;
-                if (!frameDocument) {
-                    return;
-                }
-
-                frameDocument.addEventListener("click", async () => {
-                    const linkElement = frameDocument.querySelector('a[aria-label="Send email"]');
-                    if (!linkElement) {
-                        console.log("------>>> no send mail link found");
-                        return;
-                    }
-                    linkElement.addEventListener("click", async () => {
-                        addCryptoBtnToComposeDiv(template);
-                    })
-                })
-            });
-    });
+async function monitorComposeAction(template: HTMLTemplateElement) {
+    let composeDivArray: HTMLElement[] = [];
+    observeForElement(document.body, 800, () => {
+        const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);
+        if (newComposeArr.length > composeDivArray.length) {
+            composeDivArray = newComposeArr;
+            return newComposeArr[0] as HTMLElement;
+        }
+        composeDivArray = newComposeArr;
+        return null;
+    }, async () => {
+        const composeDialogs = document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>;
+        if (composeDialogs.length <= 0) {
+            console.log("------>>> no dialog compose:");
+            return;
+        }
+        await addCryptoBtnToComposeDiv(template);
+    }, true);
 }
 
+
 function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllMailDiv: HTMLElement) {
-    const maincontent = viewAllMailDiv.querySelector(".maincontent") as HTMLElement;
-    const bmailBtn = maincontent.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    const mainContent = viewAllMailDiv.querySelector(".maincontent") as HTMLElement;
+    const bmailBtn = mainContent.querySelector(".bmail-decrypt-btn") as HTMLElement;
     if (bmailBtn) {
         console.log("------>>> duplicate bmail button found for mail reading......")
         checkFrameBody(viewAllMailDiv, bmailBtn);
         return;
     }
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, maincontent, 'bmail_decrypt_btn_in_compose_google');
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mainContent, 'bmail_decrypt_btn_in_compose_google');
     if (!cryptoBtnDiv) {
         return;
     }
 
-    maincontent.insertBefore(cryptoBtnDiv, maincontent.firstChild);
+    mainContent.insertBefore(cryptoBtnDiv, mainContent.firstChild);
 }

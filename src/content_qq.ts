@@ -16,7 +16,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
         return
     }
 
-    observeForElement(1000,
+    observeForElement(document.body, 1000,
         () => {
             return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
         }, async () => {
@@ -66,7 +66,7 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
         return;
     }
     composeBtnDiv.addEventListener("click", () => {
-        observeForElement(800,
+        observeForElement(document.body, 800,
             () => {
                 return document.querySelector(".compose_body");
             }, async () => {

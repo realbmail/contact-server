@@ -1,16 +1,13 @@
 import browser from "webextension-polyfill";
 import {
-    checkFrameBody, encryptMailInComposing, decryptMailInReading,
-    parseBmailInboxBtn,
+    checkFrameBody, encryptMailInComposing, parseBmailInboxBtn,
     parseCryptoMailBtn, showTipsDialog, queryContactFromSrv, __localContactMap, addCryptButtonForEveryBmailDiv
 } from "./content_common";
 import {
-    BMailDivQuery,
     extractEmail,
-    extractJsonString, hideLoading,
+    hideLoading,
     MsgType, sendMessageToBackground, showLoading
 } from "./common";
-import {EmailReflects} from "./proto/bmail_srv";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
