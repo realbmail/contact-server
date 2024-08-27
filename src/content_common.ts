@@ -195,8 +195,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
     }
 }
 
-export function observeForElement(foundFunc: () => HTMLElement | null, callback: () => Promise<void>) {
-    const idleThreshold = 1000;
+export function observeForElement(idleThreshold: number, foundFunc: () => HTMLElement | null, callback: () => Promise<void>) {
     let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const cb: MutationCallback = (mutationsList, observer) => {

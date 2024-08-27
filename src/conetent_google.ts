@@ -1,7 +1,6 @@
 import {
     checkFrameBody,
     encryptMailInComposing,
-    decryptMailInReading,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
     showTipsDialog,
@@ -11,17 +10,13 @@ import {
     addCryptButtonForEveryBmailDiv
 } from "./content_common";
 import {
-    BMailDivQuery,
     emailRegex,
-    extractJsonString,
     hideLoading,
     MsgType,
     sendMessageToBackground,
     showLoading
 } from "./common";
 import browser from "webextension-polyfill";
-import {EmailReflects} from "./proto/bmail_srv";
-import {showDialog} from "./main_common";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google');
@@ -30,7 +25,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
         return
     }
 
-    observeForElement(
+    observeForElement(1500,
         () => {
             return document.querySelector('.TK') as HTMLElement;
         }, async () => {
@@ -40,6 +35,7 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             addBMailInboxToMenu(clone);
             addCryptoBtnToComposeDiv(template);
             addCryptoBtnToReadingMail(template);
+            monitorContactAction();
         });
 }
 
@@ -146,7 +142,7 @@ function monitorComposeBtnAction(template: HTMLTemplateElement) {
     }
 
     composBtn.addEventListener('click', () => {
-        observeForElement(
+        observeForElement(800,
             () => {
                 const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
                 if (allComposeDiv.length > 0) {
@@ -244,4 +240,31 @@ function addCryptoBtnToReadingMail(template: HTMLTemplateElement, mainArea?: HTM
 
         mailParentDiv.insertBefore(cryptoBtnDiv, mailParentDiv.firstChild);
     })
+}
+
+function monitorContactAction() {
+    const contactDiv = document.getElementById("gsc-gab-9");
+    if (!contactDiv) {
+        console.log("------>>> no contactDiv found");
+        return
+    }
+    contactDiv.addEventListener('click', () => {
+
+        const contactFrameParentDiv = document.querySelector(".brC-brG-Jz-bBA.brC-brG-bsf");
+        const contactFrame = contactFrameParentDiv?.querySelector("iframe") as HTMLIFrameElement | null;
+        if (!contactFrame) {
+            console.log("------>>> no contact frame found");
+            return;
+        }
+        console.log("------>>> contact frame found");
+
+        // observeForElement(1500,
+        //     () => {
+        //         return document.querySelector('.TK') as HTMLElement;
+        //     }, async () => {
+        //         console.log("------>>>contact iframe found");
+        //
+        //     });
+
+    });
 }
