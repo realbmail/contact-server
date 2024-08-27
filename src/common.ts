@@ -174,7 +174,7 @@ export function extractJsonString(input: string): { json: string, offset: number
         const jsonString = match[0];
         const offset = input.indexOf(jsonString);
         const endOffset = offset + jsonString.length; // 计算 JSON 字符串的结束位置
-        return { json: jsonString, offset, endOffset };
+        return {json: jsonString, offset, endOffset};
     }
     return null;
 }
@@ -201,22 +201,32 @@ export function hideLoading(): void {
 }
 
 export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
-    // 匹配 JSON 字符串的正则表达式
+    // 正则表达式用于匹配可能的 JSON 字符串
     const jsonRegex = /^\{.*\}$|^\[.*\]$/;
-    const matchingElements: HTMLElement[] = [];
+    const closestJsonElements: HTMLElement[] = [];
 
     mailArea.querySelectorAll('div').forEach((element) => {
         const textContent = element.textContent?.trim();
         if (textContent && jsonRegex.test(textContent)) {
             try {
+                // 尝试解析为 JSON，以确保它是有效的 JSON 字符串
                 JSON.parse(textContent);
-                matchingElements.push(element);  // 将包含 JSON 字符串的 div 元素加入数组
-                console.log("------>>>json element:=>", element);
+
+                // 检查这个元素是否有包含 JSON 字符串的子元素
+                const hasJsonChild = Array.from(element.querySelectorAll('div')).some((childElement) => {
+                    const childText = childElement.textContent?.trim();
+                    return childText && jsonRegex.test(childText);
+                });
+
+                // 如果没有包含 JSON 字符串的子元素，则将其添加到结果中
+                if (!hasJsonChild) {
+                    closestJsonElements.push(element);
+                }
             } catch (e) {
                 // 解析失败，说明不是有效的 JSON，忽略该元素
             }
         }
     });
-    console.log("------------------>>matchingElements size:=>", matchingElements.length)
-    return matchingElements;
+    console.log("------------------>>matchingElements size:=>", closestJsonElements.length)
+    return closestJsonElements;
 }
