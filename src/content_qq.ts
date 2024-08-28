@@ -3,7 +3,7 @@ import {
     checkFrameBody, encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, queryContactFromSrv,
+    parseCryptoMailBtn, processReceivers, queryContactFromSrv,
     showTipsDialog
 } from "./content_common";
 import {emailRegex, extractEmail, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
@@ -20,6 +20,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
             appendBmailInboxMenuQQ(template).then();
             monitorQQMainArea(template).then();
             addCryptoBtnToReadingMailQQ(template).then();
+            addCryptoBtnToComposeDivQQ(template).then();
         });
 }
 
@@ -128,8 +129,11 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, rec
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
             return;
         }
-        const receiver = await processReceivers(receiverTable);
-        if (!receiver) {
+        const allEmailAddressDiv = receiverTable?.querySelectorAll(".new_compose_mailAddress_item") as NodeListOf<HTMLElement>;
+        const receiver = await processReceivers(allEmailAddressDiv, (div) => {
+            return extractEmail(div.title);
+        });
+        if (!receiver || receiver.length <= 0) {
             return;
         }
 
@@ -145,36 +149,6 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, rec
     } finally {
         hideLoading();
     }
-}
-
-async function processReceivers(receiverTable: HTMLElement): Promise<string[] | null> {
-    let receiver: string[] = [];
-    let emailToQuery: string[] = [];
-
-    console.log("------>>>receiver table:", receiverTable);
-    const allEmailAddressDiv = receiverTable?.querySelectorAll(".new_compose_mailAddress_item");
-    if (!allEmailAddressDiv || allEmailAddressDiv.length <= 0) {
-        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-        return null;
-    }
-    for (let i = 0; i < allEmailAddressDiv.length; i++) {
-        const emailAddressDiv = allEmailAddressDiv[i] as HTMLSpanElement;
-        const email = extractEmail(emailAddressDiv.title);
-        if (!email || email === "") {
-            continue;
-        }
-        console.log("------>>> email address found:", email);
-
-        const address = __localContactMap.get(email);
-        if (address) {
-            receiver.push(address);
-            console.log("------>>> from cache:", email, " address:=>", address);
-            continue;
-        }
-        emailToQuery.push(email);
-    }
-
-    return queryContactFromSrv(emailToQuery, receiver);
 }
 
 async function monitorQQMainArea(template: HTMLTemplateElement) {
@@ -390,7 +364,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 
     const sendDiv = toolBarDiv.querySelector('a[name="sendbtn"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
-    const receiverTable = composeForm.querySelector('div.noime.div_txt') as HTMLElement;
+    const receiverTable = iframeDocument!.getElementById('toAreaCtrl') as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
             await encryptMailAndSendQQOldVersion(mailContentDiv, btn, receiverTable, sendDiv);
@@ -411,29 +385,28 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLEl
         if (statusRsp.success < 0) {
             return;
         }
-        console.log("------>>> mail content:", mailBody.innerText)
         let bodyTextContent = mailBody.innerText.trim();
         if (bodyTextContent.length <= 0) {
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
             return;
         }
-        const receiver = await processReceiversOldVersion(receiverTable);
-        if (!receiver) {
+        const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal") as NodeListOf<HTMLElement>;
+        const receiver = await processReceivers(allEmailAddrDivs, (div) => {
+            return div.getAttribute('addr')?.trim() as string | null;
+        });
+
+        if (!receiver || receiver.length <= 0) {
             return;
         }
-
+        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        if (!success) {
+            return;
+        }
+        sendDiv.click();
     } catch (e) {
         console.log("------>>> mail crypto err:", e);
         showTipsDialog("error", "encrypt mail content failed");
     } finally {
         hideLoading();
     }
-}
-
-async function processReceiversOldVersion(receiverTable: HTMLElement): Promise<string[] | null> {
-    let receiver: string[] = [];
-    let emailToQuery: string[] = [];
-    const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal");
-    console.log(allEmailAddrDivs);
-    return receiver;
 }

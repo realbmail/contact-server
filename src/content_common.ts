@@ -288,3 +288,32 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     return cryptoBtnDiv;
 }
+
+
+export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElement>, callback: (div: HTMLElement) => string | null): Promise<string[] | null> {
+    let receiver: string[] = [];
+    let emailToQuery: string[] = [];
+
+    if (!allEmailAddressDiv || allEmailAddressDiv.length <= 0) {
+        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
+        return null;
+    }
+    for (let i = 0; i < allEmailAddressDiv.length; i++) {
+        const emailAddressDiv = allEmailAddressDiv[i] as HTMLSpanElement;
+        const email = callback(emailAddressDiv)
+        if (!email || email === "") {
+            continue;
+        }
+        console.log("------>>> email address found:", email);
+
+        const address = __localContactMap.get(email);
+        if (address) {
+            receiver.push(address);
+            console.log("------>>> from cache:", email, " address:=>", address);
+            continue;
+        }
+        emailToQuery.push(email);
+    }
+
+    return queryContactFromSrv(emailToQuery, receiver);
+}

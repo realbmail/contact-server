@@ -1,7 +1,14 @@
 import browser from "webextension-polyfill";
 import {
-    checkFrameBody, encryptMailInComposing, parseBmailInboxBtn,
-    parseCryptoMailBtn, showTipsDialog, queryContactFromSrv, __localContactMap, addCryptButtonForEveryBmailDiv
+    checkFrameBody,
+    encryptMailInComposing,
+    parseBmailInboxBtn,
+    parseCryptoMailBtn,
+    showTipsDialog,
+    queryContactFromSrv,
+    __localContactMap,
+    addCryptButtonForEveryBmailDiv,
+    processReceivers
 } from "./content_common";
 import {
     extractEmail,
@@ -147,38 +154,6 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
     console.log("------>>> encrypt button add success")
 }
 
-async function processReceivers(composeDiv: HTMLElement): Promise<string[] | null> {
-    const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
-    if (!receiverArea || receiverArea.length <= 0) {
-        showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
-        return null;
-    }
-
-    let receiver: string[] = [];
-    let emailToQuery: string[] = [];
-
-    for (let i = 0; i < receiverArea.length; i++) {
-        const emailElement = receiverArea[i].querySelector(".nui-addr-email");
-        if (!emailElement) {
-            continue;
-        }
-        const email = extractEmail(emailElement.textContent ?? "");
-        if (!email) {
-            continue;
-        }
-
-        const address = __localContactMap.get(email);
-        if (address) {
-            receiver.push(address);
-            console.log("------>>> from cache:", email, " address:=>", address);
-            continue;
-        }
-        emailToQuery.push(email);
-    }
-
-    return queryContactFromSrv(emailToQuery, receiver);
-}
-
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
@@ -207,8 +182,16 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
         if (mailBody.dataset.mailHasEncrypted === 'true') {
             return;
         }
+        const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
 
-        const receiver = await processReceivers(composeDiv);
+        const receiver = await processReceivers(receiverArea, (div) => {
+            const emailElement = div.querySelector(".nui-addr-email");
+            if (!emailElement) {
+                return null;
+            }
+            return extractEmail(div.textContent ?? "");
+        });
+
         if (!receiver || receiver.length <= 0) {
             return;
         }
