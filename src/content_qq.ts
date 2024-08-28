@@ -85,7 +85,18 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     let mailContentDiv = iframeDocument.querySelector(".rooster-content-body") as HTMLElement;
     const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
     if (replyOrQuoteDiv) {
-        mailContentDiv = mailContentDiv.firstChild as HTMLElement;
+        const div = document.createElement("div");
+        div.id = "bmail-mail-body-for-qq";
+
+        const childrenArray = Array.from(mailContentDiv.children) as HTMLElement[];
+        childrenArray.forEach((subNode) => {
+            if (subNode !== replyOrQuoteDiv) {
+                div.appendChild(subNode);
+            }
+        });
+
+        mailContentDiv.insertBefore(div, replyOrQuoteDiv);
+        mailContentDiv = div;
     }
 
     const cryptoBtn = composeBodyDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
