@@ -21,7 +21,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
         }, async () => {
             console.log("------->>>start to populate qq mail area",);
             monitorComposeActionQQ(template).then();
-            appendBmailInboxMenu(clone).then();
+            appendBmailInboxMenuQQ(clone).then();
             // monitorComposeBtnAction(template).then();
             // addCryptoBtnToComposeDivQQ(template).then();
             monitorQQMainArea(template).then();
@@ -29,7 +29,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
         });
 }
 
-async function appendBmailInboxMenu(clone: HTMLElement) {
+async function appendBmailInboxMenuQQ(clone: HTMLElement) {
     const menuParentDiv = document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
     if (!menuParentDiv) {
         console.log("------>>> menu parent div not found");
@@ -44,7 +44,9 @@ async function appendBmailInboxMenu(clone: HTMLElement) {
 
 export function queryEmailAddrQQ() {
     const parentDiv = document.querySelector(".profile-user-info");
-    const userEmailSpan = parentDiv?.querySelector('span.user-email');
+    const userEmailSpan1 = parentDiv?.querySelector('span.user-email');
+    const userEmailSpan2 = document.getElementById("useraddr");
+    const userEmailSpan = userEmailSpan1 || userEmailSpan2;
     if (!userEmailSpan) {
         console.log("-------->>> failed to parse bmail inbox button");
         return null;
