@@ -7,18 +7,7 @@ import {queryEmailAddrQQ} from "./content_qq";
 import {EmailReflects} from "./proto/bmail_srv";
 import {queryEmailAddrOutLook} from "./content_outlook";
 
-
-window.addEventListener('message', (event) => {
-    if (event.source !== window) {
-        return;
-    }
-
-    if (event.data && event.data.action === MsgType.EncryptData) {
-        browser.runtime.sendMessage({action: MsgType.EncryptData}).catch((error: any) => {
-            console.warn('------>>>error sending message:', error);
-        });
-    }
-});
+let __cur_email_address: string | null | undefined;
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
     console.log("------>>>on message:", request.action);
@@ -36,23 +25,38 @@ function bmailInboxAction() {
     });
 }
 
-function readCurrentMailAddress() {
+export function readCurrentMailAddress() {
     const hostname = window.location.hostname;
-    if (hostname.includes(HostArr.Mail126) || hostname.includes(HostArr.Mail163)) {
-        return queryEmailAddrNetEase();
-    }
-    if (hostname.includes(HostArr.Google)) {
-        return queryEmailAddrGoogle();
+    if (__cur_email_address) {
+        return __cur_email_address;
     }
 
-    if (hostname.includes(HostArr.QQ)) {
-        return queryEmailAddrQQ();
+    switch (true) {
+        case hostname.includes(HostArr.Mail126):
+        case hostname.includes(HostArr.Mail163):
+            __cur_email_address = queryEmailAddrNetEase();
+            break;
+
+        case hostname.includes(HostArr.Google):
+            __cur_email_address = queryEmailAddrGoogle();
+            break;
+
+        case hostname.includes(HostArr.QQ):
+            __cur_email_address = queryEmailAddrQQ();
+            break;
+
+        case hostname.includes(HostArr.OutLook):
+            __cur_email_address = queryEmailAddrOutLook();
+            break;
+
+        default:
+            __cur_email_address = undefined;
+            break;
     }
 
-    if (hostname.includes(HostArr.OutLook)) {
-        return queryEmailAddrOutLook();
-    }
+    return __cur_email_address;
 }
+
 
 export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: string) {
     const bmailInboxBtn = template.content.getElementById(inboxDivStr);

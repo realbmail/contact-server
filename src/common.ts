@@ -17,7 +17,8 @@ export enum MsgType {
     CheckIfLogin = 'CheckIfLogin',
     SignData = 'SignData',
     QueryAccountDetails = 'QueryAccountDetails',
-    EmailBindOp = 'EmailBindOp'
+    EmailBindOp = 'EmailBindOp',
+    IfBindThisEmail = 'IfBindThisEmail',
 }
 
 export enum WalletStatus {

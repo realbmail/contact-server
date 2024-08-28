@@ -5,10 +5,8 @@ import {
     parseBmailInboxBtn,
     parseCryptoMailBtn,
     showTipsDialog,
-    queryContactFromSrv,
-    __localContactMap,
     addCryptButtonForEveryBmailDiv,
-    processReceivers
+    processReceivers, readCurrentMailAddress
 } from "./content_common";
 import {
     extractEmail,
@@ -34,16 +32,17 @@ export function appendForNetEase(template: HTMLTemplateElement) {
         }
         checkHasMailContent(template);
     });
-
 }
 
 function checkBmailInboxMenuAgain(clone: HTMLElement): void {
+
     const checkBmailMenuAgain = () => {
         const dynamicBtn = document.getElementById('bmail_left_menu_btn_netEase');
         if (!dynamicBtn) {
             appendBmailInboxMenu(clone)
         }
     }
+
     const homePageMenu = document.querySelector('li[title="首页"]');
     if (homePageMenu) {
         homePageMenu.addEventListener('click', checkBmailMenuAgain);
@@ -155,6 +154,9 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
+
+    console.log("----->>> current email address:=>", readCurrentMailAddress());
+
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
