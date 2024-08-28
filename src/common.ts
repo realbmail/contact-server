@@ -19,6 +19,7 @@ export enum MsgType {
     QueryAccountDetails = 'QueryAccountDetails',
     EmailBindOp = 'EmailBindOp',
     IfBindThisEmail = 'IfBindThisEmail',
+    OpenPlugin = 'OpenPlugin',
 }
 
 export enum WalletStatus {

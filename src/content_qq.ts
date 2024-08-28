@@ -300,9 +300,7 @@ async function encryptSimpleMailReplyQQ(mailBody: HTMLElement, email: string, bt
         if (!success) {
             return;
         }
-
         sendDiv.click();
-
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
         showTipsDialog("error", "encrypt mail content failed");

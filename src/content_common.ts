@@ -95,13 +95,18 @@ export function parseCryptoMailBtn(template: HTMLTemplateElement, imgSrc: string
     return clone;
 }
 
-export function showTipsDialog(title: string, message: string) {
+export function showTipsDialog(title: string, message: string, callback?: () => Promise<void>) {
     const dialog = document.getElementById("bmail_dialog_container");
     if (!dialog) {
         return;
     }
     dialog.querySelector(".bmail_dialog_title")!.textContent = title;
     dialog.querySelector(".bmail_dialog_message")!.textContent = message;
+    if (callback) {
+        dialog.querySelector(".bmail_dialog_button")?.addEventListener("click", async () => {
+            await callback();
+        })
+    }
     dialog.style.display = "block";
 }
 
@@ -297,7 +302,20 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
     let receiver: string[] = [];
     let emailToQuery: string[] = [];
 
-    console.log("----->>> current email address:=>", readCurrentMailAddress());
+    const currentEmailAddress = readCurrentMailAddress();
+    const mailRsp = await sendMessageToBackground(currentEmailAddress, MsgType.IfBindThisEmail);
+    if (!mailRsp || mailRsp.success === 0) {
+        return null;
+    }
+
+    if (mailRsp.success < 0) {
+        showTipsDialog("Warning", mailRsp.message, async () => {
+            await sendMessageToBackground('', MsgType.OpenPlugin);
+        });
+        return null;
+    }
+
+    console.log("----->>> current email address:=>", currentEmailAddress);
 
     if (!allEmailAddressDiv || allEmailAddressDiv.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));

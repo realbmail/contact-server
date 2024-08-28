@@ -98,5 +98,13 @@
   "decrypt_mail_body_failed": {
     "message": "failed to decrypt mail body",
     "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "current email address invalid",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "bind current email to account first",
+    "description": ""
   }
 }

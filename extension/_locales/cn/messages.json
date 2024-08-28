@@ -98,5 +98,13 @@
   "decrypt_mail_body_failed": {
     "message": "解密邮箱内容失败",
     "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "当前邮件地址无效",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "请先绑定当前邮件地址",
+    "description": ""
   }
 }

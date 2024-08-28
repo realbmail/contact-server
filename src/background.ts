@@ -75,12 +75,15 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
         case  MsgType.EncryptData:
             encryptData(request.receivers, request.data, sendResponse).then();
             return true;
+
         case MsgType.DecryptData:
             decryptData(request.data, sendResponse).then();
             return true;
+
         case MsgType.EmailAddrToBmailAddr:
             searchAccountByEmails(request.data, sendResponse).then();
             return true;
+
         case MsgType.CheckIfLogin:
             checkLoginStatus(sendResponse).then();
             return true;
@@ -92,9 +95,17 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
         case MsgType.QueryAccountDetails:
             getAccount(request.data.address, request.data.force, sendResponse).then()
             return true;
+
         case MsgType.EmailBindOp:
             bindingOperation(request.data.isDel, request.data.emails, sendResponse).then();
             return true;
+
+        case MsgType.IfBindThisEmail:
+            checkIfAccountBound(request.data, sendResponse).then();
+            return true;
+        case MsgType.OpenPlugin:
+            browser.action.openPopup().then();
+            return true
         default:
             sendResponse({status: false, message: 'unknown action'});
             return;
@@ -495,4 +506,26 @@ async function searchAccountByEmails(emails: string[], sendResponse: (response: 
         console.log("[service worker] search bmail accounts failed:", e)
         sendResponse({success: -1, message: "network failed"});
     }
+}
+
+async function checkIfAccountBound(email: string | null | undefined, sendResponse: (response: any) => void) {
+    if (!email) {
+        sendResponse({success: -1, message: browser.i18n.getMessage("curr_email_invalid")});
+        return
+    }
+
+    let account = await sessionGet(__dbKey_cur_account_details) as BMailAccount | null;
+    if (!account) {
+        await browser.action.openPopup();
+        sendResponse(null);
+        return;
+    }
+
+    for (let i = 0; i < account.emails.length; i++) {
+        if (account.emails[i] === email) {
+            sendResponse({success: 1, message: "already bound"});
+            return;
+        }
+    }
+    sendResponse({success: -1, message: browser.i18n.getMessage("curr_email_unbind")});
 }
