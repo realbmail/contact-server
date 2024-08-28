@@ -81,6 +81,8 @@
     align-items: center;
     justify-content: flex-start;
 }
+
+
 .bmail-btn_in_compose-div-google{
     height: 36px;
     cursor: pointer;
@@ -100,7 +102,8 @@
     height: auto;
 }
 .bmail_left_menu_btn_div-google:hover,
-.bmail_left_menu_btn_div-163:hover{
+.bmail_left_menu_btn_div-163:hover,
+.bmail_left_menu_btn_div_qq:hover{
     background-color: #04062E;
 }
 .bmail_left_menu_btn_div-google img{
@@ -127,6 +130,52 @@
     color: #F28552 !important;
     margin-left: 4px;
 
+}
+.bmail_left_menu_btn_div_qq{
+    background-color: rgba(242, 133, 82, 0.2);
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    margin-left: 4px;
+    border-radius: 6px;
+    height: 32px;
+}
+.bmail_left_menu_btn_div_qq {
+    padding: 0 2px 0 12px;
+    margin-left: 2px;
+}
+.bmail_left_menu_btn_div_qq span{
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+    padding-left: 12px;
+}
+.bmail_left_menu_btn_div_qq img {
+    width: 16px;
+    height: auto;
+    margin: 2px;
+}
+.bmail-crypto-btn-div-qq{
+    background-color: #04062E;
+    border-radius: 4px;
+    margin-left:16px;
+    cursor: pointer;
+    height: 32px;
+    font-size: 14px;
+    outline: none;
+    padding: 0;
+    text-align: center;
+    user-select: none;
+    color: white;
+    width: 98px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.bmail-crypto-btn-div-qq :hover{
+    background-color: #2C2D47;
 }
 .bmail-crypto-action img{
   width: 18px;
