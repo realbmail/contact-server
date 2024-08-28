@@ -376,8 +376,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
         return;
     }
 
-
-    const toolBarDiv = composeDocument.getElementById("toolBar");
+    const toolBarDiv = composeForm.querySelector(".toolbg.toolbgline");
     if (!toolBarDiv) {
         console.log("------>>> tool bar not found when compose mail");
         return;
@@ -389,4 +388,52 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     }
     let mailContentDiv = composeDocument.body.firstChild as HTMLElement;
 
+    const sendDiv = toolBarDiv.querySelector('a[name="sendbtn"]') as HTMLElement;
+    const title = browser.i18n.getMessage('crypto_and_send');
+    const receiverTable = composeForm.querySelector('div.noime.div_txt') as HTMLElement;
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+        title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
+            await encryptMailAndSendQQOldVersion(mailContentDiv, btn, receiverTable, sendDiv);
+        }
+    ) as HTMLElement;
+
+    if (toolBarDiv.children.length > 2) {
+        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[2]);
+    } else {
+        toolBarDiv.appendChild(cryptoBtnDiv);
+    }
+}
+
+async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
+    showLoading();
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+        console.log("------>>> mail content:", mailBody.innerText)
+        let bodyTextContent = mailBody.innerText.trim();
+        if (bodyTextContent.length <= 0) {
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
+            return;
+        }
+        const receiver = await processReceiversOldVersion(receiverTable);
+        if (!receiver) {
+            return;
+        }
+
+    } catch (e) {
+        console.log("------>>> mail crypto err:", e);
+        showTipsDialog("error", "encrypt mail content failed");
+    } finally {
+        hideLoading();
+    }
+}
+
+async function processReceiversOldVersion(receiverTable: HTMLElement): Promise<string[] | null> {
+    let receiver: string[] = [];
+    let emailToQuery: string[] = [];
+    const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal");
+    console.log(allEmailAddrDivs);
+    return receiver;
 }
