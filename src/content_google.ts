@@ -5,7 +5,7 @@ import {
     encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
-    parseCryptoMailBtn,
+    parseCryptoMailBtn, processReceivers,
     queryContactFromSrv,
     showTipsDialog
 } from "./content_common";
@@ -118,7 +118,11 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
             return;
         }
 
-        const receiver = await processReceivers(titleForm);
+        const divsWithDataHoverCardId = titleForm.querySelectorAll('div[data-hovercard-id]') as NodeListOf<HTMLElement>;
+        const receiver = await processReceivers(divsWithDataHoverCardId, (div) => {
+            return div.getAttribute('data-hovercard-id') as string | null;
+        });
+
         const success = await encryptMailInComposing(mailBody, btn, receiver);
         if (!success) {
             return;
@@ -130,50 +134,6 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
     } finally {
         hideLoading();
     }
-}
-
-async function monitorComposeBtnAction(template: HTMLTemplateElement) {
-    const composBtn = document.querySelector(".T-I.T-I-KE.L3");
-    if (!composBtn) {
-        console.warn("------>>> compose button not found");
-        return;
-    }
-
-    composBtn.addEventListener('click', () => {
-        observeForElement(document.body, 800,
-            () => {
-                const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
-                if (allComposeDiv.length > 0) {
-                    return allComposeDiv[allComposeDiv.length - 1] as HTMLElement;
-                }
-                return null;
-            }, async () => {
-                await addCryptoBtnToComposeDivGoogle(template);
-            });
-    })
-}
-
-
-async function processReceivers(titleForm: HTMLElement): Promise<string[] | null> {
-    let receiver: string[] = [];
-    let emailToQuery: string[] = [];
-    const divsWithDataHoverCardId = titleForm.querySelectorAll('div[data-hovercard-id]');
-
-    for (let i = 0; i < divsWithDataHoverCardId.length; i++) {
-        const div = divsWithDataHoverCardId[i];
-        const emailAddr = div.getAttribute('data-hovercard-id') as string;
-        console.log("------>>> mail address found:=>", emailAddr);
-
-        const address = __localContactMap.get(emailAddr);
-        if (address) {
-            receiver.push(address);
-            console.log("------>>> from cache:", emailAddr, " address:=>", address);
-            continue;
-        }
-        emailToQuery.push(emailAddr);
-    }
-
-    return queryContactFromSrv(emailToQuery, receiver);
 }
 
 async function monitorGmailMainArea(template: HTMLTemplateElement) {
