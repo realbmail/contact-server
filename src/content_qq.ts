@@ -83,21 +83,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     }
 
     let mailContentDiv = iframeDocument.querySelector(".rooster-content-body") as HTMLElement;
-    const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
-    if (replyOrQuoteDiv) {
-        const div = document.createElement("div");
-        div.id = "bmail-mail-body-for-qq";
 
-        const childrenArray = Array.from(mailContentDiv.children) as HTMLElement[];
-        childrenArray.forEach((subNode) => {
-            if (subNode !== replyOrQuoteDiv) {
-                div.appendChild(subNode);
-            }
-        });
-
-        mailContentDiv.insertBefore(div, replyOrQuoteDiv);
-        mailContentDiv = div;
-    }
 
     const cryptoBtn = composeBodyDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (cryptoBtn) {
@@ -116,6 +102,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     const receiverTable = composeBodyDiv.querySelector('div.compose_mailInfo_item.new:not(.hide)') as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq', async btn => {
+            mailContentDiv = checkMailContent(mailContentDiv);
             await encryptMailAndSendQQ(mailContentDiv, btn, receiverTable, sendDiv);
         }
     ) as HTMLElement;
@@ -125,6 +112,25 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     } else {
         toolBar.appendChild(cryptoBtnDiv);
     }
+}
+
+function checkMailContent(mailContentDiv: HTMLElement): HTMLElement {
+    const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
+    if (!replyOrQuoteDiv) {
+        return mailContentDiv
+    }
+    const div = document.createElement("div");
+    div.id = "bmail-mail-body-for-qq";
+
+    const childrenArray = Array.from(mailContentDiv.children) as HTMLElement[];
+    childrenArray.forEach((subNode) => {
+        if (subNode !== replyOrQuoteDiv) {
+            div.appendChild(subNode);
+        }
+    });
+
+    mailContentDiv.insertBefore(div, replyOrQuoteDiv);
+    return div;
 }
 
 async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
