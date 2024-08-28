@@ -66,7 +66,7 @@ export function queryEmailAddrQQ() {
 async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     const composeBodyDiv = document.querySelector(".compose_body");
     if (!composeBodyDiv) {
-        console.log("------>>> no compose body found");
+        console.log("------>>> no compose body found for new version");
         return;
     }
     const iframe = composeBodyDiv.querySelector(".editor_iframe") as HTMLIFrameElement;
@@ -355,6 +355,38 @@ async function monitorComposeActionQQ(template: HTMLTemplateElement) {
         return formInFrame;
     }, async () => {
         console.log("------>>> old qq mail query iframe");
-        addCryptoBtnToComposeDivQQ(template).then()
+        await addCryptoBtnToComposeDivQQ(template).then()
+        await addCryptoBtnToComposeDivQQOldVersion(template);
+
     }, true);
+}
+
+async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElement) {
+    const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
+    const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
+    const composeForm = iframeDocument?.getElementById("frm") as HTMLIFrameElement | null;
+    if (!composeForm) {
+        console.log("------>>> no compose form found for qq mail of old version")
+        return;
+    }
+    const mailContentIframe = composeForm.querySelector('iframe.qmEditorIfrmEditArea') as HTMLIFrameElement | null;
+    const composeDocument = mailContentIframe?.contentDocument || mailContentIframe?.contentWindow?.document;
+    if (!composeDocument) {
+        console.log("----->>>  mail content frame not found for qq mail of old version");
+        return;
+    }
+
+
+    const toolBarDiv = composeDocument.getElementById("toolBar");
+    if (!toolBarDiv) {
+        console.log("------>>> tool bar not found when compose mail");
+        return;
+    }
+    const cryptoBtn = toolBarDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
+    if (cryptoBtn) {
+        console.log("------>>> node already exists");
+        return;
+    }
+    let mailContentDiv = composeDocument.body.firstChild as HTMLElement;
+
 }
