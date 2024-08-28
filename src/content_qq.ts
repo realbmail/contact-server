@@ -3,7 +3,7 @@ import {
     checkFrameBody, encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, processReceivers, queryContactFromSrv, readCurrentMailAddress,
+    parseCryptoMailBtn, processReceivers, queryContactFromSrv,
     showTipsDialog
 } from "./content_common";
 import {emailRegex, extractEmail, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
@@ -135,7 +135,6 @@ function checkMailContent(mailContentDiv: HTMLElement): HTMLElement {
 
 async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
-    console.log("----->>> current email address:=>", readCurrentMailAddress());
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {
@@ -398,7 +397,6 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 
 async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
-    console.log("----->>> current email address:=>", readCurrentMailAddress());
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {

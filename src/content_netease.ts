@@ -6,7 +6,7 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addCryptButtonForEveryBmailDiv,
-    processReceivers, readCurrentMailAddress
+    processReceivers
 } from "./content_common";
 import {
     extractEmail,
@@ -154,8 +154,6 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
-
-    console.log("----->>> current email address:=>", readCurrentMailAddress());
 
     showLoading();
     try {

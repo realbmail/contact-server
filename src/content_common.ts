@@ -25,7 +25,7 @@ function bmailInboxAction() {
     });
 }
 
-export function readCurrentMailAddress() {
+function readCurrentMailAddress() {
     const hostname = window.location.hostname;
     if (__cur_email_address) {
         return __cur_email_address;
@@ -293,10 +293,11 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
     return cryptoBtnDiv;
 }
 
-
 export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElement>, callback: (div: HTMLElement) => string | null): Promise<string[] | null> {
     let receiver: string[] = [];
     let emailToQuery: string[] = [];
+
+    console.log("----->>> current email address:=>", readCurrentMailAddress());
 
     if (!allEmailAddressDiv || allEmailAddressDiv.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
