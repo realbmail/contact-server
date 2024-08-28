@@ -10,27 +10,24 @@ import {emailRegex, extractEmail, hideLoading, MsgType, sendMessageToBackground,
 import browser from "webextension-polyfill";
 
 export function appendForQQ(template: HTMLTemplateElement) {
-    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_qq");
-    if (!clone) {
-        console.warn("------>>> failed to parse bmail inbox button");
-        return
-    }
+
     observeForElement(document.body, 1000,
         () => {
-            return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
+            return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement || document.getElementById("leftPanel") as HTMLElement;
         }, async () => {
             console.log("------->>>start to populate qq mail area",);
             monitorComposeActionQQ(template).then();
-            appendBmailInboxMenuQQ(clone).then();
-            // monitorComposeBtnAction(template).then();
-            // addCryptoBtnToComposeDivQQ(template).then();
+            appendBmailInboxMenuQQ(template).then();
             monitorQQMainArea(template).then();
             addCryptoBtnToReadingMailQQ(template).then();
         });
 }
 
-async function appendBmailInboxMenuQQ(clone: HTMLElement) {
-    const menuParentDiv = document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement;
+async function appendBmailInboxMenuQQ(template: HTMLTemplateElement) {
+    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_qq") as HTMLElement;
+    const menuParentDiv1 = document.querySelector(".ui-float-scroll-body.sidebar-menus");
+    const menuParentDiv2 = document.getElementById("navBarTd");
+    const menuParentDiv = menuParentDiv1 || menuParentDiv2;
     if (!menuParentDiv) {
         console.log("------>>> menu parent div not found");
         return;
@@ -60,23 +57,6 @@ export function queryEmailAddrQQ() {
     }
     console.log("------>>> qq mail address success:", match[0]);
     return match[0];
-}
-
-async function monitorComposeBtnAction(template: HTMLTemplateElement) {
-
-    const composeBtnDiv = document.querySelector(".sidebar-header");
-    if (!composeBtnDiv) {
-        console.warn("------>>> compose button not found");
-        return;
-    }
-    composeBtnDiv.addEventListener("click", () => {
-        observeForElement(document.body, 800,
-            () => {
-                return document.querySelector(".compose_body");
-            }, async () => {
-                await addCryptoBtnToComposeDivQQ(template);
-            });
-    })
 }
 
 async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
