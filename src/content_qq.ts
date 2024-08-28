@@ -25,7 +25,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
 
 async function appendBmailInboxMenuQQ(template: HTMLTemplateElement) {
     const menuParentDiv1 = document.querySelector(".ui-float-scroll-body.sidebar-menus");
-    const menuParentDiv2 = document.getElementById("navBarTd");
+    const menuParentDiv2 = document.getElementById("SysFolderList")?.firstElementChild as HTMLElement;
     const menuParentDiv = menuParentDiv1 || menuParentDiv2;
     if (!menuParentDiv) {
         console.log("------>>> menu parent div not found");
@@ -321,15 +321,36 @@ async function encryptSimpleMailReplyQQ(mailBody: HTMLElement, email: string, bt
 }
 
 async function monitorComposeActionQQ(template: HTMLTemplateElement) {
-    const frameMainDiv = document.querySelector(".frame-main") as HTMLElement;
-    let iframe = frameMainDiv.querySelector(".editor_iframe") as HTMLElement | null;
-    observeForElement(frameMainDiv, 800, () => {
-        const newFrame = frameMainDiv.querySelector(".editor_iframe") as HTMLElement | null;
-        if (iframe === newFrame) {
-            return null;
-        }
-        iframe = newFrame;
-        return newFrame;
+    let frameMainDiv = document.querySelector(".frame-main") as HTMLElement;
+
+    if (frameMainDiv) {
+        let iframe = frameMainDiv.querySelector(".editor_iframe") as HTMLElement | null;
+
+        observeForElement(frameMainDiv, 800, () => {
+
+            const newFrame = frameMainDiv.querySelector(".editor_iframe") as HTMLElement | null;
+            if (iframe === newFrame) {
+                return null;
+            }
+            iframe = newFrame;
+            return newFrame;
+
+        }, async () => {
+            addCryptoBtnToComposeDivQQ(template).then()
+        }, true);
+
+        return;
+    }
+
+    frameMainDiv = document.getElementById("mainFrameContainer") as HTMLElement;
+    if (!frameMainDiv) {
+        console.log("------>>> no mail main area found");
+        return;
+    }
+
+    observeForElement(document.body, 800, () => {
+        console.log("------>>> old qq mail query iframe");
+        return null;
     }, async () => {
         addCryptoBtnToComposeDivQQ(template).then()
     }, true);
