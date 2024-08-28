@@ -342,16 +342,19 @@ async function monitorComposeActionQQ(template: HTMLTemplateElement) {
         return;
     }
 
-    frameMainDiv = document.getElementById("mainFrameContainer") as HTMLElement;
-    if (!frameMainDiv) {
-        console.log("------>>> no mail main area found");
-        return;
-    }
-
-    observeForElement(document.body, 800, () => {
-        console.log("------>>> old qq mail query iframe");
-        return null;
+    const monitorDiv = document.getElementById("resize");
+    let oldElement: HTMLElement | null = null;
+    observeForElement(monitorDiv as HTMLElement, 800, () => {
+        const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
+        const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
+        const formInFrame = iframeDocument?.getElementById("frm") as HTMLIFrameElement | null;
+        if (formInFrame == oldElement) {
+            return null;
+        }
+        oldElement = formInFrame;
+        return formInFrame;
     }, async () => {
+        console.log("------>>> old qq mail query iframe");
         addCryptoBtnToComposeDivQQ(template).then()
     }, true);
 }
