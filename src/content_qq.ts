@@ -275,7 +275,7 @@ async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBa
     }
 
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
-        title, 'bmail_crypto_btn_in_compose_qq', async btn => {
+        title, 'bmail_crypto_btn_in_compose_qq_simple', async btn => {
             await encryptSimpleMailReplyQQ(mailContentDiv, email, btn, sendDiv);
         }
     ) as HTMLElement;
