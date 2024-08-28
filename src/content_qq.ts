@@ -21,6 +21,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
             monitorQQMainArea(template).then();
             addCryptoBtnToReadingMailQQ(template).then();
             addCryptoBtnToComposeDivQQ(template).then();
+            monitorQQMailReadingOldVersion(template).then();
         });
 }
 
@@ -331,9 +332,9 @@ async function monitorComposeActionQQ(template: HTMLTemplateElement) {
         return;
     }
 
-    const monitorDiv = document.getElementById("resize");
+    const monitorDiv = document.getElementById("resize") as HTMLElement;
     let oldElement: HTMLElement | null = null;
-    observeForElement(monitorDiv as HTMLElement, 800, () => {
+    observeForElement(monitorDiv, 800, () => {
         const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
         const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
         const formInFrame = iframeDocument?.getElementById("frm") as HTMLIFrameElement | null;
@@ -424,4 +425,51 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLEl
     } finally {
         hideLoading();
     }
+}
+
+function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
+    const setupObserver = () => {
+        if (iframe.contentDocument) {
+            const observer = new MutationObserver(async (mutations) => {
+                for (const mutation of mutations) {
+                    console.log('----->>> Mutation observed:', mutation);
+                    if (judge(iframe.contentDocument!)) {
+                        await action(iframe.contentDocument!);
+                        break;
+                    }
+                }
+            });
+            observer.observe(iframe.contentDocument.body, {
+                childList: true,
+                subtree: true,
+            });
+        }
+    };
+    setupObserver();
+    iframe.addEventListener('load', setupObserver);
+}
+
+async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
+    let frameMainDiv = document.querySelector(".frame-main") as HTMLElement;
+    if (frameMainDiv) {
+        console.log("------>> this is new qq mail");
+        return;
+    }
+
+    const div = document.getElementById("mainFrameContainer") as HTMLElement;
+    let iframe = div.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
+    if (!iframe) {
+        return;
+    }
+    let oldArea: HTMLElement;
+    observeFrame(iframe, (doc) => {
+        const newArea = doc.getElementById("mainmail") as HTMLElement;
+        if (oldArea == newArea) {
+            return null;
+        }
+        oldArea = newArea;
+        return newArea;
+    }, async (doc) => {
+        console.log("--------------------->>> frame document", doc.getElementById("mainmail"));
+    });
 }
