@@ -24,7 +24,6 @@ export function appendForQQ(template: HTMLTemplateElement) {
 }
 
 async function appendBmailInboxMenuQQ(template: HTMLTemplateElement) {
-    const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_qq") as HTMLElement;
     const menuParentDiv1 = document.querySelector(".ui-float-scroll-body.sidebar-menus");
     const menuParentDiv2 = document.getElementById("navBarTd");
     const menuParentDiv = menuParentDiv1 || menuParentDiv2;
@@ -32,6 +31,11 @@ async function appendBmailInboxMenuQQ(template: HTMLTemplateElement) {
         console.log("------>>> menu parent div not found");
         return;
     }
+    let clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_qq") as HTMLElement;
+    if (!menuParentDiv1) {
+        clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_qq_old") as HTMLElement;
+    }
+
     if (menuParentDiv.children.length >= 2) {
         menuParentDiv.insertBefore(clone, menuParentDiv.children[1]);
     } else {
