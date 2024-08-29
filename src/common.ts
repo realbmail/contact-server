@@ -208,7 +208,7 @@ export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
     const closestJsonElements: HTMLElement[] = [];
 
     const divElementsArray = Array.from(mailArea.querySelectorAll('div')) as HTMLElement[];
-    // divElementsArray.push(mailArea);
+    divElementsArray.push(mailArea);
 
     divElementsArray.forEach((element) => {
         const textContent = element.textContent?.trim();
@@ -223,7 +223,7 @@ export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
                     closestJsonElements.push(element);
                 }
             } catch (e) {
-                console.log("----->>> error when parse bmail content:", e);
+                console.log("----->>> mail content is plain text");
             }
         }
     });

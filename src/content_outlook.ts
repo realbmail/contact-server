@@ -7,7 +7,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
-import {hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
+import {hideLoading, showLoading} from "./common";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -28,8 +28,9 @@ export function appendForOutLook(template: HTMLTemplateElement) {
         () => {
             return document.querySelector(".DPg26 .xKrjQ");
         }, async () => {
-            console.log("------->>>start to populate qq mail area");
+            console.log("------->>>start to populate outlook mail area");
             appendBmailInboxMenuOutLook(template).then();
+            monitorMailAreaOutLook(template).then()
         });
 }
 
@@ -44,7 +45,8 @@ async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
 }
 
 async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
-    const monitorArea = document.getElementById("ReadingPaneContainerId") as HTMLElement;
+    // const monitorArea = document.getElementById("ReadingPaneContainerId") as HTMLElement;
+    const monitorArea = document.querySelector('div[data-app-section="MailReadCompose"]') as HTMLElement;
     if (!monitorArea) {
         console.log("------>>> mail area failed ");
         return;
@@ -52,11 +54,15 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
 
     observeForElement(monitorArea, 800,
         () => {
-            return document.getElementById("docking_InitVisiblePart_1");
+            const editArea = document.getElementById("docking_InitVisiblePart_0");
+            const readArea = document.getElementById("ConversationReadingPaneContainer");
+            console.log("------>>> editor area:", editArea, readArea);
+            return editArea || readArea;
         }, async () => {
-            console.log("------->>>start to populate qq mail area");
+            console.log("------->>>start to populate outlook mail area");
             addCryptButtonToComposeDivOutLook(template).then();
-        });
+            addMailDecryptForReadingOutLook(template).then();
+        }, true);
 }
 
 async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) {
@@ -109,4 +115,14 @@ async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement
     } finally {
         hideLoading();
     }
+}
+
+async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
+    const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
+    if (!readArea) {
+        console.log("------>>> no reading area found");
+        return;
+    }
+
+    console.log("------>>> reading area found");
 }
