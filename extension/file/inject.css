@@ -191,8 +191,8 @@
     user-select: none;
     color: #F28552;
     width: 98px;
-
 }
+
 .bmail-btn_in_compose-div-qq:hover{
     background-color: rgba(242, 133, 82, 0.4);
 }
@@ -203,10 +203,12 @@
     align-items: center;
     align-content: center;
 }
-.bmail-btn_in_compose-div-qq img{
+
+.bmail-btn_in_compose-div-qq img {
     width: 32px;
     height: auto;
 }
+
 .bmail-crypto-action img{
    width: 18px;
     height: auto;
