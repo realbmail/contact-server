@@ -63,6 +63,11 @@
     margin-left: 4px;
     height: 36px;
 }
+.bmail_left_menu_btn_div-163 img,
+.bmail-crypto-btn-div img{
+    width: 22px;
+    height: auto;
+}
 .bmail_left_menu_btn_div-google{
     background-color: rgba(242, 133, 82, 0.2);
     padding: 0 24px;
@@ -97,7 +102,8 @@
 .bmail-btn_in_compose-div-google:hover{
     background-color: #04062E;
 }
-.bmail-btn_in_compose-div-google img {
+.bmail-btn_in_compose-div-google img,
+.bmail-crypto-action-google img{
     width: 20px;
     height: auto;
 }
