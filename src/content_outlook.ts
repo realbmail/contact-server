@@ -1,4 +1,13 @@
-import {observeForElement, parseBmailInboxBtn} from "./content_common";
+import {
+    encryptMailInComposing,
+    observeForElement,
+    parseBmailInboxBtn,
+    parseCryptoMailBtn,
+    processReceivers,
+    showTipsDialog
+} from "./content_common";
+import browser from "webextension-polyfill";
+import {hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -31,5 +40,85 @@ async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
         leftMenuDiv.insertBefore(clone, leftMenuDiv.children[1]);
     } else {
         leftMenuDiv.appendChild(clone);
+    }
+}
+
+async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
+    const monitorArea = document.getElementById("ReadingPaneContainerId") as HTMLElement;
+    if (!monitorArea) {
+        console.log("------>>> mail area failed ");
+        return;
+    }
+
+    observeForElement(monitorArea, 800,
+        () => {
+            return document.getElementById("docking_InitVisiblePart_1");
+        }, async () => {
+            console.log("------->>>start to populate qq mail area");
+            addCryptButtonToComposeDivOutLook(template).then();
+        });
+}
+
+async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) {
+    const composeArea = document.getElementById("docking_InitVisiblePart_1")?.querySelector(".cBeRi.dMm6A.AiSsJ");
+    if (!composeArea) {
+        console.log("------>>> no compose area found");
+        return;
+    }
+
+    const toolBarDiv = composeArea.querySelector(".vBoqL.iLc1q.cc0pa.cF0pa.tblbU.SVWa1.dP5Z2");
+    if (!toolBarDiv) {
+        console.log("------>>> tool bar not found when compose mail");
+        return;
+    }
+
+    const cryptoBtn = toolBarDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
+    if (cryptoBtn) {
+        console.log("------>>> node already exists");
+        return;
+    }
+    const mailContentDiv = document.getElementById("editorParent_2") as HTMLElement;
+    const sendDiv = toolBarDiv.querySelector('div[data-testid="ComposeSendButton"]') as HTMLElement;
+    const title = browser.i18n.getMessage('crypto_and_send');
+    const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
+        title, 'bmail_crypto_btn_in_compose_outlook', async btn => {
+            await encryptMailAndSendOutLook(mailContentDiv, btn, receiverTable, sendDiv);
+        }
+    ) as HTMLElement;
+    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.lastChild as HTMLElement);
+}
+
+
+async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
+    showLoading();
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+        let bodyTextContent = mailBody.innerText.trim();
+        if (bodyTextContent.length <= 0) {
+            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
+            return;
+        }
+        const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal") as NodeListOf<HTMLElement>;
+        const receiver = await processReceivers(allEmailAddrDivs, (div) => {
+            return div.getAttribute('addr')?.trim() as string | null;
+        });
+
+        if (!receiver || receiver.length <= 0) {
+            return;
+        }
+        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        if (!success) {
+            return;
+        }
+        sendDiv.click();
+    } catch (e) {
+        console.log("------>>> mail crypto err:", e);
+        showTipsDialog("error", "encrypt mail content failed");
+    } finally {
+        hideLoading();
     }
 }
