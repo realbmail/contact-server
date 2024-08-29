@@ -100,22 +100,6 @@ async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
 async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
-        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-        if (statusRsp.success < 0) {
-            return;
-        }
-
-        let bodyTextContent = mailBody.innerText.trim();
-        if (bodyTextContent.length <= 0) {
-            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
-            return;
-        }
-
-        if (mailBody.dataset.mailHasEncrypted === 'true') {
-            console.log("------>>> already encrypted data")
-            return;
-        }
-
         const divsWithDataHoverCardId = titleForm.querySelectorAll('div[data-hovercard-id]') as NodeListOf<HTMLElement>;
         const receiver = await processReceivers(divsWithDataHoverCardId, (div) => {
             return div.getAttribute('data-hovercard-id') as string | null;
@@ -126,6 +110,7 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
             return;
         }
         sendDiv.click();
+
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
         showTipsDialog("error", "encrypt mail content failed");

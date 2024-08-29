@@ -93,23 +93,11 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
 async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
-        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-        if (statusRsp.success < 0) {
-            return;
-        }
-        let bodyTextContent = mailBody.innerText.trim();
-        if (bodyTextContent.length <= 0) {
-            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
-            return;
-        }
         const allEmailAddrDivs = receiverTable.querySelectorAll(".textContainer-468.individualText-471") as NodeListOf<HTMLElement>;
         const receiver = await processReceivers(allEmailAddrDivs, (div) => {
             return div.textContent;
         });
 
-        if (!receiver || receiver.length <= 0) {
-            return;
-        }
         const success = await encryptMailInComposing(mailBody, btn, receiver);
         if (!success) {
             return;

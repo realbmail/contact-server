@@ -204,29 +204,24 @@ export function hideLoading(): void {
 }
 
 export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
-    // 正则表达式用于匹配可能的 JSON 字符串
     const jsonRegex = /^\{.*\}$|^\[.*\]$/;
     const closestJsonElements: HTMLElement[] = [];
-
-    mailArea.querySelectorAll('div').forEach((element) => {
+    const divElementsArray = Array.from(mailArea.querySelectorAll('div')) as HTMLElement[];
+    divElementsArray.push(mailArea);
+    divElementsArray.forEach((element) => {
         const textContent = element.textContent?.trim();
         if (textContent && jsonRegex.test(textContent)) {
             try {
-                // 尝试解析为 JSON，以确保它是有效的 JSON 字符串
                 JSON.parse(textContent);
-
-                // 检查这个元素是否有包含 JSON 字符串的子元素
                 const hasJsonChild = Array.from(element.querySelectorAll('div')).some((childElement) => {
                     const childText = childElement.textContent?.trim();
                     return childText && jsonRegex.test(childText);
                 });
-
-                // 如果没有包含 JSON 字符串的子元素，则将其添加到结果中
                 if (!hasJsonChild) {
                     closestJsonElements.push(element);
                 }
             } catch (e) {
-                // 解析失败，说明不是有效的 JSON，忽略该元素
+                console.log("----->>> error when parse bmail content:", e);
             }
         }
     });

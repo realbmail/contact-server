@@ -157,11 +157,6 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
 
     showLoading();
     try {
-        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-        if (statusRsp.success < 0) {
-            return;
-        }
-
         const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
         let mailBody = iframe?.contentDocument?.body || iframe?.contentWindow?.document.body;
         if (!mailBody) {
@@ -173,17 +168,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
             mailBody = iframe?.contentDocument?.getElementById('spnEditorContent') as HTMLElement;
         }
 
-        let bodyTextContent = mailBody.innerText.trim();
-        if (bodyTextContent.length <= 0) {
-            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
-            return;
-        }
-
-        if (mailBody.dataset.mailHasEncrypted === 'true') {
-            return;
-        }
         const receiverArea = composeDiv.querySelectorAll(".js-component-emailblock") as NodeListOf<HTMLElement>;
-
         const receiver = await processReceivers(receiverArea, (div) => {
             const emailElement = div.querySelector(".nui-addr-email");
             if (!emailElement) {
@@ -192,17 +177,12 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
             return extractEmail(div.textContent ?? "");
         });
 
-        if (!receiver || receiver.length <= 0) {
-            return;
-        }
-
         const success = await encryptMailInComposing(mailBody, btn, receiver);
         if (!success) {
             return;
         }
 
         sendDiv.click();
-
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
         showTipsDialog("error", "encrypt mail content failed");
