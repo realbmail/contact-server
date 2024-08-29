@@ -352,7 +352,7 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
     return queryContactFromSrv(emailToQuery, receiver);
 }
 
-export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
+export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>, once?: boolean) {
     const setupObserver = () => {
         if (iframe.contentDocument) {
             const observer = new MutationObserver(async (mutations) => {
@@ -360,6 +360,9 @@ export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) =
                     // console.log('----->>> Mutation observed:', mutation);
                     if (judge(iframe.contentDocument!)) {
                         await action(iframe.contentDocument!);
+                        if (once) {
+                            observer.disconnect();
+                        }
                         break;
                     }
                 }

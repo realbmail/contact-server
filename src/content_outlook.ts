@@ -45,19 +45,24 @@ async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
 }
 
 async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
-    // const monitorArea = document.getElementById("ReadingPaneContainerId") as HTMLElement;
-    const monitorArea = document.querySelector('div[data-app-section="MailReadCompose"]') as HTMLElement;
+    const monitorArea = document.getElementById("ReadingPaneContainerId") as HTMLElement;
     if (!monitorArea) {
         console.log("------>>> mail area failed ");
         return;
     }
 
+    let oldDiv: HTMLElement | null = null;
     observeForElement(monitorArea, 800,
         () => {
             const editArea = document.getElementById("docking_InitVisiblePart_0");
             const readArea = document.getElementById("ConversationReadingPaneContainer");
-            console.log("------>>> editor area:", editArea, readArea);
-            return editArea || readArea;
+            const targetDiv = editArea || readArea;
+            if (oldDiv === targetDiv) {
+                return null;
+            }
+            oldDiv = targetDiv;
+            console.log("------>>> targetDiv area:", targetDiv);
+            return targetDiv;
         }, async () => {
             console.log("------->>>start to populate outlook mail area");
             addCryptButtonToComposeDivOutLook(template).then();
