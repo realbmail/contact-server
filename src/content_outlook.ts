@@ -1,3 +1,5 @@
+import {observeForElement} from "./content_common";
+
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
     if (!element) return;
@@ -13,5 +15,11 @@ export function queryEmailAddrOutLook() {
 }
 
 export function appendForOutLook(template: HTMLTemplateElement) {
+    observeForElement(document.body, 1000,
+        () => {
+            return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement || document.getElementById("leftPanel") as HTMLElement;
+        }, async () => {
+            console.log("------->>>start to populate qq mail area",);
+        });
 
 }
