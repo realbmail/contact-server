@@ -1,7 +1,7 @@
 import {
     __localContactMap, addCryptButtonForEveryBmailDiv,
     checkFrameBody, encryptMailInComposing,
-    observeForElement,
+    observeForElement, observeFrame,
     parseBmailInboxBtn,
     parseCryptoMailBtn, processReceivers, queryContactFromSrv,
     showTipsDialog
@@ -18,7 +18,7 @@ export function appendForQQ(template: HTMLTemplateElement) {
             console.log("------->>>start to populate qq mail area",);
             monitorComposeActionQQ(template).then();
             appendBmailInboxMenuQQ(template).then();
-            monitorQQMainArea(template).then();
+            monitorQQMailReading(template).then();
             addCryptoBtnToReadingMailQQ(template).then();
             addCryptoBtnToComposeDivQQ(template).then();
             monitorQQMailReadingOldVersion(template).then();
@@ -84,8 +84,6 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     }
 
     let mailContentDiv = iframeDocument.querySelector(".rooster-content-body") as HTMLElement;
-
-
     const cryptoBtn = composeBodyDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (cryptoBtn) {
         console.log("------>>> node already exists");
@@ -121,7 +119,7 @@ function checkMailContent(mailContentDiv: HTMLElement): HTMLElement {
         return mailContentDiv
     }
     const div = document.createElement("div");
-    div.id = "bmail-mail-body-for-qq";
+    div.id = __bmailComposeDivId;
 
     const childrenArray = Array.from(mailContentDiv.children) as HTMLElement[];
     childrenArray.forEach((subNode) => {
@@ -169,7 +167,7 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, rec
     }
 }
 
-async function monitorQQMainArea(template: HTMLTemplateElement) {
+async function monitorQQMailReading(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".frame-main") as HTMLElement | null;
     if (!mainArea) {
         console.log("------>>> no mail reading area found");
@@ -376,13 +374,13 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
         console.log("------>>> node already exists");
         return;
     }
-    let mailContentDiv = composeDocument.body.firstChild as HTMLElement;
 
     const sendDiv = toolBarDiv.querySelector('a[name="sendbtn"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = iframeDocument!.getElementById('toAreaCtrl') as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
+            const mailContentDiv = checkMailContentOldVersion(composeDocument.body);
             await encryptMailAndSendQQOldVersion(mailContentDiv, btn, receiverTable, sendDiv);
         }
     ) as HTMLElement;
@@ -392,6 +390,42 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     } else {
         toolBarDiv.appendChild(cryptoBtnDiv);
     }
+}
+
+const __bmailComposeDivId = "bmail-mail-body-for-qq";
+
+function checkMailContentOldVersion(docBody: HTMLElement): HTMLElement {
+    const replyOrQuoteDiv = docBody.querySelector("includetail") as HTMLElement | null;
+    if (!replyOrQuoteDiv) {
+        return docBody;
+    }
+
+    const bmailContentDiv = document.getElementById(__bmailComposeDivId) as HTMLElement;
+    if (bmailContentDiv) {
+        return bmailContentDiv;
+    }
+
+    const div = document.createElement("div");
+    div.id = __bmailComposeDivId;
+
+    const targetDiv = replyOrQuoteDiv.querySelector('div[style="font-size: 12px;font-family: Arial Narrow;padding:2px 0 2px 0;"]');
+    if (!targetDiv) {
+        console.log("----->>> reply flag not found [old version]");
+        return docBody;
+    }
+
+    let sibling = targetDiv.previousElementSibling;
+    while (sibling) {
+        div.insertBefore(sibling.cloneNode(true), div.lastElementChild as HTMLElement);
+        // div.appendChild(sibling.cloneNode(true));
+        const previousSibling = sibling.previousElementSibling;
+        sibling.remove();
+        sibling = previousSibling;
+    }
+
+    div.insertBefore(docBody.firstChild as HTMLElement, div.firstChild as HTMLElement);
+    docBody.insertBefore(div, docBody.firstChild);
+    return div;
 }
 
 async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
@@ -427,27 +461,6 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLEl
     }
 }
 
-function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
-    const setupObserver = () => {
-        if (iframe.contentDocument) {
-            const observer = new MutationObserver(async (mutations) => {
-                for (const mutation of mutations) {
-                    console.log('----->>> Mutation observed:', mutation);
-                    if (judge(iframe.contentDocument!)) {
-                        await action(iframe.contentDocument!);
-                        break;
-                    }
-                }
-            });
-            observer.observe(iframe.contentDocument.body, {
-                childList: true,
-                subtree: true,
-            });
-        }
-    };
-    setupObserver();
-    iframe.addEventListener('load', setupObserver);
-}
 
 async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
     let frameMainDiv = document.querySelector(".frame-main") as HTMLElement;
@@ -461,6 +474,7 @@ async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
     if (!iframe) {
         return;
     }
+
     let oldArea: HTMLElement;
     observeFrame(iframe, (doc) => {
         const newArea = doc.getElementById("mainmail") as HTMLElement;

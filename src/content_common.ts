@@ -340,3 +340,25 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
 
     return queryContactFromSrv(emailToQuery, receiver);
 }
+
+export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
+    const setupObserver = () => {
+        if (iframe.contentDocument) {
+            const observer = new MutationObserver(async (mutations) => {
+                for (const mutation of mutations) {
+                    // console.log('----->>> Mutation observed:', mutation);
+                    if (judge(iframe.contentDocument!)) {
+                        await action(iframe.contentDocument!);
+                        break;
+                    }
+                }
+            });
+            observer.observe(iframe.contentDocument.body, {
+                childList: true,
+                subtree: true,
+            });
+        }
+    };
+    setupObserver();
+    iframe.addEventListener('load', setupObserver);
+}
