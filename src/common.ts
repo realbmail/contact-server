@@ -198,6 +198,8 @@ export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
 
     const divElementsArray = Array.from(mailArea.querySelectorAll('div')) as HTMLElement[];
     divElementsArray.push(mailArea);
+    const allQuote = Array.from(mailArea.querySelectorAll('blockquote')) as HTMLElement[];
+    divElementsArray.push(...allQuote);
 
     divElementsArray.forEach((element) => {
         const textContent = element.textContent?.trim();
@@ -212,7 +214,7 @@ export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
                     closestJsonElements.push(element);
                 }
             } catch (e) {
-                console.log("----->>> mail content is plain text");
+                console.log("----->>> mail content is plain text", textContent);
             }
         }
     });

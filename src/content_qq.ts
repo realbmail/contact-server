@@ -417,7 +417,6 @@ function checkMailContentOldVersion(docBody: HTMLElement): HTMLElement {
     let sibling = targetDiv.previousElementSibling;
     while (sibling) {
         div.insertBefore(sibling.cloneNode(true), div.lastElementChild as HTMLElement);
-        // div.appendChild(sibling.cloneNode(true));
         const previousSibling = sibling.previousElementSibling;
         sibling.remove();
         sibling = previousSibling;
@@ -462,16 +461,16 @@ async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
         return;
     }
 
-    let oldArea: HTMLElement;
+    let oldArea: HTMLElement | null = null;
     observeFrame(iframe, (doc) => {
         const newArea = doc.getElementById("mainmail") as HTMLElement;
+        console.log("-------->>>>", newArea, oldArea)
         if (oldArea == newArea) {
             return null;
         }
         oldArea = newArea;
         return newArea;
     }, async (doc) => {
-        console.log("--------------------->>> frame document", doc.getElementById("mainmail"));
         await addCryptoBtnToReadingMailQQOldVersion(template, doc);
     });
 }

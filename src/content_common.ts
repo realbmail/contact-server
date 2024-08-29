@@ -353,26 +353,27 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
     return queryContactFromSrv(emailToQuery, receiver);
 }
 
-export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>, once?: boolean) {
+export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
     const setupObserver = () => {
-        if (iframe.contentDocument) {
-            const observer = new MutationObserver(async (mutations) => {
-                for (const mutation of mutations) {
-                    // console.log('----->>> Mutation observed:', mutation);
-                    if (judge(iframe.contentDocument!)) {
-                        await action(iframe.contentDocument!);
-                        if (once) {
-                            observer.disconnect();
-                        }
-                        break;
-                    }
-                }
-            });
-            observer.observe(iframe.contentDocument.body, {
-                childList: true,
-                subtree: true,
-            });
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        if (!doc) {
+            console.log("----------------->>> frame document failed:");
+            return;
         }
+        console.log("------------------->>>> frame document loaded---->", doc);
+        const observer = new MutationObserver(async (mutations) => {
+            for (const mutation of mutations) {
+                // console.log('----->>> Mutation observed:', mutation);
+                if (judge(iframe.contentDocument!)) {
+                    await action(iframe.contentDocument!);
+                    break;
+                }
+            }
+        });
+        observer.observe(doc.body, {
+            childList: true,
+            subtree: true,
+        });
     };
     setupObserver();
     iframe.addEventListener('load', setupObserver);
