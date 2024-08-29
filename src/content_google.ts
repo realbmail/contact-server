@@ -1,12 +1,10 @@
 import {
-    __localContactMap,
     addCryptButtonForEveryBmailDiv,
     checkFrameBody,
     encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
     parseCryptoMailBtn, processReceivers,
-    queryContactFromSrv,
     showTipsDialog
 } from "./content_common";
 import {emailRegex, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
@@ -79,7 +77,7 @@ async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
 
         const toolBarTr = tdDiv.querySelector("tr.btC") as HTMLElement;
         const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
-        const clone = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn", title,
+        const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
             "bmail_crypto_btn_in_compose_google", async btn => {
                 await encryptMailAndSendGoogle(mailBodyDiv, btn, titleForm, sendDiv);
             });

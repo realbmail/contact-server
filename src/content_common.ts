@@ -67,7 +67,7 @@ export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: s
 
     const img = bmailInboxBtn.querySelector('img');
     if (img) {
-        img.src = browser.runtime.getURL('file/logo_16.png');
+        img.src = browser.runtime.getURL('file/logo_48.png');
     }
     const clone = bmailInboxBtn.cloneNode(true) as HTMLElement;
     clone.addEventListener('click', bmailInboxAction);
@@ -139,10 +139,10 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
     if (hasEncrypted) {
         btn.textContent = browser.i18n.getMessage('decrypt_mail_body');
-        img!.src = browser.runtime.getURL('file/logo_16_out.png');
+        img!.src = browser.runtime.getURL('file/logo_48_out.png');
     } else {
         btn.textContent = browser.i18n.getMessage('crypto_and_send');
-        img!.src = browser.runtime.getURL('file/logo_16.png');
+        img!.src = browser.runtime.getURL('file/logo_48.png');
     }
 }
 
@@ -283,7 +283,7 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
     }
 
     const title = browser.i18n.getMessage('decrypt_mail_body')
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16_out.png', ".bmail-decrypt-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', ".bmail-decrypt-btn",
         title, btnId, async btn => {
         }) as HTMLElement;
 

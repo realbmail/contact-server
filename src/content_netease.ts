@@ -137,7 +137,7 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
     }
     const title = browser.i18n.getMessage('crypto_and_send');
     const sendDiv = composeDiv.querySelector(".js-component-button.nui-mainBtn.nui-btn.nui-btn-hasIcon.nui-mainBtn-hasIcon") as HTMLElement;
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
             await encryptDataAndSendNetEase(composeDiv, btn, sendDiv);
         }

@@ -99,7 +99,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     const sendDiv = toolBar.querySelector(".xmail_sendmail_btn") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = composeBodyDiv.querySelector('div.compose_mailInfo_item.new:not(.hide)') as HTMLElement;
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq', async btn => {
             mailContentDiv = checkMailContent(mailContentDiv);
             await encryptMailAndSendQQ(mailContentDiv, btn, receiverTable, sendDiv);
@@ -264,7 +264,7 @@ async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBa
         return;
     }
 
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_simple', async btn => {
             await encryptSimpleMailReplyQQ(mailContentDiv, email, btn, sendDiv);
         }
@@ -378,7 +378,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     const sendDiv = toolBarDiv.querySelector('a[name="sendbtn"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = iframeDocument!.getElementById('toAreaCtrl') as HTMLElement;
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_16.png', ".bmail-crypto-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
             const mailContentDiv = checkMailContentOldVersion(composeDocument.body);
             await encryptMailAndSendQQOldVersion(mailContentDiv, btn, receiverTable, sendDiv);
@@ -460,7 +460,6 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLEl
         hideLoading();
     }
 }
-
 
 async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
     let frameMainDiv = document.querySelector(".frame-main") as HTMLElement;

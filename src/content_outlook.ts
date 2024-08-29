@@ -1,4 +1,4 @@
-import {observeForElement} from "./content_common";
+import {observeForElement, parseBmailInboxBtn} from "./content_common";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -15,11 +15,21 @@ export function queryEmailAddrOutLook() {
 }
 
 export function appendForOutLook(template: HTMLTemplateElement) {
-    observeForElement(document.body, 1000,
+    observeForElement(document.body, 800,
         () => {
-            return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement || document.getElementById("leftPanel") as HTMLElement;
+            return document.querySelector(".DPg26 .xKrjQ");
         }, async () => {
-            console.log("------->>>start to populate qq mail area",);
+            console.log("------->>>start to populate qq mail area");
+            appendBmailInboxMenuOutLook(template).then();
         });
+}
 
+async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
+    const leftMenuDiv = document.querySelector(".DPg26 .xKrjQ") as HTMLElement;
+    let clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_outlook") as HTMLElement;
+    if (leftMenuDiv.children.length >= 2) {
+        leftMenuDiv.insertBefore(clone, leftMenuDiv.children[1]);
+    } else {
+        leftMenuDiv.appendChild(clone);
+    }
 }
