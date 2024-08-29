@@ -24,7 +24,7 @@ const ICON_PATHS = {
     },
     loggedOut: {
         "16": "../file/logo_16_out.png",
-        "48": "../file/logo_48_out.png",
+        "48": "../file/logo_48_out-black.png",
         "128": "../file/logo_128_out.png"
     }
 };
