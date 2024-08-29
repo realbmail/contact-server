@@ -431,23 +431,11 @@ function checkMailContentOldVersion(docBody: HTMLElement): HTMLElement {
 async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
-        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-        if (statusRsp.success < 0) {
-            return;
-        }
-        let bodyTextContent = mailBody.innerText.trim();
-        if (bodyTextContent.length <= 0) {
-            showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
-            return;
-        }
         const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal") as NodeListOf<HTMLElement>;
         const receiver = await processReceivers(allEmailAddrDivs, (div) => {
             return div.getAttribute('addr')?.trim() as string | null;
         });
 
-        if (!receiver || receiver.length <= 0) {
-            return;
-        }
         const success = await encryptMailInComposing(mailBody, btn, receiver);
         if (!success) {
             return;

@@ -77,7 +77,7 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         console.log("------>>> node already exists");
         return;
     }
-    const mailContentDiv = document.getElementById("editorParent_2") as HTMLElement;
+    const mailContentDiv = document.getElementById("editorParent_2")?.firstChild as HTMLElement;
     const sendDiv = toolBarDiv.querySelector('div[data-testid="ComposeSendButton"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
@@ -102,9 +102,9 @@ async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement
             showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
             return;
         }
-        const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal") as NodeListOf<HTMLElement>;
+        const allEmailAddrDivs = receiverTable.querySelectorAll(".textContainer-468.individualText-471") as NodeListOf<HTMLElement>;
         const receiver = await processReceivers(allEmailAddrDivs, (div) => {
-            return div.getAttribute('addr')?.trim() as string | null;
+            return div.textContent;
         });
 
         if (!receiver || receiver.length <= 0) {
