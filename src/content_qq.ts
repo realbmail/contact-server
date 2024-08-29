@@ -471,5 +471,45 @@ async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
         return newArea;
     }, async (doc) => {
         console.log("--------------------->>> frame document", doc.getElementById("mainmail"));
+        await addCryptoBtnToReadingMailQQOldVersion(template, doc);
     });
+}
+
+
+async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateElement, doc: Document) {
+
+    const parentDiv = doc.getElementById("mainmail") as HTMLElement;
+    if (!parentDiv) {
+        console.log("------>>> mail area not found [old version]");
+        return
+    }
+
+    const toolBarDiv = doc.getElementById("toolbgline_top")?.querySelector(".nowrap.qm_left");
+    if (!toolBarDiv) {
+        console.log("------>>> tool bar not found [old version]");
+        return
+    }
+
+    const decryptBtn = toolBarDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    if (decryptBtn) {
+        console.log("------>>> decrypt button already been added for reading");
+        return;
+    }
+
+    const mailArea = doc.getElementById("contentDiv");
+    if (!mailArea) {
+        console.log("------>>> no reading mail body found [old version]");
+        return;
+    }
+
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old');
+    if (!cryptoBtnDiv) {
+        return;
+    }
+
+    if (toolBarDiv.childNodes.length > 2) {
+        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+    } else {
+        toolBarDiv.appendChild(cryptoBtnDiv);
+    }
 }
