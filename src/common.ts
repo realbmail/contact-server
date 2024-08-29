@@ -206,8 +206,10 @@ export function hideLoading(): void {
 export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
     const jsonRegex = /^\{.*\}$|^\[.*\]$/;
     const closestJsonElements: HTMLElement[] = [];
+
     const divElementsArray = Array.from(mailArea.querySelectorAll('div')) as HTMLElement[];
-    divElementsArray.push(mailArea);
+    // divElementsArray.push(mailArea);
+
     divElementsArray.forEach((element) => {
         const textContent = element.textContent?.trim();
         if (textContent && jsonRegex.test(textContent)) {

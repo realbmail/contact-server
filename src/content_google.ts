@@ -162,7 +162,8 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
     const mailBodyList = parentDiv.querySelectorAll(".adn.ads") as NodeListOf<HTMLElement>;
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
-        const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
+        // const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
+        const mailParentDiv = oneMail.querySelector(".ii.gt") as HTMLElement | null;
         if (!mailParentDiv) {
             console.log("------>>> no mail content parent div found");
             return;
