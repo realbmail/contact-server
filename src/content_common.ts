@@ -151,10 +151,6 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
         return false;
     }
 
-    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0) {
-        return false;
-    }
     let bodyTextContent = mailBody.innerText.trim();
     if (bodyTextContent.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
@@ -310,6 +306,11 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 }
 
 export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElement>, callback: (div: HTMLElement) => string | null): Promise<string[] | null> {
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return null;
+    }
+
     let receiver: string[] = [];
     let emailToQuery: string[] = [];
 

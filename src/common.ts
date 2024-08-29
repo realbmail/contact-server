@@ -148,7 +148,6 @@ export function isValidEmail(email: string): boolean {
     return emailRegex.test(email);
 }
 
-
 export function extractEmail(input: string): string | null {
     // 正则表达式用于匹配电子邮件地址
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
@@ -156,16 +155,6 @@ export function extractEmail(input: string): string | null {
     // 如果找到匹配项，返回匹配的电子邮件地址，否则返回 null
     return match ? match[0] : null;
 }
-
-
-// export function extractJsonString(input: string): string | null {
-//     if (!input.includes(MailFlag)) {
-//         return null;
-//     }
-//     const jsonRegex = /[{[].*[\]}]/;
-//     const match = input.match(jsonRegex);
-//     return match ? match[0] : null;
-// }
 
 export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
     if (!input.includes(MailFlag)) {

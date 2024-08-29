@@ -7,7 +7,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
-import {hideLoading, showLoading} from "./common";
+import {extractEmail, hideLoading, showLoading} from "./common";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -54,8 +54,9 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
     let oldDiv: HTMLElement | null = null;
     observeForElement(monitorArea, 800,
         () => {
-            const editArea = document.getElementById("docking_InitVisiblePart_0");
+            const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
             const readArea = document.getElementById("ConversationReadingPaneContainer");
+            // console.log("------>>> editArea area:", editArea, "readArea", readArea);
             const targetDiv = editArea || readArea;
             if (oldDiv === targetDiv) {
                 return null;
@@ -71,7 +72,7 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
 }
 
 async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) {
-    const composeArea = document.getElementById("docking_InitVisiblePart_1")?.querySelector(".cBeRi.dMm6A.AiSsJ");
+    const composeArea = document.querySelector(".cBeRi.dMm6A.AiSsJ");
     if (!composeArea) {
         console.log("------>>> no compose area found");
         return;
@@ -88,8 +89,8 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         console.log("------>>> node already exists");
         return;
     }
-    const mailContentDiv = document.getElementById("editorParent_2")?.firstChild as HTMLElement;
-    const sendDiv = toolBarDiv.querySelector('div[data-testid="ComposeSendButton"]') as HTMLElement;
+    const mailContentDiv = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
+    const sendDiv = toolBarDiv.querySelector('div[aria-label="Send"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
@@ -97,16 +98,16 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
             await encryptMailAndSendOutLook(mailContentDiv, btn, receiverTable, sendDiv);
         }
     ) as HTMLElement;
-    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.lastChild as HTMLElement);
+    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1] as HTMLElement);
 }
 
 
 async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
-        const allEmailAddrDivs = receiverTable.querySelectorAll(".textContainer-468.individualText-471") as NodeListOf<HTMLElement>;
+        const allEmailAddrDivs = receiverTable.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
         const receiver = await processReceivers(allEmailAddrDivs, (div) => {
-            return div.textContent;
+            return extractEmail(div.textContent ?? "");
         });
 
         const success = await encryptMailInComposing(mailBody, btn, receiver);
