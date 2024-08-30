@@ -192,8 +192,8 @@ export function hideLoading(): void {
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
-export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
-    const jsonRegex = /^\{.*\}$|^\[.*\]$/;
+export function BMailDivQuery2(mailArea: HTMLElement): HTMLElement[] {
+    // const jsonRegex = /^\{.*\}$|^\[.*\]$/;
     const closestJsonElements: HTMLElement[] = [];
 
     const divElementsArray = Array.from(mailArea.querySelectorAll('div')) as HTMLElement[];
@@ -203,12 +203,12 @@ export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
 
     divElementsArray.forEach((element) => {
         const textContent = element.textContent?.trim();
-        if (textContent && jsonRegex.test(textContent)) {
+        if (textContent && extractJsonString(textContent) != null) {
             try {
-                JSON.parse(textContent);
+                // JSON.parse(textContent);
                 const hasJsonChild = Array.from(element.querySelectorAll('div')).some((childElement) => {
                     const childText = childElement.textContent?.trim();
-                    return childText && jsonRegex.test(childText);
+                    return childText && extractJsonString(childText) != null;
                 });
                 if (!hasJsonChild) {
                     closestJsonElements.push(element);
@@ -219,5 +219,31 @@ export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
         }
     });
     console.log("------------------>>matchingElements size:=>", closestJsonElements.length)
+    return closestJsonElements;
+}
+
+
+export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
+    const closestJsonElements: HTMLElement[] = [];
+    const allElements = Array.from(mailArea.querySelectorAll('div, blockquote')) as HTMLElement[];
+    allElements.push(mailArea);
+    allElements.forEach((element) => {
+        const textContent = element.textContent?.trim();
+        if (!textContent) {
+            return;
+        }
+        if (!textContent.includes(MailFlag)) {
+            return;
+        }
+        const hasJsonChild = Array.from(element.children).some((childElement) => {
+            const childText = childElement.textContent?.trim();
+            return childText && childText.includes(MailFlag);
+        });
+        if (!hasJsonChild) {
+            closestJsonElements.push(element);
+        }
+    });
+
+    console.log("------------------>>matchingElements size:=>", closestJsonElements.length);
     return closestJsonElements;
 }
