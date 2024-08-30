@@ -1,5 +1,5 @@
 import {
-    addCryptButtonForEveryBmailDiv,
+    addCryptButtonForEveryBmailDiv, decryptMailInReading,
     encryptMailInComposing,
     observeForElement, observeForElementDirect,
     parseBmailInboxBtn,
@@ -8,7 +8,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
-import {extractEmail, hideLoading, showLoading} from "./common";
+import {BMailDivQuery, extractEmail, hideLoading, showLoading} from "./common";
 import {MailFlag} from "./bmail_body";
 
 export function queryEmailAddrOutLook() {
@@ -168,7 +168,15 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
             if (!quoteOrReply) {
                 return;
             }
-            addCryptButtonForEveryBmailDiv(template, quoteOrReply as HTMLElement, 'bmail_decrypt_btn_in_compose_outlook');
+
+            const BMailDivs = BMailDivQuery(quoteOrReply as HTMLElement);
+            BMailDivs.forEach((bmailBody: HTMLElement) => {
+                cryptoBtnDiv.addEventListener('click', async () => {
+                    const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
+                    await decryptMailInReading(bmailBody, cryptoBtn);
+                })
+            })
+
         }, 500);
     })
 
