@@ -1,5 +1,13 @@
 import browser from "webextension-polyfill";
-import {BMailDivQuery, hideLoading, HostArr, MsgType, sendMessageToBackground, showLoading} from "./common";
+import {
+    BMailDivQuery,
+    extractJsonString,
+    hideLoading,
+    HostArr,
+    MsgType, replaceTextInRange,
+    sendMessageToBackground,
+    showLoading
+} from "./common";
 import {queryEmailAddrNetEase} from "./content_netease";
 import {queryEmailAddrGoogle} from "./content_google";
 import {MailFlag} from "./bmail_body";
@@ -176,7 +184,7 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
 }
 
 
-export async function decryptMailInReading(mailContent: HTMLElement, content: string, cryptoBtn: HTMLElement): Promise<void> {
+export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: HTMLElement): Promise<void> {
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
@@ -191,9 +199,16 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
             return;
         }
 
+        const bmailContent = extractJsonString(mailContent.innerHTML);
+        if (!bmailContent) {
+            showTipsDialog("Error", browser.i18n.getMessage('decrypt_mail_body_failed'));
+            return;
+        }
+
+
         const mailRsp = await browser.runtime.sendMessage({
             action: MsgType.DecryptData,
-            data: content
+            data: bmailContent.json
         })
 
         if (mailRsp.success <= 0) {
@@ -205,7 +220,8 @@ export async function decryptMailInReading(mailContent: HTMLElement, content: st
         }
         console.log("------>>> decrypt mail body success");
         mailContent.dataset.orignCrpted = mailContent.innerHTML;
-        mailContent.innerHTML = mailRsp.data;
+        // mailContent.innerHTML = mailRsp.data;
+        mailContent.innerHTML = replaceTextInRange(mailContent.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
         mailContent.dataset.hasDecrypted = "true";
         setBtnStatus(false, cryptoBtn);
 
@@ -298,7 +314,7 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     BMailDivs.forEach(bmailBody => {
         cryptoBtnDiv!.addEventListener('click', async () => {
-            await decryptMailInReading(bmailBody, bmailBody.textContent!.trim(), cryptoBtn);
+            await decryptMailInReading(bmailBody, cryptoBtn);
         });
     });
 
