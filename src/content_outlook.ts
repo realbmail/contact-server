@@ -168,11 +168,15 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
             if (!quoteOrReply) {
                 return;
             }
+            const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
 
             const BMailDivs = BMailDivQuery(quoteOrReply as HTMLElement);
             BMailDivs.forEach((bmailBody: HTMLElement) => {
+                if (cryptoBtn.dataset.encoded === 'false') {
+                    decryptMailInReading(bmailBody, cryptoBtn).then();
+                    return;
+                }
                 cryptoBtnDiv.addEventListener('click', async () => {
-                    const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
                     await decryptMailInReading(bmailBody, cryptoBtn);
                 })
             })

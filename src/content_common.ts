@@ -146,9 +146,11 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
         return;
     }
     if (hasEncrypted) {
+        btn.dataset.encoded = 'true';
         btn.textContent = browser.i18n.getMessage('decrypt_mail_body');
         img!.src = browser.runtime.getURL('file/logo_48_out.png');
     } else {
+        btn.dataset.encoded = 'false';
         btn.textContent = browser.i18n.getMessage('crypto_and_send');
         img!.src = browser.runtime.getURL('file/logo_48.png');
     }
