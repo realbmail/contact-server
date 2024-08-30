@@ -334,7 +334,7 @@ async function monitorComposeActionQQ(template: HTMLTemplateElement) {
     let oldElement: HTMLElement | null = null;
     observeForElement(monitorDiv, 800, () => {
         const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
-        const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
+        const iframeDocument = iframe?.contentDocument;
         const formInFrame = iframeDocument?.getElementById("frm") as HTMLIFrameElement | null;
         if (formInFrame == oldElement) {
             return null;
