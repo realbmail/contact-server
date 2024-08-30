@@ -9,6 +9,7 @@ import {
 } from "./content_common";
 import browser from "webextension-polyfill";
 import {extractEmail, hideLoading, showLoading} from "./common";
+import {MailFlag} from "./bmail_body";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -118,6 +119,12 @@ async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement
             return extractEmail(div.textContent ?? "");
         });
 
+        if (mailBody.innerHTML.includes(MailFlag)) {
+            console.log("----->>> has encrypted and send directly");
+            sendDiv.click();
+            return;
+        }
+
         const success = await encryptMailInComposing(mailBody, btn, receiver);
         if (!success) {
             return;
@@ -159,6 +166,16 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     if (!cryptoBtnDiv) {
         return;
     }
+
+    mailArea.querySelector(".T_6Xj")?.addEventListener("click", async () => {
+        setTimeout(() => {
+            const quoteOrReply = mailArea.querySelector(".wnVEW")?.querySelector('div[aria-label="Message body"]');
+            if (!quoteOrReply) {
+                return;
+            }
+            addCryptButtonForEveryBmailDiv(template, quoteOrReply as HTMLElement, 'bmail_decrypt_btn_in_compose_outlook');
+        }, 500);
+    })
 
     if (toolBarDiv.childNodes.length > 2) {
         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
