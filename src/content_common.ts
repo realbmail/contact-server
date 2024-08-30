@@ -354,7 +354,7 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
 }
 
 
-export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
+export function observeFrame2(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
     iframe.addEventListener('load', () => {
         const doc = iframe.contentDocument as Document;
         console.log("------>>> ------>>> Frame document loaded", doc);
@@ -363,3 +363,27 @@ export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) =
         }
     });
 }
+
+export function observeFrame(
+    iframe: HTMLIFrameElement,
+    action: (doc: Document) => Promise<void>,
+    interval = 1000,
+) {
+    let lastURL = '';
+    setInterval(async function () {
+        try {
+            const currentURL = iframe.contentWindow?.location.href as string;
+            if (currentURL === lastURL) {
+                return;
+            }
+            lastURL = currentURL;
+            if (!currentURL.includes("cgi-bin/readmail")) {
+                return;
+            }
+            await action(iframe.contentDocument as Document);
+        } catch (e) {
+            console.log('------------>>>>Iframe URL error :=>', e);
+        }
+    }, interval);  // 每秒检查一次
+}
+

@@ -461,16 +461,7 @@ async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
         return;
     }
 
-    let oldArea: HTMLElement | null = null;
-    observeFrame(iframe, (doc) => {
-        const newArea = doc.getElementById("mainmail") as HTMLElement;
-        console.log("-------->>>>", newArea, oldArea)
-        if (oldArea == newArea) {
-            return null;
-        }
-        oldArea = newArea;
-        return newArea;
-    }, async (doc) => {
+    observeFrame(iframe, async (doc) => {
         await addCryptoBtnToReadingMailQQOldVersion(template, doc);
     });
 }
