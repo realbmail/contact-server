@@ -353,28 +353,43 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
     return queryContactFromSrv(emailToQuery, receiver);
 }
 
+
 export function observeFrame(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
     const setupObserver = () => {
-        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        const doc = iframe?.contentDocument;
         if (!doc) {
             console.log("----------------->>> frame document failed:");
             return;
         }
         console.log("------------------->>>> frame document loaded---->", doc);
+
+        // 防止重复绑定
+        if (doc.body.dataset.observed) {
+            console.log("------------------->>>> MutationObserver already set up for this iframe.");
+            return;
+        }
+
         const observer = new MutationObserver(async (mutations) => {
             for (const mutation of mutations) {
-                // console.log('----->>> Mutation observed:', mutation);
-                if (judge(iframe.contentDocument!)) {
-                    await action(iframe.contentDocument!);
+                if (judge(doc)) {
+                    await action(doc);
                     break;
                 }
             }
         });
+
         observer.observe(doc.body, {
             childList: true,
             subtree: true,
         });
+
+        // 标记已绑定
+        doc.body.dataset.observed = "true";
+
+        // 监听 iframe 卸载事件，防止内存泄漏
+        iframe.addEventListener('unload', () => observer.disconnect());
     };
+
     setupObserver();
     iframe.addEventListener('load', setupObserver);
 }
