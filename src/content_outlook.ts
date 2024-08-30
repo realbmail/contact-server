@@ -108,11 +108,19 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
 async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement, composeArea: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
+        let receiver: string[] | null
         const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
-        const allEmailAddrDivs = receiverTable.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
-        const receiver = await processReceivers(allEmailAddrDivs, (div) => {
-            return extractEmail(div.textContent ?? "");
-        });
+        if (!receiverTable) {
+            const spanElement = composeArea.querySelectorAll('.lpcWrapper.lpcCommonWeb-hoverTarget') as NodeListOf<HTMLElement>;
+            receiver = await processReceivers(spanElement, (div) => {
+                return extractEmail(div.getAttribute('aria-label') ?? "");
+            });
+        } else {
+            const allEmailAddrDivs = receiverTable.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
+            receiver = await processReceivers(allEmailAddrDivs, (div) => {
+                return extractEmail(div.textContent ?? "");
+            });
+        }
 
         if (mailBody.innerHTML.includes(MailFlag)) {
             console.log("----->>> has encrypted and send directly");
@@ -211,24 +219,4 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
         prepareOneMailInConversation(oneMail, template)
     });
 
-}
-
-async function encryptReplyAndSendOutLook(composeArea: HTMLElement, mailBody: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
-    showLoading();
-    try {
-        const spanElement = composeArea.querySelectorAll('.lpcWrapper.lpcCommonWeb-hoverTarget') as NodeListOf<HTMLElement>;
-        const receiver = await processReceivers(spanElement, (div) => {
-            return extractEmail(div.getAttribute('aria-label') ?? "");
-        });
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
-        if (!success) {
-            return;
-        }
-        sendDiv.click();
-    } catch (e) {
-        console.log("------>>> mail crypto err:", e);
-        showTipsDialog("error", "encrypt mail content failed");
-    } finally {
-        hideLoading();
-    }
 }
