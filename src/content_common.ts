@@ -198,13 +198,17 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
             mailContent.dataset.orignCrpted = '';
             return;
         }
+        mailContent.dataset.orignCrpted = mailContent.innerHTML;
+
+        if (mailContent.innerHTML.includes('<wbr>')) {
+            mailContent.innerHTML = mailContent.innerHTML.replace(/<wbr>/g, '');
+        }
 
         const bmailContent = extractJsonString(mailContent.innerHTML);
         if (!bmailContent) {
             showTipsDialog("Error", browser.i18n.getMessage('decrypt_mail_body_failed'));
             return;
         }
-
 
         const mailRsp = await browser.runtime.sendMessage({
             action: MsgType.DecryptData,
@@ -218,8 +222,8 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
             showTipsDialog("Tips", mailRsp.message);
             return;
         }
+
         console.log("------>>> decrypt mail body success");
-        mailContent.dataset.orignCrpted = mailContent.innerHTML;
         // mailContent.innerHTML = mailRsp.data;
         mailContent.innerHTML = replaceTextInRange(mailContent.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
         mailContent.dataset.hasDecrypted = "true";
