@@ -368,7 +368,7 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
         return null;
     }
     for (let i = 0; i < allEmailAddressDiv.length; i++) {
-        const emailAddressDiv = allEmailAddressDiv[i] as HTMLSpanElement;
+        const emailAddressDiv = allEmailAddressDiv[i] as HTMLElement;
         const email = callback(emailAddressDiv)
         if (!email || email === "") {
             continue;
