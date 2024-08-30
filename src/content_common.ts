@@ -236,9 +236,9 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
     }
 }
 
-export function observeForElement(target: HTMLElement, idleThreshold: number,
-                                  foundFunc: () => HTMLElement | null, callback: () => Promise<void>,
-                                  continueMonitor?: boolean) {
+function observeAction(target: HTMLElement, idleThreshold: number,
+                       foundFunc: () => HTMLElement | null, callback: () => Promise<void>,
+                       options: MutationObserverInit, continueMonitor?: boolean) {
     const cb: MutationCallback = (mutationsList, observer) => {
         const element = foundFunc();
         if (!element) {
@@ -255,8 +255,22 @@ export function observeForElement(target: HTMLElement, idleThreshold: number,
     };
 
     const observer = new MutationObserver(cb);
-    observer.observe(target, {childList: true, subtree: true});
+    observer.observe(target, options);
 }
+
+export function observeForElement(target: HTMLElement, idleThreshold: number,
+                                  foundFunc: () => HTMLElement | null, callback: () => Promise<void>,
+                                  continueMonitor?: boolean) {
+
+    observeAction(target, idleThreshold, foundFunc, callback, {childList: true, subtree: true}, continueMonitor);
+}
+
+export function observeForElementDirect(target: HTMLElement, idleThreshold: number,
+                                        foundFunc: () => HTMLElement | null, callback: () => Promise<void>,
+                                        continueMonitor?: boolean) {
+    observeAction(target, idleThreshold, foundFunc, callback, {childList: true, subtree: false}, continueMonitor);
+}
+
 
 export let __localContactMap = new Map<string, string>();
 

@@ -1,6 +1,6 @@
 import {
     encryptMailInComposing,
-    observeForElement,
+    observeForElement, observeForElementDirect,
     parseBmailInboxBtn,
     parseCryptoMailBtn,
     processReceivers,
@@ -45,7 +45,7 @@ async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
 }
 
 async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
-    const monitorArea = document.getElementById("ReadingPaneContainerId") as HTMLElement;
+    const monitorArea = document.getElementById("ReadingPaneContainerId")?.firstElementChild as HTMLElement;
     if (!monitorArea) {
         console.log("------>>> mail area failed ");
         return;
@@ -55,7 +55,7 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
     observeForElement(monitorArea, 800,
         () => {
             const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
-            const readArea = document.getElementById("ConversationReadingPaneContainer");
+            const readArea = document.querySelector('div[data-app-section="ConversationContainer"]') as HTMLElement | null;
             // console.log("------>>> editArea area:", editArea, "readArea", readArea);
             const targetDiv = editArea || readArea;
             if (oldDiv === targetDiv) {
@@ -131,4 +131,9 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
     }
 
     console.log("------>>> reading area found");
+    const toolBarDiv = readArea.querySelector('div[aria-label="Message actions"]');
+    if (!toolBarDiv) {
+        console.log("------>>> tool bar not found [old version]");
+        return;
+    }
 }
