@@ -157,19 +157,21 @@ export function extractEmail(input: string): string | null {
 }
 
 export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
-    if (!input.includes(MailFlag)) {
-        return null;
-    }
-    const jsonRegex = /[{[].*[\]}]/;
-    const match = input.match(jsonRegex);
-    if (match) {
+    const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
+    let match;
+
+    while ((match = jsonRegex.exec(input)) !== null) {
         const jsonString = match[0];
-        const offset = input.indexOf(jsonString);
-        const endOffset = offset + jsonString.length; // 计算 JSON 字符串的结束位置
-        return {json: jsonString, offset, endOffset};
+
+        if (jsonString.includes(MailFlag)) {
+            const offset = match.index;
+            const endOffset = offset + jsonString.length;
+            return {json: jsonString, offset, endOffset};
+        }
     }
     return null;
 }
+
 
 export function replaceTextInRange(input: string, offset: number, end: number, newText: string): string {
     if (offset < 0 || end < offset || end > input.length) {
