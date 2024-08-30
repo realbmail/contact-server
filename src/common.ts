@@ -192,37 +192,6 @@ export function hideLoading(): void {
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
-export function BMailDivQuery2(mailArea: HTMLElement): HTMLElement[] {
-    // const jsonRegex = /^\{.*\}$|^\[.*\]$/;
-    const closestJsonElements: HTMLElement[] = [];
-
-    const divElementsArray = Array.from(mailArea.querySelectorAll('div')) as HTMLElement[];
-    divElementsArray.push(mailArea);
-    const allQuote = Array.from(mailArea.querySelectorAll('blockquote')) as HTMLElement[];
-    divElementsArray.push(...allQuote);
-
-    divElementsArray.forEach((element) => {
-        const textContent = element.textContent?.trim();
-        if (textContent && extractJsonString(textContent) != null) {
-            try {
-                // JSON.parse(textContent);
-                const hasJsonChild = Array.from(element.querySelectorAll('div')).some((childElement) => {
-                    const childText = childElement.textContent?.trim();
-                    return childText && extractJsonString(childText) != null;
-                });
-                if (!hasJsonChild) {
-                    closestJsonElements.push(element);
-                }
-            } catch (e) {
-                console.log("----->>> mail content is plain text", textContent);
-            }
-        }
-    });
-    console.log("------------------>>matchingElements size:=>", closestJsonElements.length)
-    return closestJsonElements;
-}
-
-
 export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
     const closestJsonElements: HTMLElement[] = [];
     const allElements = Array.from(mailArea.querySelectorAll('div, blockquote')) as HTMLElement[];

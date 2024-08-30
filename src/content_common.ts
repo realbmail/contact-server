@@ -353,17 +353,6 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
     return queryContactFromSrv(emailToQuery, receiver);
 }
 
-
-export function observeFrame2(iframe: HTMLIFrameElement, judge: (doc: Document) => HTMLElement | null, action: (doc: Document) => Promise<void>) {
-    iframe.addEventListener('load', () => {
-        const doc = iframe.contentDocument as Document;
-        console.log("------>>> ------>>> Frame document loaded", doc);
-        if (judge(doc)) {
-            action(doc).then();
-        }
-    });
-}
-
 export function observeFrame(
     iframe: HTMLIFrameElement,
     action: (doc: Document) => Promise<void>,
