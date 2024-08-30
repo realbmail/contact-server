@@ -6,7 +6,15 @@ import {
     parseCryptoMailBtn, processReceivers, queryContactFromSrv,
     showTipsDialog
 } from "./content_common";
-import {emailRegex, extractEmail, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
+import {
+    emailRegex,
+    extractEmail,
+    extractJsonString,
+    hideLoading,
+    MsgType,
+    sendMessageToBackground,
+    showLoading, wrapJsonStrings
+} from "./common";
 import browser from "webextension-polyfill";
 
 export function appendForQQ(template: HTMLTemplateElement) {
@@ -487,17 +495,14 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
         return;
     }
 
-    const mailArea = doc.getElementById("contentDiv");
+    const mailArea = doc.getElementById("mailContentContainer");
     if (!mailArea) {
         console.log("------>>> no reading mail body found [old version]");
         return;
     }
+    mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old');
-    if (!cryptoBtnDiv) {
-        return;
-    }
-
+    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
     if (toolBarDiv.childNodes.length > 2) {
         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
     } else {
