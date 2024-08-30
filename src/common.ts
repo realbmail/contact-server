@@ -224,25 +224,14 @@ export function wrapJsonStrings(input: string): string {
     let result = input;
     let match;
 
-    // 创建一个索引偏移量，用于调整多次替换后的位置
     let offsetAdjustment = 0;
-
     while ((match = jsonRegex.exec(input)) !== null) {
         const jsonString = match[0];
-
-        // 创建新的 div 包裹的 JSON 字符串
         const wrappedJsonString = `<div class="json-wrapper">${jsonString}</div>`;
-
-        // 计算新的位置
         const start = match.index + offsetAdjustment;
         const end = start + jsonString.length;
-
-        // 替换原有的 JSON 字符串为包裹后的字符串
         result = result.slice(0, start) + wrappedJsonString + result.slice(end);
-
-        // 调整偏移量，考虑新字符串的长度变化
         offsetAdjustment += wrappedJsonString.length - jsonString.length;
     }
-
     return result;
 }
