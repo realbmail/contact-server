@@ -131,26 +131,13 @@ async function encryptMailAndSendOutLook(mailBody: HTMLElement, btn: HTMLElement
     }
 }
 
-async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
-    const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
-    if (!readArea) {
-        console.log("------>>> no reading area found");
-        return;
-    }
-
-    const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
-    if (editArea) {
-        await addCryptButtonToComposeDivOutLook(template);
-        return;
-    }
-
-    console.log("------>>> reading area found");
-    const toolBarDiv = readArea.querySelector('div[aria-label="Message actions"]');
+function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTemplateElement) {
+    const toolBarDiv = oneMail.querySelector('div[aria-label="Message actions"]');
     if (!toolBarDiv) {
         console.log("------>>> tool bar not found");
-        readArea.querySelector(".jmmB7.Ts94W.allowTextSelection")?.addEventListener("click", () => {
+        oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection")?.addEventListener("click", () => {
             setTimeout(() => {
-                addMailDecryptForReadingOutLook(template);
+                prepareOneMailInConversation(oneMail, template);
             }, 1000);
         })
         return;
@@ -162,7 +149,7 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
         return;
     }
 
-    const mailArea = readArea.querySelector('div[aria-label="Message body"]') as HTMLElement
+    const mailArea = oneMail.querySelector('div[aria-label="Email message"]') as HTMLElement
     if (!mailArea) {
         console.log("------>>> no reading mail body found");
         return;
@@ -178,6 +165,28 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
     } else {
         toolBarDiv.appendChild(cryptoBtnDiv);
     }
+}
+
+async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
+    const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
+    if (!readArea) {
+        console.log("------>>> no reading area found");
+        return;
+    }
+
+    const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
+    if (editArea) {
+        await addCryptButtonToComposeDivOutLook(template);
+        return;
+    }
+
+    const allInboxMailDiv = readArea.querySelectorAll(".aVla3") as NodeListOf<HTMLElement>;
+    console.log("------>>> reading area found", allInboxMailDiv.length);
+
+    allInboxMailDiv.forEach((oneMail) => {
+        prepareOneMailInConversation(oneMail, template)
+    });
+
 }
 
 async function encryptReplyAndSendOutLook(composeArea: HTMLElement, mailBody: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
