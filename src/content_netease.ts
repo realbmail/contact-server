@@ -158,45 +158,49 @@ function checkAttachmentBtn(composeDiv: HTMLElement) {
     const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]');
     const fileInput = attachmentDiv?.querySelector('input[type="file"]');
     console.log("------>>> attachmentDivs not found for mail composing", fileInput);
+
     if (!fileInput) {
         console.log("----->>> attachment input file not found");
         return;
     }
 
     fileInput.addEventListener('change', async (event) => {
+        console.log("----->>> file input change event triggered");
+
         const input = event.target as HTMLInputElement;
         const files = input.files;
-        if (files && files.length > 0) {
-            const file = files[0];
-            try {
-                // 检查文件是否已经加密
-                if (file.name.endsWith('.encrypted')) {
-                    // 如果文件已经加密，则直接返回
-                    return;
-                }
 
-                // 加密文件
-                const encryptedFile = await encryptFile(file);
+        // 如果文件列表为空或者文件已经加密，直接返回，不处理
+        if (!files || files.length === 0 || files[0].name.endsWith('.encrypted')) {
+            console.log("----->>> No files found or file already encrypted.");
+            return;
+        }
 
-                // 用加密后的文件替换文件列表中的原始文件
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(encryptedFile);
-                input.files = dataTransfer.files;
+        const file = files[0];
+        console.log("----->>> processing file:", file.name);
 
-                // 停止事件传播，确保后续事件处理程序不会处理原始文件
-                event.stopPropagation();
-                event.stopImmediatePropagation();
+        try {
+            // 加密文件
+            const encryptedFile = await encryptFile(file);
+            console.log("----->>> file encrypted:", encryptedFile.name);
 
-                // 手动触发新的 change 事件，以让其他处理程序处理加密后的文件
-                const newEvent = new Event('change', {
-                    bubbles: true,
-                    cancelable: true,
-                });
-                input.dispatchEvent(newEvent);
+            // 创建一个新的 DataTransfer 对象，并添加加密后的文件
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(encryptedFile);
 
-            } catch (error) {
-                console.error('------>>> File encryption failed:', error);
-            }
+            // 替换 input 的文件列表为加密后的文件
+            input.files = dataTransfer.files;
+            console.log("----->>> input files replaced with encrypted file");
+
+            // 手动触发新的 change 事件，通知系统文件已经被替换
+            const newEvent = new Event('change', {
+                bubbles: true,
+                cancelable: true,
+            });
+            input.dispatchEvent(newEvent);
+
+        } catch (error) {
+            console.error('------>>> File encryption failed:', error);
         }
     }, {capture: true});
 }
@@ -219,6 +223,7 @@ function encryptFile(file: File): Promise<File> {
                 const encryptedContent = btoa(binaryString);
                 const encryptedBlob = new Blob([encryptedContent], {type: file.type});
                 const encryptedFile = new File([encryptedBlob], `${file.name}.encrypted`, {type: file.type});
+                console.log("----->>> encryption complete:", encryptedFile.name);
                 resolve(encryptedFile);
             } catch (e) {
                 reject(e);
