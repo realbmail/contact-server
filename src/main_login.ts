@@ -14,6 +14,13 @@ export function initLoginDiv(): void {
     newAccBtn.addEventListener('click', () => {
         showDialog("Warning", "Are you sure to remove the old account", "I'm Sure", newAccountToReplaceCurrent);
     });
+
+    const forgetPwdBtn = document.querySelector(".view-main-login .forget-help") as HTMLButtonElement;
+    forgetPwdBtn.addEventListener('click', async () => {
+        await browser.tabs.create({
+            url: browser.runtime.getURL("html/home.html#onboarding/import-wallet")
+        })
+    });
 }
 
 function openAllWallets(): void {
