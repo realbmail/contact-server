@@ -405,7 +405,9 @@ export function observeFrame(
             if (!currentURL.includes("cgi-bin/readmail")) {
                 return;
             }
-            await action(iframe.contentDocument as Document);
+            setTimeout(async () => {
+                await action(iframe.contentDocument as Document);
+            }, 1000);
         } catch (e) {
             console.log('------------>>>>Iframe URL error :=>', e);
         }
