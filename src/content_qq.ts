@@ -502,26 +502,26 @@ function addListenerForQuickReply(template: HTMLTemplateElement, doc: Document) 
         }
 
         const sendDiv = toolBarDiv.firstChild as HTMLElement;
-        console.log("------>>> sender div in quick reply", sendDiv);
         const title = browser.i18n.getMessage('crypto_and_send');
         const mailContentDiv = (iframe.contentDocument as Document).body as HTMLElement;
-
         const emailDiv = doc.getElementById("tipFromAddr_readmail") as HTMLElement;
-        const receiverEmail = emailDiv.getAttribute("fromaddr") as string;
-        console.log("------>>>______>>>> sender email address:", receiverEmail);
 
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
             title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
-                await encryptQuickReplyQQOldVersion(mailContentDiv, btn, receiverEmail, sendDiv);
+                const receiver = await processReceivers([emailDiv] as unknown as NodeListOf<HTMLElement>, (div) => {
+                    return div.getAttribute("fromaddr")?.trim() as string | null;
+                });
+
+                const success = await encryptMailInComposing(mailContentDiv, btn, receiver);
+                if (!success) {
+                    return;
+                }
+                sendDiv.click();
             }
         ) as HTMLElement;
 
-        toolBarDiv.insertBefore(cryptoBtnDiv, sendDiv);
+        toolBarDiv.insertBefore(cryptoBtnDiv, sendDiv.nextSibling);
     })
-}
-
-async function encryptQuickReplyQQOldVersion(mailBody: HTMLElement, btn: HTMLElement, receiver: string, sendDiv: HTMLElement) {
-
 }
 
 async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateElement, doc: Document) {
