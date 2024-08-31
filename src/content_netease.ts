@@ -154,7 +154,6 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
     checkAttachmentBtn(composeDiv);
 }
 
-
 function checkAttachmentBtn(composeDiv: HTMLElement) {
     const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]');
     const fileInput = attachmentDiv?.querySelector('input[type="file"]');
@@ -184,8 +183,17 @@ function checkAttachmentBtn(composeDiv: HTMLElement) {
                 dataTransfer.items.add(encryptedFile);
                 input.files = dataTransfer.files;
 
-                // 阻止事件冒泡，避免其他事件处理程序的干扰
+                // 停止事件传播，确保后续事件处理程序不会处理原始文件
+                event.stopPropagation();
                 event.stopImmediatePropagation();
+
+                // 手动触发新的 change 事件，以让其他处理程序处理加密后的文件
+                const newEvent = new Event('change', {
+                    bubbles: true,
+                    cancelable: true,
+                });
+                input.dispatchEvent(newEvent);
+
             } catch (error) {
                 console.error('------>>> File encryption failed:', error);
             }
