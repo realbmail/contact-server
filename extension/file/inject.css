@@ -63,6 +63,7 @@
     margin-left: 4px;
     height: 36px;
 }
+
 .bmail_left_menu_btn_div-163 img,
 .bmail-crypto-btn-div img{
     width: 18px;
@@ -174,7 +175,7 @@
     padding: 0;
     text-align: center;
     user-select: none;
-    color: white;
+    color: #F28552;
     width: 98px;
     display: flex;
     justify-content: center;
@@ -182,6 +183,10 @@
 }
 .bmail-crypto-btn-div-qq :hover{
     background-color: #2C2D47;
+}
+.bmail-crypto-btn-div-qq img{
+    width: 18px;
+    height: auto;
 }
 .bmail-btn_in_compose-div-qq {
     background-color: rgba(242, 133, 82, 0.2);
@@ -237,6 +242,64 @@
     color: #F28552;
     margin-left: 4px;
     font-weight: 600;
+}
+.bmail_left_menu_btn_div-outlook {
+    width: 188px;
+    height: 36px;
+    background-color: rgba(242, 133, 82, 0.2);
+    padding: 0 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+}
+.bmail_left_menu_btn_div-outlook:hover {
+    background-color: #04062E;
+}
+.bmail_left_menu_btn_div-outlook div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 16px;
+}
+.bmail-menu-logo img {
+    width: 18px;
+    padding: 2px;
+    height: auto;
+}
+.bmail_left_menu_btn_div-outlook div span {
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: 2px;
+}
+.bmail-crypto-btn-div-outlook {
+    height: 32px;
+    border-radius: 4px;
+    background-color: #04062E;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+}
+.bmail-crypto-action-outlook {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bmail-crypto-action-outlook img{
+    width: 20px;
+    height: auto;
+    margin-right: 4px;
+    top: 4px;
+}
+.bmail-crypto-action-outlook span{
+    color: #F28552;
+    font-size: 14px;
+    font-weight: bold;
+}
+.bmail-crypto-btn-div-outlook:hover{
+    background-color: #2C2D47;
 }
 .bmail-crypto-btn :hover {
     background-color: #2C2D47;

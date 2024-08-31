@@ -171,9 +171,9 @@ button:hover {
 .supported-emails {
     width: calc(100% - 24px);
     border: 2px solid #EEEFF0;
-    padding: 24px 12px 12px;
+    padding-top: 24px;
     position: relative;
-    margin-top: 66px;
+    margin: auto;
 
 }
 .supported-emails p{
@@ -186,14 +186,14 @@ button:hover {
 }
 .supported-emails-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 创建三个等宽的列 */
-    gap: 20px; /* 图片之间的间距 */
+    grid-template-columns: repeat(2, 1fr); /* 创建三个等宽的列 */
+    gap: 2px; /* 图片之间的间距 */
     justify-items: center; /* 图片水平居中 */
     align-items: center; /* 图片垂直居中 */
 }
 
 .supported-emails-grid img {
-    max-width: 100%; /* 限制图片的最大宽度 */
+    max-width: 78%; /* 限制图片的最大宽度 */
     height: auto; /* 保持图片的原始比例 */
 }
 .bmail-active-account{
