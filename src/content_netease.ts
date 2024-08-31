@@ -11,7 +11,7 @@ import {
 import {
     extractEmail,
     hideLoading,
-    MsgType, sendMessageToBackground, showLoading
+    showLoading
 } from "./common";
 
 export function appendForNetEase(template: HTMLTemplateElement) {

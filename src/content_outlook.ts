@@ -1,8 +1,7 @@
 import {
     addCryptButtonForEveryBmailDiv, decryptMailInReading,
     encryptMailInComposing,
-    observeForElement, observeForElementDirect,
-    parseBmailInboxBtn,
+    observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
     processReceivers,
     showTipsDialog

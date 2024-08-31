@@ -9,7 +9,6 @@ import {
 import {
     emailRegex,
     extractEmail,
-    extractJsonString,
     hideLoading,
     MsgType,
     sendMessageToBackground,

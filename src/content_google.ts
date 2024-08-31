@@ -7,7 +7,7 @@ import {
     parseCryptoMailBtn, processReceivers,
     showTipsDialog
 } from "./content_common";
-import {emailRegex, hideLoading, MsgType, sendMessageToBackground, showLoading} from "./common";
+import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
 
 export function appendForGoogle(template: HTMLTemplateElement) {
