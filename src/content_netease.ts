@@ -150,8 +150,80 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
     } else {
         headerBtnList.appendChild(cryptoBtnDiv);
     }
-    console.log("------>>> encrypt button add success")
+    console.log("------>>> encrypt button add success");
+    checkAttachmentBtn(composeDiv);
 }
+
+
+function checkAttachmentBtn(composeDiv: HTMLElement) {
+    const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]');
+    const fileInput = attachmentDiv?.querySelector('input[type="file"]');
+    console.log("------>>> attachmentDivs not found for mail composing", fileInput);
+    if (!fileInput) {
+        console.log("----->>> attachment input file not found");
+        return;
+    }
+
+    fileInput.addEventListener('change', async (event) => {
+        const input = event.target as HTMLInputElement;
+        const files = input.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            try {
+                // 检查文件是否已经加密
+                if (file.name.endsWith('.encrypted')) {
+                    // 如果文件已经加密，则直接返回
+                    return;
+                }
+
+                // 加密文件
+                const encryptedFile = await encryptFile(file);
+
+                // 用加密后的文件替换文件列表中的原始文件
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(encryptedFile);
+                input.files = dataTransfer.files;
+
+                // 阻止事件冒泡，避免其他事件处理程序的干扰
+                event.stopImmediatePropagation();
+            } catch (error) {
+                console.error('------>>> File encryption failed:', error);
+            }
+        }
+    }, {capture: true});
+}
+
+function encryptFile(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            try {
+                const arrayBuffer = event.target?.result as ArrayBuffer;
+                const uint8Array = new Uint8Array(arrayBuffer);
+                let binaryString = '';
+
+                const chunkSize = 0x8000; // 32KB 每次处理的块大小
+                for (let i = 0; i < uint8Array.length; i += chunkSize) {
+                    const chunk = uint8Array.subarray(i, i + chunkSize);
+                    binaryString += String.fromCharCode(...chunk);
+                }
+
+                const encryptedContent = btoa(binaryString);
+                const encryptedBlob = new Blob([encryptedContent], {type: file.type});
+                const encryptedFile = new File([encryptedBlob], `${file.name}.encrypted`, {type: file.type});
+                resolve(encryptedFile);
+            } catch (e) {
+                reject(e);
+            }
+        };
+
+        reader.onerror = function (error) {
+            reject(error);
+        };
+        reader.readAsArrayBuffer(file); // 读取文件为二进制数据
+    });
+}
+
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
 
