@@ -4,7 +4,8 @@ import {
     extractJsonString,
     hideLoading,
     HostArr,
-    MsgType, replaceTextInRange,
+    MsgType,
+    replaceTextInRange,
     sendMessageToBackground,
     showLoading
 } from "./common";
@@ -180,7 +181,8 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
         showTipsDialog("Tips", mailRsp.message);
         return false;
     }
-    mailBody.innerText = mailRsp.data;
+    // mailBody.innerText = mailRsp.data;
+    mailBody.innerHTML = '<div id="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
     checkFrameBody(mailBody, btn);
     return true;
 }
