@@ -552,6 +552,10 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
 
     const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
+    if (!cryptoBtnDiv) {
+        return;
+    }
+
     if (toolBarDiv.childNodes.length > 2) {
         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
     } else {
