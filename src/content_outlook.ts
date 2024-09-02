@@ -31,14 +31,46 @@ export function appendForOutLook(template: HTMLTemplateElement) {
         }, async () => {
             console.log("------->>>start to populate outlook mail menu");
             appendBmailInboxMenuOutLook(template).then();
+            monitorContactAction(template).then();
         });
-    
+
     observeForElement(document.body, 800, () => {
         return document.getElementById("ReadingPaneContainerId")?.firstElementChild as HTMLElement;
     }, async () => {
         console.log("------->>>start to populate outlook mail area");
         monitorMailAreaOutLook(template).then();
     });
+}
+
+const __nameToEmailMap = new Map();
+
+async function monitorContactAction(template: HTMLTemplateElement) {
+    const div = document.getElementById("fluent-default-layer-host") as HTMLElement;
+    let oldDiv: HTMLElement | null = null;
+    observeForElement(div, 0, () => {
+        const ulElement = div.querySelector('ul.ms-FloatingSuggestionsList-container') as HTMLElement | null;
+        if (oldDiv === ulElement) {
+            return null;
+        }
+        oldDiv = ulElement;
+
+        ulElement?.addEventListener('click', (event) => {
+            const clickedLi = (event.target as HTMLElement).closest('li');
+            if (!clickedLi) {
+                return;
+            }
+            const emailName = clickedLi.querySelector('.MwdHX')?.textContent;
+            const emailAddress = clickedLi.querySelector('.Umn8G.MwdHX')?.textContent;
+            console.log('-------->>>name:', emailName, "------>>> address:", emailAddress);
+            if (!emailName || !emailAddress) {
+                return;
+            }
+            __nameToEmailMap.set(emailName, emailAddress);
+        });
+
+        return ulElement;
+    }, async () => {
+    }, true);
 }
 
 async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
@@ -123,7 +155,14 @@ async function encryptMailAndSendOutLook(btn: HTMLElement, composeArea: HTMLElem
         } else {
             const allEmailAddrDivs = receiverTable.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
             receiver = await processReceivers(allEmailAddrDivs, (div) => {
-                return extractEmail(div.textContent ?? "");
+                const matchingSpans = div.querySelector('span[class^="textContainer-"], span[class^="individualText-"]') as HTMLElement;
+
+                let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
+                if (!emailAddr) {
+                    emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
+                    console.log("-------->>>>>>", matchingSpans.innerText.trim(), "email:", emailAddr);
+                }
+                return emailAddr;
             });
         }
 
