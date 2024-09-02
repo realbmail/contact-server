@@ -29,10 +29,16 @@ export function appendForOutLook(template: HTMLTemplateElement) {
         () => {
             return document.querySelector(".DPg26 .xKrjQ");
         }, async () => {
-            console.log("------->>>start to populate outlook mail area");
+            console.log("------->>>start to populate outlook mail menu");
             appendBmailInboxMenuOutLook(template).then();
-            monitorMailAreaOutLook(template).then()
         });
+    
+    observeForElement(document.body, 800, () => {
+        return document.getElementById("ReadingPaneContainerId")?.firstElementChild as HTMLElement;
+    }, async () => {
+        console.log("------->>>start to populate outlook mail area");
+        monitorMailAreaOutLook(template).then();
+    });
 }
 
 async function appendBmailInboxMenuOutLook(template: HTMLTemplateElement) {
