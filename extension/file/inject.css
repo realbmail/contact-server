@@ -266,13 +266,14 @@
     cursor: pointer;
 }
 .bmail-decrypt-div-outlook {
-    background-color: #04062E;
-    height: 32px;
+    border: 2px solid rgba(242, 133, 82, 0.2);
+    height: 28px;
     border-radius: 4px;
     padding: 0 18px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    margin: 0 8px;
 }
 .bmail-decrypt-div-outlook img{
     width: 20px;
@@ -301,15 +302,13 @@
     border-radius: 4px;
     background-color: #04062E;
     padding: 0 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-left: 12px;
 }
 .bmail-crypto-action-outlook {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 32px;
 }
 .bmail-crypto-action-outlook img{
     width: 20px;
