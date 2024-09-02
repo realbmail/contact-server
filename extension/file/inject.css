@@ -262,6 +262,30 @@
     justify-content: center;
     margin-left: 16px;
 }
+.bmail-btn_in_compose-div-outlook {
+    cursor: pointer;
+}
+.bmail-decrypt-div-outlook {
+    background-color: #04062E;
+    height: 32px;
+    border-radius: 4px;
+    padding: 0 18px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.bmail-decrypt-div-outlook img{
+    width: 20px;
+}
+.bmail-decrypt-div-outlook .bmail-decrypt-btn-outlook{
+    font-size: 14px;
+    font-weight: 600;
+    color: #F28552;
+    margin-left: 4px;
+}
+.bmail-decrypt-div-outlook:hover{
+    background-color: rgba(4, 6, 46, 0.9);
+}
 .bmail-menu-logo img {
     width: 18px;
     padding: 2px;
