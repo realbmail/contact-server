@@ -92,7 +92,7 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         console.log("------>>> node already exists");
         return;
     }
-    const sendDiv = toolBarDiv.querySelector('div[aria-label="Send"]') as HTMLElement;
+    const sendDiv = toolBarDiv.querySelector('button.ms-Button.ms-Button--primary.ms-Button--hasMenu') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_outlook', async btn => {
