@@ -147,7 +147,8 @@ async function encryptMailAndSendOutLook(btn: HTMLElement, composeArea: HTMLElem
 }
 
 function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTemplateElement) {
-    const toolBarDiv = oneMail.querySelector('div[aria-label="Message actions"]');
+    // const toolBarDiv = oneMail.querySelector('div[aria-label="Message actions"]');
+    const toolBarDiv = oneMail.querySelector('div[role="toolbar"]');
     if (!toolBarDiv) {
         console.log("------>>> tool bar not found");
         oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection")?.addEventListener("click", () => {
@@ -164,7 +165,7 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
 
-    const mailArea = oneMail.querySelector('div[aria-label="Email message"]') as HTMLElement
+    const mailArea = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement
     if (!mailArea) {
         console.log("------>>> no reading mail body found");
         return;
