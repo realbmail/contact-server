@@ -258,10 +258,11 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     if (!cryptoBtnDiv) {
         return;
     }
-
-    mailArea.querySelector(".T_6Xj")?.addEventListener("click", async () => {
+    const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
+    console.log("----->>> more mail content btn:=>", moreMailContentBtn);
+    moreMailContentBtn?.addEventListener("click", async () => {
         setTimeout(() => {
-            const quoteOrReply = mailArea.querySelector(".wnVEW")?.querySelector('div[aria-label="Message body"]');
+            const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]');
             if (!quoteOrReply) {
                 return;
             }
