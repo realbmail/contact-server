@@ -110,23 +110,13 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
         }, true);
 }
 
-async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) {
-    const composeArea = document.querySelector(".cBeRi.dMm6A") as HTMLElement;
-    if (!composeArea) {
-        console.log("------>>> no compose area found");
-        return;
-    }
-
-    const toolBarDiv1 = composeArea.querySelector(".vBoqL.iLc1q.cc0pa.cF0pa.tblbU.SVWa1.dP5Z2");
-    const toolBarDiv2 = composeArea.querySelector(".OTADH.xukFz")
-    const toolBarDiv = toolBarDiv1 || toolBarDiv2;
-    if (!toolBarDiv) {
-        console.log("------>>> tool bar not found when compose mail");
-        return;
-    }
-
-    const validEmailDiv = new Map();
+function monitorReceiverChanges(composeArea: HTMLElement) {
     const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
+    if (!receiverTable) {
+        console.log("----->>> this is not full page of mail composition");
+        return
+    }
+    const validEmailDiv = new Map();
     let currentReceiverNo = 0;
     observeForElement(receiverTable, 600, () => {
         const receivers = receiverTable.querySelectorAll("._EType_RECIPIENT_ENTITY") as NodeListOf<HTMLElement>;
@@ -160,6 +150,24 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
             }
         }
     }, true)
+}
+
+async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) {
+    const composeArea = document.querySelector(".cBeRi.dMm6A") as HTMLElement;
+    if (!composeArea) {
+        console.log("------>>> no compose area found");
+        return;
+    }
+
+    const toolBarDiv1 = composeArea.querySelector(".vBoqL.iLc1q.cc0pa.cF0pa.tblbU.SVWa1.dP5Z2");
+    const toolBarDiv2 = composeArea.querySelector(".OTADH.xukFz")
+    const toolBarDiv = toolBarDiv1 || toolBarDiv2;
+    if (!toolBarDiv) {
+        console.log("------>>> tool bar not found when compose mail");
+        return;
+    }
+
+    monitorReceiverChanges(composeArea);
 
     const cryptoBtn = toolBarDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (cryptoBtn) {
