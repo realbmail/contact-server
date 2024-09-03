@@ -7,7 +7,7 @@ PLATFORM := $(shell uname -o)
 COMMIT := $(shell git rev-parse HEAD)
 VERSION ?= $(shell git describe --tags ${COMMIT} 2> /dev/null || echo "$(COMMIT)")
 BUILD_TIME := $(shell LANG=en_US date +"%F_%T_%z")
-VersionRoot := github.com/hopwesley/rta-mapping/common
+VersionRoot := github.com/realbmail/contact-server/common
 LD_FLAGS := -X $(VersionRoot).Version=$(VERSION) -X $(VersionRoot).Commit=$(COMMIT) -X $(VersionRoot).BuildTime=$(BUILD_TIME)
 
 NAME := contactSrv.exe
