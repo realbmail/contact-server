@@ -31,7 +31,7 @@ export function appendForOutLook(template: HTMLTemplateElement) {
         }, async () => {
             console.log("------->>>start to populate outlook mail menu");
             appendBmailInboxMenuOutLook(template).then();
-            monitorContactAction(template).then();
+            monitorContactAction().then();
         });
 
     observeForElement(document.body, 800, () => {
@@ -44,7 +44,7 @@ export function appendForOutLook(template: HTMLTemplateElement) {
 
 const __nameToEmailMap = new Map();
 
-async function monitorContactAction(template: HTMLTemplateElement) {
+async function monitorContactAction() {
     const div = document.getElementById("fluent-default-layer-host") as HTMLElement;
     let oldDiv: HTMLElement | null = null;
     observeForElement(div, 0, () => {
@@ -125,6 +125,42 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         return;
     }
 
+    const validEmailDiv = new Map();
+    const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
+    let currentReceiverNo = 0;
+    observeForElement(receiverTable, 600, () => {
+        const receivers = receiverTable.querySelectorAll("._EType_RECIPIENT_ENTITY") as NodeListOf<HTMLElement>;
+        for (let i = 0; i < receivers.length; i++) {
+            const div = receivers[i];
+            const emailAddr = extractEmail(div.textContent ?? "");
+            if (emailAddr) {
+                validEmailDiv.set(i, emailAddr);
+            }
+        }
+        if (currentReceiverNo === receivers.length) {
+            return null;
+        }
+        currentReceiverNo = receivers.length;
+        return receivers[0];
+    }, async () => {
+        const receivers = receiverTable.querySelectorAll("._EType_RECIPIENT_ENTITY") as NodeListOf<HTMLElement>;
+        console.log("----->>> all nodes:", receivers);
+        for (let i = 0; i < receivers.length; i++) {
+            const div = receivers[i];
+            const divTxt = div.textContent ?? ""
+            const emailAddr = extractEmail(divTxt);
+            if (emailAddr) {
+                continue;
+            }
+            const matchingSpans = div.querySelector('span[class^="textContainer-"], span[class^="individualText-"]') as HTMLElement;
+            const emailName = matchingSpans.innerText.trim()
+            console.log("------>>> receivers area found when compose mail=>", emailName, validEmailDiv.get(i));
+            if (!__nameToEmailMap.get(emailName)) {
+                __nameToEmailMap.set(emailName, validEmailDiv.get(i));
+            }
+        }
+    }, true)
+
     const cryptoBtn = toolBarDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (cryptoBtn) {
         console.log("------>>> node already exists");
@@ -160,7 +196,7 @@ async function encryptMailAndSendOutLook(btn: HTMLElement, composeArea: HTMLElem
                 let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
                 if (!emailAddr) {
                     emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
-                    console.log("-------->>>>>>", matchingSpans.innerText.trim(), "email:", emailAddr);
+                    console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
                 }
                 return emailAddr;
             });
