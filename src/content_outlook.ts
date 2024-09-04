@@ -234,11 +234,21 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     const toolBarDiv = oneMail.querySelector('div[role="toolbar"]');
     if (!toolBarDiv) {
         console.log("------>>> tool bar not found");
-        oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection")?.addEventListener("click", () => {
-            setTimeout(() => {
-                prepareOneMailInConversation(oneMail, template);
-            }, 1000);
-        })
+        const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection") as HTMLElement;
+        if (moreMailDataBar) {
+            moreMailDataBar.addEventListener("click", () => {
+                setTimeout(() => {
+                    prepareOneMailInConversation(oneMail, template);
+                }, 1000);
+            })
+        } else {
+            const element = oneMail.querySelector('div[class="AL_OM l8Tnu"]');
+            if (element) {
+                setTimeout(() => {
+                    addMailDecryptForReadingOutLook(template).then();
+                }, 1000);
+            }
+        }
         return;
     }
 

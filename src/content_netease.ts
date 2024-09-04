@@ -43,12 +43,14 @@ function checkBmailInboxMenuAgain(clone: HTMLElement): void {
         }
     }
 
-    const homePageMenu = document.querySelector('li[title="首页"]');
+    // const homePageMenu = document.querySelector('li[title="首页"]');
+    const homePageMenu = document.querySelector('li[id^="_mail_tabitem_0_"]');
     if (homePageMenu) {
         homePageMenu.addEventListener('click', checkBmailMenuAgain);
     }
 
-    const inboxMenu = document.querySelector('li[title="收件箱"]');
+    // const inboxMenu = document.querySelector('li[title="收件箱"]');
+    const inboxMenu = document.querySelector('li[id^="_mail_tabitem_8_"]');
     if (inboxMenu) {
         inboxMenu.addEventListener('click', checkBmailMenuAgain);
     }
@@ -71,7 +73,8 @@ function checkHasMailContent(template: HTMLTemplateElement) {
 }
 
 function appendBmailInboxMenu(clone: HTMLElement) {
-    const ulElements = document.querySelectorAll('ul[aria-label="左侧导航"]');
+    // const ulElements = document.querySelectorAll('ul[aria-label="左侧导航"]');
+    const ulElements = document.querySelectorAll('ul[id^="_mail_tree_0_"]');
 
     const targetElement = Array.from(ulElements).find((element) => {
         return window.getComputedStyle(element).display !== 'none';
