@@ -182,7 +182,7 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
         return false;
     }
     // mailBody.innerText = mailRsp.data;
-    mailBody.innerHTML = '<div id="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
+    mailBody.innerHTML = '<div class="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
     // checkFrameBody(mailBody, btn);
     return true;
 }
