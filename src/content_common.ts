@@ -227,8 +227,6 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
             return;
         }
 
-        console.log("------>>> decrypt mail body success");
-        // mailContent.innerHTML = mailRsp.data;
         mailContent.innerHTML = replaceTextInRange(mailContent.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
         mailContent.dataset.hasDecrypted = "true";
         setBtnStatus(false, cryptoBtn);
@@ -336,6 +334,7 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     BMailDivs.forEach(bmailBody => {
         cryptoBtnDiv!.addEventListener('click', async () => {
+            console.log("------------------------------>>>>>>>>>mail area:", mailArea)
             await decryptMailInReading(bmailBody, cryptoBtn);
         });
     });

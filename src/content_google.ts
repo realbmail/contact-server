@@ -88,6 +88,9 @@ function _addCryptoBtnForDiv(template: HTMLTemplateElement, composeDiv: HTMLElem
     const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
         "bmail_crypto_btn_in_compose_google", async btn => {
             await encryptMailAndSendGoogle(mailBodyDiv, btn, titleForm, sendDiv);
+            setTimeout(() => {
+                addCryptoBtnToReadingMailGoogle(template).then();
+            }, 1000);
         });
     if (!clone) {
         console.log("------>>> node not found");
