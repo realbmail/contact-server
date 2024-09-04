@@ -332,10 +332,13 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
 
-    BMailDivs.forEach(bmailBody => {
-        cryptoBtnDiv!.addEventListener('click', async () => {
-            console.log("------------------------------>>>>>>>>>mail area:", mailArea)
-            await decryptMailInReading(bmailBody, cryptoBtn);
+    cryptoBtnDiv!.addEventListener('click', async () => {
+        let DecryptedBmailDivs = BMailDivQuery(mailArea) as HTMLElement[];
+        if (DecryptedBmailDivs.length === 0) {
+            DecryptedBmailDivs = BMailDivs
+        }
+        DecryptedBmailDivs.forEach(bmailBody => {
+            decryptMailInReading(bmailBody, cryptoBtn).then();
         });
     });
 
