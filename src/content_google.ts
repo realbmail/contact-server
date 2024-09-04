@@ -27,10 +27,8 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             return document.querySelector('.TK') as HTMLElement;
         }, async () => {
             console.log("------>>>start to populate google area");
-            // monitorComposeBtnAction(template).then();
             monitorGmailMainArea(template).then();
             addBMailInboxToMenu(clone).then();
-            // addCryptoBtnToComposeDiv(template).then();
             addCryptoBtnToReadingMailGoogle(template).then();
         });
 }
@@ -204,8 +202,10 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
 
 async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
     let composeDivArray: HTMLElement[] = [];
-    observeForElement(document.body, 1200, () => {
-        const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);
+    observeForElement(document.body, 1200, () => {//
+        // const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);
+        const newComposeArr = Array.from(document.querySelectorAll('div[data-compose-id]') as NodeListOf<HTMLElement>);
+        console.log("----------->>>>>> body changed:=>", newComposeArr);
         if (newComposeArr.length > composeDivArray.length) {
             composeDivArray = newComposeArr;
             return newComposeArr[0] as HTMLElement;
@@ -213,7 +213,7 @@ async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
         composeDivArray = newComposeArr;
         return null;
     }, async () => {
-        const composeDialogs = document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>;
+        const composeDialogs = document.querySelectorAll('div[data-compose-id]') as NodeListOf<HTMLElement>;
         if (composeDialogs.length <= 0) {
             console.log("------>>> no dialog compose:");
             return;
