@@ -77,7 +77,6 @@ function _addCryptoBtnForDiv(template: HTMLTemplateElement, tdDiv: HTMLElement) 
     const node = tdDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (node) {
         console.log("------>>> node already exists");
-        checkFrameBody(mailBodyDiv, node);
         return;
     }
 
@@ -102,7 +101,6 @@ function _addCryptoBtnForDiv(template: HTMLTemplateElement, tdDiv: HTMLElement) 
     if (secondTd) {
         toolBarTr.insertBefore(newTd, secondTd);
     }
-    checkFrameBody(mailBodyDiv, clone.querySelector(".bmail-crypto-btn") as HTMLElement);
 }
 
 async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
