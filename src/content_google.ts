@@ -58,32 +58,32 @@ export function queryEmailAddrGoogle() {
 
 const _composeBtnParentClass = "td.I5"
 
-function _addCryptoBtnForDiv(template: HTMLTemplateElement, tdDiv: HTMLElement) {
+function _addCryptoBtnForDiv(template: HTMLTemplateElement, composeDiv: HTMLElement) {
 
-    const mailBodyDiv = tdDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
+    const mailBodyDiv = composeDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
     if (!mailBodyDiv) {
-        tdDiv.dataset.tryTimes = tdDiv.dataset.tryTimes ?? "" + "1";
-        if (tdDiv.dataset.tryTimes.length > 3) {
+        composeDiv.dataset.tryTimes = composeDiv.dataset.tryTimes ?? "" + "1";
+        if (composeDiv.dataset.tryTimes.length > 3) {
             console.log("------>>> failed to find mail body")
             return;
         }
 
         setTimeout(() => {
-            _addCryptoBtnForDiv(template, tdDiv);
+            _addCryptoBtnForDiv(template, composeDiv);
         }, 1000)
         return;
     }
 
-    const node = tdDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
+    const node = composeDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (node) {
         console.log("------>>> node already exists");
         return;
     }
 
-    const titleForm = tdDiv.querySelector("form") as HTMLElement;
+    const titleForm = composeDiv.querySelector("form") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
 
-    const toolBarTr = tdDiv.querySelector("tr.btC") as HTMLElement;
+    const toolBarTr = composeDiv.querySelector("tr.btC") as HTMLElement;
     const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
     const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
         "bmail_crypto_btn_in_compose_google", async btn => {
@@ -106,8 +106,8 @@ function _addCryptoBtnForDiv(template: HTMLTemplateElement, tdDiv: HTMLElement) 
 async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
-    allComposeDiv.forEach(tdDiv => {
-        _addCryptoBtnForDiv(template, tdDiv as HTMLElement);
+    allComposeDiv.forEach(composeDiv => {
+        _addCryptoBtnForDiv(template, composeDiv as HTMLElement);
     });
 }
 
@@ -152,7 +152,7 @@ async function monitorGmailMainArea(template: HTMLTemplateElement) {
             const replayOrForwardDiv = trDiv!.querySelector(".amn") as HTMLElement | null;
 
             if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null && replayOrForwardDiv === null) {
-                console.log("------>>> not target tr", trDiv);
+                // console.log("------>>> not target tr", trDiv);
                 return;
             }
         }

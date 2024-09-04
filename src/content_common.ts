@@ -334,9 +334,17 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
 
+    let promiseQueue: Promise<void> = Promise.resolve();
+
     BMailDivs.forEach(bmailBody => {
         cryptoBtnDiv!.addEventListener('click', async () => {
-            await decryptMailInReading(bmailBody, cryptoBtn);
+            // await decryptMailInReading(bmailBody, cryptoBtn);
+            promiseQueue = promiseQueue.then(async () => {
+                await decryptMailInReading(bmailBody, cryptoBtn);
+            }).catch(error => {
+                console.error("Error occurred during decryption:", error);
+            });
+
         });
     });
 
