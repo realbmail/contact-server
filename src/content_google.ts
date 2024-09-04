@@ -124,7 +124,7 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
             return;
         }
         sendDiv.click();
-
+        console.log("------>>> send success");
     } catch (e) {
         console.log("------>>> decode or encode error:", e);
         showTipsDialog("error", "encrypt mail content failed");
@@ -136,13 +136,13 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
 async function monitorGmailMainArea(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
     mainArea.addEventListener('click', (event) => {
-        console.log('-------->>>> click found in main area.');
+        // console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
-        console.log("------>>>target element", targetElement)
+        // console.log("------>>>target element", targetElement)
         const trDiv = targetElement.closest('tr') as HTMLElement | null;
         const isCollapseMail = targetElement.className === "gE hI" || targetElement.querySelector('.gE.hI') != null;
         if (!trDiv && !isCollapseMail) {
-            console.log("------>>> no target element to check", targetElement);
+            // console.log("------>>> no target element to check", targetElement);
             return;
         }
 
