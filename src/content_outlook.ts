@@ -260,7 +260,8 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
 
-    const mailArea = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement
+    // const mailArea = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement
+    const mailArea = oneMail.querySelector('.wide-content-host') as HTMLElement
     if (!mailArea) {
         console.log("------>>> no reading mail body found");
         return;
