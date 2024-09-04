@@ -25,10 +25,10 @@ export function queryEmailAddrOutLook() {
 }
 
 export function appendForOutLook(template: HTMLTemplateElement) {
-    const simpleMailReadingDiv = document.getElementById("_owa_projection_root");
-    if (simpleMailReadingDiv) {
-        console.log("------------------>>>>>>>>", simpleMailReadingDiv);
-    }
+    // const simpleMailReadingDiv = document.getElementById("_owa_projection_root");
+    // if (simpleMailReadingDiv) {
+    //     console.log("------------------>>>>>>>>", simpleMailReadingDiv);
+    // }
     observeForElement(document.body, 800,
         () => {
             return document.querySelector(".DPg26 .xKrjQ");

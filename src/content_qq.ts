@@ -1,7 +1,7 @@
 import {
     __localContactMap,
     addCryptButtonForEveryBmailDiv,
-    checkFrameBody,
+    checkFrameBody, decryptMailInReading,
     encryptMailInComposing,
     observeForElement,
     observeFrame,
@@ -12,6 +12,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import {
+    BMailDivQuery,
     emailRegex,
     extractEmail,
     hideLoading,
@@ -21,6 +22,7 @@ import {
     wrapJsonStrings
 } from "./common";
 import browser from "webextension-polyfill";
+import {MailFlag} from "./bmail_body";
 
 export function appendForQQ(template: HTMLTemplateElement) {
 
@@ -476,11 +478,11 @@ async function monitorQQMailReadingOldVersion(template: HTMLTemplateElement) {
 
     observeFrame(iframe, async (doc) => {
         await addCryptoBtnToReadingMailQQOldVersion(template, doc);
-        addListenerForQuickReply(template, doc);
+        addListenerForQuickReplyOldVersion(template, doc);
     });
 }
 
-function addListenerForQuickReply(template: HTMLTemplateElement, doc: Document) {
+function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: Document) {
     const replyArea = doc.getElementById("QuickReplyPart");
     if (!replyArea) {
         console.log("------>>> reply area not found");
@@ -512,10 +514,19 @@ function addListenerForQuickReply(template: HTMLTemplateElement, doc: Document) 
                     return div.getAttribute("fromaddr")?.trim() as string | null;
                 });
 
+                const elements = doc.querySelectorAll('div[data-has-decrypted="true"]') as NodeListOf<HTMLElement>;
+                console.log("--------------------->>>>>>>elements length:", elements.length);
+
+                elements.forEach(bmailBody => {
+                    console.log("--------------------->>>>>>>bmail body:", bmailBody);
+                    decryptMailInReading(bmailBody, cryptoBtn).then();
+                })
+
                 const success = await encryptMailInComposing(mailContentDiv, btn, receiver);
                 if (!success) {
                     return;
                 }
+
                 sendDiv.click();
             }
         ) as HTMLElement;

@@ -183,7 +183,6 @@ export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLEle
     }
     // mailBody.innerText = mailRsp.data;
     mailBody.innerHTML = '<div id="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
-    console.log("---------------->>>QQ Old Version quick reply :->", mailBody.innerHTML);
     // checkFrameBody(mailBody, btn);
     return true;
 }
@@ -199,8 +198,8 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
         if (mailContent.dataset && mailContent.dataset.hasDecrypted === 'true') {
             mailContent.innerHTML = mailContent.dataset.orignCrpted!;
             mailContent.dataset.hasDecrypted = "false";
-            setBtnStatus(true, cryptoBtn);
             mailContent.dataset.orignCrpted = '';
+            setBtnStatus(true, cryptoBtn);
             return;
         }
         mailContent.dataset.orignCrpted = mailContent.innerHTML;
