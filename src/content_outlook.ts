@@ -25,10 +25,7 @@ export function queryEmailAddrOutLook() {
 }
 
 export function appendForOutLook(template: HTMLTemplateElement) {
-    // const simpleMailReadingDiv = document.getElementById("_owa_projection_root");
-    // if (simpleMailReadingDiv) {
-    //     console.log("------------------>>>>>>>>", simpleMailReadingDiv);
-    // }
+
     observeForElement(document.body, 800,
         () => {
             return document.querySelector(".DPg26 .xKrjQ");
@@ -178,6 +175,7 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         console.log("------>>> node already exists");
         return;
     }
+
     const sendDiv = toolBarDiv.querySelector('button.ms-Button.ms-Button--primary.ms-Button--hasMenu') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
@@ -268,10 +266,8 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
-    if (!cryptoBtnDiv) {
-        return;
-    }
+    let cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
+
     const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
     console.log("----->>> more mail content btn:=>", moreMailContentBtn);
     moreMailContentBtn?.addEventListener("click", async () => {
@@ -280,15 +276,31 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
             if (!quoteOrReply) {
                 return;
             }
-            const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
 
+            if (!cryptoBtnDiv) {
+                const title = browser.i18n.getMessage('decrypt_mail_body')
+                cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', ".bmail-decrypt-btn",
+                    title, 'bmail_decrypt_btn_in_compose_outlook', async btn => {
+                    }) as HTMLElement;
+
+                if (!cryptoBtnDiv) {
+                    return;
+                }
+                if (toolBarDiv.childNodes.length > 2) {
+                    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+                } else {
+                    toolBarDiv.appendChild(cryptoBtnDiv);
+                }
+            }
+
+            const cryptoBtn = cryptoBtnDiv!.querySelector(".bmail-decrypt-btn") as HTMLElement;
             const BMailDivs = BMailDivQuery(quoteOrReply as HTMLElement);
             BMailDivs.forEach((bmailBody: HTMLElement) => {
                 if (cryptoBtn.dataset.encoded === 'false') {
                     decryptMailInReading(bmailBody, cryptoBtn).then();
                     return;
                 }
-                cryptoBtnDiv.addEventListener('click', async () => {
+                cryptoBtnDiv!.addEventListener('click', async () => {
                     await decryptMailInReading(bmailBody, cryptoBtn);
                 })
             })
@@ -296,6 +308,9 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         }, 500);
     })
 
+    if (!cryptoBtnDiv) {
+        return;
+    }
     if (toolBarDiv.childNodes.length > 2) {
         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
     } else {

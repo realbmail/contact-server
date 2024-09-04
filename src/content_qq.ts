@@ -515,10 +515,8 @@ function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: 
                 });
 
                 const elements = doc.querySelectorAll('div[data-has-decrypted="true"]') as NodeListOf<HTMLElement>;
-                console.log("--------------------->>>>>>>elements length:", elements.length);
 
                 elements.forEach(bmailBody => {
-                    console.log("--------------------->>>>>>>bmail body:", bmailBody);
                     decryptMailInReading(bmailBody, cryptoBtn).then();
                 })
 
