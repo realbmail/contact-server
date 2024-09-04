@@ -203,7 +203,7 @@ async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
     observeForElement(document.body, 1200, () => {//
         // const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);
         const newComposeArr = Array.from(document.querySelectorAll('div[data-compose-id]') as NodeListOf<HTMLElement>);
-        console.log("----------->>>>>> body changed:=>", newComposeArr);
+        // console.log("----------->>>>>> body changed:=>", newComposeArr);
         if (newComposeArr.length > composeDivArray.length) {
             composeDivArray = newComposeArr;
             return newComposeArr[0] as HTMLElement;
