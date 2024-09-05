@@ -7,7 +7,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
-import {BMailDivQuery, extractEmail, hideLoading, showLoading} from "./common";
+import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
 import {MailFlag} from "./bmail_body";
 
 export function queryEmailAddrOutLook() {
@@ -295,7 +295,7 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
             }
 
             const cryptoBtn = cryptoBtnDiv!.querySelector(".bmail-decrypt-btn") as HTMLElement;
-            const BMailDivs = BMailDivQuery(quoteOrReply as HTMLElement);
+            const BMailDivs = EncryptedMailDivSearch(quoteOrReply as HTMLElement);
             BMailDivs.forEach((bmailBody: HTMLElement) => {
                 if (cryptoBtn.dataset.encoded === 'false') {
                     decryptMailInReading(bmailBody, cryptoBtn).then();

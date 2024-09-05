@@ -12,7 +12,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import {
-    BMailDivQuery,
+    EncryptedMailDivSearch,
     emailRegex,
     extractEmail,
     hideLoading,

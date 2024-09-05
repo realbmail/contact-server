@@ -194,7 +194,7 @@ export function hideLoading(): void {
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
-export function BMailDivQuery(mailArea: HTMLElement): HTMLElement[] {
+export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
     const closestJsonElements: HTMLElement[] = [];
     const allElements = Array.from(mailArea.querySelectorAll('div, blockquote')) as HTMLElement[];
     allElements.push(mailArea);

@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import {
-    BMailDivQuery,
+    EncryptedMailDivSearch,
     extractJsonString,
     hideLoading,
     HostArr,
@@ -319,7 +319,7 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
 
 export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, mailArea: HTMLElement, btnId: string): HTMLElement | null {
 
-    const BMailDivs = BMailDivQuery(mailArea) as HTMLElement[];
+    let BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
     if (BMailDivs.length <= 0) {
         console.log("------>>> no bmail content found");
         return null;
@@ -333,11 +333,18 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
     const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
 
     cryptoBtnDiv!.addEventListener('click', async () => {
-        let DecryptedBmailDivs = BMailDivQuery(mailArea) as HTMLElement[];
-        if (DecryptedBmailDivs.length === 0) {
-            DecryptedBmailDivs = BMailDivs
+        if (!cryptoBtn.dataset.encoded || cryptoBtn.dataset.encoded === 'true') {
+            const decryptedDivs = mailArea.querySelectorAll('div[data-has-decrypted="false"]');
+            if (decryptedDivs.length == 0) {
+                BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
+            } else {
+                BMailDivs = Array.from(decryptedDivs) as HTMLElement[];
+            }
+        } else {
+            const decryptedDivs = mailArea.querySelectorAll('div[data-has-decrypted="true"]');
+            BMailDivs = Array.from(decryptedDivs) as HTMLElement[];
         }
-        DecryptedBmailDivs.forEach(bmailBody => {
+        BMailDivs.forEach(bmailBody => {
             decryptMailInReading(bmailBody, cryptoBtn).then();
         });
     });
