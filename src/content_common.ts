@@ -198,7 +198,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
         if (mailContent.dataset && mailContent.dataset.hasDecrypted === 'true') {
             mailContent.innerHTML = mailContent.dataset.orignCrpted!;
             mailContent.dataset.hasDecrypted = "false";
-            mailContent.dataset.orignCrpted = '';
+            mailContent.removeAttribute('data-orign-crpted');
             setBtnStatus(true, cryptoBtn);
             return;
         }
@@ -334,11 +334,15 @@ export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, ma
 
     cryptoBtnDiv!.addEventListener('click', async () => {
         if (!cryptoBtn.dataset.encoded || cryptoBtn.dataset.encoded === 'true') {
-            const decryptedDivs = mailArea.querySelectorAll('div[data-has-decrypted="false"]');
-            if (decryptedDivs.length == 0) {
+            const decryptedDivs = mailArea.querySelectorAll('div[data-orign-crpted]');
+            const nonEmptyDivs = Array.from(decryptedDivs).filter(div => {
+                const attrValue = div.getAttribute('data-orign-crpted');
+                return attrValue !== null && attrValue.length > 0;
+            });
+            if (nonEmptyDivs.length == 0) {
                 BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
             } else {
-                BMailDivs = Array.from(decryptedDivs) as HTMLElement[];
+                BMailDivs = nonEmptyDivs  as HTMLElement[];
             }
         } else {
             const decryptedDivs = mailArea.querySelectorAll('div[data-has-decrypted="true"]');
