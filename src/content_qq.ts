@@ -1,6 +1,6 @@
 import {
     __localContactMap,
-    addCryptButtonForEveryBmailDiv,
+    addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailInReading,
     encryptMailInComposing,
     observeForElement,
@@ -230,7 +230,7 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
         return;
     }
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq');
+    const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq');
     if (!cryptoBtnDiv) {
         return;
     }
@@ -560,7 +560,7 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     }
     mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
+    const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
     if (!cryptoBtnDiv) {
         return;
     }

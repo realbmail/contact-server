@@ -1,5 +1,5 @@
 import {
-    addCryptButtonForEveryBmailDiv,
+    addDecryptButtonForBmailBody,
     checkFrameBody,
     encryptMailInComposing,
     observeForElement,
@@ -206,7 +206,7 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
             return;
         }
 
-        const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, oneMail, 'bmail_decrypt_btn_in_compose_google');
+        const cryptoBtnDiv = addDecryptButtonForBmailBody(template, oneMail, 'bmail_decrypt_btn_in_compose_google');
         if (!cryptoBtnDiv) {
             return;
         }
@@ -247,7 +247,7 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
         return;
     }
 
-    const cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mainContent, 'bmail_decrypt_btn_in_compose_google');
+    const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mainContent, 'bmail_decrypt_btn_in_compose_google');
     if (!cryptoBtnDiv) {
         return;
     }

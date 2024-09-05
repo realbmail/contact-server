@@ -317,7 +317,7 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
     return receiver;
 }
 
-export function addCryptButtonForEveryBmailDiv(template: HTMLTemplateElement, mailArea: HTMLElement, btnId: string): HTMLElement | null {
+export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mailArea: HTMLElement, btnId: string): HTMLElement | null {
 
     let BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
     if (BMailDivs.length <= 0) {

@@ -1,5 +1,5 @@
 import {
-    addCryptButtonForEveryBmailDiv, decryptMailInReading,
+    addDecryptButtonForBmailBody, decryptMailInReading,
     encryptMailInComposing,
     observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
@@ -267,7 +267,7 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
 
-    let cryptoBtnDiv = addCryptButtonForEveryBmailDiv(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
+    let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
 
     const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
     console.log("----->>> more mail content btn:=>", moreMailContentBtn);
