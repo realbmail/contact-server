@@ -368,6 +368,12 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
     const title = browser.i18n.getMessage('crypto_and_send');
     const mailBody = mailArea.querySelector('textarea[id$="_replyInput_inputId"]') as HTMLTextAreaElement;
     mailBody?.addEventListener('click', (e: Event) => {
+        let cryptoBtn = toolBarDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
+        if (cryptoBtn) {
+            console.log("----->>> crypto button already been added for quick reply area");
+            return;
+        }
+
         const sendDiv = toolBarDiv.querySelector('div[role="button"]') as HTMLElement;
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
             title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
@@ -380,22 +386,19 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
             }
         ) as HTMLElement;
 
-        let cryptoBtn = toolBarDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
-        if (cryptoBtn) {
-            console.log("----->>> crypto button already been added for quick reply area");
-            return;
-        }
         toolBarDiv.insertBefore(cryptoBtnDiv, sendDiv);
     });
 }
 
-async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLElement, receiver: string[] | null, sendDiv: HTMLElement) {
+async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElement, receiver: string[] | null, sendDiv: HTMLElement) {
     showLoading();
     try {
+        mailBody.textContent = mailBody.value;
         const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
             return;
         }
+        mailBody.value = mailBody.defaultValue;
         sendDiv.click();
     } catch (e) {
         let err = e as Error;
