@@ -6,7 +6,7 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addCryptButtonForEveryBmailDiv,
-    processReceivers
+    processReceivers, observeForElement
 } from "./content_common";
 import {
     extractEmail,
@@ -68,6 +68,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
         readDiv.forEach(div => {
             addMailDecryptForReadingNetease(div, template);
+            addEncryptBtnForQuickReply(div, template);
         });
     }, 1500);
 }
@@ -350,3 +351,24 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
     console.log("------>>> decrypt button add success");
 }
 
+function addEncryptBtnForQuickReply(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+    console.log("------------------>>>> checking reply area");
+
+    const quickReply = composeDiv.querySelector('div[id$="_dvAttach_reply"]')
+    if (!quickReply) {
+        console.log("----->>> quick reply area not found");
+        return;
+    }
+
+    const toolBarDiv = quickReply.querySelector('div[id$="_dvReplyBts"]')
+    if (!toolBarDiv) {
+        console.log("----->>> tool bar in quick reply area not found");
+        return;
+    }
+    let cryptoBtn = toolBarDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
+    if (cryptoBtn) {
+        console.log("----->>> crypto button already been added for quick reply area");
+        return;
+    }
+
+}
