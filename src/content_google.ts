@@ -27,9 +27,8 @@ export function appendForGoogle(template: HTMLTemplateElement) {
             return document.querySelector('.TK') as HTMLElement;
         }, async () => {
             console.log("------>>>start to populate google area");
-            monitorGmailMainArea(template).then();
+            monitorReadingActionGoogle(template).then();
             addBMailInboxToMenu(clone).then();
-            addCryptoBtnToReadingMailGoogle(template).then();
         });
 }
 
@@ -136,38 +135,53 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
     }
 }
 
-async function monitorGmailMainArea(template: HTMLTemplateElement) {
+async function monitorReadingActionGoogle(template: HTMLTemplateElement) {
     const mainArea = document.querySelector(".nH.bkK") as HTMLElement;
-    mainArea.addEventListener('click', (event) => {
-        // console.log('-------->>>> click found in main area.');
-        const targetElement = event.target as HTMLElement;
-        // console.log("------>>>target element", targetElement)
-        const trDiv = targetElement.closest('tr') as HTMLElement | null;
-        const isCollapseMail = targetElement.className === "gE hI" || targetElement.querySelector('.gE.hI') != null;
-        if (!trDiv && !isCollapseMail) {
-            // console.log("------>>> no target element to check", targetElement);
-            return;
+    let oldDivNo = 0;
+    observeForElement(mainArea, 1000, () => {
+        const div = mainArea.querySelectorAll(".a3s.aiL");
+        if (div.length === oldDivNo) {
+            // console.log("-------->>>null-------------------------------->>>", div, oldDiv)
+            return null;
         }
+        oldDivNo = div.length;
+        console.log("-------->>>div-------------------------------->>>", div)
+        return div[0] as HTMLElement;
+    }, async () => {
+        addCryptoBtnToReadingMailGoogle(template, mainArea).then();
+    }, true);
 
-        if (trDiv) {
-            const className = trDiv!.className as string;
-            const collapseTitle = trDiv!.querySelector(".iA.g6")
-            const replayOrForwardDiv = trDiv!.querySelector(".amn") as HTMLElement | null;
-
-            if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null && replayOrForwardDiv === null) {
-                // console.log("------>>> not target tr", trDiv);
-                return;
-            }
-        }
-
-        let idleTimer = setTimeout(() => {
-            console.log("------>>> target hint, check elements and add bmail buttons");
-            clearTimeout(idleTimer);
-            addCryptoBtnToComposeDivGoogle(template);
-            addCryptoBtnToReadingMailGoogle(template, mainArea);
-        }, 1000);
-
-    });
+    //
+    // mainArea.addEventListener('click', (event) => {
+    //     // console.log('-------->>>> click found in main area.');
+    //     const targetElement = event.target as HTMLElement;
+    //     // console.log("------>>>target element", targetElement)
+    //     const trDiv = targetElement.closest('tr') as HTMLElement | null;
+    //     const isCollapseMail = targetElement.className === "gE hI" || targetElement.querySelector('.gE.hI') != null;
+    //     if (!trDiv && !isCollapseMail) {
+    //         // console.log("------>>> no target element to check", targetElement);
+    //         return;
+    //     }
+    //
+    //     if (trDiv) {
+    //         const className = trDiv!.className as string;
+    //         const collapseTitle = trDiv!.querySelector(".iA.g6")
+    //         const replayOrForwardDiv = trDiv!.querySelector(".amn") as HTMLElement | null;
+    //
+    //         if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null && replayOrForwardDiv === null) {
+    //             // console.log("------>>> not target tr", trDiv);
+    //             return;
+    //         }
+    //     }
+    //
+    //     let idleTimer = setTimeout(() => {
+    //         console.log("------>>> target hint, check elements and add bmail buttons");
+    //         clearTimeout(idleTimer);
+    //         addCryptoBtnToComposeDivGoogle(template);
+    //         addCryptoBtnToReadingMailGoogle(template, mainArea);
+    //     }, 1000);
+    //
+    // });
 }
 
 async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, mainArea?: HTMLElement) {
@@ -203,7 +217,7 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
 
 async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
     let composeDivArray: HTMLElement[] = [];
-    observeForElement(document.body, 1200, () => {//
+    observeForElement(document.body, 1000, () => {//
         // const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);
         const newComposeArr = Array.from(document.querySelectorAll('div[data-compose-id]') as NodeListOf<HTMLElement>);
         // console.log("----------->>>>>> body changed:=>", newComposeArr);
