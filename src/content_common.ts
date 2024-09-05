@@ -429,4 +429,3 @@ export function observeFrame(
         }
     }, interval);  // 每秒检查一次
 }
-

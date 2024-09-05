@@ -6,7 +6,7 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addDecryptButtonForBmailBody,
-    processReceivers, observeForElement
+    processReceivers
 } from "./content_common";
 import {
     extractEmail,
@@ -68,7 +68,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
         readDiv.forEach(div => {
             addMailDecryptForReadingNetease(div, template);
-            addEncryptBtnForQuickReply(div, template);
+            // addEncryptBtnForQuickReply(div, template);
         });
     }, 1500);
 }
