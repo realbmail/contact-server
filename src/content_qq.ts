@@ -117,7 +117,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq', async btn => {
             mailContentDiv = checkMailContent(mailContentDiv);
-            await encryptMailAndSendQQ(mailContentDiv, btn, receiverTable, sendDiv);
+            await encryptMailAndSendQQ(mailContentDiv, receiverTable, sendDiv);
         }
     ) as HTMLElement;
 
@@ -147,7 +147,7 @@ function checkMailContent(mailContentDiv: HTMLElement): HTMLElement {
     return div;
 }
 
-async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
+async function encryptMailAndSendQQ(mailBody: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
@@ -168,7 +168,7 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, btn: HTMLElement, rec
             return;
         }
 
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
             return;
         }
@@ -281,13 +281,13 @@ async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBa
 
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_simple', async btn => {
-            await encryptSimpleMailReplyQQ(mailContentDiv, email, btn, sendDiv);
+            await encryptSimpleMailReplyQQ(mailContentDiv, email, sendDiv);
         }
     ) as HTMLElement;
     toolbar?.insertBefore(cryptoBtnDiv, toolbar?.children[1]);
 }
 
-async function encryptSimpleMailReplyQQ(mailBody: HTMLElement, email: string, btn: HTMLElement, sendDiv: HTMLElement) {
+async function encryptSimpleMailReplyQQ(mailBody: HTMLElement, email: string, sendDiv: HTMLElement) {
     showLoading();
     try {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
@@ -310,7 +310,7 @@ async function encryptSimpleMailReplyQQ(mailBody: HTMLElement, email: string, bt
             }
             address = receiver[0];
         }
-        const success = await encryptMailInComposing(mailBody, btn, [address]);
+        const success = await encryptMailInComposing(mailBody, [address]);
         if (!success) {
             return;
         }
@@ -450,7 +450,7 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLEl
             return div.getAttribute('addr')?.trim() as string | null;
         });
 
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
             return;
         }
@@ -520,7 +520,7 @@ function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: 
                     decryptMailInReading(bmailBody, cryptoBtn).then();
                 })
 
-                const success = await encryptMailInComposing(mailContentDiv, btn, receiver);
+                const success = await encryptMailInComposing(mailContentDiv, receiver);
                 if (!success) {
                     return;
                 }

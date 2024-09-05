@@ -143,7 +143,7 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
     const sendDiv = composeDiv.querySelector(".js-component-button.nui-mainBtn.nui-btn.nui-btn-hasIcon.nui-mainBtn-hasIcon") as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            await encryptDataAndSendNetEase(composeDiv, btn, sendDiv);
+            await encryptDataAndSendNetEase(composeDiv, sendDiv);
         }
     ) as HTMLElement;
 
@@ -242,7 +242,7 @@ function encryptFile(file: File): Promise<File> {
 }
 
 
-async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLElement, sendDiv: HTMLElement) {
+async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
 
     showLoading();
     try {
@@ -266,7 +266,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, btn: HTMLEleme
             return extractEmail(div.textContent ?? "");
         });
 
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
             return;
         }

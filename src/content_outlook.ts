@@ -180,14 +180,14 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_outlook', async btn => {
-            await encryptMailAndSendOutLook(btn, composeArea, sendDiv);
+            await encryptMailAndSendOutLook(composeArea, sendDiv);
         }
     ) as HTMLElement;
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1] as HTMLElement);
 }
 
 
-async function encryptMailAndSendOutLook(btn: HTMLElement, composeArea: HTMLElement, sendDiv: HTMLElement) {
+async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const mailBody = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
@@ -218,7 +218,7 @@ async function encryptMailAndSendOutLook(btn: HTMLElement, composeArea: HTMLElem
             return;
         }
 
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
             return;
         }

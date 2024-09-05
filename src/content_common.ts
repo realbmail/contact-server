@@ -157,7 +157,7 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
 }
 
-export async function encryptMailInComposing(mailBody: HTMLElement, btn: HTMLElement, receiver: string[] | null): Promise<boolean> {
+export async function encryptMailInComposing(mailBody: HTMLElement, receiver: string[] | null): Promise<boolean> {
     if (!receiver || receiver.length === 0) {
         return false;
     }

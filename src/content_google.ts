@@ -86,7 +86,7 @@ function _addCryptoBtnForDiv(template: HTMLTemplateElement, composeDiv: HTMLElem
     const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
     const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
         "bmail_crypto_btn_in_compose_google", async btn => {
-            await encryptMailAndSendGoogle(mailBodyDiv, btn, titleForm, sendDiv);
+            await encryptMailAndSendGoogle(mailBodyDiv, titleForm, sendDiv);
             setTimeout(() => {
                 addCryptoBtnToReadingMailGoogle(template).then();
             }, 1000);
@@ -113,7 +113,7 @@ async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
     });
 }
 
-async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
+async function encryptMailAndSendGoogle(mailBody: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const divsWithDataHoverCardId = titleForm.querySelectorAll('div[data-hovercard-id]') as NodeListOf<HTMLElement>;
@@ -121,7 +121,7 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, btn: HTMLElement,
             return div.getAttribute('data-hovercard-id') as string | null;
         });
 
-        const success = await encryptMailInComposing(mailBody, btn, receiver);
+        const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
             return;
         }
