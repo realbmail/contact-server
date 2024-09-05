@@ -162,8 +162,8 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
         return false;
     }
 
-    let bodyTextContent = mailBody.innerText.trim();
-    if (bodyTextContent.length <= 0) {
+    let bodyTextContent = mailBody.textContent?.trim();
+    if (!bodyTextContent || bodyTextContent.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
         return false;
     }
@@ -342,7 +342,7 @@ export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mail
             if (nonEmptyDivs.length == 0) {
                 BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
             } else {
-                BMailDivs = nonEmptyDivs  as HTMLElement[];
+                BMailDivs = nonEmptyDivs as HTMLElement[];
             }
         } else {
             const decryptedDivs = mailArea.querySelectorAll('div[data-has-decrypted="true"]');

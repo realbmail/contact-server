@@ -360,34 +360,47 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
         return;
     }
 
-    const toolBarDiv = quickReply.querySelector('div[id$="_dvReplyBts"]')
+    const toolBarDiv = quickReply.querySelector('div[id$="_dvReplyBts"]') as HTMLElement
     if (!toolBarDiv) {
         console.log("----->>> tool bar in quick reply area not found");
         return;
     }
-    let cryptoBtn = toolBarDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
-    if (cryptoBtn) {
-        console.log("----->>> crypto button already been added for quick reply area");
-        return;
-    }
-
     const title = browser.i18n.getMessage('crypto_and_send');
-    const sendDiv = toolBarDiv.querySelector(".js-component-button.nui-mainBtn.nui-btn") as HTMLElement;
     const mailBody = mailArea.querySelector('textarea[id$="_replyInput_inputId"]') as HTMLTextAreaElement;
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
-        title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-            await encryptDataAndSendForQuickReplyNetEase(mailBody, btn, sendDiv);
-        }
-    ) as HTMLElement;
+    mailBody?.addEventListener('click', (e: Event) => {
+        const sendDiv = toolBarDiv.querySelector('div[role="button"]') as HTMLElement;
+        const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
+            title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
+                const emailDiv = mailArea.querySelector('li.ig0.ew0')
+                const receiver = await processReceivers([emailDiv] as unknown as NodeListOf<HTMLElement>, (div) => {
+                    return extractEmail(div.querySelector(".nui-addr-email")?.textContent ?? "")
+                });
+                await encryptDataAndSendForQuickReplyNetEase(mailBody, receiver, sendDiv);
+                cryptoBtnDiv.parentNode?.removeChild(cryptoBtnDiv);
+            }
+        ) as HTMLElement;
 
-    if (toolBarDiv.children.length > 1) {
-        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-    } else {
-        toolBarDiv.appendChild(cryptoBtnDiv);
-    }
+        let cryptoBtn = toolBarDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
+        if (cryptoBtn) {
+            console.log("----->>> crypto button already been added for quick reply area");
+            return;
+        }
+        toolBarDiv.insertBefore(cryptoBtnDiv, sendDiv);
+    });
 }
 
-async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElement, btn: HTMLElement, sendDiv: HTMLElement) {
-    console.log("------------>>>>>> mail body text:=>", mailBody.value)
-    console.log("------------>>>>>> mail body html:=>", mailBody.outerHTML)
+async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLElement, receiver: string[] | null, sendDiv: HTMLElement) {
+    showLoading();
+    try {
+        const success = await encryptMailInComposing(mailBody, receiver);
+        if (!success) {
+            return;
+        }
+        sendDiv.click();
+    } catch (e) {
+        let err = e as Error;
+        showTipsDialog("Warning", err.message);
+    } finally {
+        hideLoading();
+    }
 }
