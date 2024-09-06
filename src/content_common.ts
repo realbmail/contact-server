@@ -18,6 +18,8 @@ import {queryEmailAddrOutLook} from "./content_outlook";
 
 let __cur_email_address: string | null | undefined;
 
+export const __decrypt_button_css_name = '.bmail-decrypt-btn'
+
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
     console.log("------>>>on message:", request.action);
     if (request.action === MsgType.QueryCurEmail) {
@@ -325,11 +327,11 @@ export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mail
     }
 
     const title = browser.i18n.getMessage('decrypt_mail_body')
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', ".bmail-decrypt-btn",
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', __decrypt_button_css_name,
         title, btnId, async btn => {
         }) as HTMLElement;
 
-    const cryptoBtn = cryptoBtnDiv.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
 
     cryptoBtnDiv!.addEventListener('click', async () => {
         if (!cryptoBtn.dataset.encoded || cryptoBtn.dataset.encoded === 'true') {

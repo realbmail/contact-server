@@ -1,4 +1,5 @@
 import {
+    __decrypt_button_css_name,
     addDecryptButtonForBmailBody,
     checkFrameBody,
     encryptMailInComposing,
@@ -165,7 +166,7 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
             console.log("------>>> no mail content parent div found");
             return;
         }
-        const bmailBtn = oneMail.querySelector(".bmail-decrypt-btn") as HTMLElement;
+        const bmailBtn = oneMail.querySelector(__decrypt_button_css_name) as HTMLElement;
         if (bmailBtn) {
             console.log("------>>> duplicate bmail button found for mail reading......")
             checkFrameBody(mailParentDiv, bmailBtn);
@@ -206,7 +207,7 @@ async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
 
 function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllMailDiv: HTMLElement) {
     const mainContent = viewAllMailDiv.querySelector(".maincontent") as HTMLElement;
-    const bmailBtn = mainContent.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    const bmailBtn = mainContent.querySelector(__decrypt_button_css_name) as HTMLElement;
     if (bmailBtn) {
         console.log("------>>> duplicate bmail button found for mail reading......")
         checkFrameBody(viewAllMailDiv, bmailBtn);

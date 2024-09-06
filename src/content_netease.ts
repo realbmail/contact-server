@@ -6,7 +6,7 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addDecryptButtonForBmailBody,
-    processReceivers, replaceTextNodeWithDiv
+    processReceivers, replaceTextNodeWithDiv, __decrypt_button_css_name
 } from "./content_common";
 import {
     extractEmail,
@@ -314,7 +314,7 @@ function monitorTabMenu(callback?: (isDelete: boolean) => void) {
 
 function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTMLTemplateElement) {
 
-    const decryptBtn = composeDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    const decryptBtn = composeDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
     if (decryptBtn) {
         console.log("------>>> decrypt button already been added for reading");
         return;

@@ -1,4 +1,5 @@
 import {
+    __decrypt_button_css_name,
     __localContactMap,
     addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailInReading,
@@ -218,7 +219,7 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
         return;
     }
 
-    const decryptBtn = toolBar.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    const decryptBtn = toolBar.querySelector(__decrypt_button_css_name) as HTMLElement;
     if (decryptBtn) {
         console.log("------>>> decrypt button already been added for reading");
         return;
@@ -547,7 +548,7 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
         return
     }
 
-    const decryptBtn = toolBarDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
     if (decryptBtn) {
         console.log("------>>> decrypt button already been added for reading");
         return;

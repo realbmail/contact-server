@@ -1,9 +1,10 @@
 import {
+    __decrypt_button_css_name,
     addDecryptButtonForBmailBody, decryptMailInReading,
     encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
     observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
-    processReceivers, replaceTextNodeWithDiv,
+    processReceivers, replaceTextNodeWithDiv, setBtnStatus,
     showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
@@ -254,7 +255,7 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
 
-    const decryptBtn = toolBarDiv.querySelector('.bmail-decrypt-btn') as HTMLElement;
+    const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
     if (decryptBtn) {
         console.log("------>>> decrypt button already been added for reading");
         return;
@@ -287,6 +288,14 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
                 cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
                 if (cryptoBtnDiv) {
                     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+                }
+            } else {
+                const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
+                if (quoteOrReply.textContent?.includes(MailFlag) && cryptoBtn.dataset.encoded === 'false') {
+                    let BMailDivs = EncryptedMailDivSearch(quoteOrReply) as HTMLElement[];
+                    BMailDivs.forEach(bmailBody => {
+                        decryptMailInReading(bmailBody, cryptoBtn).then();
+                    });
                 }
             }
         }, 500);
