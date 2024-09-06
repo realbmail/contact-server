@@ -430,8 +430,7 @@ export function observeFrame(
     }, interval);  // 每秒检查一次
 }
 
-export function replaceTextNodeWithDiv(mailArea: HTMLElement) {
-    const firstChild = mailArea.firstChild;
+export function replaceTextNodeWithDiv(firstChild: HTMLElement) {
     if (firstChild?.nodeType !== Node.TEXT_NODE) {
         return;
     }
@@ -449,10 +448,10 @@ export function replaceTextNodeWithDiv(mailArea: HTMLElement) {
     const newDiv = document.createElement('div');
     newDiv.className = 'bmail-encrypted-data-wrapper';
     newDiv.innerHTML = extractedContent;
-    mailArea.replaceChild(newDiv, firstChild);
+    firstChild?.parentNode?.replaceChild(newDiv, firstChild);
 }
 
-export function processInitialTextNodes(mailArea: HTMLElement) {
+export function processInitialTextNodesForGoogle(mailArea: HTMLElement) {
     let content = '';
     let nodesToRemove: ChildNode[] = [];
 
@@ -493,4 +492,19 @@ export function processInitialTextNodes(mailArea: HTMLElement) {
     } else {
         console.error('No valid div content found in the first text nodes.');
     }
+}
+
+export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node | null {
+
+    const walker = document.createTreeWalker(mailArea, NodeFilter.SHOW_TEXT);
+
+    let currentNode: Node | null = walker.nextNode();
+    while (currentNode) {
+        if (currentNode.nodeValue?.includes('<div class="bmail-encrypted-data-wrapper">')) {
+            return currentNode;
+        }
+        currentNode = walker.nextNode();
+    }
+
+    return null;
 }

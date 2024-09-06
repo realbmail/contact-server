@@ -1,9 +1,9 @@
 import {
     addDecryptButtonForBmailBody, decryptMailInReading,
-    encryptMailInComposing,
+    encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
     observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
-    processReceivers,
+    processReceivers, replaceTextNodeWithDiv,
     showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
@@ -265,6 +265,12 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     if (!mailArea) {
         console.log("------>>> no reading mail body found");
         return;
+    }
+    const documentDiv = mailArea.querySelector('div[role="document"]') as HTMLElement;
+    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(documentDiv) as HTMLElement;
+    if (nakedBmailTextDiv) {
+        // console.log("------------------->>>> naked bmail txt node:", nakedBmailTextDiv, nakedBmailTextDiv.nodeType)
+        replaceTextNodeWithDiv(nakedBmailTextDiv);
     }
 
     let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');

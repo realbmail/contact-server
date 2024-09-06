@@ -4,7 +4,7 @@ import {
     encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, processInitialTextNodes, processReceivers, showTipsDialog
+    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
@@ -173,7 +173,7 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
         }
         const mailBody = mailParentDiv.firstChild as HTMLElement;
         // console.log("------>>> mailBody.firstChild  ", mailBody.children, mailBody.firstChild?.nodeType, mailBody.textContent)
-        processInitialTextNodes(mailBody);
+        processInitialTextNodesForGoogle(mailBody);
         const cryptoBtnDiv = addDecryptButtonForBmailBody(template, oneMail, 'bmail_decrypt_btn_in_compose_google');
         if (!cryptoBtnDiv) {
             return;
