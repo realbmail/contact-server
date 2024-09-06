@@ -6,7 +6,7 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addDecryptButtonForBmailBody,
-    processReceivers, replaceTextNodeWithDiv, __decrypt_button_css_name
+    processReceivers, replaceTextNodeWithDiv, __decrypt_button_css_name, findFirstTextNodeWithEncryptedDiv
 } from "./content_common";
 import {
     extractEmail,
@@ -341,8 +341,10 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         }, 1500);
         return;
     }
-
-    replaceTextNodeWithDiv(mailArea.firstChild as HTMLElement);
+    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
+    if (nakedBmailTextDiv) {
+        replaceTextNodeWithDiv(nakedBmailTextDiv);
+    }
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_netEase');
     if (!cryptoBtnDiv) {
@@ -383,8 +385,10 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
                 const receiver = await processReceivers([emailDiv] as unknown as NodeListOf<HTMLElement>, (div) => {
                     return extractEmail(div.querySelector(".nui-addr-email")?.textContent ?? "")
                 });
-                await encryptDataAndSendForQuickReplyNetEase(mailBody, receiver, sendDiv);
-                cryptoBtnDiv.parentNode?.removeChild(cryptoBtnDiv);
+                const success = await encryptDataAndSendForQuickReplyNetEase(mailBody, receiver, sendDiv);
+                if (success) {
+                    cryptoBtnDiv.parentNode?.removeChild(cryptoBtnDiv);
+                }
             }
         ) as HTMLElement;
 
@@ -392,19 +396,21 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
     });
 }
 
-async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElement, receiver: string[] | null, sendDiv: HTMLElement) {
+async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElement, receiver: string[] | null, sendDiv: HTMLElement): Promise<boolean> {
     showLoading();
     try {
         mailBody.textContent = mailBody.value;
         const success = await encryptMailInComposing(mailBody, receiver);
         if (!success) {
-            return;
+            return false;
         }
         mailBody.value = mailBody.defaultValue;
         sendDiv.click();
+        return true;
     } catch (e) {
         let err = e as Error;
         showTipsDialog("Warning", err.message);
+        return false
     } finally {
         hideLoading();
     }

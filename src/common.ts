@@ -216,6 +216,6 @@ export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
         }
     });
 
-    console.log("------------------>>matchingElements size:=>", closestJsonElements.length);
+    console.log("------------------>>div size with bmail content-------------->>>>", closestJsonElements.length);
     return closestJsonElements;
 }

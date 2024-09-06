@@ -4,8 +4,7 @@ import {
     encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
     observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
-    processReceivers, replaceTextNodeWithDiv, setBtnStatus,
-    showTipsDialog
+    processReceivers, replaceTextNodeWithDiv, showTipsDialog
 } from "./content_common";
 import browser from "webextension-polyfill";
 import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
