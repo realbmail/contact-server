@@ -495,7 +495,7 @@ export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node |
 
 export function wrapJsonStrings(input: string): string {
 
-    if (input.includes('<div class="bmail-encrypted-data-wrapper">')) {
+    if (input.includes('&lt;div class="bmail-encrypted-data-wrapper"&gt;')) {
         return input.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
     }
 
