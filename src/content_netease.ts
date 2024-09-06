@@ -6,7 +6,7 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addDecryptButtonForBmailBody,
-    processReceivers
+    processReceivers, replaceTextNodeWithDiv
 } from "./content_common";
 import {
     extractEmail,
@@ -68,7 +68,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         const readDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_read.ReadModule']");
         readDiv.forEach(div => {
             addMailDecryptForReadingNetease(div, template);
-            // addEncryptBtnForQuickReply(div, template);
+            addEncryptBtnForQuickReply(div, template);
         });
     }, 1500);
 }
@@ -341,6 +341,7 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         }, 1500);
         return;
     }
+    replaceTextNodeWithDiv(mailArea);
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_netEase');
     if (!cryptoBtnDiv) {

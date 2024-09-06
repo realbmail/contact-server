@@ -429,3 +429,25 @@ export function observeFrame(
         }
     }, interval);  // 每秒检查一次
 }
+
+export function replaceTextNodeWithDiv(mailArea: HTMLElement) {
+    const firstChild = mailArea.firstChild;
+    if (firstChild?.nodeType !== Node.TEXT_NODE) {
+        return;
+    }
+    const textContent = firstChild.nodeValue;
+    if (!textContent) {
+        return;
+    }
+    const regex = /<div class="bmail-encrypted-data-wrapper">(.*?)<\/div>/;
+    const match = textContent.match(regex);
+
+    if (!match || !match[1]) {
+        return
+    }
+    const extractedContent = match[1];
+    const newDiv = document.createElement('div');
+    newDiv.className = 'bmail-encrypted-data-wrapper';
+    newDiv.innerHTML = extractedContent;
+    mailArea.replaceChild(newDiv, firstChild);
+}
