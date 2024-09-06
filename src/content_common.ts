@@ -451,3 +451,46 @@ export function replaceTextNodeWithDiv(mailArea: HTMLElement) {
     newDiv.innerHTML = extractedContent;
     mailArea.replaceChild(newDiv, firstChild);
 }
+
+export function processInitialTextNodes(mailArea: HTMLElement) {
+    let content = '';
+    let nodesToRemove: ChildNode[] = [];
+
+    // 遍历前几个子节点，收集所有文本节点和 <wbr> 的内容
+    for (let i = 0; i < mailArea.childNodes.length; i++) {
+        const node = mailArea.childNodes[i];
+
+        // 停止处理非文本节点和非 <wbr> 的内容
+        if (node.nodeType !== Node.TEXT_NODE && node.nodeName !== 'WBR') {
+            break;
+        }
+
+        // 拼接文本内容并去掉 <wbr> 元素
+        if (node.nodeType === Node.TEXT_NODE) {
+            content += node.nodeValue?.trim();
+        }
+
+        // 收集需要移除的节点
+        nodesToRemove.push(node);
+    }
+
+    // 如果找到带有 div 的文本，处理它
+    if (content.includes('<div class="bmail-encrypted-data-wrapper">')) {
+        // 将拼接的内容转换为 HTML
+        const convertedHTML = content.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+        // 创建新的 div 元素
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = convertedHTML;
+
+        // 移除处理过的节点
+        nodesToRemove.forEach(node => mailArea.removeChild(node));
+
+        // 将新创建的 div 插入到 mailArea 的前面
+        mailArea.insertBefore(newDiv, mailArea.firstChild);
+
+        console.log('Processed and added new div:', newDiv);
+    } else {
+        console.error('No valid div content found in the first text nodes.');
+    }
+}

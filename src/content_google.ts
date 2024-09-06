@@ -4,8 +4,7 @@ import {
     encryptMailInComposing,
     observeForElement,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, processReceivers,
-    showTipsDialog
+    parseCryptoMailBtn, processInitialTextNodes, processReceivers, showTipsDialog
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
@@ -150,38 +149,6 @@ async function monitorReadingActionGoogle(template: HTMLTemplateElement) {
     }, async () => {
         addCryptoBtnToReadingMailGoogle(template, mainArea).then();
     }, true);
-
-    //
-    // mainArea.addEventListener('click', (event) => {
-    //     // console.log('-------->>>> click found in main area.');
-    //     const targetElement = event.target as HTMLElement;
-    //     // console.log("------>>>target element", targetElement)
-    //     const trDiv = targetElement.closest('tr') as HTMLElement | null;
-    //     const isCollapseMail = targetElement.className === "gE hI" || targetElement.querySelector('.gE.hI') != null;
-    //     if (!trDiv && !isCollapseMail) {
-    //         // console.log("------>>> no target element to check", targetElement);
-    //         return;
-    //     }
-    //
-    //     if (trDiv) {
-    //         const className = trDiv!.className as string;
-    //         const collapseTitle = trDiv!.querySelector(".iA.g6")
-    //         const replayOrForwardDiv = trDiv!.querySelector(".amn") as HTMLElement | null;
-    //
-    //         if (className != "zA yO aqw" && className != "zA zE aqw" && collapseTitle === null && replayOrForwardDiv === null) {
-    //             // console.log("------>>> not target tr", trDiv);
-    //             return;
-    //         }
-    //     }
-    //
-    //     let idleTimer = setTimeout(() => {
-    //         console.log("------>>> target hint, check elements and add bmail buttons");
-    //         clearTimeout(idleTimer);
-    //         addCryptoBtnToComposeDivGoogle(template);
-    //         addCryptoBtnToReadingMailGoogle(template, mainArea);
-    //     }, 1000);
-    //
-    // });
 }
 
 async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, mainArea?: HTMLElement) {
@@ -193,7 +160,6 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
     const mailBodyList = parentDiv.querySelectorAll(".adn.ads") as NodeListOf<HTMLElement>;
     console.log("------>>> all reading div found:", mailBodyList.length);
     mailBodyList.forEach((oneMail) => {
-        // const mailParentDiv = oneMail.querySelector(".a3s.aiL") as HTMLElement | null;
         const mailParentDiv = oneMail.querySelector(".ii.gt") as HTMLElement | null;
         if (!mailParentDiv) {
             console.log("------>>> no mail content parent div found");
@@ -205,7 +171,9 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
             checkFrameBody(mailParentDiv, bmailBtn);
             return;
         }
-
+        const mailBody = mailParentDiv.firstChild as HTMLElement;
+        // console.log("------>>> mailBody.firstChild  ", mailBody.children, mailBody.firstChild?.nodeType, mailBody.textContent)
+        processInitialTextNodes(mailBody);
         const cryptoBtnDiv = addDecryptButtonForBmailBody(template, oneMail, 'bmail_decrypt_btn_in_compose_google');
         if (!cryptoBtnDiv) {
             return;
@@ -218,9 +186,7 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
 async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
     let composeDivArray: HTMLElement[] = [];
     observeForElement(document.body, 1000, () => {//
-        // const newComposeArr = Array.from(document.querySelectorAll("div[role=dialog]") as NodeListOf<HTMLElement>);
         const newComposeArr = Array.from(document.querySelectorAll('div[data-compose-id]') as NodeListOf<HTMLElement>);
-        // console.log("----------->>>>>> body changed:=>", newComposeArr);
         if (newComposeArr.length > composeDivArray.length) {
             composeDivArray = newComposeArr;
             return newComposeArr[0] as HTMLElement;
