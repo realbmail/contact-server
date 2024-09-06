@@ -57,7 +57,7 @@ export function queryEmailAddrGoogle() {
 
 const _composeBtnParentClass = "td.I5"
 
-function _addCryptoBtnForDiv(template: HTMLTemplateElement, composeDiv: HTMLElement) {
+function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: HTMLElement) {
 
     const mailBodyDiv = composeDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
     if (!mailBodyDiv) {
@@ -68,7 +68,7 @@ function _addCryptoBtnForDiv(template: HTMLTemplateElement, composeDiv: HTMLElem
         }
 
         setTimeout(() => {
-            _addCryptoBtnForDiv(template, composeDiv);
+            _addCryptoBtnForComposeDiv(template, composeDiv);
         }, 1000)
         return;
     }
@@ -109,7 +109,7 @@ async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
     console.log("------>>> all compose div when loaded=>", allComposeDiv.length);
     allComposeDiv.forEach(composeDiv => {
-        _addCryptoBtnForDiv(template, composeDiv as HTMLElement);
+        _addCryptoBtnForComposeDiv(template, composeDiv as HTMLElement);
     });
 }
 
@@ -175,6 +175,12 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
         const mailBody = mailParentDiv.firstChild as HTMLElement;
         // console.log("------>>> mailBody.firstChild  ", mailBody.children, mailBody.firstChild?.nodeType, mailBody.textContent)
         processInitialTextNodesForGoogle(mailBody);
+
+        const quotedDivs = mailBody.querySelectorAll("blockquote") as NodeListOf<HTMLElement>;
+        quotedDivs.forEach(quotedDiv => {
+            processInitialTextNodesForGoogle(quotedDiv);
+        })
+
         const cryptoBtnDiv = addDecryptButtonForBmailBody(template, oneMail, 'bmail_decrypt_btn_in_compose_google');
         if (!cryptoBtnDiv) {
             return;

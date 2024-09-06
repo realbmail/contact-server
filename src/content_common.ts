@@ -468,7 +468,7 @@ export function processInitialTextNodesForGoogle(mailArea: HTMLElement) {
         nodesToRemove.push(node);
     }
 
-    if (!content.includes('<div class="bmail-encrypted-data-wrapper">')) {
+    if (!content.includes('<div class="bmail-encrypted-')) {
         return;
     }
     const convertedHTML = content.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
