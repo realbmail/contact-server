@@ -279,49 +279,20 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     console.log("----->>> more mail content btn:=>", moreMailContentBtn);
     moreMailContentBtn?.addEventListener("click", async () => {
         setTimeout(() => {
-            const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]');
+            const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]') as HTMLElement;
             if (!quoteOrReply) {
                 return;
             }
-
             if (!cryptoBtnDiv) {
-                const title = browser.i18n.getMessage('decrypt_mail_body')
-                cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', ".bmail-decrypt-btn",
-                    title, 'bmail_decrypt_btn_in_compose_outlook', async btn => {
-                    }) as HTMLElement;
-
-                if (!cryptoBtnDiv) {
-                    return;
-                }
-                if (toolBarDiv.childNodes.length > 2) {
+                cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
+                if (cryptoBtnDiv) {
                     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-                } else {
-                    toolBarDiv.appendChild(cryptoBtnDiv);
                 }
             }
-
-            const cryptoBtn = cryptoBtnDiv!.querySelector(".bmail-decrypt-btn") as HTMLElement;
-            const BMailDivs = EncryptedMailDivSearch(quoteOrReply as HTMLElement);
-            BMailDivs.forEach((bmailBody: HTMLElement) => {
-                if (cryptoBtn.dataset.encoded === 'false') {
-                    decryptMailInReading(bmailBody, cryptoBtn).then();
-                    return;
-                }
-                cryptoBtnDiv!.addEventListener('click', async () => {
-                    await decryptMailInReading(bmailBody, cryptoBtn);
-                })
-            })
-
         }, 500);
     })
-
-    if (!cryptoBtnDiv) {
-        return;
-    }
-    if (toolBarDiv.childNodes.length > 2) {
+    if (cryptoBtnDiv) {
         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-    } else {
-        toolBarDiv.appendChild(cryptoBtnDiv);
     }
 }
 

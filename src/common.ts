@@ -175,7 +175,8 @@ export function extractJsonString(input: string): { json: string, offset: number
 
 export function replaceTextInRange(input: string, offset: number, end: number, newText: string): string {
     if (offset < 0 || end < offset || end > input.length) {
-        throw new Error("Offset or end is out of bounds");
+        console.log("--------<>>>>>error:", offset, end, input.length)
+        throw new Error("Offset or end is out of bounds:");
     }
 
     const beforeOffset = input.substring(0, offset);

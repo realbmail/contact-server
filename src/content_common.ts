@@ -226,7 +226,6 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
             showTipsDialog("Tips", mailRsp.message);
             return;
         }
-
         mailContent.innerHTML = replaceTextInRange(mailContent.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
         mailContent.dataset.hasDecrypted = "true";
         setBtnStatus(false, cryptoBtn);
