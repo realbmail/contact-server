@@ -381,9 +381,9 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
         const sendDiv = toolBarDiv.querySelector('div[role="button"]') as HTMLElement;
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
             title, 'bmail_crypto_btn_in_compose_netEase', async btn => {
-                const emailDiv = mailArea.querySelector('li.ig0.ew0')
-                const receiver = await processReceivers([emailDiv] as unknown as NodeListOf<HTMLElement>, (div) => {
-                    return extractEmail(div.querySelector(".nui-addr-email")?.textContent ?? "")
+                const emailDiv = mailArea.querySelectorAll('.nui-addr-email') as NodeListOf<HTMLElement>;
+                const receiver = await processReceivers(emailDiv, (div) => {
+                    return extractEmail(div?.textContent ?? "")
                 });
                 const success = await encryptDataAndSendForQuickReplyNetEase(mailBody, receiver, sendDiv);
                 if (success) {
