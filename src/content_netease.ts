@@ -341,6 +341,7 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         }, 1500);
         return;
     }
+
     replaceTextNodeWithDiv(mailArea.firstChild as HTMLElement);
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_netEase');

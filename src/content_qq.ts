@@ -7,23 +7,20 @@ import {
     observeForElement,
     observeFrame,
     parseBmailInboxBtn,
-    parseCryptoMailBtn,
+    parseCryptoMailBtn, processInitialTextNodesForGoogle,
     processReceivers,
     queryContactFromSrv,
-    showTipsDialog
+    showTipsDialog, wrapJsonStrings
 } from "./content_common";
 import {
-    EncryptedMailDivSearch,
     emailRegex,
     extractEmail,
     hideLoading,
     MsgType,
     sendMessageToBackground,
     showLoading,
-    wrapJsonStrings
 } from "./common";
 import browser from "webextension-polyfill";
-import {MailFlag} from "./bmail_body";
 
 export function appendForQQ(template: HTMLTemplateElement) {
 
@@ -230,7 +227,8 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
         console.log("------>>> no reading mail body found");
         return;
     }
-
+    console.log("------>>> mailArea.firstChild  ", mailArea.children, mailArea.firstChild?.nodeType, mailArea.textContent)
+    processInitialTextNodesForGoogle(mailArea);
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq');
     if (!cryptoBtnDiv) {
         return;
@@ -560,7 +558,6 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
         return;
     }
     mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
-
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
     if (!cryptoBtnDiv) {
         return;

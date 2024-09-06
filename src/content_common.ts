@@ -456,43 +456,26 @@ export function processInitialTextNodesForGoogle(mailArea: HTMLElement) {
     let content = '';
     let nodesToRemove: ChildNode[] = [];
 
-    // 遍历前几个子节点，收集所有文本节点和 <wbr> 的内容
     for (let i = 0; i < mailArea.childNodes.length; i++) {
         const node = mailArea.childNodes[i];
 
-        // 停止处理非文本节点和非 <wbr> 的内容
         if (node.nodeType !== Node.TEXT_NODE && node.nodeName !== 'WBR') {
             break;
         }
-
-        // 拼接文本内容并去掉 <wbr> 元素
         if (node.nodeType === Node.TEXT_NODE) {
             content += node.nodeValue?.trim();
         }
-
-        // 收集需要移除的节点
         nodesToRemove.push(node);
     }
 
-    // 如果找到带有 div 的文本，处理它
-    if (content.includes('<div class="bmail-encrypted-data-wrapper">')) {
-        // 将拼接的内容转换为 HTML
-        const convertedHTML = content.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
-        // 创建新的 div 元素
-        const newDiv = document.createElement('div');
-        newDiv.innerHTML = convertedHTML;
-
-        // 移除处理过的节点
-        nodesToRemove.forEach(node => mailArea.removeChild(node));
-
-        // 将新创建的 div 插入到 mailArea 的前面
-        mailArea.insertBefore(newDiv, mailArea.firstChild);
-
-        console.log('Processed and added new div:', newDiv);
-    } else {
-        console.error('No valid div content found in the first text nodes.');
+    if (!content.includes('<div class="bmail-encrypted-data-wrapper">')) {
+        return;
     }
+    const convertedHTML = content.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    const newDiv = document.createElement('div');
+    newDiv.innerHTML = convertedHTML;
+    nodesToRemove.forEach(node => mailArea.removeChild(node));
+    mailArea.insertBefore(newDiv, mailArea.firstChild);
 }
 
 export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node | null {
@@ -508,4 +491,27 @@ export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node |
     }
 
     return null;
+}
+
+export function wrapJsonStrings(input: string): string {
+
+    if (input.includes('<div class="bmail-encrypted-data-wrapper">')) {
+        return input.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    }
+
+
+    const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
+    let result = input;
+    let match;
+
+    let offsetAdjustment = 0;
+    while ((match = jsonRegex.exec(input)) !== null) {
+        const jsonString = match[0];
+        const wrappedJsonString = `<div class="bmail-encrypted-data-wrapper">${jsonString}</div>`;
+        const start = match.index + offsetAdjustment;
+        const end = start + jsonString.length;
+        result = result.slice(0, start) + wrappedJsonString + result.slice(end);
+        offsetAdjustment += wrappedJsonString.length - jsonString.length;
+    }
+    return result;
 }

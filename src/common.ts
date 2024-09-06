@@ -219,20 +219,3 @@ export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
     console.log("------------------>>matchingElements size:=>", closestJsonElements.length);
     return closestJsonElements;
 }
-
-export function wrapJsonStrings(input: string): string {
-    const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
-    let result = input;
-    let match;
-
-    let offsetAdjustment = 0;
-    while ((match = jsonRegex.exec(input)) !== null) {
-        const jsonString = match[0];
-        const wrappedJsonString = `<div class="json-wrapper">${jsonString}</div>`;
-        const start = match.index + offsetAdjustment;
-        const end = start + jsonString.length;
-        result = result.slice(0, start) + wrappedJsonString + result.slice(end);
-        offsetAdjustment += wrappedJsonString.length - jsonString.length;
-    }
-    return result;
-}
