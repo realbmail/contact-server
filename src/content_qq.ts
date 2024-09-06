@@ -507,12 +507,13 @@ function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: 
         const sendDiv = toolBarDiv.firstChild as HTMLElement;
         const title = browser.i18n.getMessage('crypto_and_send');
         const mailContentDiv = (iframe.contentDocument as Document).body as HTMLElement;
-        const emailDiv = doc.getElementById("tipFromAddr_readmail") as HTMLElement;
 
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
             title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
-                const receiver = await processReceivers([emailDiv] as unknown as NodeListOf<HTMLElement>, (div) => {
-                    return div.getAttribute("fromaddr")?.trim() as string | null;
+                const spansWithEAttribute = doc.querySelectorAll('span[e]') as NodeListOf<HTMLElement>; // 查询包含 e 属性的所有 span 元素
+
+                const receiver = await processReceivers(spansWithEAttribute, (span) => {
+                    return extractEmail(span.getAttribute('e') ?? "");
                 });
 
                 const elements = doc.querySelectorAll('div[data-has-decrypted="true"]') as NodeListOf<HTMLElement>;
@@ -530,7 +531,7 @@ function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: 
             }
         ) as HTMLElement;
 
-        toolBarDiv.insertBefore(cryptoBtnDiv, sendDiv.nextSibling);
+        toolBarDiv.insertBefore(cryptoBtnDiv, sendDiv);
     })
 }
 
@@ -565,9 +566,5 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
         return;
     }
 
-    if (toolBarDiv.childNodes.length > 2) {
-        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-    } else {
-        toolBarDiv.appendChild(cryptoBtnDiv);
-    }
+    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
 }

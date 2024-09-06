@@ -149,6 +149,9 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function extractEmail(input: string): string | null {
+    if (!input || input.length === 0) {
+        return null;
+    }
     // 正则表达式用于匹配电子邮件地址
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
     const match = input.match(emailRegex);
