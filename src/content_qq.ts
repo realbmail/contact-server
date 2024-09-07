@@ -3,14 +3,12 @@ import {
     __localContactMap,
     addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailInReading,
-    encryptMailInComposing,
+    encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
     observeForElement,
     observeFrame,
     parseBmailInboxBtn,
-    parseCryptoMailBtn, processInitialTextNodesForGoogle,
-    processReceivers,
-    queryContactFromSrv, replaceTextNodeWithDiv,
-    showTipsDialog, wrapJsonStrings
+    parseCryptoMailBtn, processReceivers,
+    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog, wrapJsonStrings
 } from "./content_common";
 import {
     emailRegex,
@@ -229,7 +227,12 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
     }
     // console.log("------>>> mailArea.firstChild  ", mailArea.children, mailArea.firstChild?.nodeType, mailArea.textContent)
     // replaceTextNodeWithDiv(mailArea);
-    mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
+    // mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
+
+    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
+    if (nakedBmailTextDiv) {
+        replaceTextNodeWithDiv(nakedBmailTextDiv);
+    }
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq');
     if (!cryptoBtnDiv) {
@@ -560,7 +563,13 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
         console.log("------>>> no reading mail body found [old version]");
         return;
     }
-    mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
+    // mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
+
+    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
+    if (nakedBmailTextDiv) {
+        replaceTextNodeWithDiv(nakedBmailTextDiv);
+    }
+
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
     if (!cryptoBtnDiv) {
         return;
