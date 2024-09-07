@@ -531,6 +531,10 @@ function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: 
                 }
 
                 sendDiv.click();
+
+                const parentCryptoBtn = doc.querySelector(".bmail-decrypt-btn.bmail-decrypt-btn-qq_old") as HTMLElement;
+                const mailArea = doc.getElementById("mailContentContainer") as HTMLElement;
+                checkFrameBody(mailArea, parentCryptoBtn)
             }
         ) as HTMLElement;
 
