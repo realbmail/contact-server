@@ -107,12 +107,13 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         return;
     }
 
+    mailContentDiv = checkMailContent(mailContentDiv);
+
     const sendDiv = toolBar.querySelector(".xmail_sendmail_btn") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = composeBodyDiv.querySelector('div.compose_mailInfo_item.new:not(.hide)') as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq', async btn => {
-            mailContentDiv = checkMailContent(mailContentDiv);
             await encryptMailAndSendQQ(mailContentDiv, receiverTable, sendDiv);
         }
     ) as HTMLElement;
@@ -125,8 +126,22 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
 }
 
 function checkMailContent(mailContentDiv: HTMLElement): HTMLElement {
+
+    const firstChild = mailContentDiv.firstChild as HTMLElement; // 获取第一个子节点
+    if (firstChild && firstChild.classList.contains('qmbox')) {
+        if (mailContentDiv.innerText.length > 0) {
+            const div = document.createElement("div");
+            div.id = __bmailComposeDivId;
+            div.innerHTML = "<br><br><br>"
+            mailContentDiv.insertBefore(div, mailContentDiv.firstChild);
+            return div
+        }
+    }
+
     const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
     if (!replyOrQuoteDiv) {
+
+
         return mailContentDiv
     }
     const div = document.createElement("div");
