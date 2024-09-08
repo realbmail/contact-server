@@ -397,18 +397,16 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     const sendDiv = toolBarDiv.querySelector('a[name="sendbtn"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = iframeDocument!.getElementById('toAreaCtrl') as HTMLElement;
+
+    const mailContentDiv = checkMailContentOldVersion(composeDocument.body);
+
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
-            const mailContentDiv = checkMailContentOldVersion(composeDocument.body);
             await encryptMailAndSendQQOldVersion(mailContentDiv, btn, receiverTable, sendDiv);
         }
     ) as HTMLElement;
 
-    if (toolBarDiv.children.length >= 2) {
-        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[2]);
-    } else {
-        toolBarDiv.appendChild(cryptoBtnDiv);
-    }
+    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[2]);
 }
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
@@ -416,6 +414,13 @@ const __bmailComposeDivId = "bmail-mail-body-for-qq";
 function checkMailContentOldVersion(docBody: HTMLElement): HTMLElement {
     const replyOrQuoteDiv = docBody.querySelector("includetail") as HTMLElement | null;
     if (!replyOrQuoteDiv) {
+        if (docBody.innerText.length > 0) {
+            const div = document.createElement("div");
+            div.id = __bmailComposeDivId;
+            div.innerHTML = "<br><br><br>"
+            docBody.insertBefore(div, docBody.firstChild);
+            return div
+        }
         return docBody;
     }
 
