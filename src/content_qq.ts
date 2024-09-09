@@ -12,9 +12,9 @@ import {
 } from "./content_common";
 import {
     emailRegex,
-    extractEmail,
+    extractEmail, extractJsonString,
     hideLoading,
-    MsgType,
+    MsgType, replaceTextInRange,
     sendMessageToBackground,
     showLoading,
 } from "./common";
@@ -107,7 +107,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         return;
     }
 
-    mailContentDiv = checkMailContent(mailContentDiv);
+    mailContentDiv = await checkMailContent(mailContentDiv);
 
     const sendDiv = toolBar.querySelector(".xmail_sendmail_btn") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
@@ -125,23 +125,25 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     }
 }
 
-function checkMailContent(mailContentDiv: HTMLElement): HTMLElement {
+async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
 
-    const firstChild = mailContentDiv.firstChild as HTMLElement; // 获取第一个子节点
+    const firstChild = mailContentDiv.firstChild as HTMLElement;
     if (firstChild && firstChild.classList.contains('qmbox')) {
-        if (mailContentDiv.innerText.length > 0) {
-            const div = document.createElement("div");
-            div.id = __bmailComposeDivId;
-            div.innerHTML = "<br><br><br>"
-            mailContentDiv.insertBefore(div, mailContentDiv.firstChild);
-            return div
+        const div = document.createElement("div");
+        div.id = __bmailComposeDivId;
+        mailContentDiv.insertBefore(div, mailContentDiv.firstChild);
+        const originalTxtDiv = firstChild.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
+        if (!originalTxtDiv) {
+            return mailContentDiv;
         }
+
+        await decryptMailForEditionOfSentMail(mailContentDiv, originalTxtDiv, div);
+
+        return div;
     }
 
     const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
     if (!replyOrQuoteDiv) {
-
-
         return mailContentDiv
     }
     const div = document.createElement("div");
@@ -413,11 +415,11 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = iframeDocument!.getElementById('toAreaCtrl') as HTMLElement;
 
-    const mailContentDiv = checkMailContentOldVersion(composeDocument.body);
+    const mailContentDiv = await checkMailContentOldVersion(composeDocument.body);
 
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
-            await encryptMailAndSendQQOldVersion(mailContentDiv, btn, receiverTable, sendDiv);
+            await encryptMailAndSendQQOldVersion(mailContentDiv, receiverTable, sendDiv);
         }
     ) as HTMLElement;
 
@@ -426,17 +428,41 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
 
-function checkMailContentOldVersion(docBody: HTMLElement): HTMLElement {
+async function decryptMailForEditionOfSentMail(mailContentDiv: HTMLElement, originalTxtDiv: HTMLElement, div: HTMLElement) {
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return mailContentDiv;
+    }
+    const bmailContent = extractJsonString(originalTxtDiv.innerHTML);
+    if (!bmailContent) {
+        return mailContentDiv;
+    }
+
+    const mailRsp = await browser.runtime.sendMessage({
+        action: MsgType.DecryptData,
+        data: bmailContent.json
+    });
+    if (mailRsp.success <= 0) {
+        return mailContentDiv;
+    }
+
+    originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
+    div.append(originalTxtDiv);
+    div.innerHTML += '<br><br>'
+}
+
+async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLElement> {
     const replyOrQuoteDiv = docBody.querySelector("includetail") as HTMLElement | null;
     if (!replyOrQuoteDiv) {
-        if (docBody.innerText.length > 0) {
-            const div = document.createElement("div");
-            div.id = __bmailComposeDivId;
-            div.innerHTML = "<br><br><br>"
-            docBody.insertBefore(div, docBody.firstChild);
-            return div
+        const div = document.createElement("div");
+        div.id = __bmailComposeDivId;
+        docBody.insertBefore(div, docBody.firstChild);
+        const originalTxtDiv = docBody.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
+        if (!originalTxtDiv) {
+            return docBody;
         }
-        return docBody;
+        await decryptMailForEditionOfSentMail(docBody, originalTxtDiv, div);
+        return div;
     }
 
     const bmailContentDiv = document.getElementById(__bmailComposeDivId) as HTMLElement;
@@ -466,7 +492,7 @@ function checkMailContentOldVersion(docBody: HTMLElement): HTMLElement {
     return div;
 }
 
-async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, btn: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
+async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
         const allEmailAddrDivs = receiverTable.querySelectorAll(".addr_base.addr_normal") as NodeListOf<HTMLElement>;
