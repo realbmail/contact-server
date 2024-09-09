@@ -10,7 +10,7 @@ import {
     replaceTextNodeWithDiv,
     __decrypt_button_css_name,
     findFirstTextNodeWithEncryptedDiv,
-    decryptMailForEditionOfSentMail
+    decryptMailForEditionOfSentMail, observeForElement, observeForElementDirect
 } from "./content_common";
 import {
     extractEmail,
@@ -27,6 +27,15 @@ export function appendForNetEase(template: HTMLTemplateElement) {
     appendBmailInboxMenu(clone);
     checkBmailInboxMenuAgain(clone);
     checkHasMailContent(template);
+
+    const dvContainer = document.getElementById("dvContainer") as HTMLElement;
+    observeForElementDirect(dvContainer, 500, () => {
+        const readDiv = document.querySelector("[id^='_dvModuleContainer_read.ReadModule']") as HTMLElement;
+        console.log("---------------------->>>>>>>dvContainer =>", readDiv)
+        return readDiv;
+    }, async () => {
+        checkHasMailContent(template);
+    }, true);
 
     monitorTabMenu((isDelete: boolean) => {
         if (isDelete) {
