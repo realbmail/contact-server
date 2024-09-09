@@ -515,3 +515,23 @@ export function wrapJsonStrings(input: string): string {
     }
     return result;
 }
+
+export async function decryptMailForEditionOfSentMail(originalTxtDiv: HTMLElement) {
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return;
+    }
+    const bmailContent = extractJsonString(originalTxtDiv.innerHTML);
+    if (!bmailContent) {
+        return;
+    }
+
+    const mailRsp = await browser.runtime.sendMessage({
+        action: MsgType.DecryptData,
+        data: bmailContent.json
+    });
+    if (mailRsp.success <= 0) {
+        return;
+    }
+    originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
+}

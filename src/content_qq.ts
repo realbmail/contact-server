@@ -2,7 +2,7 @@ import {
     __decrypt_button_css_name,
     __localContactMap,
     addDecryptButtonForBmailBody,
-    checkFrameBody, decryptMailInReading,
+    checkFrameBody, decryptMailForEditionOfSentMail, decryptMailInReading,
     encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
     observeForElement,
     observeFrame,
@@ -137,8 +137,9 @@ async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElemen
             return mailContentDiv;
         }
 
-        await decryptMailForEditionOfSentMail(mailContentDiv, originalTxtDiv, div);
-
+        await decryptMailForEditionOfSentMail(originalTxtDiv);
+        div.append(originalTxtDiv);
+        div.innerHTML += '<br><br>'
         return div;
     }
 
@@ -428,28 +429,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
 
-async function decryptMailForEditionOfSentMail(mailContentDiv: HTMLElement, originalTxtDiv: HTMLElement, div: HTMLElement) {
-    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0) {
-        return mailContentDiv;
-    }
-    const bmailContent = extractJsonString(originalTxtDiv.innerHTML);
-    if (!bmailContent) {
-        return mailContentDiv;
-    }
 
-    const mailRsp = await browser.runtime.sendMessage({
-        action: MsgType.DecryptData,
-        data: bmailContent.json
-    });
-    if (mailRsp.success <= 0) {
-        return mailContentDiv;
-    }
-
-    originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
-    div.append(originalTxtDiv);
-    div.innerHTML += '<br><br>'
-}
 
 async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLElement> {
     const replyOrQuoteDiv = docBody.querySelector("includetail") as HTMLElement | null;
@@ -461,7 +441,9 @@ async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLEle
         if (!originalTxtDiv) {
             return docBody;
         }
-        await decryptMailForEditionOfSentMail(docBody, originalTxtDiv, div);
+        await decryptMailForEditionOfSentMail(originalTxtDiv);
+        div.append(originalTxtDiv);
+        div.innerHTML += '<br><br>';
         return div;
     }
 

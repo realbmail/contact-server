@@ -6,7 +6,11 @@ import {
     parseCryptoMailBtn,
     showTipsDialog,
     addDecryptButtonForBmailBody,
-    processReceivers, replaceTextNodeWithDiv, __decrypt_button_css_name, findFirstTextNodeWithEncryptedDiv
+    processReceivers,
+    replaceTextNodeWithDiv,
+    __decrypt_button_css_name,
+    findFirstTextNodeWithEncryptedDiv,
+    decryptMailForEditionOfSentMail
 } from "./content_common";
 import {
     extractEmail,
@@ -61,7 +65,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
 
         const composeDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_compose.ComposeModule']");
         composeDiv.forEach(div => {
-            addCryptoBtnToComposeDivNetease(div, template);
+            addCryptoBtnToComposeDivNetease(div, template).then();
         });
 
         clearTimeout(debounceTimer);
@@ -101,7 +105,7 @@ export function queryEmailAddrNetEase() {
     return mailAddr.textContent;
 }
 
-function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HTMLElement) {
+async function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HTMLElement) {
     const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement;
     if (!iframe) {
         console.log('----->>> encrypt failed to find iframe:=>');
@@ -113,11 +117,18 @@ function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HT
         return null;
     }
 
+    const mailEditAgainDiv = iframeDocument.querySelector('div[data-ntes="ntes_mail_body_root"]');
+    if (mailEditAgainDiv) {
+        const encryptedSentMailDiv = mailEditAgainDiv.firstChild as HTMLElement;
+        if (encryptedSentMailDiv && encryptedSentMailDiv.classList.contains('bmail-encrypted-data-wrapper')) {
+            await decryptMailForEditionOfSentMail(encryptedSentMailDiv);
+        }
+    }
+
     const elmFromReply = iframeDocument.getElementById('isReplyContent') as HTMLQuoteElement | null;
     const elmForward = iframeDocument.getElementById('isForwardContent') as HTMLQuoteElement | null;
     const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
     const isReplyOrForward = elmWhenReload || elmFromReply || elmForward;
-    console.log("------>>> is this a reply div", isReplyOrForward, "div id:=>", composeDiv.id);
     if (!isReplyOrForward) {
         checkFrameBody(iframeDocument.body, btn);
         return;
@@ -127,11 +138,11 @@ function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, btn: HT
     checkFrameBody(div, btn);
 }
 
-function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTMLTemplateElement) {
+async function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     let cryptoBtn = composeDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
     if (cryptoBtn) {
         console.log("------>>> crypto btn already been added before for mail composing");
-        parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtn);
+        await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtn);
         return;
     }
     const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
@@ -147,15 +158,10 @@ function addCryptoBtnToComposeDivNetease(composeDiv: HTMLElement, template: HTML
         }
     ) as HTMLElement;
 
-    parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
-
-    if (headerBtnList.children.length > 1) {
-        headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
-    } else {
-        headerBtnList.appendChild(cryptoBtnDiv);
-    }
+    await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
+    headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     console.log("------>>> encrypt button add success");
-    checkAttachmentBtn(composeDiv);
+    // checkAttachmentBtn(composeDiv);
 }
 
 function checkAttachmentBtn(composeDiv: HTMLElement) {
@@ -174,7 +180,6 @@ function checkAttachmentBtn(composeDiv: HTMLElement) {
         const input = event.target as HTMLInputElement;
         const files = input.files;
 
-        // 如果文件列表为空或者文件已经加密，直接返回，不处理
         if (!files || files.length === 0 || files[0].name.endsWith('.encrypted')) {
             console.log("----->>> No files found or file already encrypted.");
             return;
@@ -184,19 +189,15 @@ function checkAttachmentBtn(composeDiv: HTMLElement) {
         console.log("----->>> processing file:", file.name);
 
         try {
-            // 加密文件
             const encryptedFile = await encryptFile(file);
             console.log("----->>> file encrypted:", encryptedFile.name);
 
-            // 创建一个新的 DataTransfer 对象，并添加加密后的文件
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(encryptedFile);
 
-            // 替换 input 的文件列表为加密后的文件
             input.files = dataTransfer.files;
             console.log("----->>> input files replaced with encrypted file");
 
-            // 手动触发新的 change 事件，通知系统文件已经被替换
             const newEvent = new Event('change', {
                 bubbles: true,
                 cancelable: true,
