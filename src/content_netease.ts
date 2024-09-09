@@ -14,8 +14,7 @@ import {
 } from "./content_common";
 import {
     extractEmail,
-    hideLoading,
-    showLoading
+    hideLoading, showLoading
 } from "./common";
 
 export function appendForNetEase(template: HTMLTemplateElement) {
@@ -47,13 +46,11 @@ function checkBmailInboxMenuAgain(clone: HTMLElement): void {
         }
     }
 
-    // const homePageMenu = document.querySelector('li[title="首页"]');
     const homePageMenu = document.querySelector('li[id^="_mail_tabitem_0_"]');
     if (homePageMenu) {
         homePageMenu.addEventListener('click', checkBmailMenuAgain);
     }
 
-    // const inboxMenu = document.querySelector('li[title="收件箱"]');
     const inboxMenu = document.querySelector('li[id^="_mail_tabitem_8_"]');
     if (inboxMenu) {
         inboxMenu.addEventListener('click', checkBmailMenuAgain);
@@ -116,25 +113,36 @@ async function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, b
         console.log("----->>> no frame body found:=>");
         return null;
     }
+    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(iframeDocument.body) as HTMLElement;
+    if (nakedBmailTextDiv) {
+        replaceTextNodeWithDiv(nakedBmailTextDiv);
+    }
 
-    const mailEditAgainDiv = iframeDocument.querySelector('div[data-ntes="ntes_mail_body_root"]');
+    const mailEditAgainDiv = iframeDocument.querySelector('.bmail-encrypted-data-wrapper') as HTMLElement;
     if (mailEditAgainDiv) {
-        const encryptedSentMailDiv = mailEditAgainDiv.firstChild as HTMLElement;
-        if (encryptedSentMailDiv && encryptedSentMailDiv.classList.contains('bmail-encrypted-data-wrapper')) {
-            await decryptMailForEditionOfSentMail(encryptedSentMailDiv);
+        const targetElement = mailEditAgainDiv.closest('#isReplyContent, #isForwardContent, .cm_quote_msg');
+        if (!targetElement) {
+            await decryptMailForEditionOfSentMail(mailEditAgainDiv);
+            let nextSibling = mailEditAgainDiv.nextSibling;
+            while (nextSibling && (nextSibling as HTMLElement).tagName === 'BR') {
+                mailEditAgainDiv.appendChild(nextSibling);
+                nextSibling = mailEditAgainDiv.nextSibling;
+            }
+            const editAreaDiv = document.createElement('div');
+            editAreaDiv.id = 'spnEditorContent';
+            editAreaDiv.append(mailEditAgainDiv);
+            editAreaDiv.innerHTML += '<br><br><br>'
+            iframeDocument.body.insertBefore(editAreaDiv, iframeDocument.body.firstChild);
         }
     }
 
-    const elmFromReply = iframeDocument.getElementById('isReplyContent') as HTMLQuoteElement | null;
-    const elmForward = iframeDocument.getElementById('isForwardContent') as HTMLQuoteElement | null;
-    const elmWhenReload = iframeDocument.querySelector('.cm_quote_msg') as HTMLQuoteElement | null;
-    const isReplyOrForward = elmWhenReload || elmFromReply || elmForward;
-    if (!isReplyOrForward) {
+    const replyOrForwardDiv = iframeDocument.querySelector('#isReplyContent, #isForwardContent, .cm_quote_msg') as HTMLQuoteElement | null;
+    if (!replyOrForwardDiv) {
         checkFrameBody(iframeDocument.body, btn);
         return;
     }
     iframeDocument.body.dataset.theDivIsReply = 'true';
-    const div = iframeDocument.getElementById('spnEditorContent') as HTMLElement;
+    let div = iframeDocument.getElementById('spnEditorContent') as HTMLElement;
     checkFrameBody(div, btn);
 }
 
@@ -342,6 +350,7 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         }, 1500);
         return;
     }
+
     const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
     if (nakedBmailTextDiv) {
         replaceTextNodeWithDiv(nakedBmailTextDiv);
