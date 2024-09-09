@@ -8,14 +8,12 @@ import {
     observeFrame,
     parseBmailInboxBtn,
     parseCryptoMailBtn, processReceivers,
-    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog, wrapJsonStrings
+    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog
 } from "./content_common";
 import {
     emailRegex,
-    extractEmail, extractJsonString,
-    hideLoading,
-    MsgType, replaceTextInRange,
-    sendMessageToBackground,
+    extractEmail, hideLoading,
+    MsgType, sendMessageToBackground,
     showLoading,
 } from "./common";
 import browser from "webextension-polyfill";
@@ -202,12 +200,15 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
         console.log("------>>> no mail reading area found");
         return;
     }
+
     mainArea.addEventListener("click", (event) => {
         console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
         console.log("------>>>target element", targetElement)
         const mailItemDiv = targetElement.closest('div.mail-list-page-item') as HTMLElement | null;
-        if (!mailItemDiv) {
+        const nextOrPreviousMailBtn = targetElement.closest(".mail-list-page-toolbar.toolbar-only-reader")
+        console.log("----------------------------->>>>nextOrPreviousMailBtn", nextOrPreviousMailBtn)
+        if (!mailItemDiv && !nextOrPreviousMailBtn) {
             console.log("------>>> this is not a mail reading action");
             return;
         }
@@ -428,8 +429,6 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 }
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
-
-
 
 async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLElement> {
     const replyOrQuoteDiv = docBody.querySelector("includetail") as HTMLElement | null;
