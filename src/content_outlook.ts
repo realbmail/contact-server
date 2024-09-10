@@ -259,7 +259,6 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
 
-    // const mailArea = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement
     const mailArea = oneMail.querySelector('.wide-content-host') as HTMLElement
     if (!mailArea) {
         console.log("------>>> no reading mail body found");
@@ -268,7 +267,6 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     const documentDiv = mailArea.querySelector('div[role="document"]') as HTMLElement;
     const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(documentDiv) as HTMLElement;
     if (nakedBmailTextDiv) {
-        // console.log("------------------->>>> naked bmail txt node:", nakedBmailTextDiv, nakedBmailTextDiv.nodeType)
         replaceTextNodeWithDiv(nakedBmailTextDiv);
     }
 
