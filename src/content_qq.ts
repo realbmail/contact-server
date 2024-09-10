@@ -201,13 +201,21 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
         return;
     }
 
+    let messageTipDiv = document.querySelectorAll(".xm_mailPushTip_contatinerBox")
+    messageTipDiv.forEach(message => {
+        message.addEventListener("click", async (event) => {
+            setTimeout(async () => {
+                await addCryptoBtnToReadingMailQQ(template, mainArea);
+            }, 1500);
+        })
+    });
+
     mainArea.addEventListener("click", (event) => {
         console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
         console.log("------>>>target element", targetElement)
         const mailItemDiv = targetElement.closest('div.mail-list-page-item') as HTMLElement | null;
         const nextOrPreviousMailBtn = targetElement.closest(".mail-list-page-toolbar.toolbar-only-reader")
-        console.log("----------------------------->>>>nextOrPreviousMailBtn", nextOrPreviousMailBtn)
         if (!mailItemDiv && !nextOrPreviousMailBtn) {
             console.log("------>>> this is not a mail reading action");
             return;
