@@ -9,7 +9,6 @@ import {
 import browser from "webextension-polyfill";
 import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
 import {MailFlag} from "./bmail_body";
-import {on} from "process";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -96,7 +95,8 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
     observeForElement(monitorArea, 800,
         () => {
             const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
-            const readArea = document.querySelector('.aVla3')?.firstChild as HTMLElement | null;
+            const readingNodes = document.querySelectorAll('.aVla3');
+            const readArea = readingNodes[readingNodes.length - 1] as HTMLElement | null;
             // console.log("------>>> editArea area:", editArea, "readArea", readArea);
             const targetDiv = editArea || readArea;
             if (oldDiv === targetDiv) {
@@ -386,6 +386,13 @@ function prepareOpenedMail(oneMail: HTMLElement, template: HTMLTemplateElement) 
     const mailBody = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement;
     const toolBarDiv = oneMail.querySelector('div[role="toolbar"]') as HTMLElement;
     if (!mailBody || !toolBarDiv) {
+
+        const sendingMailTipsDiv = oneMail.querySelector('div[class="AL_OM l8Tnu"]');
+        if (sendingMailTipsDiv) {
+            setTimeout(() => {
+                addMailDecryptForReadingOutLook(template).then();
+            }, 1000);
+        }
         console.log("------>>>> no mail body or tool bar in opened mail", mailBody, toolBarDiv);
         return;
     }
