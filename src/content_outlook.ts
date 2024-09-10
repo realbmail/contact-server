@@ -355,11 +355,10 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
                 prepareOpenedMail(oneMail, template);
             } else if (oneMail.childNodes.length === 2) {
                 const historyMail = oneMail.childNodes[0] as HTMLElement;
-                const openedMail = oneMail.childNodes[1] as HTMLElement;
+                prepareMailHistory(historyMail, template);
 
+                const openedMail = oneMail.childNodes[1] as HTMLElement;
                 prepareOpenedMail(openedMail, template);
-                const mailBody = historyMail.querySelector('.wide-content-host') as HTMLElement;
-                prepareMailHistory(mailBody, template);
             } else {
                 console.log("-------------->>>>should not come here [oneMail.childNodes]:", oneMail.childNodes)
             }
@@ -367,7 +366,6 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
         }
 
         const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection");
-        console.log("---------------->>>> more mail button:=>", moreMailDataBar);
         moreMailDataBar?.addEventListener("click", () => {
             setTimeout(() => {
                 prepareOpenedMail(oneMail, template);
@@ -375,7 +373,6 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
         });
 
         const showMoreHistoryBtn = oneMail.querySelector(".cjx_B .cP5VY .CoT2h");
-        console.log("---------------->>>> show more history button:=>", showMoreHistoryBtn);
         showMoreHistoryBtn?.addEventListener("click", () => {
             const mailBody = showMoreHistoryBtn.closest(".wide-content-host") as HTMLElement;
             setTimeout(() => {
@@ -388,7 +385,6 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
 function prepareOpenedMail(oneMail: HTMLElement, template: HTMLTemplateElement) {
     const mailBody = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement;
     const toolBarDiv = oneMail.querySelector('div[role="toolbar"]') as HTMLElement;
-    console.log("-------------------->>>>>normal mail:=> ", mailBody, toolBarDiv);
     if (!mailBody || !toolBarDiv) {
         console.log("------>>>> no mail body or tool bar in opened mail", mailBody, toolBarDiv);
         return;
@@ -449,11 +445,42 @@ function showMoreMailContent(oneMail: HTMLElement, toolBarDiv: HTMLElement, temp
 
 }
 
-function prepareMailHistory(mailBody: HTMLElement, template: HTMLTemplateElement) {
-    console.log("-------------------->>>>>mail history:=> ", mailBody);
-    if (!mailBody) {
+function addCryptBtnToMailHistory(mailContent: HTMLElement, template: HTMLTemplateElement) {
+    const toolBarDiv = mailContent.firstChild as HTMLElement;
+
+    const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
+    if (decryptBtn) {
+        console.log("------>>> decrypt button already been added for reading");
         return;
     }
 
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(mailContent);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
 
+    let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailContent, 'bmail_decrypt_btn_in_compose_outlook');
+    if (cryptoBtnDiv) {
+        toolBarDiv.appendChild(cryptoBtnDiv);
+    }
+}
+
+function prepareMailHistory(oneMail: HTMLElement, template: HTMLTemplateElement) {
+    const mailBody = oneMail.querySelector('.uy30y') as HTMLElement;
+    let mailContent = mailBody.querySelector(".mT25S") as HTMLElement;
+
+    if (mailContent) {
+        addCryptBtnToMailHistory(mailContent, template);
+    }
+
+    observeForElement(mailBody, 1000, () => {
+        const newMailContent = mailBody.querySelector(".mT25S") as HTMLElement;
+        if (mailContent === newMailContent) {
+            return null;
+        }
+        mailContent = newMailContent;
+        return newMailContent;
+    }, async () => {
+        addCryptBtnToMailHistory(mailContent, template);
+    }, true)
 }
