@@ -203,7 +203,7 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
 
     let messageTipDiv = document.querySelectorAll(".xm_mailPushTip_contatinerBox")
     messageTipDiv.forEach(message => {
-        message.addEventListener("click", async (event) => {
+        message.addEventListener("click", async () => {
             setTimeout(async () => {
                 await addCryptoBtnToReadingMailQQ(template, mainArea);
             }, 1500);
