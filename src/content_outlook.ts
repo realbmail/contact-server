@@ -232,7 +232,6 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
 }
 
 function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTemplateElement) {
-    // const toolBarDiv = oneMail.querySelector('div[aria-label="Message actions"]');
     const toolBarDiv = oneMail.querySelector('div[role="toolbar"]');
     if (!toolBarDiv) {
         console.log("------>>> tool bar not found");
