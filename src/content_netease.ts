@@ -9,8 +9,8 @@ import {
     processReceivers,
     replaceTextNodeWithDiv,
     __decrypt_button_css_name,
-    findFirstTextNodeWithEncryptedDiv,
-    decryptMailForEditionOfSentMail, observeForElement, observeForElementDirect
+    findAllTextNodesWithEncryptedDiv,
+    decryptMailForEditionOfSentMail, observeForElementDirect
 } from "./content_common";
 import {
     extractEmail,
@@ -122,10 +122,10 @@ async function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, b
         console.log("----->>> no frame body found:=>");
         return null;
     }
-    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(iframeDocument.body) as HTMLElement;
-    if (nakedBmailTextDiv) {
-        replaceTextNodeWithDiv(nakedBmailTextDiv);
-    }
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(iframeDocument.body);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
 
     const mailEditAgainDiv = iframeDocument.querySelector('.bmail-encrypted-data-wrapper') as HTMLElement;
     if (mailEditAgainDiv) {
@@ -360,10 +360,10 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         return;
     }
 
-    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
-    if (nakedBmailTextDiv) {
-        replaceTextNodeWithDiv(nakedBmailTextDiv);
-    }
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(iframeDocument.body);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_netEase');
     if (!cryptoBtnDiv) {

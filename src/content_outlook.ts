@@ -1,7 +1,7 @@
 import {
     __decrypt_button_css_name,
     addDecryptButtonForBmailBody, decryptMailInReading,
-    encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
+    encryptMailInComposing, findAllTextNodesWithEncryptedDiv,
     observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
     processReceivers, replaceTextNodeWithDiv, showTipsDialog
@@ -265,10 +265,11 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
         return;
     }
     const documentDiv = mailArea.querySelector('div[role="document"]') as HTMLElement;
-    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(documentDiv) as HTMLElement;
-    if (nakedBmailTextDiv) {
-        replaceTextNodeWithDiv(nakedBmailTextDiv);
-    }
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(documentDiv);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
+
 
     let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
 
@@ -280,6 +281,12 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
             if (!quoteOrReply) {
                 return;
             }
+
+            const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(quoteOrReply);
+            nakedBmailTextDiv.forEach(wrappedDiv => {
+                replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+            })
+
             if (!cryptoBtnDiv) {
                 cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
                 if (cryptoBtnDiv) {
@@ -301,6 +308,28 @@ function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTempla
     }
 }
 
+//
+// async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
+//     const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
+//     if (!readArea) {
+//         console.log("------>>> no reading area found");
+//         return;
+//     }
+//
+//     const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
+//     if (editArea) {
+//         await addCryptButtonToComposeDivOutLook(template);
+//         return;
+//     }
+//
+//     const allInboxMailDiv = readArea.querySelectorAll(".aVla3") as NodeListOf<HTMLElement>;
+//     console.log("------>>> reading area found", allInboxMailDiv.length);
+//
+//     allInboxMailDiv.forEach((oneMail) => {
+//         prepareOneMailInConversation(oneMail, template)
+//     });
+// }
+
 async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
     const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
     if (!readArea) {
@@ -320,5 +349,4 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
     allInboxMailDiv.forEach((oneMail) => {
         prepareOneMailInConversation(oneMail, template)
     });
-
 }

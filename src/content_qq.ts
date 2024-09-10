@@ -3,7 +3,7 @@ import {
     __localContactMap,
     addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailForEditionOfSentMail, decryptMailInReading,
-    encryptMailInComposing, findFirstTextNodeWithEncryptedDiv,
+    encryptMailInComposing, findAllTextNodesWithEncryptedDiv,
     observeForElement,
     observeFrame,
     parseBmailInboxBtn,
@@ -252,14 +252,11 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
         console.log("------>>> no reading mail body found");
         return;
     }
-    // console.log("------>>> mailArea.firstChild  ", mailArea.children, mailArea.firstChild?.nodeType, mailArea.textContent)
-    // replaceTextNodeWithDiv(mailArea);
-    // mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
 
-    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
-    if (nakedBmailTextDiv) {
-        replaceTextNodeWithDiv(nakedBmailTextDiv);
-    }
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(mailArea);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq');
     if (!cryptoBtnDiv) {
@@ -604,10 +601,10 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     }
     // mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
 
-    const nakedBmailTextDiv = findFirstTextNodeWithEncryptedDiv(mailArea) as HTMLElement;
-    if (nakedBmailTextDiv) {
-        replaceTextNodeWithDiv(nakedBmailTextDiv);
-    }
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(mailArea);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
 
     const cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_qq_old') as HTMLElement;
     if (!cryptoBtnDiv) {

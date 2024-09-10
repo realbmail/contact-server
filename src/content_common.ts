@@ -478,19 +478,35 @@ export function processInitialTextNodesForGoogle(mailArea: HTMLElement) {
     mailArea.insertBefore(newDiv, mailArea.firstChild);
 }
 
-export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node | null {
+// export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node | null {
+//
+//     const walker = document.createTreeWalker(mailArea, NodeFilter.SHOW_TEXT);
+//
+//     let currentNode: Node | null = walker.nextNode();
+//     while (currentNode) {
+//         if (currentNode.nodeValue?.includes('<div class="bmail-encrypted-data-wrapper">')) {
+//             return currentNode;
+//         }
+//         currentNode = walker.nextNode();
+//     }
+//
+//     return null;
+// }
 
+export function findAllTextNodesWithEncryptedDiv(mailArea: HTMLElement): Node[] {
     const walker = document.createTreeWalker(mailArea, NodeFilter.SHOW_TEXT);
 
     let currentNode: Node | null = walker.nextNode();
+    const matchingNodes: Node[] = [];
+
     while (currentNode) {
         if (currentNode.nodeValue?.includes('<div class="bmail-encrypted-data-wrapper">')) {
-            return currentNode;
+            matchingNodes.push(currentNode);
         }
         currentNode = walker.nextNode();
     }
 
-    return null;
+    return matchingNodes;
 }
 
 export function wrapJsonStrings(input: string): string {
