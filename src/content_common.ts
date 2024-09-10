@@ -318,22 +318,11 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
     return receiver;
 }
 
-export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mailArea: HTMLElement, btnId: string): HTMLElement | null {
-
-    let BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
-    if (BMailDivs.length <= 0) {
-        console.log("------>>> no bmail content found");
-        return null;
-    }
-
-    const title = browser.i18n.getMessage('decrypt_mail_body')
-    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', __decrypt_button_css_name,
-        title, btnId, async btn => {
-        }) as HTMLElement;
-
+export function appendDecryptForDiv(cryptoBtnDiv: HTMLElement, mailArea: HTMLElement) {
     const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
 
     cryptoBtnDiv!.addEventListener('click', async () => {
+        let BMailDivs: HTMLElement[];
         if (!cryptoBtn.dataset.encoded || cryptoBtn.dataset.encoded === 'true') {
             const decryptedDivs = mailArea.querySelectorAll('div[data-orign-crpted]');
             const nonEmptyDivs = Array.from(decryptedDivs).filter(div => {
@@ -349,11 +338,27 @@ export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mail
             const decryptedDivs = mailArea.querySelectorAll('div[data-has-decrypted="true"]');
             BMailDivs = Array.from(decryptedDivs) as HTMLElement[];
         }
+
         BMailDivs.forEach(bmailBody => {
             decryptMailInReading(bmailBody, cryptoBtn).then();
         });
     });
+}
 
+export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mailArea: HTMLElement, btnId: string): HTMLElement | null {
+
+    let BMailDivs = EncryptedMailDivSearch(mailArea) as HTMLElement[];
+    if (BMailDivs.length <= 0) {
+        console.log("------>>> no bmail content found");
+        return null;
+    }
+
+    const title = browser.i18n.getMessage('decrypt_mail_body')
+    const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', __decrypt_button_css_name,
+        title, btnId, async btn => {
+        }) as HTMLElement;
+
+    appendDecryptForDiv(cryptoBtnDiv, mailArea);
     return cryptoBtnDiv;
 }
 

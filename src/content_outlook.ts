@@ -1,6 +1,6 @@
 import {
     __decrypt_button_css_name,
-    addDecryptButtonForBmailBody, decryptMailInReading,
+    addDecryptButtonForBmailBody, appendDecryptForDiv, decryptMailInReading,
     encryptMailInComposing, findAllTextNodesWithEncryptedDiv,
     observeForElement, parseBmailInboxBtn,
     parseCryptoMailBtn,
@@ -9,6 +9,7 @@ import {
 import browser from "webextension-polyfill";
 import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
 import {MailFlag} from "./bmail_body";
+import {on} from "process";
 
 export function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -231,82 +232,83 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
     }
 }
 
-function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTemplateElement) {
-    const toolBarDiv = oneMail.querySelector('div[role="toolbar"]');
-    if (!toolBarDiv) {
-        console.log("------>>> tool bar not found");
-        const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection") as HTMLElement;
-        if (moreMailDataBar) {
-            moreMailDataBar.addEventListener("click", () => {
-                setTimeout(() => {
-                    prepareOneMailInConversation(oneMail, template);
-                }, 1000);
-            })
-        } else {
-            const element = oneMail.querySelector('div[class="AL_OM l8Tnu"]');
-            if (element) {
-                setTimeout(() => {
-                    addMailDecryptForReadingOutLook(template).then();
-                }, 1000);
-            }
-        }
-        return;
-    }
-
-    const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
-    if (decryptBtn) {
-        console.log("------>>> decrypt button already been added for reading");
-        return;
-    }
-
-    const mailArea = oneMail.querySelector('.wide-content-host') as HTMLElement
-    if (!mailArea) {
-        console.log("------>>> no reading mail body found");
-        return;
-    }
-    const documentDiv = mailArea.querySelector('div[role="document"]') as HTMLElement;
-    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(documentDiv);
-    nakedBmailTextDiv.forEach(wrappedDiv => {
-        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
-    })
-
-
-    let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
-
-    const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
-    console.log("----->>> more mail content btn:=>", moreMailContentBtn);
-    moreMailContentBtn?.addEventListener("click", async () => {
-        setTimeout(() => {
-            const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]') as HTMLElement;
-            if (!quoteOrReply) {
-                return;
-            }
-
-            const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(quoteOrReply);
-            nakedBmailTextDiv.forEach(wrappedDiv => {
-                replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
-            })
-
-            if (!cryptoBtnDiv) {
-                cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
-                if (cryptoBtnDiv) {
-                    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-                }
-            } else {
-                const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
-                if (quoteOrReply.textContent?.includes(MailFlag) && cryptoBtn.dataset.encoded === 'false') {
-                    let BMailDivs = EncryptedMailDivSearch(quoteOrReply) as HTMLElement[];
-                    BMailDivs.forEach(bmailBody => {
-                        decryptMailInReading(bmailBody, cryptoBtn).then();
-                    });
-                }
-            }
-        }, 500);
-    })
-    if (cryptoBtnDiv) {
-        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-    }
-}
+//
+// function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTemplateElement) {
+//     const toolBarDiv = oneMail.querySelector('div[role="toolbar"]');
+//     if (!toolBarDiv) {
+//         console.log("------>>> tool bar not found");
+//         const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection") as HTMLElement;
+//         if (moreMailDataBar) {
+//             moreMailDataBar.addEventListener("click", () => {
+//                 setTimeout(() => {
+//                     prepareOneMailInConversation(oneMail, template);
+//                 }, 1000);
+//             })
+//         } else {
+//             const element = oneMail.querySelector('div[class="AL_OM l8Tnu"]');
+//             if (element) {
+//                 setTimeout(() => {
+//                     addMailDecryptForReadingOutLook(template).then();
+//                 }, 1000);
+//             }
+//         }
+//         return;
+//     }
+//
+//     const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
+//     if (decryptBtn) {
+//         console.log("------>>> decrypt button already been added for reading");
+//         return;
+//     }
+//
+//     const mailArea = oneMail.querySelector('.wide-content-host') as HTMLElement
+//     if (!mailArea) {
+//         console.log("------>>> no reading mail body found");
+//         return;
+//     }
+//     const documentDiv = mailArea.querySelector('div[role="document"]') as HTMLElement;
+//     const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(documentDiv);
+//     nakedBmailTextDiv.forEach(wrappedDiv => {
+//         replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+//     })
+//
+//
+//     let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
+//
+//     const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
+//     console.log("----->>> more mail content btn:=>", moreMailContentBtn);
+//     moreMailContentBtn?.addEventListener("click", async () => {
+//         setTimeout(() => {
+//             const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]') as HTMLElement;
+//             if (!quoteOrReply) {
+//                 return;
+//             }
+//
+//             const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(quoteOrReply);
+//             nakedBmailTextDiv.forEach(wrappedDiv => {
+//                 replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+//             })
+//
+//             if (!cryptoBtnDiv) {
+//                 cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
+//                 if (cryptoBtnDiv) {
+//                     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+//                 }
+//             } else {
+//                 const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
+//                 if (quoteOrReply.textContent?.includes(MailFlag) && cryptoBtn.dataset.encoded === 'false') {
+//                     let BMailDivs = EncryptedMailDivSearch(quoteOrReply) as HTMLElement[];
+//                     BMailDivs.forEach(bmailBody => {
+//                         decryptMailInReading(bmailBody, cryptoBtn).then();
+//                     });
+//                 }
+//             }
+//         }, 500);
+//     })
+//     if (cryptoBtnDiv) {
+//         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+//     }
+// }
 
 //
 // async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
@@ -343,10 +345,115 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
         return;
     }
 
-    const allInboxMailDiv = readArea.querySelectorAll(".aVla3") as NodeListOf<HTMLElement>;
+    const allInboxMailDiv = document.querySelectorAll('div.aVla3 div[aria-expanded]') as NodeListOf<HTMLElement>;
     console.log("------>>> reading area found", allInboxMailDiv.length);
 
     allInboxMailDiv.forEach((oneMail) => {
-        prepareOneMailInConversation(oneMail, template)
+        const ariaExpandedValue = oneMail.getAttribute('aria-expanded');
+        if (ariaExpandedValue === 'true') {
+            if (oneMail.childNodes.length === 1) {
+                prepareOpenedMail(oneMail, template);
+            } else if (oneMail.childNodes.length === 2) {
+                const historyMail = oneMail.childNodes[0] as HTMLElement;
+                const openedMail = oneMail.childNodes[1] as HTMLElement;
+
+                prepareOpenedMail(openedMail, template);
+                const mailBody = historyMail.querySelector('.wide-content-host') as HTMLElement;
+                prepareMailHistory(mailBody, template);
+            } else {
+                console.log("-------------->>>>should not come here [oneMail.childNodes]:", oneMail.childNodes)
+            }
+            return;
+        }
+
+        const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection");
+        console.log("---------------->>>> more mail button:=>", moreMailDataBar);
+        moreMailDataBar?.addEventListener("click", () => {
+            setTimeout(() => {
+                prepareOpenedMail(oneMail, template);
+            }, 1000);
+        });
+
+        const showMoreHistoryBtn = oneMail.querySelector(".cjx_B .cP5VY .CoT2h");
+        console.log("---------------->>>> show more history button:=>", showMoreHistoryBtn);
+        showMoreHistoryBtn?.addEventListener("click", () => {
+            const mailBody = showMoreHistoryBtn.closest(".wide-content-host") as HTMLElement;
+            setTimeout(() => {
+                prepareMailHistory(mailBody, template);
+            }, 1000);
+        })
     });
+}
+
+function prepareOpenedMail(oneMail: HTMLElement, template: HTMLTemplateElement) {
+    const mailBody = oneMail.querySelector('div[id^="UniqueMessageBody_"]') as HTMLElement;
+    const toolBarDiv = oneMail.querySelector('div[role="toolbar"]') as HTMLElement;
+    console.log("-------------------->>>>>normal mail:=> ", mailBody, toolBarDiv);
+    if (!mailBody || !toolBarDiv) {
+        console.log("------>>>> no mail body or tool bar in opened mail", mailBody, toolBarDiv);
+        return;
+    }
+
+    const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
+    if (decryptBtn) {
+        console.log("------>>> decrypt button already been added for reading");
+        return;
+    }
+
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(mailBody);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
+    let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailBody, 'bmail_decrypt_btn_in_compose_outlook');
+    if (cryptoBtnDiv) {
+        toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+    }
+    const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
+    moreMailContentBtn?.addEventListener("click", () => {
+        setTimeout(() => {
+            showMoreMailContent(oneMail, toolBarDiv, template, cryptoBtnDiv);
+        }, 500);
+    })
+}
+
+function showMoreMailContent(oneMail: HTMLElement, toolBarDiv: HTMLElement, template: HTMLTemplateElement, cryptoBtnDiv?: HTMLElement | null) {
+    const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]') as HTMLElement;
+    if (!quoteOrReply) {
+        return;
+    }
+
+    const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(quoteOrReply);
+    nakedBmailTextDiv.forEach(wrappedDiv => {
+        replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
+    })
+
+    if (!cryptoBtnDiv) {
+        cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
+        if (cryptoBtnDiv) {
+            toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+        }
+        return;
+    }
+
+    const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
+    appendDecryptForDiv(cryptoBtnDiv, quoteOrReply);
+
+    if (!quoteOrReply.textContent?.includes(MailFlag) || !cryptoBtn.dataset.encoded || cryptoBtn.dataset.encoded === 'true') {
+        return;
+    }
+
+    let BMailDivs = EncryptedMailDivSearch(quoteOrReply) as HTMLElement[];
+    BMailDivs.forEach(bmailBody => {
+        decryptMailInReading(bmailBody, cryptoBtn).then();
+    });
+
+}
+
+function prepareMailHistory(mailBody: HTMLElement, template: HTMLTemplateElement) {
+    console.log("-------------------->>>>>mail history:=> ", mailBody);
+    if (!mailBody) {
+        return;
+    }
+
+
 }
