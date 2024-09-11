@@ -159,22 +159,60 @@ export function extractEmail(input: string): string | null {
     return match ? match[0] : null;
 }
 
+// export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
+//     const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
+//     let match;
+//
+//     while ((match = jsonRegex.exec(input)) !== null) {
+//         const jsonString = match[0];
+//
+//         if (jsonString.includes(MailFlag)) {
+//             const offset = match.index;
+//             const endOffset = offset + jsonString.length;
+//             return {json: jsonString, offset, endOffset};
+//         }
+//     }
+//     return null;
+// }
+
+
 export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
-    const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
+    // 保存原始 HTML 标签的位置
+    const tagPositions: { start: number, end: number, length: number }[] = [];
+    const tagRegex = /<\/?[^>]+(>|$)/g;
     let match;
 
-    while ((match = jsonRegex.exec(input)) !== null) {
+    // 记录所有 HTML 标签的位置和长度
+    while ((match = tagRegex.exec(input)) !== null) {
+        tagPositions.push({start: match.index, end: tagRegex.lastIndex, length: match[0].length});
+    }
+
+    // 移除所有 HTML 标签
+    const cleanedInput = input.replace(/<\/?[^>]+(>|$)/g, "");
+
+    // 匹配 JSON 字符串
+    const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
+    while ((match = jsonRegex.exec(cleanedInput)) !== null) {
         const jsonString = match[0];
 
         if (jsonString.includes(MailFlag)) {
-            const offset = match.index;
-            const endOffset = offset + jsonString.length;
+            let offset = match.index;
+            let endOffset = offset + jsonString.length;
+
+            // 调整 offset 和 endOffset，恢复原始 HTML 的位置
+            for (const tag of tagPositions) {
+                if (tag.start <= offset) {
+                    offset += tag.length; // 将偏移量往后推，保持一致
+                    endOffset += tag.length; // 同时调整结束偏移
+                } else if (tag.start < endOffset) {
+                    endOffset += tag.length; // 只调整结束偏移
+                }
+            }
             return {json: jsonString, offset, endOffset};
         }
     }
     return null;
 }
-
 
 export function replaceTextInRange(input: string, offset: number, end: number, newText: string): string {
     if (offset < 0 || end < offset || end > input.length) {
