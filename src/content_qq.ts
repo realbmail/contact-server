@@ -109,7 +109,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
 
     const sendDiv = toolBar.querySelector(".xmail_sendmail_btn") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
-    const receiverTable = composeBodyDiv.querySelector('div.compose_mailInfo_item.new:not(.hide)') as HTMLElement;
+    const receiverTable = composeBodyDiv.querySelector('div.compose_mail_wrapper') as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq', async btn => {
             await encryptMailAndSendQQ(mailContentDiv, receiverTable, sendDiv);
@@ -211,7 +211,6 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
     });
 
     mainArea.addEventListener("click", (event) => {
-        console.log('-------->>>> click found in main area.');
         const targetElement = event.target as HTMLElement;
         console.log("------>>>target element", targetElement)
         const mailItemDiv = targetElement.closest('div.mail-list-page-item') as HTMLElement | null;
