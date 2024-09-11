@@ -419,7 +419,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 
     const sendDiv = toolBarDiv.querySelector('a[name="sendbtn"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
-    const receiverTable = iframeDocument!.getElementById('toAreaCtrl') as HTMLElement;
+    const receiverTable = iframeDocument!.getElementById('addrsDiv') as HTMLElement;
 
     const mailContentDiv = await checkMailContentOldVersion(composeDocument.body);
 
@@ -598,7 +598,6 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
         console.log("------>>> no reading mail body found [old version]");
         return;
     }
-    // mailArea.innerHTML = wrapJsonStrings(mailArea.innerHTML);
 
     const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(mailArea);
     nakedBmailTextDiv.forEach(wrappedDiv => {
