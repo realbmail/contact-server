@@ -56,10 +56,10 @@ export function encodeMail(peers: string[], data: string, key: MailKey): BMailBo
     peers.forEach(peer => {
         const peerPub = decodePubKey(peer);
         const peerCurvePub = ed2CurvePub(peerPub);
-        if(!peerCurvePub) {
+        if (!peerCurvePub) {
             throw new Error("Invalid bmail address,convert to curve pub failed");
         }
-        const sharedKey = nacl.scalarMult(key.curvePriKey,peerCurvePub!);
+        const sharedKey = nacl.scalarMult(key.curvePriKey, peerCurvePub!);
         const encryptedKey = nacl.secretbox(aesKey, nonce, sharedKey);
         secrets.set(peer, encodeHex(encryptedKey));
     })
@@ -82,7 +82,7 @@ export function decodeMail(mailData: string, key: MailKey) {
     if (!peerCurvePub) {
         throw new Error("Invalid bmail address,convert to curve pub failed");
     }
-    const sharedKey = nacl.scalarMult(key.curvePriKey,peerCurvePub);
+    const sharedKey = nacl.scalarMult(key.curvePriKey, peerCurvePub);
     const aesKey = nacl.secretbox.open(decodeHex(encryptedKey), mail.nonce, sharedKey);
     if (!aesKey) {
         throw new Error("no aes key valid.");
