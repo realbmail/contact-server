@@ -421,7 +421,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = iframeDocument!.getElementById('addrsDiv') as HTMLElement;
 
-    const mailContentDiv = await checkMailContentOldVersion(composeDocument.body);
+    const mailContentDiv = await checkMailContentOldVersion(composeDocument);
 
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
@@ -434,23 +434,22 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
 
-async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLElement> {
-    const replyOrQuoteDiv = docBody.querySelector("includetail") as HTMLElement | null;
-    if (!replyOrQuoteDiv) {
+async function processEditAgainOrFromDraft(frameDoc: Document): Promise<HTMLElement> {
+    const editAgainContentDiv = frameDoc.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
+    if (editAgainContentDiv) {
         const div = document.createElement("div");
         div.id = __bmailComposeDivId;
-        docBody.insertBefore(div, docBody.firstChild);
-        const originalTxtDiv = docBody.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
-        if (!originalTxtDiv) {
-            return docBody;
-        }
-        await decryptMailForEditionOfSentMail(originalTxtDiv);
-        div.append(originalTxtDiv);
+        frameDoc.body.insertBefore(div, frameDoc.body.firstChild);
+        await decryptMailForEditionOfSentMail(editAgainContentDiv);
+        div.append(editAgainContentDiv);
         div.innerHTML += '<br><br>';
         return div;
     }
+    return resortMailContent(frameDoc);
+}
 
-    const bmailContentDiv = document.getElementById(__bmailComposeDivId) as HTMLElement;
+function resortMailContent(frameDoc: Document): HTMLElement {
+    const bmailContentDiv = frameDoc.getElementById(__bmailComposeDivId) as HTMLElement;
     if (bmailContentDiv) {
         return bmailContentDiv;
     }
@@ -458,10 +457,10 @@ async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLEle
     const div = document.createElement("div");
     div.id = __bmailComposeDivId;
 
-    const targetDiv = replyOrQuoteDiv.querySelector('div[style="font-size: 12px;font-family: Arial Narrow;padding:2px 0 2px 0;"]');
+    const targetDiv = frameDoc.body.querySelector('div[style="font-size: 12px;font-family: Arial Narrow;padding:2px 0 2px 0;"]');
     if (!targetDiv) {
         console.log("----->>> reply flag not found [old version]");
-        return docBody;
+        return frameDoc.body;
     }
 
     let sibling = targetDiv.previousElementSibling;
@@ -472,9 +471,17 @@ async function checkMailContentOldVersion(docBody: HTMLElement): Promise<HTMLEle
         sibling = previousSibling;
     }
 
-    div.insertBefore(docBody.firstChild as HTMLElement, div.firstChild as HTMLElement);
-    docBody.insertBefore(div, docBody.firstChild);
+    div.insertBefore(frameDoc.body.firstChild as HTMLElement, div.firstChild as HTMLElement);
+    frameDoc.body.insertBefore(div, frameDoc.body.firstChild);
     return div;
+}
+
+async function checkMailContentOldVersion(frameDoc: Document): Promise<HTMLElement> {
+    const replyOrQuoteDiv = frameDoc.querySelector("includetail") as HTMLElement | null;
+    if (!replyOrQuoteDiv) {
+        return processEditAgainOrFromDraft(frameDoc);
+    }
+    return resortMailContent(frameDoc);
 }
 
 async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
