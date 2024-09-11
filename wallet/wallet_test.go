@@ -184,3 +184,14 @@ func TestDecryptOfTsEncode(t *testing.T) {
 	}
 	fmt.Println("result=>", str)
 }
+
+func TestOpenWallet(t *testing.T) {
+	w, err := LoadWallet(walletStr2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !w.OpenWallet(pwd) {
+		t.Fatal("open wallet failed")
+	}
+	fmt.Println("Open success:=>", w.Address)
+}

@@ -132,12 +132,17 @@ func (w *Wallet) OpenWallet(pwd string) bool {
 	if w.key != nil {
 		return true
 	}
-	priStr, err := DecryptAes(w.CipherData, pwd)
+	seedHex, err := DecryptAes(w.CipherData, pwd)
 	if err != nil {
 		return false
 	}
 
-	w.key = NewMailKeyFromSeed([]byte(priStr))
+	seed, err := hex.DecodeString(seedHex)
+	if err != nil {
+		return false
+	}
+
+	w.key = NewMailKeyFromSeed(seed)
 	if !w.Address.Equal(w.key.Address) {
 		return false
 	}
