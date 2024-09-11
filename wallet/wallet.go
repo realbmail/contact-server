@@ -149,3 +149,11 @@ func (w *Wallet) OpenWallet(pwd string) bool {
 
 	return true
 }
+
+func (w *Wallet) SignMessage(msg []byte) (string, error) {
+	if w.key == nil {
+		return "", errors.New("open wallet first")
+	}
+	bts := ed25519.Sign(w.key.priKey, msg)
+	return hex.EncodeToString(bts), nil
+}
