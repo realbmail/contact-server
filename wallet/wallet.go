@@ -9,6 +9,7 @@ import (
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
 	cryptoEth "github.com/ethereum/go-ethereum/crypto"
+	"golang.org/x/crypto/curve25519"
 	"io"
 	"strings"
 )
@@ -96,6 +97,7 @@ func (w *Wallet) String() string {
 	bts, _ := json.MarshalIndent(w, "", "\t")
 	return string(bts)
 }
+
 func LoadWallet(jsonStr string) (*Wallet, error) {
 	var w = &Wallet{}
 	err := json.Unmarshal([]byte(jsonStr), w)
@@ -156,4 +158,47 @@ func (w *Wallet) SignMessage(msg []byte) (string, error) {
 	}
 	bts := ed25519.Sign(w.key.priKey, msg)
 	return hex.EncodeToString(bts), nil
+}
+
+func (w *Wallet) EncryptData(peerAddr, msg string) (string, error) {
+	aesKey, err := w.KeyFromPeerAddr(peerAddr)
+	if err != nil {
+		return "", err
+	}
+	return DecryptByKey(msg, aesKey)
+}
+
+func (w *Wallet) KeyFromPeerAddr(addr string) ([]byte, error) {
+	if w.key == nil {
+		return nil, errors.New("open wallet first")
+	}
+	peerPub, err := DecodePubKey(addr)
+	if err != nil {
+		return nil, err
+	}
+	var curvePub = Ed2CurvePubKey(peerPub)
+
+	var curPri = Ed2CurvePriKey(w.key.priKey)
+	if curPri == nil {
+		return nil, errors.New("convert ed private to curve failed")
+	}
+
+	return curve25519.X25519(curPri[:], curvePub[:])
+}
+
+func (w *Wallet) DecryptData(peerAddr, msg string) (string, error) {
+	aesKey, err := w.KeyFromPeerAddr(peerAddr)
+	if err != nil {
+		return "", err
+	}
+	return EncryptByKey(msg, aesKey)
+}
+
+func DecodePubKey(pubKeyStr string) ([]byte, error) {
+	if !strings.HasPrefix(pubKeyStr, BMailAddrPrefix) {
+		return nil, errors.New("invalid public key prefix")
+	}
+	encodedAddress := strings.TrimPrefix(pubKeyStr, BMailAddrPrefix)
+	decoded := base58.Decode(encodedAddress)
+	return decoded, nil
 }

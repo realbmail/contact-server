@@ -6,9 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"github.com/btcsuite/btcutil/base58"
 	"github.com/realbmail/contact-server/wallet/edwards25519"
-	"strings"
 )
 
 const BMailAddrPrefix = "BM"
@@ -76,13 +74,4 @@ func VerifySig(obj any, sig, peerAddr string) error {
 		return errors.New("ed25519 verify failed")
 	}
 	return nil
-}
-
-func DecodePubKey(pubKeyStr string) ([]byte, error) {
-	if !strings.HasPrefix(pubKeyStr, BMailAddrPrefix) {
-		return nil, errors.New("invalid public key prefix")
-	}
-	encodedAddress := strings.TrimPrefix(pubKeyStr, BMailAddrPrefix)
-	decoded := base58.Decode(encodedAddress)
-	return decoded, nil
 }
