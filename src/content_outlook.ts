@@ -193,7 +193,8 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
     try {
         const mailBody = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
         let receiver: string[] | null
-        const receiverTable = composeArea.querySelector(".___hhiv960.f22iagw.fly5x3f.f1fow5ox.f1l02sjl") as HTMLElement;
+        const receiverTable = composeArea.querySelector(".TvqWh") as HTMLElement;
+        // const receiverTable = composeArea.querySelector(".TvqWh") as HTMLElement;
         if (!receiverTable) {
             const spanElement = composeArea.querySelectorAll('.lpcWrapper.lpcCommonWeb-hoverTarget') as NodeListOf<HTMLElement>;
             receiver = await processReceivers(spanElement, (div) => {
