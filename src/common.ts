@@ -238,7 +238,7 @@ export function hideLoading(): void {
 
 export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
     const closestJsonElements: HTMLElement[] = [];
-    const allElements = Array.from(mailArea.querySelectorAll('div, blockquote')) as HTMLElement[];
+    const allElements = Array.from(mailArea.querySelectorAll('div, blockquote, pre')) as HTMLElement[];
     allElements.push(mailArea);
     allElements.forEach((element) => {
         const textContent = element.textContent?.trim();
