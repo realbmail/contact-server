@@ -12,8 +12,6 @@ import {
 } from "./main_common";
 import {initLoginDiv} from "./main_login";
 import {initDashBoard} from "./main_dashboard";
-import {initContactView} from "./main_contact";
-
 
 document.addEventListener("DOMContentLoaded", initBMailExtension as EventListener);
 
@@ -26,7 +24,6 @@ async function initBMailExtension(): Promise<void> {
     checkBackgroundStatus();
     initLoginDiv();
     initDashBoard();
-    initContactView();
 }
 
 function checkBackgroundStatus(): void {

@@ -19,7 +19,6 @@ import {
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
 import browser from "webextension-polyfill";
-import {initContactBtn} from "./main_contact";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
@@ -61,12 +60,6 @@ export function initDashBoard(): void {
     activeBtn.addEventListener('click', async () => {
         await activeCurrentAccount(activeBtn);
     });
-
-    const contactAddBtn = document.getElementById("contact-btn-new") as HTMLButtonElement;
-    contactAddBtn.addEventListener('click', async () => {
-        initContactBtn(true);
-        showView('#onboarding/contact-operation', router);
-    })
 }
 
 
@@ -165,9 +158,9 @@ function setupElementByAccountData(accountData: BMailAccount) {
     }
 
     if (!accountData.license) {
-        document.getElementById('bmail-account-license-val')!.textContent = "无License";
+        document.getElementById('bmail-account-license-val')!.textContent = browser.i18n.getMessage('no_valid_license');
     } else {
-        document.getElementById('bmail-account-license-val')!.textContent = "License截止日:";
+        document.getElementById('bmail-account-license-val')!.textContent = browser.i18n.getMessage('valid_license_title');
     }
     if (accountData.emails.length <= 0) {
         return;

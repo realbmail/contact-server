@@ -206,5 +206,93 @@
   "scan_qr_to_pay_btn": {
     "message": "Scan QR To Pay",
     "description": ""
+  },
+  "title_login_welcome": {
+    "message": "Welcome Back!",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "The Decentralized Web Application",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "Password",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "Unlock",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "New Account",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "Forget Password",
+    "description": ""
+  },
+  "address_level": {
+    "message": "User Level:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "Copy to clipboard",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "License:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "Unbind Email",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "address already bound:",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "This site isn't in service target list!",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "Chose one site of following to open the Bmail extension",
+    "description": ""
+  },
+  "service_email": {
+    "message": "Service Email",
+    "description": ""
+  },
+  "close": {
+    "message": "Close",
+    "description": ""
+  },
+  "ok": {
+    "message": "OK",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "How to restore account and password",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "Click the 'Forget Password' button",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "Enter the mnemonic phrase for this account in the diagram below.",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "no license",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "license until:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "Bind This Email",
+    "description": ""
   }
 }

@@ -13,20 +13,21 @@
     <div class="logo-container">
         <img src="../file/logo.png" alt="logo">
     </div>
-    <h1>Welcome back!</h1>
-    <p style="color: rgba(4,6,46,0.6)">The decentralized web application</p>
+    <h1 id="title_login_welcome">Welcome Back!</h1>
+    <p id="welcome_login_sub_title" style="color: rgba(4,6,46,0.6)">The Decentralized Web Application</p>
     <div class="login-input">
-        <h2 for="login-password">Password</h2>
+        <h2 for="login-password" id="login_password_lbl">Password</h2>
         <input type="password" id="login-password" name="password" required>
     </div>
     <div class="error-tips-area"><p class="login-error"></p></div>
     <div>
-        <button type="button" class="primary-button">Unlock</button>
+        <button class="primary-button" id="login_unlock_btn" type="button">Unlock</button>
     </div>
     <div class="account-options">
-        <button class="secondary-button newAccount" type="button">New Account</button>
+        <button class="secondary-button newAccount" id="login_new_account" type="button">New Account</button>
         <div style="display: flex; justify-content: flex-start; width: 50%">
-            <button class="secondary-button forget-help" type="button">Forget Password</button>
+            <button class="secondary-button forget-help" id="login_forget_password" type="button">Forget Password
+            </button>
             <button class="help-icon" title="Need help?">
                 <svg class="bi bi-question-circle" fill="currentColor" height="16" viewBox="0 0 16 16"
                      width="16" xmlns="http://www.w3.org/2000/svg">
@@ -66,7 +67,7 @@
                 <span id="bmail-address-lbl" class="bmail-address-lbl">账号地址:</span>
                 <div class="tooltip">
                     <p id="bmail-address-val" class="bmail-address-val"></p>
-                    <span class="tooltiptext">Copy to Clipboard</span>
+                    <span class="tooltiptext" id="bmail_address_copy">Copy to Clipboard</span>
                 </div>
                 <div class="bmail-account-license-card">
                     <span id="bmail-account-license-lbl" class="bmail-account-license-lbl">License:</span>
@@ -84,7 +85,7 @@
                     </button>
                 </div>
             </li>
-            <span>已经绑定地址：</span>
+            <span id="bound_address_list">已经绑定地址：</span>
             <ul class="binding-email-address-list" id="binding-email-address-list">
             </ul>
         </div>
@@ -94,68 +95,15 @@
         <p id="bmail-email-address-val"></p>
         <button class="current-email-bind-btn" id="current-email-bind-btn" style="display: none">绑定该地址</button>
     </div>
-    <div id="main-contact-part" class="main-contact-part" style="display: none">
-        <div>
-            <span class="contact-list-title"> 通讯录 </span>
-            <span class="contact-area-addition">
-                <button class="contact-btn-new" id="contact-btn-new">新增联系人</button>
-            </span>
-        </div>
-        <li id="contact-item-template" class="contact-item" style="display: none">
-            <span class="contact-detail-address"></span>
-            <span class="contact-detail-email"></span>
-            <span class="contact-detail-nickname"></span>
-            <span class="contact-detail-remark"></span>
-            <button class="contact-detail-btn-edit" id="contact-detail-btn-edit">编辑</button>
-        </li>
-        <ul id="contact-list" class="contact-list">
-        </ul>
-    </div>
-</div>
-
-<div id="view-contact-operation" class="view-contact-operation page_view">
-    <div>
-        <span><button class="view-contact-return" id="view-contact-return">返回</button></span>
-    </div>
-
-    <div class="contact-new-details" id="contact-new-details">
-        <p>联系人信息:</p>
-        <p>
-            <label for="contact-new-email-val" id="contact-new-email-lbl">邮件地址：</label>
-            <input class="contact-new-email-val" id="contact-new-email-val">
-            <span class="contact-new-email-error" id="contact-new-email-error"></span>
-        </p>
-        <p>
-            <label for="contact-new-account-val" id="contact-new-account-lbl">BMail地址：</label>
-            <input class="contact-new-account-val" id="contact-new-account-val">
-            <span class="contact-new-account-error" id="contact-new-account-error"></span>
-        </p>
-        <p>
-            <label for="contact-new-nick-val" id="contact-new-nick-lbl">昵称：</label>
-            <input class="contact-new-anick-val" id="contact-new-nick-val">
-        </p>
-        <p>
-            <label for="contact-new-remark-val" id="contact-new-remark-lbl">备注：</label>
-            <input class="contact-new-remark-val" id="contact-new-remark-val">
-        </p>
-        <p>
-           <span>
-            <button class="contact-new-update-btn" id="contact-new-update-btn">更新</button>
-            <button class="contact-new-del-btn" id="contact-new-del-btn">删除</button>
-           </span>
-            <span><button class="contact-new-add-btn" id="contact-new-add-btn">保存</button></span>
-        </p>
-    </div>
-
 </div>
 
 <div id="view-invalid-service-target" class="view-invalid-service-target page_view">
     <img src="../file/logo_128_out.png">
-    <h2 class="invalid-target-tips" style="color: #9B9B9B; margin-bottom: 66px">
+    <h2 class="invalid-target-tips" id="invalid-target-tips" style="color: #9B9B9B; margin-bottom: 66px">
         This site isn't in service target list!
     </h2>
     <div class="supported-emails ">
-        <p>请点击一下网站后,在点开插件</p>
+        <p id="invalid-target-title">请点击一下网站后,再点开插件</p>
         <div class="supported-emails-grid">
             <a href="https://mail.qq.com" target="_blank">
                 <img src="../file/qqmail.png" style="cursor: pointer;">
@@ -172,7 +120,7 @@
         </div>
     </div>
     <div style="position: absolute; bottom: 24px; left: 120px">
-        <span>客服:ribencong@gmail.com</span>
+        <span><span id="service_email">客服</span>:ribencong@gmail.com</span>
     </div>
 </div>
 
@@ -204,9 +152,9 @@
             如何重新获取账号密码
         </h2>
         <div>
-            <p><strong>1.</strong>点击忘记密码</p>
+            <p><strong>1.</strong><span id="supported_step1">点击忘记密码</span></p>
             <img src="../file/forget.png">
-            <p><strong>2.</strong>将该账号的密钥填写在下图中</p>
+            <p><strong>2.</strong><span id="supported_step2">将该账号的密钥填写在下图中</span></p>
             <img src="../file/secret.png">
         </div>
         <button class="dialog-tips-close-button">Close</button>

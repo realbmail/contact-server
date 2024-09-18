@@ -206,5 +206,93 @@
   "scan_qr_to_pay_btn": {
     "message": "扫码支付",
     "description": ""
+  },
+  "title_login_welcome": {
+    "message": "欢迎使用!",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "分布式Web3应用",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "密码",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "解锁",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "新账号",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "忘记密码",
+    "description": ""
+  },
+  "address_level": {
+    "message": "用户等级:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "复制到黏贴版",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "授权:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "解除绑定",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "已经绑定地址：",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "本插件不支持该网站",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "请点击一下网站后,再点开插件",
+    "description": ""
+  },
+  "service_email": {
+    "message": "客服邮箱",
+    "description": ""
+  },
+  "close": {
+    "message": "关闭",
+    "description": ""
+  },
+  "ok": {
+    "message": "确定",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "如何重新获取账号密码",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "点击忘记密码",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "将该账号的助记词填写在下图中",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "无效授权",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "授权截止日:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "绑定该地址",
+    "description": ""
   }
 }

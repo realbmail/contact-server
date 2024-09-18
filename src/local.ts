@@ -81,9 +81,43 @@ export function translateHomePage() {
     document.getElementById("des_pin_step1")!.textContent = browser.i18n.getMessage('des_pin_step1');
     document.getElementById("des_pin_step2")!.textContent = browser.i18n.getMessage('des_pin_step2');
     document.getElementById("des_pin_step3")!.textContent = browser.i18n.getMessage('des_pin_step3');
+
+    document.getElementById("view-recovery-phrase-copy-seed")!.textContent = browser.i18n.getMessage('copy_to_clipboard');
 }
 
 export function translateMainPage() {
+    document.getElementById('title_login_welcome')!.textContent = browser.i18n.getMessage('title_login_welcome');
+    document.getElementById('welcome_login_sub_title')!.textContent = browser.i18n.getMessage('welcome_login_sub_title');
+    document.getElementById('login_password_lbl')!.textContent = browser.i18n.getMessage('login_password_lbl');
+    document.getElementById('login_unlock_btn')!.textContent = browser.i18n.getMessage('login_unlock_btn');
+    document.getElementById('login_new_account')!.textContent = browser.i18n.getMessage('login_new_account');
+    document.getElementById('login_forget_password')!.textContent = browser.i18n.getMessage('login_forget_password');
+
+    document.getElementById('bmail-account-level-lbl')!.textContent = browser.i18n.getMessage('address_level');
+    document.getElementById('bmail-active-account')!.textContent = browser.i18n.getMessage('active_account');
+
     document.getElementById('bmail-address-lbl')!.textContent = browser.i18n.getMessage('address_label');
+    document.getElementById('bmail_address_copy')!.textContent = browser.i18n.getMessage('copy_to_clipboard');
+    document.getElementById('bmail-account-license-lbl')!.textContent = browser.i18n.getMessage('license_lbl');
+
+    document.getElementById('binding-email-unbind-btn')!.textContent = browser.i18n.getMessage('unbind_btn');
+    document.getElementById('bound_address_list')!.textContent = browser.i18n.getMessage('bound_address_list');
+
+
     document.getElementById('bmail-email-address-lbl')!.textContent = browser.i18n.getMessage('email_label');
+
+    document.getElementById('invalid-target-tips')!.textContent = browser.i18n.getMessage('invalid_tips');
+    document.getElementById('invalid-target-title')!.textContent = browser.i18n.getMessage('target_sites');
+    document.getElementById('service_email')!.textContent = browser.i18n.getMessage('service_email');
+
+    document.getElementById('dialog-tips-close-button')!.textContent = browser.i18n.getMessage('close');
+    document.getElementById('dialog-tips-confirm-button')!.textContent = browser.i18n.getMessage('ok');
+
+    document.getElementById('supported-emails-title')!.textContent = browser.i18n.getMessage('supported_title');
+    document.getElementById('supported_step1')!.textContent = browser.i18n.getMessage('supported_step1');
+    document.getElementById('supported_step2')!.textContent = browser.i18n.getMessage('supported_step2');
+
+    document.getElementById('dialog-tips-close-button')!.textContent = browser.i18n.getMessage('close');
+    document.getElementById('current-email-bind-btn')!.textContent = browser.i18n.getMessage('bind_email');
+
 }
