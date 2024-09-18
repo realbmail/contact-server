@@ -186,5 +186,25 @@
   "active_account": {
     "message": "免费激活",
     "description": ""
+  },
+  "des_pin_title": {
+    "message": "如何把插件固定在工具栏",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "点击浏览器右上角的扩展图标以便打开扩展菜单",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "在扩展菜单中选中需要固定的插件的图标",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "点击插件旁边的图钉按钮即可把插件固定在工具栏",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "扫码支付",
+    "description": ""
   }
 }

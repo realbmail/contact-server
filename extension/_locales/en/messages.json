@@ -186,5 +186,25 @@
   "active_account": {
     "message": "Active Free",
     "description": ""
+  },
+  "des_pin_title": {
+    "message": "How to Pin a Browser Extension to the Toolbar",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "Click the extension icon at the top right corner of the browser to open the extensions menu.",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "Locate the extension you want to pin to the toolbar in the extensions menu.",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "Click the pin icon next to the extension to pin it to the toolbar.",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "Scan QR To Pay",
+    "description": ""
   }
 }

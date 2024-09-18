@@ -77,6 +77,10 @@ export function translateHomePage() {
     document.getElementById("price_val_money_action")!.textContent = browser.i18n.getMessage('price_val_money_action');
     document.getElementById("active_account")!.textContent = browser.i18n.getMessage('active_account');
 
+    document.getElementById("des_pin_title")!.textContent = browser.i18n.getMessage('des_pin_title');
+    document.getElementById("des_pin_step1")!.textContent = browser.i18n.getMessage('des_pin_step1');
+    document.getElementById("des_pin_step2")!.textContent = browser.i18n.getMessage('des_pin_step2');
+    document.getElementById("des_pin_step3")!.textContent = browser.i18n.getMessage('des_pin_step3');
 }
 
 export function translateMainPage() {
