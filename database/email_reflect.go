@@ -106,3 +106,43 @@ func (dm *DbManager) updateEmailReflect(tx *firestore.Transaction, accountAddr s
 
 	return oldAccountToUpdate, nil
 }
+
+func (dm *DbManager) deleteEmailReflect(tx *firestore.Transaction, email string) error {
+	docRef := dm.fileCli.Collection(DBTableReflect).Doc(email)
+	err := tx.Delete(docRef)
+	if err != nil && status.Code(err) != codes.NotFound {
+		return err
+	}
+	return nil
+}
+
+func (dm *DbManager) updateEmailReflectOnly(tx *firestore.Transaction, accountAddr string, email string) (string, error) {
+	var oldBMailAddress string
+	docRef := dm.fileCli.Collection(DBTableReflect).Doc(email)
+	docSnap, err := tx.Get(docRef)
+	if err != nil && status.Code(err) != codes.NotFound {
+		return "", err
+	}
+
+	var obj EmailReflect
+	if docSnap.Exists() {
+		if err := docSnap.DataTo(&obj); err != nil {
+			return "", err
+		}
+		if obj.BMailAddress != accountAddr {
+			oldBMailAddress = obj.BMailAddress
+			obj.BMailAddress = accountAddr
+		} else {
+			// 如果 BMailAddress 已经是当前的 accountAddr，跳过更新
+			return "", nil
+		}
+	} else {
+		obj = EmailReflect{
+			BMailAddress: accountAddr,
+		}
+	}
+	if err := tx.Set(docRef, obj); err != nil {
+		return "", err
+	}
+	return oldBMailAddress, nil
+}

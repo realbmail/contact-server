@@ -23,6 +23,41 @@ const (
 
 var NoRightError = errors.New("no right to operate")
 
+func checkRightsOfAction(operation *pbs.BindAction) error {
+	acc, err := database.DbInst().QueryAccount(operation.Address)
+	if err != nil {
+		return err
+	}
+	resultSize := len(acc.EMailAddress) + 1
+	switch UserLevel(acc.UserLel) {
+	case UserLevelInActive:
+	default:
+		return NoRightError
+
+	case UserLevelFree:
+		if resultSize > EmailAddrNoForFree {
+			return NoRightError
+		}
+		return nil
+
+	case UserLevelBronze:
+		if resultSize > EmailAddrNoForBronze {
+			return NoRightError
+		}
+		return nil
+
+	case UserLevelSilver:
+		if resultSize > EmailAddrNoForSilver {
+			return NoRightError
+		}
+		return nil
+
+	case UserLevelGold:
+		return nil
+	}
+	return nil
+}
+
 func checkRightsOfAccount(operation *pbs.AccountOperation) error {
 	acc, err := database.DbInst().QueryAccount(operation.Address)
 	if err != nil {

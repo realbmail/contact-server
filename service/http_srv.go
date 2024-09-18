@@ -77,6 +77,8 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
 	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
 	r.MethodFunc(http.MethodPost, "/query_contact", callFunc(QueryContact))
+	r.MethodFunc(http.MethodPost, "/bind_account", callFunc(BindAccount))
+	r.MethodFunc(http.MethodPost, "/unbind_account", callFunc(UnbindAccount))
 	s.router = r
 	return s
 }
@@ -284,5 +286,50 @@ func QueryContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	}
 	rsp.Payload = common.MustProto(result)
 	common.LogInst().Debug().Msg("query contacts success")
+	return rsp, nil
+}
+
+func BindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var action = &pbs.BindAction{}
+	err := proto.Unmarshal(request.Payload, action)
+	if err != nil {
+		return nil, err
+	}
+	if len(action.Address) == 0 || len(action.Mail) == 0 {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bind action parameter")
+	}
+
+	err = checkRightsOfAction(action)
+	if err != nil {
+		return nil, err
+	}
+
+	err = database.DbInst().UpdateAccount(action.Address, action.Mail)
+	if err != nil {
+		return nil, err
+	}
+
+	common.LogInst().Debug().Str("bmail", action.Address).Msgf("bind account success:%v", action.Mail)
+	return rsp, nil
+}
+
+func UnbindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var action = &pbs.BindAction{}
+	err := proto.Unmarshal(request.Payload, action)
+	if err != nil {
+		return nil, err
+	}
+	if len(action.Address) == 0 {
+		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid action parameter")
+	}
+
+	err = database.DbInst().DeleteAccount(action.Address, action.Mail)
+	if err != nil {
+		return nil, err
+	}
+
+	common.LogInst().Debug().Str("bmail", action.Address).Msgf("unbind account success:%v", action.Mail)
 	return rsp, nil
 }

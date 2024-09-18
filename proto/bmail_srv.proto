@@ -27,6 +27,10 @@ message AccountOperation{
   repeated  string emails = 3;
 }
 
+message BindAction{
+  string address = 1;
+  string mail = 2;
+}
 
 message ContactOperation{
   bool isDel = 1;
