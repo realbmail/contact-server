@@ -395,7 +395,7 @@ function validateRecoveryPhrase(this: HTMLInputElement): void {
         }
 
         if (inputValues.length !== length) {
-            setRecoverPhaseTips(false, "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words");
+            setRecoverPhaseTips(false, "Secret Recovery Phrases contain 12words");
             return;
         }
         setRecoverPhaseTips(true, "");
@@ -403,7 +403,7 @@ function validateRecoveryPhrase(this: HTMLInputElement): void {
     }
 
     if (wordsArray.length !== length) {
-        errMsg = "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words";
+        errMsg = "Secret Recovery Phrases contain 12 words";
         setRecoverPhaseTips(false, errMsg);
         return;
     }

@@ -106,5 +106,85 @@
   "curr_email_unbind": {
     "message": "bind current email to account first",
     "description": ""
+  },
+  "recover_error_message": {
+    "message": "Invalid Secret Recovery Phrase",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "Current Address:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "Free Tier",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "Free",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "text end-to-end encryption.",
+    "description": ""
+  },
+  "bind_address": {
+    "message": " email address binding.",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "Standard Tier.",
+    "description": ""
+  },
+  "normal_price_label": {
+    "message": "$$5/Month",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "attachment end-to-end encryption.",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "Plus Tier",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "$$9/Month",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "Enterprise Tier",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "$$4500/Month",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "Verify Code SDK For Enterprise",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "No limit on address binding",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "Ethereum Naming Address(ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "$$",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/Month",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "Buy Now",
+    "description": ""
+  },
+  "active_account": {
+    "message": "Active Free",
+    "description": ""
   }
 }

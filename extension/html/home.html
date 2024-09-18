@@ -110,7 +110,7 @@
 
 <div id="view-account-home" class="account-home-container page_view contain_view">
     <div>
-        <span class="current-wallet-address-lbl">当前账号:</span>
+        <span class="current-wallet-address-lbl" id="current-wallet-address-lbl">当前账号:</span>
         <br>
         <span class="current-wallet-address-val"></span>
     </div>
@@ -118,60 +118,63 @@
         <div class="membership" id="membership_type_free" data-price-val="false">
             <div class="membership-title">
                 <img alt="Free Membership" src="../file/level_free.png">
-                <h2>免费会员</h2>
+                <h2 id="account_level_free">免费会员</h2>
             </div>
-            <h1 class="membership-price">¥0/月</h1>
+            <h1 class="membership-price" id="account_level_free_unit">¥0/月</h1>
             <ul>
-                <li>文本点对点加密</li>
-                <li>1个邮件地址绑定</li>
+                <li class="account_level_p2p_encryption">文本点对点加密</li>
+                <li>1<span class="account_level_bind_address">个邮件地址绑定</span></li>
             </ul>
         </div>
-        <div class="membership" id="membership_type_bronze" data-price-val="29">
+        <div class="membership" data-price-val="5" id="membership_type_bronze">
             <div class="membership-title">
                 <img alt="Bronze Membership" src="../file/level_bronze.png">
-                <h2>普通会员</h2>
+                <h2 id="account_level_normal">普通会员</h2>
             </div>
-            <h1 class="membership-price">¥29/月</h1>
+            <h1 class="membership-price" id="account_level_normal_unit">¥35/月</h1>
             <ul>
-                <li>文本点对点加密</li>
-                <li>图片点对点加密</li>
-                <li>3个邮件地址绑定</li>
+                <li class="account_level_p2p_encryption">文本点对点加密</li>
+                <li class="attachment_p2p_encryption">附件点对点加密</li>
+                <li>3<span class="account_level_bind_address">个邮件地址绑定</span></li>
             </ul>
         </div>
-        <div class="membership" id="membership_type_silver" data-price-val="59">
+        <div class="membership" data-price-val="9" id="membership_type_silver">
             <div class="membership-title">
                 <img alt="Silver Membership" src="../file/level_silver.png">
-                <h2 class="membership-price">Plus会员</h2>
+                <h2 class="membership-price" id="account_level_plus">Plus会员</h2>
             </div>
-            <h1>¥59/月</h1>
+            <h1 id="account_level_plus_unit">¥63/月</h1>
             <ul>
-                <li>文本点对点加密</li>
-                <li>图片点对点加密</li>
-                <li>附件点对点加密</li>
-                <li>5个邮件地址绑定</li>
+                <li class="account_level_p2p_encryption">文本点对点加密</li>
+                <li class="attachment_p2p_encryption">附件点对点加密</li>
+                <li>5<span class="account_level_bind_address">个邮件地址绑定</span></li>
             </ul>
         </div>
-        <div class="membership" data-price-val="30000" id="membership_type_gold">
+        <div class="membership" data-price-val="4500" id="membership_type_gold">
             <div class="membership-title">
                 <img alt="Gold Membership" src="../file/level_gold.png">
-                <h2>企业会员</h2>
+                <h2 id="account_level_enterprise">企业会员</h2>
             </div>
 
-            <h1 class="membership-price">¥30000/月</h1>
+            <h1 class="membership-price" id="account_level_enterprise_unit">¥31500/月</h1>
             <ul>
-                <li>文本点对点加密</li>
-                <li>图片点对点加密</li>
-                <li>附件点对点加密</li>
-                <li>企业邮件验证码SDK</li>
-                <li>不限制邮件地址绑定</li>
-                <li>赠送区块链域名(ENS) 1个</li>
+                <li class="account_level_p2p_encryption">文本点对点加密</li>
+                <li class="attachment_p2p_encryption">附件点对点加密</li>
+                <li class="account_level_sdk">企业邮件验证码SDK</li>
+                <li class="bind_address_no_limit">不限制邮件地址绑定</li>
+                <li>1<span class="ens_address">个区块链域名(ENS)</span></li>
             </ul>
         </div>
     </div>
-    <button class="confirm-button" data-price-val="" style="display: none"><span class="price-in-btn">¥<span
-            class="price-val-in-btn">29</span>/月 </span>购买
+    <button class="confirm-button" data-price-val="" style="display: none">
+        <span class="price-in-btn">
+            <span id="price_val_money_lbl">¥</span>
+           <span class="price-val-in-btn">29</span>
+            <span id="price_val_money_unit">/月</span>
+        </span>
+        <span id="price_val_money_action">购买</span>
     </button>
-    <button class="confirm-button free-active" style="display: block">免费激活</button>
+    <button class="confirm-button free-active" id="active_account" style="display: block">免费激活</button>
     <div class="account-home-error" id="account-home-error" style="display: none"></div>
 </div>
 <div class="account-home view" id="view-account-success" style="display:none;">

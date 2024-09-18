@@ -106,5 +106,85 @@
   "curr_email_unbind": {
     "message": "请先绑定当前邮件地址",
     "description": ""
+  },
+  "recover_error_message": {
+    "message": "无效的助记词",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "当前账号:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "免费会员",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/月",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "文本点对点加密",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "个邮件地址绑定",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "普通会员",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/月",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "附件点对点加密",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "Plus会员",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/月",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "企业会员",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/月",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "企业邮件验证码SDK",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "不限制邮件地址绑定",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "个区块链域名(ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/月",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "购买",
+    "description": ""
+  },
+  "active_account": {
+    "message": "免费激活",
+    "description": ""
   }
 }
