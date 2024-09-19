@@ -73,7 +73,8 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
 	r.MethodFunc(http.MethodPost, "/account_singIn", callFunc(AccountSignIn))
 	r.MethodFunc(http.MethodPost, "/operate_account", callFunc(OperateAccount))
-	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountCreate))
+	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountActive))
+	r.MethodFunc(http.MethodPost, "/account_active", callFunc(AccountActive))
 	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
 	r.MethodFunc(http.MethodPost, "/query_contact", callFunc(QueryContact))
 	r.MethodFunc(http.MethodPost, "/bind_account", callFunc(BindAccount))
@@ -224,7 +225,7 @@ func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
+func AccountActive(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
 	var operation = &pbs.AccountOperation{}
 	err := proto.Unmarshal(request.Payload, operation)
@@ -241,7 +242,7 @@ func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, err
 	}
 
-	common.LogInst().Debug().Str("bmail", operation.Address).Msg("account creation success")
+	common.LogInst().Debug().Str("bmail", operation.Address).Msg("account active success")
 	return rsp, nil
 }
 

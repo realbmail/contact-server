@@ -23,18 +23,31 @@ type HttpCfg struct {
 	SSLKeyFile          string `json:"ssl_key_file"`
 	SessionKey          string `json:"session_key"`
 	SessionMaxAge       int    `json:"session_max_age"`
+	DatabaseTyp         int    `json:"database_typ"`
 	htmlTemplateManager *template.Template
-	DatabaseTyp         int `json:"database_typ"`
 	database            DatabaseI
 }
 
+func dataBaseType(dbNo int) string {
+	switch dbNo {
+	case DBTypFirestore:
+		return "firestore"
+	case DBTypLevelDB:
+		return "levelDB"
+	default:
+		return "unknown"
+	}
+}
 func (c *HttpCfg) String() string {
 	s := "\n------server config------"
 	s += "\nhttp port:\t" + c.HttpPort
 	s += "\nrefresh content:\t" + fmt.Sprintf("%t", c.RefreshContent)
+	s += "\ncheck signature:\t" + fmt.Sprintf("%t", c.CheckSignature)
 	s += "\nuse https:\t" + fmt.Sprintf("%t", c.UseHttps)
 	s += "\nssl cert file:\t" + c.SSLCertFile
 	s += "\nssl key file:\t" + c.SSLKeyFile
+	s += "\nsession max age:\t" + fmt.Sprintf("%d", c.SessionMaxAge)
+	s += "\ndatabase typ:\t" + dataBaseType(c.DatabaseTyp)
 	s += "\n-------------------------"
 	return s
 }
@@ -45,8 +58,10 @@ func InitConf(c *HttpCfg) {
 	__httpConf = c
 	if __httpConf.DatabaseTyp == DBTypFirestore {
 		__httpConf.database = db_firestore.DbInst()
+		fmt.Println("======>>> using firestore as database")
 	} else if __httpConf.DatabaseTyp == DBTypLevelDB {
 		__httpConf.database = db_leveldb.DbInst()
+		fmt.Println("======>>> using level db as database")
 	}
 }
 

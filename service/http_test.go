@@ -305,6 +305,39 @@ func TestProtoQueryAccounts(t *testing.T) {
 	fmt.Println(key.Address, bmc.String())
 }
 
+func TestActiveAccount(t *testing.T) {
+	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := wallet.NewMailKeyFromSeed(seed)
+
+	var action = &pbs.AccountOperation{
+		Address: key.Address.BmailAddress,
+	}
+
+	payload := common.MustProto(action)
+	sig := key.SignMessage(payload)
+	var request = &pbs.BMReq{
+		Address:   key.Address.BmailAddress,
+		Payload:   payload,
+		Signature: sig,
+	}
+	api := api_url + "/account_active"
+	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = pbs.BMRsp{}
+
+	err = proto.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println("======>>> active result:=>", rsp.Success)
+}
+
 func TestBindAccount(t *testing.T) {
 	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
 	if err != nil {
@@ -337,4 +370,112 @@ func TestBindAccount(t *testing.T) {
 	}
 
 	fmt.Println("======>>> bind result:=>", rsp.Success)
+}
+
+func TestBindAccQuery(t *testing.T) {
+	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := wallet.NewMailKeyFromSeed(seed)
+
+	var action = &pbs.QueryReq{
+		Address: key.Address.BmailAddress,
+	}
+
+	payload := common.MustProto(action)
+	sig := key.SignMessage(payload)
+	var request = &pbs.BMReq{
+		Address:   key.Address.BmailAddress,
+		Payload:   payload,
+		Signature: sig,
+	}
+	api := api_url + "/query_account"
+	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = pbs.BMRsp{}
+
+	err = proto.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println("======>>> bind result:=>", rsp.Success)
+	var result = &pbs.BMailAccount{}
+	_ = proto.Unmarshal(rsp.Payload, result)
+	fmt.Println("======>>> bind info:=>", result)
+}
+
+func TestBindEmailQuery(t *testing.T) {
+	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := wallet.NewMailKeyFromSeed(seed)
+
+	var action = &pbs.QueryReq{
+		OneEmailAddr: "99927800@qq.com",
+	}
+
+	payload := common.MustProto(action)
+	sig := key.SignMessage(payload)
+	var request = &pbs.BMReq{
+		Address:   key.Address.BmailAddress,
+		Payload:   payload,
+		Signature: sig,
+	}
+	api := api_url + "/query_by_one_email"
+	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = pbs.BMRsp{}
+
+	err = proto.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println("======>>> bind result:=>", rsp.Success)
+	var result = &pbs.EmailReflect{}
+	_ = proto.Unmarshal(rsp.Payload, result)
+	fmt.Println("======>>> bind info:=>", result)
+}
+
+func TestBindEmailArrQuery(t *testing.T) {
+	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := wallet.NewMailKeyFromSeed(seed)
+
+	var action = &pbs.QueryReq{
+		EmailList: []string{"99927800@qq.com", "ribencong@126.com"},
+	}
+
+	payload := common.MustProto(action)
+	sig := key.SignMessage(payload)
+	var request = &pbs.BMReq{
+		Address:   key.Address.BmailAddress,
+		Payload:   payload,
+		Signature: sig,
+	}
+	api := api_url + "/query_by_email_array"
+	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = pbs.BMRsp{}
+
+	err = proto.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println("======>>> bind result:=>", rsp.Success)
+	var result = &pbs.EmailReflects{}
+	_ = proto.Unmarshal(rsp.Payload, result)
+	fmt.Println("======>>> bind info:=>", result)
 }

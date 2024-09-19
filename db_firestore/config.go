@@ -28,5 +28,4 @@ func (c *FsCfg) String() string {
 
 func InitConf(c *FsCfg) {
 	__dbConf = c
-	_ = DbInst()
 }

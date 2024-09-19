@@ -32,7 +32,7 @@ func (dm *DbManager) QueryContacts(address string, startAfterEmail string) ([]*p
 
 func DbInst() *DbManager {
 	once.Do(func() {
-		db, err := leveldb.OpenFile("./database", nil)
+		db, err := leveldb.OpenFile("database", nil)
 		if err != nil {
 			panic(err)
 		}

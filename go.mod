@@ -1,8 +1,6 @@
 module github.com/realbmail/contact-server
 
-go 1.23
-
-toolchain go1.23.0
+go 1.21
 
 require (
 	cloud.google.com/go/firestore v1.16.0

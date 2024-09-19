@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/realbmail/contact-server/db_firestore"
 	pbs "github.com/realbmail/contact-server/proto"
 )
 
@@ -24,7 +23,7 @@ const (
 var NoRightError = errors.New("no right to operate")
 
 func checkRightsOfAction(operation *pbs.BindAction) error {
-	acc, err := db_firestore.DbInst().QueryAccount(operation.Address)
+	acc, err := __httpConf.database.QueryAccount(operation.Address)
 	if err != nil {
 		return err
 	}
@@ -59,7 +58,7 @@ func checkRightsOfAction(operation *pbs.BindAction) error {
 }
 
 func checkRightsOfAccount(operation *pbs.AccountOperation) error {
-	acc, err := db_firestore.DbInst().QueryAccount(operation.Address)
+	acc, err := __httpConf.database.QueryAccount(operation.Address)
 	if err != nil {
 		return err
 	}
