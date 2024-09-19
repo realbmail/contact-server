@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/realbmail/contact-server/common"
-	"github.com/realbmail/contact-server/db_firestore"
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/realbmail/contact-server/wallet"
 	"google.golang.org/protobuf/proto"
@@ -46,7 +45,7 @@ func TestKeepAlive(t *testing.T) {
 		fmt.Println("failed to parse contact data")
 		return
 	}
-	var contact db_firestore.BMailAccount
+	var contact common.BMailAccount
 	err = json.Unmarshal([]byte(contactStr), &contact)
 	if err != nil {
 		fmt.Println("failed to parse contact:", err.Error())
@@ -95,7 +94,7 @@ func TestQueryByEmailArray(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
-	var account = make(map[string]db_firestore.EmailReflect)
+	var account = make(map[string]common.EmailReflect)
 	contactStr, _ := rsp.Payload.(string)
 	_ = json.Unmarshal([]byte(contactStr), &account)
 	fmt.Println(account)
@@ -118,7 +117,7 @@ func TestQueryAccounts(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
-	var bmc db_firestore.BMailAccount
+	var bmc common.BMailAccount
 	_ = json.Unmarshal([]byte(rsp.Payload.(string)), &bmc)
 	fmt.Println(bmc.EMailAddress)
 }

@@ -22,7 +22,7 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 			SessionKey:     "",
 			SessionMaxAge:  1800,
 		},
-		FSCfg: &firestore.DbCfg{
+		FsCfg: &firestore.DbCfg{
 			ProjectID:   firestore.DefaultFirestoreProjectID,
 			DatabaseID:  firestore.DefaultDatabaseID,
 			KeyFilePath: "dessage-c3b5c95267fb.json",

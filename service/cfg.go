@@ -2,7 +2,16 @@ package service
 
 import (
 	"fmt"
+	"github.com/realbmail/contact-server/common"
+	"github.com/realbmail/contact-server/db_firestore"
+	"github.com/realbmail/contact-server/db_leveldb"
+	pbs "github.com/realbmail/contact-server/proto"
 	"html/template"
+)
+
+const (
+	DBTypFirestore = 1
+	DBTypLevelDB   = 2
 )
 
 type HttpCfg struct {
@@ -15,6 +24,8 @@ type HttpCfg struct {
 	SessionKey          string `json:"session_key"`
 	SessionMaxAge       int    `json:"session_max_age"`
 	htmlTemplateManager *template.Template
+	DatabaseTyp         int `json:"database_typ"`
+	database            DatabaseI
 }
 
 func (c *HttpCfg) String() string {
@@ -32,4 +43,21 @@ var __httpConf *HttpCfg
 
 func InitConf(c *HttpCfg) {
 	__httpConf = c
+	if __httpConf.DatabaseTyp == DBTypFirestore {
+		__httpConf.database = db_firestore.DbInst()
+	} else if __httpConf.DatabaseTyp == DBTypLevelDB {
+		__httpConf.database = db_leveldb.DbInst()
+	}
+}
+
+type DatabaseI interface {
+	QueryReflectByOneEmail(emailAddr string) (*common.EmailReflect, error)
+	QueryReflectsByEmails(emailAddrs []string) (map[string]common.EmailReflect, error)
+	QueryAccount(bmailAddr string) (*common.BMailAccount, error)
+	OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error
+	CreateBMailAccount(accountId string, level int8) error
+	UpdateBinding(bmailAddr string, emailAddr string) error
+	DeleteBinding(bmailAddr string, emailAddr string) error
+	UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error
+	QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error)
 }

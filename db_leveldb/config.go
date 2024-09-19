@@ -11,7 +11,7 @@ type LBCfg struct {
 }
 
 func (c *LBCfg) String() string {
-	s := "\n------level db config------"
+	s := "\n------level levelDB config------"
 	s += "\ndatabase path:\t" + c.DBPath
 	s += "\n--------------------------"
 	return s

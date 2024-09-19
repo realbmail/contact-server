@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/realbmail/contact-server/common"
 	"google.golang.org/api/option"
 	"log"
 	"testing"
@@ -58,7 +59,7 @@ func TestAddAccount(t *testing.T) {
 	opCtx, cancel := context.WithTimeout(ctx, DefaultDBTimeOut*10)
 	defer cancel()
 	docRef := client.Collection(DBTableAccount).Doc(address)
-	var obj = BMailAccount{
+	var obj = common.BMailAccount{
 		UserLel: UserLevel(userLevel),
 	}
 	_, err = docRef.Set(opCtx, obj)

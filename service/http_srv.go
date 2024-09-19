@@ -5,7 +5,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/realbmail/contact-server/common"
-	"github.com/realbmail/contact-server/db_firestore"
 	pbs "github.com/realbmail/contact-server/proto"
 	"google.golang.org/protobuf/proto"
 	"net/http"
@@ -26,7 +25,7 @@ func (s *Service) Start() {
 }
 
 func keepAlive(w http.ResponseWriter, r *http.Request) {
-	var c = db_firestore.BMailAccount{
+	var c = common.BMailAccount{
 		EMailAddress: []string{"ri", "ben", "con"},
 	}
 	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
@@ -80,6 +79,7 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/bind_account", callFunc(BindAccount))
 	r.MethodFunc(http.MethodPost, "/unbind_account", callFunc(UnbindAccount))
 	s.router = r
+
 	return s
 }
 
@@ -95,7 +95,7 @@ func QueryReflectByEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
 	}
 
-	emailContact, err := db_firestore.DbInst().QueryReflectByOneEmail(query.OneEmailAddr)
+	emailContact, err := __httpConf.database.QueryReflectByOneEmail(query.OneEmailAddr)
 	if err != nil {
 		common.LogInst().Err(err).Str("email-addr", query.OneEmailAddr).Msg("query database failed for one email")
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
@@ -123,7 +123,7 @@ func QueryReflectByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address array")
 	}
 
-	accountArr, err := db_firestore.DbInst().QueryReflectsByEmails(query.EmailList)
+	accountArr, err := __httpConf.database.QueryReflectsByEmails(query.EmailList)
 	if err != nil {
 		common.LogInst().Err(err).Msgf("query database failed for email array:%v", query.EmailList)
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email array:"+err.Error())
@@ -151,7 +151,7 @@ func AccountSignIn(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	}
 	var query = &pbs.QueryReq{}
 
-	account, err := db_firestore.DbInst().QueryAccount(request.Address)
+	account, err := __httpConf.database.QueryAccount(request.Address)
 	if err != nil {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
 	}
@@ -180,7 +180,7 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
 
-	account, err := db_firestore.DbInst().QueryAccount(query.Address)
+	account, err := __httpConf.database.QueryAccount(query.Address)
 	if err != nil {
 		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
 	}
@@ -214,7 +214,7 @@ func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, err
 	}
 
-	err = db_firestore.DbInst().OperateAccount(operation.Address, operation.Emails, operation.IsDel)
+	err = __httpConf.database.OperateAccount(operation.Address, operation.Emails, operation.IsDel)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func AccountCreate(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
 	}
 
-	err = db_firestore.DbInst().CreateBMailAccount(operation.Address, int8(UserLevelFree))
+	err = __httpConf.database.CreateBMailAccount(operation.Address, int8(UserLevelFree))
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +256,7 @@ func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter for operation")
 	}
 
-	err = db_firestore.DbInst().UpdateContactDetails(request.Address, contact.Contacts, contact.IsDel)
+	err = __httpConf.database.UpdateContactDetails(request.Address, contact.Contacts, contact.IsDel)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func QueryContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
 	}
 
-	contacts, err := db_firestore.DbInst().QueryContacts(request.Address, query.OneEmailAddr)
+	contacts, err := __httpConf.database.QueryContacts(request.Address, query.OneEmailAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -305,7 +305,7 @@ func BindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, err
 	}
 
-	err = db_firestore.DbInst().UpdateAccount(action.Address, action.Mail)
+	err = __httpConf.database.UpdateBinding(action.Address, action.Mail)
 	if err != nil {
 		return nil, err
 	}
@@ -325,7 +325,7 @@ func UnbindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid action parameter")
 	}
 
-	err = db_firestore.DbInst().DeleteAccount(action.Address, action.Mail)
+	err = __httpConf.database.DeleteBinding(action.Address, action.Mail)
 	if err != nil {
 		return nil, err
 	}

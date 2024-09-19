@@ -14,7 +14,7 @@ type Config struct {
 	LogFile  string `json:"log_file"`
 	JSEnv    string `json:"js_env"`
 	*service.HttpCfg
-	*db_firestore.FSCfg
+	*db_firestore.FsCfg
 }
 
 var _sysConfig *Config = nil
@@ -25,7 +25,7 @@ func (c Config) String() string {
 	s += "\nlog file:\t" + c.LogFile
 	s += "\njs environment:\t" + c.JSEnv
 	s += "\n-------------------------"
-	s += "\r\n" + c.HttpCfg.String() + "\r\n" + c.FSCfg.String() + "\r\n"
+	s += "\r\n" + c.HttpCfg.String() + "\r\n" + c.FsCfg.String() + "\r\n"
 	return s
 }
 
@@ -45,7 +45,7 @@ func initConfig(filName string) *Config {
 	}
 
 	service.InitConf(cf.HttpCfg)
-	db_firestore.InitConf(cf.FSCfg)
+	db_firestore.InitConf(cf.FsCfg)
 	_sysConfig = cf
 	fmt.Println(cf.String())
 	common.SetLogLevel(cf.LogLevel, cf.LogFile)

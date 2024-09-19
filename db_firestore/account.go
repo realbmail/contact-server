@@ -8,13 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type BMailAccount struct {
-	UserLel      int8     `json:"user_lel"  firestore:"user_lel"`
-	EMailAddress []string `json:"e_mail_address" firestore:"e_mail_address"`
-	LicenseHex   string   `json:"license"  firestore:"license"`
-}
-
-func (dm *DbManager) QueryAccount(bmailAddr string) (*BMailAccount, error) {
+func (dm *DbManager) QueryAccount(bmailAddr string) (*common.BMailAccount, error) {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
 	defer cancel()
 	contactDoc := dm.fileCli.Collection(DBTableAccount).Doc(bmailAddr)
@@ -22,12 +16,12 @@ func (dm *DbManager) QueryAccount(bmailAddr string) (*BMailAccount, error) {
 	docSnapshot, err := contactDoc.Get(opCtx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			return &BMailAccount{}, nil
+			return &common.BMailAccount{}, nil
 		}
 		common.LogInst().Err(err).Str("bmail-address", bmailAddr).Msg("not found contact obj :")
 		return nil, err
 	}
-	var contact BMailAccount
+	var contact common.BMailAccount
 	err = docSnapshot.DataTo(&contact)
 	if err != nil {
 		common.LogInst().Err(err).Str("bmail-address", bmailAddr).Msg("parse contact obj failed:")
@@ -40,7 +34,7 @@ func (dm *DbManager) CreateBMailAccount(accountId string, level int8) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()
 	docRef := dm.fileCli.Collection(DBTableAccount).Doc(accountId)
-	var obj = BMailAccount{
+	var obj = common.BMailAccount{
 		UserLel: level,
 	}
 	_, err := docRef.Get(opCtx)
@@ -68,7 +62,7 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 			return common.NewBMError(common.BMErrNoRight, "create account first please")
 		}
 
-		var contact BMailAccount
+		var contact common.BMailAccount
 		err = accountSnapShot.DataTo(&contact)
 		if err != nil {
 			return err
@@ -127,7 +121,8 @@ func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel 
 
 	return err
 }
-func (dm *DbManager) UpdateAccount(bmailAddr string, emailAddr string) error {
+
+func (dm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
 	// 设置上下文和超时时间
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*20)
 	defer cancel()
@@ -142,7 +137,7 @@ func (dm *DbManager) UpdateAccount(bmailAddr string, emailAddr string) error {
 		}
 
 		// 将快照数据映射到 BMailAccount 结构体
-		var contact BMailAccount
+		var contact common.BMailAccount
 		err = accountSnapShot.DataTo(&contact)
 		if err != nil {
 			return err
@@ -186,7 +181,7 @@ func (dm *DbManager) UpdateAccount(bmailAddr string, emailAddr string) error {
 	return err
 }
 
-func (dm *DbManager) DeleteAccount(bmailAddr string, emailAddr string) error {
+func (dm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 	// 设置上下文和超时时间
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*20)
 	defer cancel()
@@ -201,7 +196,7 @@ func (dm *DbManager) DeleteAccount(bmailAddr string, emailAddr string) error {
 		}
 
 		// 将快照数据映射到 BMailAccount 结构体
-		var contact BMailAccount
+		var contact common.BMailAccount
 		err = accountSnapShot.DataTo(&contact)
 		if err != nil {
 			return err

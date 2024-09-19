@@ -8,15 +8,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type EmailReflect struct {
-	BMailAddress string `json:"b_mail_address" firestore:"b_mail_address"`
-}
-
-func (dm *DbManager) QueryReflectsByEmails(emailAddrs []string) (map[string]EmailReflect, error) {
+func (dm *DbManager) QueryReflectsByEmails(emailAddrs []string) (map[string]common.EmailReflect, error) {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()
 
-	var contacts = make(map[string]EmailReflect)
+	var contacts = make(map[string]common.EmailReflect)
 	collection := dm.fileCli.Collection(DBTableReflect)
 
 	for _, emailAddr := range emailAddrs {
@@ -31,7 +27,7 @@ func (dm *DbManager) QueryReflectsByEmails(emailAddrs []string) (map[string]Emai
 			return nil, err
 		}
 
-		var contact EmailReflect
+		var contact common.EmailReflect
 		err = docSnapshot.DataTo(&contact)
 		if err != nil {
 			common.LogInst().Err(err).Str("email-addr", emailAddr).Msg("Failed to parse contact object")
@@ -43,7 +39,7 @@ func (dm *DbManager) QueryReflectsByEmails(emailAddrs []string) (map[string]Emai
 	return contacts, nil
 }
 
-func (dm *DbManager) QueryReflectByOneEmail(emailAddr string) (*EmailReflect, error) {
+func (dm *DbManager) QueryReflectByOneEmail(emailAddr string) (*common.EmailReflect, error) {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
 	defer cancel()
 	contactDoc := dm.fileCli.Collection(DBTableReflect).Doc(emailAddr)
@@ -52,12 +48,12 @@ func (dm *DbManager) QueryReflectByOneEmail(emailAddr string) (*EmailReflect, er
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			common.LogInst().Info().Str("email-addr", emailAddr).Msg("not found for account querying by email address")
-			return &EmailReflect{}, nil
+			return &common.EmailReflect{}, nil
 		}
 		common.LogInst().Err(err).Str("bmail-address", emailAddr).Msg("not found contact obj :")
 		return nil, err
 	}
-	var contact EmailReflect
+	var contact common.EmailReflect
 	err = docSnapshot.DataTo(&contact)
 	if err != nil {
 		common.LogInst().Err(err).Str("bmail-address", emailAddr).Msg("parse contact obj failed:")
@@ -82,7 +78,7 @@ func (dm *DbManager) updateEmailReflect(tx *firestore.Transaction, accountAddr s
 				return oldAccountToUpdate, err
 			}
 
-			var obj EmailReflect
+			var obj common.EmailReflect
 			if docSnap.Exists() {
 				if err := docSnap.DataTo(&obj); err != nil {
 					return oldAccountToUpdate, err
@@ -94,7 +90,7 @@ func (dm *DbManager) updateEmailReflect(tx *firestore.Transaction, accountAddr s
 					continue
 				}
 			} else {
-				obj = EmailReflect{
+				obj = common.EmailReflect{
 					BMailAddress: accountAddr,
 				}
 			}
@@ -124,7 +120,7 @@ func (dm *DbManager) updateEmailReflectOnly(tx *firestore.Transaction, accountAd
 		return "", err
 	}
 
-	var obj EmailReflect
+	var obj common.EmailReflect
 	if docSnap.Exists() {
 		if err := docSnap.DataTo(&obj); err != nil {
 			return "", err
@@ -137,7 +133,7 @@ func (dm *DbManager) updateEmailReflectOnly(tx *firestore.Transaction, accountAd
 			return "", nil
 		}
 	} else {
-		obj = EmailReflect{
+		obj = common.EmailReflect{
 			BMailAddress: accountAddr,
 		}
 	}
