@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/realbmail/contact-server/common"
+	"github.com/realbmail/contact-server/db_firestore"
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/realbmail/contact-server/wallet"
 	"google.golang.org/protobuf/proto"
