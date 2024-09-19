@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/realbmail/contact-server/db_firestore"
+	"github.com/realbmail/contact-server/db_leveldb"
 	"github.com/realbmail/contact-server/service"
 	"os"
 	"testing"
@@ -21,12 +23,16 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 			SSLKeyFile:     "",
 			SessionKey:     "",
 			SessionMaxAge:  1800,
+			DatabaseTyp:    service.DBTypLevelDB,
 		},
-		FsCfg: &firestore.DbCfg{
-			ProjectID:   firestore.DefaultFirestoreProjectID,
-			DatabaseID:  firestore.DefaultDatabaseID,
+		FsCfg: &db_firestore.FsCfg{
+			ProjectID:   db_firestore.DefaultFirestoreProjectID,
+			DatabaseID:  db_firestore.DefaultDatabaseID,
 			KeyFilePath: "dessage-c3b5c95267fb.json",
 			LocalRun:    false,
+		},
+		LBCfg: &db_leveldb.LBCfg{
+			DBPath: db_leveldb.DefaultDBPath,
 		},
 	}
 

@@ -3,6 +3,7 @@ package db_leveldb
 import (
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -51,4 +52,12 @@ func ReadStruct(db *leveldb.DB, key string, result interface{}) error {
 		return err
 	}
 	return json.Unmarshal(data, result)
+}
+
+func Delete(db *leveldb.DB, key string) error {
+	err := db.Delete([]byte(key), nil)
+	if err != nil && !errors.Is(err, leveldb.ErrNotFound) {
+		return err
+	}
+	return nil
 }

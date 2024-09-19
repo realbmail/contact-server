@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/db_firestore"
+	"github.com/realbmail/contact-server/db_leveldb"
 	"github.com/realbmail/contact-server/service"
 	"os"
 )
@@ -15,6 +16,7 @@ type Config struct {
 	JSEnv    string `json:"js_env"`
 	*service.HttpCfg
 	*db_firestore.FsCfg
+	*db_leveldb.LBCfg
 }
 
 var _sysConfig *Config = nil

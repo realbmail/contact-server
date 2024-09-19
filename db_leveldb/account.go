@@ -7,13 +7,39 @@ import (
 )
 
 func (dm *DbManager) QueryAccount(bmailAddr string) (*common.BMailAccount, error) {
-	//TODO implement me
-	panic("implement me")
+	accountKeyStr := TableAccount + bmailAddr
+	accountLock := dm.getLock(accountKeyStr)
+	defer dm.releaseLock(accountKeyStr, accountLock)
+
+	var account common.BMailAccount
+	err := ReadStruct(dm.levelDB, accountKeyStr, &account)
+	if err != nil {
+		if errors.Is(err, leveldb.ErrNotFound) {
+			return &common.BMailAccount{}, nil
+		}
+		common.LogInst().Err(err).Str("bmail-address", bmailAddr).Msg("not found account obj :")
+		return nil, err
+	}
+	return &account, nil
 }
 
 func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
-	//TODO implement me
-	panic("implement me")
+	if isDel {
+		for i := 0; i < len(emailAddr); i++ {
+			email := emailAddr[i]
+			if err := dm.DeleteBinding(bmailAddr, email); err != nil {
+				return err
+			}
+		}
+	} else {
+		for i := 0; i < len(emailAddr); i++ {
+			email := emailAddr[i]
+			if err := dm.UpdateBinding(bmailAddr, email); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (dm *DbManager) CreateBMailAccount(accountId string, level int8) error {
@@ -99,5 +125,29 @@ func (dm *DbManager) removeEmailFromAccount(accountId string, emailAddr string) 
 }
 
 func (dm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
-	return dm.removeEmailFromAccount(bmailAddr, emailAddr)
+	accountKeyStr := TableAccount + bmailAddr
+	accountLock := dm.getLock(accountKeyStr)
+	defer dm.releaseLock(accountKeyStr, accountLock)
+
+	var account common.BMailAccount
+	if err := ReadStruct(dm.levelDB, accountKeyStr, &account); err != nil {
+		if errors.Is(err, leveldb.ErrNotFound) {
+			return common.NewBMError(common.BMErrNoRight, "Activate your account first")
+		}
+		return err
+	}
+
+	if err := dm.deleteEmailReflect(emailAddr); err != nil {
+		return err
+	}
+
+	account.EMailAddress = remove(account.EMailAddress, emailAddr)
+	return WriteStruct(dm.levelDB, accountKeyStr, account)
+}
+
+func (dm *DbManager) deleteEmailReflect(email string) error {
+	emailKeyStr := TableEmail + email
+	lock := dm.getLock(emailKeyStr)
+	defer dm.releaseLock(emailKeyStr, lock)
+	return Delete(dm.levelDB, emailKeyStr)
 }

@@ -13,12 +13,12 @@ import (
 
 var address string
 var (
-	userLevel = uint(UserLevelFree)
+	userLevel = uint(1)
 )
 
 func init() {
 	flag.StringVar(&address, "addr", "", "--addr")
-	flag.UintVar(&userLevel, "level", uint(UserLevelFree), "--level")
+	flag.UintVar(&userLevel, "level", uint(1), "--level")
 }
 
 func TestPingDB(t *testing.T) {
@@ -60,7 +60,7 @@ func TestAddAccount(t *testing.T) {
 	defer cancel()
 	docRef := client.Collection(DBTableAccount).Doc(address)
 	var obj = common.BMailAccount{
-		UserLel: UserLevel(userLevel),
+		UserLel: 1,
 	}
 	_, err = docRef.Set(opCtx, obj)
 	if err != nil {
