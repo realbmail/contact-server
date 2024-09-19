@@ -70,7 +70,7 @@ type DatabaseI interface {
 	QueryReflectsByEmails(emailAddrs []string) (map[string]common.EmailReflect, error)
 	QueryAccount(bmailAddr string) (*common.BMailAccount, error)
 	OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error
-	CreateBMailAccount(accountId string, level int8) error
+	ActiveAccount(accountId string, level int8) error
 	UpdateBinding(bmailAddr string, emailAddr string) error
 	DeleteBinding(bmailAddr string, emailAddr string) error
 	UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error

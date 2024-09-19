@@ -30,7 +30,7 @@ func (dm *DbManager) QueryAccount(bmailAddr string) (*common.BMailAccount, error
 	return &contact, nil
 }
 
-func (dm *DbManager) CreateBMailAccount(accountId string, level int8) error {
+func (dm *DbManager) ActiveAccount(accountId string, level int8) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()
 	docRef := dm.fileCli.Collection(DBTableAccount).Doc(accountId)

@@ -15,6 +15,13 @@ type Service struct {
 }
 
 func (s *Service) Start() {
+	go func() {
+		r := chi.NewRouter()
+		r.Use(middleware.Recoverer)
+		r.HandleFunc("/update_user_level", updateUserLevel)
+		_ = http.ListenAndServe("127.0.0.1:8887", r)
+	}()
+
 	if __httpConf.UseHttps {
 		fmt.Println("https service start success:", __httpConf.HttpPort)
 		panic(http.ListenAndServeTLS(":"+__httpConf.HttpPort, __httpConf.SSLCertFile, __httpConf.SSLKeyFile, s.router))
@@ -22,6 +29,14 @@ func (s *Service) Start() {
 		fmt.Println("http service start success:", __httpConf.HttpPort)
 		panic(http.ListenAndServe(":"+__httpConf.HttpPort, s.router))
 	}
+
+}
+
+func updateUserLevel(w http.ResponseWriter, r *http.Request) {
+	var c = common.BMailAccount{
+		EMailAddress: []string{"ri", "ben", "con"},
+	}
+	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
 }
 
 func keepAlive(w http.ResponseWriter, r *http.Request) {
@@ -194,7 +209,7 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	}
 
 	rsp.Payload = common.MustProto(result)
-	common.LogInst().Debug().Msg("query by bmail address success")
+	common.LogInst().Debug().Str("address", query.Address).Msg("query by bmail address success")
 
 	return rsp, nil
 }
@@ -237,7 +252,7 @@ func AccountActive(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid account creation parameter")
 	}
 
-	err = __httpConf.database.CreateBMailAccount(operation.Address, int8(UserLevelFree))
+	err = __httpConf.database.ActiveAccount(operation.Address, int8(UserLevelFree))
 	if err != nil {
 		return nil, err
 	}
@@ -303,6 +318,7 @@ func BindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 	err = checkRightsOfAction(action)
 	if err != nil {
+		common.LogInst().Err(err).Str("mail", action.Mail).Str("address", action.Address).Msg("bind action error")
 		return nil, err
 	}
 
