@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/realbmail/contact-server/common"
-	"github.com/realbmail/contact-server/database"
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/realbmail/contact-server/wallet"
 	"google.golang.org/protobuf/proto"
@@ -14,9 +13,9 @@ import (
 )
 
 const (
-	//api_url = "http://localhost:8001"
+	api_url = "http://127.0.0.1:8001"
 	//api_url = "https://sharp-happy-grouse.ngrok-free.app"
-	api_url = "https://dessage.xyz/bmail_server"
+	//api_url = "https://dessage.xyz/bmail_server"
 )
 
 var address string
@@ -46,7 +45,7 @@ func TestKeepAlive(t *testing.T) {
 		fmt.Println("failed to parse contact data")
 		return
 	}
-	var contact database.BMailAccount
+	var contact db_firestore.BMailAccount
 	err = json.Unmarshal([]byte(contactStr), &contact)
 	if err != nil {
 		fmt.Println("failed to parse contact:", err.Error())
@@ -95,7 +94,7 @@ func TestQueryByEmailArray(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
-	var account = make(map[string]database.EmailReflect)
+	var account = make(map[string]db_firestore.EmailReflect)
 	contactStr, _ := rsp.Payload.(string)
 	_ = json.Unmarshal([]byte(contactStr), &account)
 	fmt.Println(account)
@@ -118,7 +117,7 @@ func TestQueryAccounts(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(rsp)
-	var bmc database.BMailAccount
+	var bmc db_firestore.BMailAccount
 	_ = json.Unmarshal([]byte(rsp.Payload.(string)), &bmc)
 	fmt.Println(bmc.EMailAddress)
 }
@@ -306,34 +305,36 @@ func TestProtoQueryAccounts(t *testing.T) {
 	fmt.Println(key.Address, bmc.String())
 }
 
-//
-//func TestAddContact(t *testing.T) {
-//	obj := &Operation{
-//		IsDel:     false,
-//		BMailAddr: "BM6ED6c4nAJQnLzApmuKSC1uaDFoQVpFTUGyDdixLYj5bw",
-//		EmailAddr: []string{
-//			"ribencong@gmail.com",
-//			"ribencong@126.com",
-//			"ribencong@163.com",
-//			"99927800@qq.com",
-//			"hopwesley@126.com",
-//		},
-//	}
-//	var req = &Req{
-//		PayLoad:   obj,
-//		Signature: "",
-//		AccountID: "",
-//	}
-//	api := api_url + "/operate_account"
-//	reqData, _ := json.Marshal(req)
-//	respData, err := doHttp(api, "application/json", reqData)
-//	if err != nil {
-//		t.Fatalf("http failed:%v", err)
-//	}
-//	var rsp = Rsp{}
-//	err = json.Unmarshal(respData, &rsp)
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	fmt.Println(rsp)
-//}
+func TestBindAccount(t *testing.T) {
+	seed, err := hex.DecodeString("ef61522efc8e45bd69cd3a131bdec0e569f73a356eadd4f14a93f4912344cfb1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := wallet.NewMailKeyFromSeed(seed)
+
+	var action = &pbs.BindAction{
+		Address: key.Address.BmailAddress,
+		Mail:    "99927800@qq.com",
+	}
+
+	payload := common.MustProto(action)
+	sig := key.SignMessage(payload)
+	var request = &pbs.BMReq{
+		Address:   key.Address.BmailAddress,
+		Payload:   payload,
+		Signature: sig,
+	}
+	api := api_url + "/bind_account"
+	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	if err != nil {
+		t.Fatalf("http failed:%v", err)
+	}
+	var rsp = pbs.BMRsp{}
+
+	err = proto.Unmarshal(respData, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println("======>>> bind result:=>", rsp.Success)
+}

@@ -1,4 +1,4 @@
-package database
+package db_firestore
 
 import (
 	"cloud.google.com/go/firestore"

@@ -1,22 +1,22 @@
-package database
+package db_firestore
 
 import "fmt"
 
-var __dbConf *DbCfg
+var __dbConf *FSCfg
 
 const (
 	DefaultFirestoreProjectID = "dessage"
 	DefaultDatabaseID         = "bmail-contact"
 )
 
-type DbCfg struct {
+type FSCfg struct {
 	ProjectID   string `json:"project_id"`
 	DatabaseID  string `json:"database_id"`
 	KeyFilePath string `json:"key_file_path"`
 	LocalRun    bool   `json:"local_run"`
 }
 
-func (c *DbCfg) String() string {
+func (c *FSCfg) String() string {
 	s := "\n------firestore config------"
 	s += "\nlocal run:\t" + fmt.Sprintf("%t", c.LocalRun)
 	s += "\nproject id:\t" + c.ProjectID
@@ -26,7 +26,7 @@ func (c *DbCfg) String() string {
 	return s
 }
 
-func InitConf(c *DbCfg) {
+func InitConf(c *FSCfg) {
 	__dbConf = c
 	_ = DbInst()
 }
