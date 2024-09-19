@@ -294,5 +294,25 @@
   "bind_email": {
     "message": "Bind This Email",
     "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "Inactive",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "Free Tier",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "Standard Tier",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "Plus Tier",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "Enterprise Tier",
+    "description": ""
   }
 }

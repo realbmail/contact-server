@@ -294,5 +294,25 @@
   "bind_email": {
     "message": "绑定该地址",
     "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "未激活",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "免费用户",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "普通会员",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "高级会员",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "企业会员",
+    "description": ""
   }
 }

@@ -132,15 +132,15 @@ function levelToStr(level: number) {
     switch (level) {
         case UserLevel.UserLevelInActive:
         default:
-            return {name: "未激活", url: "../file/level_inactive.png"};
+            return {name: browser.i18n.getMessage('user_level_Inactive'), url: "../file/level_inactive.png"};
         case UserLevel.UserLevelFree:
-            return {name: "免费用户", url: "../file/level_free.png"};
+            return {name: browser.i18n.getMessage('user_level_free'), url: "../file/level_free.png"};
         case UserLevel.UserLevelBronze:
-            return {name: "普通会员", url: "../file/level_bronze.png"};
+            return {name: browser.i18n.getMessage('user_level_normal'), url: "../file/level_bronze.png"};
         case UserLevel.UserLevelSilver:
-            return {name: "Plus会员", url: "../file/level_silver.png"};
+            return {name: browser.i18n.getMessage('user_level_plus'), url: "../file/level_silver.png"};
         case UserLevel.UserLevelGold:
-            return {name: "企业用户", url: "../file/level_gold.png"};
+            return {name: browser.i18n.getMessage('user_level_enterprise'), url: "../file/level_gold.png"};
     }
 }
 
@@ -175,7 +175,7 @@ function setupElementByAccountData(accountData: BMailAccount) {
         clone.removeAttribute('id');
         const button = clone.querySelector('button') as HTMLElement;
         button.addEventListener('click', async (e) => {
-            const success = await emailBindingOperate(true, email);
+            const success = await mailBindingAction(true, email);
             if (success) {
                 clone.parentNode?.removeChild(clone);
             }
@@ -210,6 +210,33 @@ async function emailBindingOperate(isDel: boolean, email: string): Promise<boole
         hideLoading();
     }
 }
+
+
+async function mailBindingAction(isUnbind: boolean, email: string): Promise<boolean> {
+    showLoading();
+    try {
+        const data = {
+            isUnbind: isUnbind,
+            mail: email,
+        }
+        const rsp = await sendMessageToBackground(data, MsgType.BindAction);
+        if (rsp.success < 0) {
+            showDialog("error", rsp.message);
+            return false;
+        }
+        await loadAndSetupAccount(true);
+        if (isUnbind) {
+            queryCurrentEmailAddr();
+        }
+        return true;
+    } catch (e) {
+        showDialog("error", JSON.stringify(e));
+        return false;
+    } finally {
+        hideLoading();
+    }
+}
+
 
 async function hashEmailAddr(email: string): Promise<boolean> {
 
@@ -252,7 +279,7 @@ function queryCurrentEmailAddr() {
                 const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
                 bindOrUnbindBtn.style.display = "block";
                 bindOrUnbindBtn.addEventListener('click', async (e) => {
-                    const success = await emailBindingOperate(false, currentEmail);
+                    const success = await mailBindingAction(false, currentEmail);
                     if (success) {
                         bindOrUnbindBtn.style.display = 'none';
                     }

@@ -20,6 +20,7 @@ export enum MsgType {
     EmailBindOp = 'EmailBindOp',
     IfBindThisEmail = 'IfBindThisEmail',
     OpenPlugin = 'OpenPlugin',
+    BindAction = 'BindAction',
 }
 
 export enum WalletStatus {
@@ -80,7 +81,8 @@ export async function createQRCodeImg(data: string) {
 
 // const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
 // const httpServerUrl = "http://bmail.simplenets.org:8001"
-const httpServerUrl = "https://bmail.simplenets.org:8443"
+// const httpServerUrl = "https://bmail.simplenets.org:8443"
+const httpServerUrl = "http://127.0.0.1:8001"
 
 
 export async function httpApi(path: string, param: any) {

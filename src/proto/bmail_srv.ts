@@ -26,12 +26,18 @@ export interface QueryReq {
   address: string;
   oneEmailAddr: string;
   emailList: string[];
+  signInTime: string;
 }
 
 export interface AccountOperation {
   isDel: boolean;
   address: string;
   emails: string[];
+}
+
+export interface BindAction {
+  address: string;
+  mail: string;
 }
 
 export interface ContactOperation {
@@ -260,7 +266,7 @@ export const BMRsp = {
 };
 
 function createBaseQueryReq(): QueryReq {
-  return { address: "", oneEmailAddr: "", emailList: [] };
+  return {address: "", oneEmailAddr: "", emailList: [], signInTime: ""};
 }
 
 export const QueryReq = {
@@ -273,6 +279,9 @@ export const QueryReq = {
     }
     for (const v of message.emailList) {
       writer.uint32(26).string(v!);
+    }
+    if (message.signInTime !== "") {
+      writer.uint32(34).string(message.signInTime);
     }
     return writer;
   },
@@ -305,6 +314,13 @@ export const QueryReq = {
 
           message.emailList.push(reader.string());
           continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          message.signInTime = reader.string();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -321,6 +337,7 @@ export const QueryReq = {
       emailList: globalThis.Array.isArray(object?.emailList)
         ? object.emailList.map((e: any) => globalThis.String(e))
         : [],
+      signInTime: isSet(object.signInTime) ? globalThis.String(object.signInTime) : "",
     };
   },
 
@@ -335,6 +352,9 @@ export const QueryReq = {
     if (message.emailList?.length) {
       obj.emailList = message.emailList;
     }
+    if (message.signInTime !== "") {
+      obj.signInTime = message.signInTime;
+    }
     return obj;
   },
 
@@ -346,6 +366,7 @@ export const QueryReq = {
     message.address = object.address ?? "";
     message.oneEmailAddr = object.oneEmailAddr ?? "";
     message.emailList = object.emailList?.map((e) => e) || [];
+    message.signInTime = object.signInTime ?? "";
     return message;
   },
 };
@@ -435,6 +456,80 @@ export const AccountOperation = {
     message.isDel = object.isDel ?? false;
     message.address = object.address ?? "";
     message.emails = object.emails?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseBindAction(): BindAction {
+  return {address: "", mail: ""};
+}
+
+export const BindAction = {
+  encode(message: BindAction, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.address !== "") {
+      writer.uint32(10).string(message.address);
+    }
+    if (message.mail !== "") {
+      writer.uint32(18).string(message.mail);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): BindAction {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBindAction();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.address = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.mail = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BindAction {
+    return {
+      address: isSet(object.address) ? globalThis.String(object.address) : "",
+      mail: isSet(object.mail) ? globalThis.String(object.mail) : "",
+    };
+  },
+
+  toJSON(message: BindAction): unknown {
+    const obj: any = {};
+    if (message.address !== "") {
+      obj.address = message.address;
+    }
+    if (message.mail !== "") {
+      obj.mail = message.mail;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BindAction>, I>>(base?: I): BindAction {
+    return BindAction.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BindAction>, I>>(object: I): BindAction {
+    const message = createBaseBindAction();
+    message.address = object.address ?? "";
+    message.mail = object.mail ?? "";
     return message;
   },
 };

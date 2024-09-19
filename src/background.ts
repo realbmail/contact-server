@@ -5,7 +5,7 @@ import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_sto
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
-import {BMailAccount, AccountOperation, QueryReq, EmailReflects} from "./proto/bmail_srv";
+import {BMailAccount, AccountOperation, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -98,6 +98,10 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
 
         case MsgType.EmailBindOp:
             bindingOperation(request.data.isDel, request.data.emails, sendResponse).then();
+            return true;
+
+        case MsgType.BindAction:
+            bindingAction(request.data.isUnbind, request.data.mail, sendResponse).then();
             return true;
 
         case MsgType.IfBindThisEmail:
@@ -528,4 +532,41 @@ async function checkIfAccountBound(email: string | null | undefined, sendRespons
         }
     }
     sendResponse({success: -1, message: browser.i18n.getMessage("curr_email_unbind")});
+}
+
+
+async function bindingAction(isUnbind: boolean, email: string, sendResponse: (response: any) => void) {
+    try {
+        const addr = await sessionGet(__dbKey_cur_addr) as MailAddress | null;
+        if (!addr) {
+            sendResponse({success: -1, message: "open wallet first"});
+            return;
+        }
+
+        const payload: BindAction = BindAction.create({
+            address: addr.bmail_address,
+            mail: email,
+        });
+
+        const message = BindAction.encode(payload).finish();
+        const sig = await signData(message);
+        if (!sig) {
+            sendResponse({success: -1, message: "sign data failed"});
+            return;
+        }
+
+        let apiPath = "/bind_account"
+        if (isUnbind) {
+            apiPath = "/unbind_account"
+        }
+
+        const srvRsp = await BMRequestToSrv(apiPath, addr.bmail_address, message, sig)
+        console.log("[service worker] binding or unbind=", isUnbind, " action success:=>", srvRsp);
+        sendResponse({success: 1, message: "success"});
+
+    } catch (e) {
+        const err = e as Error;
+        console.log("[service worker] bind account failed:", err);
+        sendResponse({success: -1, message: err.message});
+    }
 }
