@@ -30,7 +30,7 @@ export function translateHomePage() {
     btn = document.querySelector('#view-confirm-recovery .primary-button') as HTMLButtonElement;
     btn.textContent = browser.i18n.getMessage('home_confirm_import');
 
-    document.getElementById('import-container-tip')!.textContent = browser.i18n.getMessage('import_container_tip');
+    document.getElementById('import_container_tip')!.textContent = browser.i18n.getMessage('import_container_tip');
 
     btn = document.querySelector('#view-import-wallet .primary-button') as HTMLButtonElement;
     btn.textContent = browser.i18n.getMessage('home_confirm_recovery');
@@ -83,6 +83,7 @@ export function translateHomePage() {
     document.getElementById("des_pin_step3")!.textContent = browser.i18n.getMessage('des_pin_step3');
 
     document.getElementById("view-recovery-phrase-copy-seed")!.textContent = browser.i18n.getMessage('copy_to_clipboard');
+    document.getElementById("view-recovery-phrase-hide-seed")!.textContent = browser.i18n.getMessage('reveal_seed_phrase');
 }
 
 export function translateMainPage() {

@@ -168,7 +168,7 @@ function initMnemonicDiv(): void {
             return;
         }
         navigator.clipboard.writeText(___mnemonic_in_mem).then(() => {
-            alert("Copy success");
+            alert(browser.i18n.getMessage('copy_success'));
         }).catch(err => {
             const e = err as Error
             console.error('------>>>Error copying text: ', e.message);

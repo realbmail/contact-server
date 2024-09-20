@@ -47,7 +47,7 @@
     "message": "确认导入",
     "description": ""
   },
-  "import-container-tip": {
+  "import_container_tip": {
     "message": "你可以将整个秘密恢复短语粘贴到任何字段中",
     "description": ""
   },
@@ -313,6 +313,10 @@
   },
   "user_level_enterprise": {
     "message": "企业会员",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "复制成功",
     "description": ""
   }
 }

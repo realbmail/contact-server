@@ -314,5 +314,9 @@
   "user_level_enterprise": {
     "message": "Enterprise Tier",
     "description": ""
+  },
+  "copy_success": {
+    "message": "Copy Success",
+    "description": ""
   }
 }
