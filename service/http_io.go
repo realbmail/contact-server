@@ -56,11 +56,16 @@ func DoHttp(url, cTyp string, data []byte) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("expected status OK, got %v", resp.Status)
+		respData, _ := io.ReadAll(resp.Body)
+		if respData != nil {
+			return respData, err
+		}
+		return nil, fmt.Errorf("expected status OK, got %v v=%v", resp.Status, respData)
 	}
 
 	respData, err := io.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println("---->>>rsp data:", respData)
 		return nil, err
 	}
 

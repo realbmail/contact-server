@@ -55,6 +55,11 @@ func mainRun(_ *cobra.Command, _ []string) {
 	respData, err := service.DoHttp(api, "application/json", reqData)
 	if err != nil {
 		fmt.Println("-------->>>>:http failed:", err)
+		if respData != nil {
+			var rsp = service.Rsp{}
+			_ = json.Unmarshal(respData, &rsp)
+			fmt.Println(rsp)
+		}
 		return
 	}
 	var rsp = service.Rsp{}

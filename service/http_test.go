@@ -347,7 +347,7 @@ func TestBindAccount(t *testing.T) {
 
 	var action = &pbs.BindAction{
 		Address: key.Address.BmailAddress,
-		Mail:    "99927800@qq.com",
+		Mail:    address,
 	}
 
 	payload := common.MustProto(action)
@@ -369,7 +369,7 @@ func TestBindAccount(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fmt.Println("======>>> bind result:=>", rsp.Success)
+	fmt.Println("======>>> bind result:=>", rsp.Success, rsp.Msg)
 }
 
 func TestBindAccQuery(t *testing.T) {
@@ -416,7 +416,7 @@ func TestBindEmailQuery(t *testing.T) {
 	key := wallet.NewMailKeyFromSeed(seed)
 
 	var action = &pbs.QueryReq{
-		OneEmailAddr: "99927800@qq.com",
+		OneEmailAddr: address,
 	}
 
 	payload := common.MustProto(action)
@@ -452,7 +452,7 @@ func TestBindEmailArrQuery(t *testing.T) {
 	key := wallet.NewMailKeyFromSeed(seed)
 
 	var action = &pbs.QueryReq{
-		EmailList: []string{"99927800@qq.com", "ribencong@126.com"},
+		EmailList: []string{address, address2},
 	}
 
 	payload := common.MustProto(action)

@@ -153,7 +153,7 @@ func QueryReflectByEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	}
 	rsp.Payload = common.MustProto(contact)
 
-	common.LogInst().Debug().Str("email-addr", query.OneEmailAddr).Msg("query by one email address success")
+	common.LogInst().Debug().Str("email-addr", query.OneEmailAddr).Msgf("query by one email address success:%v", contact)
 	return rsp, nil
 }
 
