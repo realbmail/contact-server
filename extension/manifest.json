@@ -24,8 +24,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://mainnet.infura.io/*",
-    "https://sepolia.infura.io/*"
+    "https://bmail.simplenets.org/*"
   ],
   "background": {
     "service_worker": "js/background.js"
