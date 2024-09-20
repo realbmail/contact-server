@@ -30,6 +30,24 @@ func (dm *DbManager) QueryAccount(bmailAddr string) (*common.BMailAccount, error
 	return &contact, nil
 }
 
+func (dm *DbManager) UpdateAccountLevel(accountId string, level int8) error {
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
+	defer cancel()
+	docRef := dm.fileCli.Collection(DBTableAccount).Doc(accountId)
+	accountSnapShot, err := docRef.Get(opCtx)
+	if err != nil {
+		return err
+	}
+	var obj common.BMailAccount
+	err = accountSnapShot.DataTo(&obj)
+	if err != nil {
+		return err
+	}
+	obj.UserLel = level
+	_, err = docRef.Set(opCtx, obj)
+	return err
+}
+
 func (dm *DbManager) ActiveAccount(accountId string, level int8) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()

@@ -71,6 +71,7 @@ type DatabaseI interface {
 	QueryAccount(bmailAddr string) (*common.BMailAccount, error)
 	OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error
 	ActiveAccount(accountId string, level int8) error
+	UpdateAccountLevel(accountId string, level int8) error
 	UpdateBinding(bmailAddr string, emailAddr string) error
 	DeleteBinding(bmailAddr string, emailAddr string) error
 	UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error

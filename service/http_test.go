@@ -30,7 +30,7 @@ func TestKeepAlive(t *testing.T) {
 	var req = &Req{}
 	api := api_url + "/keep_alive"
 	reqData, _ := json.Marshal(req)
-	respData, err := doHttp(api, "application/json", reqData)
+	respData, err := DoHttp(api, "application/json", reqData)
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -61,7 +61,7 @@ func TestQueryByOneEmail(t *testing.T) {
 	var req = &Req{PayLoad: obj, Signature: "", AccountID: ""}
 	api := api_url + "/query_by_one_email"
 	reqData, _ := json.Marshal(req)
-	respData, err := doHttp(api, "application/json", reqData)
+	respData, err := DoHttp(api, "application/json", reqData)
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -84,7 +84,7 @@ func TestQueryByEmailArray(t *testing.T) {
 	var req = &Req{PayLoad: &obj, Signature: "", AccountID: ""}
 	api := api_url + "/query_by_email_array"
 	reqData, _ := json.Marshal(req)
-	respData, err := doHttp(api, "application/json", reqData)
+	respData, err := DoHttp(api, "application/json", reqData)
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -107,7 +107,7 @@ func TestQueryAccounts(t *testing.T) {
 	var req = &Req{PayLoad: obj, Signature: "", AccountID: ""}
 	api := api_url + "/query_account"
 	reqData, _ := json.Marshal(req)
-	respData, err := doHttp(api, "application/json", reqData)
+	respData, err := DoHttp(api, "application/json", reqData)
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -141,7 +141,7 @@ func TestAddContact(t *testing.T) {
 	}
 	api := api_url + "/operate_account"
 	reqData, _ := json.Marshal(req)
-	respData, err := doHttp(api, "application/json", reqData)
+	respData, err := DoHttp(api, "application/json", reqData)
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -171,7 +171,7 @@ func TestRemoveContact(t *testing.T) {
 
 	api := api_url + "/operate_account"
 	reqData, _ := json.Marshal(req)
-	respData, err := doHttp(api, "application/json", reqData)
+	respData, err := DoHttp(api, "application/json", reqData)
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -197,7 +197,7 @@ func TestProtoQueryByOneEmail(t *testing.T) {
 	sig := key.SignMessage(payload)
 	var req = &pbs.BMReq{Payload: payload, Signature: sig, Address: key.Address.BmailAddress}
 	api := api_url + "/query_by_one_email"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(req))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(req))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -238,7 +238,7 @@ func TestProtoQueryByEmailArray(t *testing.T) {
 	var req = &pbs.BMReq{Payload: payload, Signature: sig, Address: key.Address.BmailAddress}
 
 	api := api_url + "/query_by_email_array"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(req))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(req))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -279,7 +279,7 @@ func TestProtoQueryAccounts(t *testing.T) {
 
 	var req = &pbs.BMReq{Payload: common.MustProto(obj), Signature: sig, Address: key.Address.BmailAddress}
 	api := api_url + "/query_account"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(req))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(req))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -324,7 +324,7 @@ func TestActiveAccount(t *testing.T) {
 		Signature: sig,
 	}
 	api := api_url + "/account_active"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(request))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -358,7 +358,7 @@ func TestBindAccount(t *testing.T) {
 		Signature: sig,
 	}
 	api := api_url + "/bind_account"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(request))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -391,7 +391,7 @@ func TestBindAccQuery(t *testing.T) {
 		Signature: sig,
 	}
 	api := api_url + "/query_account"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(request))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -427,7 +427,7 @@ func TestBindEmailQuery(t *testing.T) {
 		Signature: sig,
 	}
 	api := api_url + "/query_by_one_email"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(request))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}
@@ -463,7 +463,7 @@ func TestBindEmailArrQuery(t *testing.T) {
 		Signature: sig,
 	}
 	api := api_url + "/query_by_email_array"
-	respData, err := doHttp(api, "application/x-protobuf", common.MustProto(request))
+	respData, err := DoHttp(api, "application/x-protobuf", common.MustProto(request))
 	if err != nil {
 		t.Fatalf("http failed:%v", err)
 	}

@@ -1,14 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/realbmail/contact-server/db_leveldb"
+	pbs "github.com/realbmail/contact-server/proto"
+	"github.com/realbmail/contact-server/service"
 	"github.com/spf13/cobra"
 )
 
 type startParam struct {
 	level   int8
 	address string
+	query   bool
 }
 
 var param = &startParam{}
@@ -28,6 +31,8 @@ func init() {
 		"l", 1, "dbtool.lnx -l 1")
 	flags.StringVarP(&param.address, "address",
 		"a", "", "dbtool.lnx -a [Address]")
+	flags.BoolVarP(&param.query, "query",
+		"q", false, "dbtool.lnx -q [Address]")
 }
 
 func main() {
@@ -37,10 +42,27 @@ func main() {
 }
 
 func mainRun(_ *cobra.Command, _ []string) {
-	err := db_leveldb.DbInst().UpdateAccountLevel(param.address, param.level)
+	var req = &pbs.AccountOperation{
+		Address:   param.address,
+		UserLevel: int32(param.level),
+	}
+	var url = "http://127.0.0.1:8887"
+	api := url + "/update_user_level"
+	if param.query {
+		api = url + "/query_user_level"
+	}
+	reqData, _ := json.Marshal(req)
+	respData, err := service.DoHttp(api, "application/json", reqData)
 	if err != nil {
-		fmt.Println("failed to update account level:", err)
+		fmt.Println("-------->>>>:http failed:", err)
 		return
 	}
-	fmt.Println("update account level success")
+	var rsp = service.Rsp{}
+	err = json.Unmarshal(respData, &rsp)
+	if err != nil {
+		fmt.Println("-------->>>>:parse json failed:", err)
+		return
+	}
+
+	fmt.Println(rsp)
 }

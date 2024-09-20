@@ -25,6 +25,7 @@ message AccountOperation{
   bool isDel = 1;
   string address = 2;
   repeated  string emails = 3;
+  int32 userLevel = 4;
 }
 
 message BindAction{

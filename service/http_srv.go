@@ -19,6 +19,7 @@ func (s *Service) Start() {
 		r := chi.NewRouter()
 		r.Use(middleware.Recoverer)
 		r.HandleFunc("/update_user_level", updateUserLevel)
+		r.HandleFunc("/query_user_level", queryUserLevel)
 		_ = http.ListenAndServe("127.0.0.1:8887", r)
 	}()
 
@@ -31,12 +32,42 @@ func (s *Service) Start() {
 	}
 
 }
+func queryUserLevel(w http.ResponseWriter, r *http.Request) {
+
+	var action pbs.AccountOperation
+
+	var err = ReadJsonRequest(r, &action)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	acc, err := __httpConf.database.QueryAccount(action.Address)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	WriteJsonRequest(w, Rsp{Success: true, Payload: acc})
+}
 
 func updateUserLevel(w http.ResponseWriter, r *http.Request) {
-	var c = common.BMailAccount{
-		EMailAddress: []string{"ri", "ben", "con"},
+
+	var action pbs.AccountOperation
+
+	var err = ReadJsonRequest(r, &action)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
 	}
-	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
+
+	err = __httpConf.database.UpdateAccountLevel(action.Address, int8(action.UserLevel))
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	WriteJsonRequest(w, Rsp{Success: true})
 }
 
 func keepAlive(w http.ResponseWriter, r *http.Request) {

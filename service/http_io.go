@@ -42,7 +42,7 @@ func WriteJsonRequest(w http.ResponseWriter, val any) {
 	_, _ = w.Write(data)
 }
 
-func doHttp(url, cTyp string, data []byte) ([]byte, error) {
+func DoHttp(url, cTyp string, data []byte) ([]byte, error) {
 	httpReq, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewReader(data))
 	if err != nil {
 		return nil, err
