@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	pbs "github.com/realbmail/contact-server/proto"
 )
 
@@ -10,14 +11,14 @@ type UserLevel uint8
 const (
 	UserLevelInActive UserLevel = iota
 	UserLevelFree
-	UserLevelBronze
-	UserLevelSilver
-	UserLevelGold
+	UserLevelNormalVip
+	UserLevelPlusVip
+	UserLevelEnterpriseVip
 )
 const (
 	EmailAddrNoForFree   = 1
-	EmailAddrNoForBronze = 3
-	EmailAddrNoForSilver = 5
+	EmailAddrNoForNormal = 3
+	EmailAddrNoForPlus   = 5
 )
 
 var NoRightError = errors.New("no right to operate")
@@ -31,27 +32,27 @@ func checkRightsOfAction(operation *pbs.BindAction) error {
 	switch UserLevel(acc.UserLel) {
 	case UserLevelInActive:
 	default:
-		return NoRightError
+		return fmt.Errorf("%w: user is inactive", NoRightError)
 
 	case UserLevelFree:
 		if resultSize > EmailAddrNoForFree {
-			return NoRightError
+			return fmt.Errorf("%w: free users can only bind %d email addresses", NoRightError, EmailAddrNoForFree)
 		}
 		return nil
 
-	case UserLevelBronze:
-		if resultSize > EmailAddrNoForBronze {
-			return NoRightError
+	case UserLevelNormalVip:
+		if resultSize > EmailAddrNoForNormal {
+			return fmt.Errorf("%w: normal vip users can only bind %d email addresses", NoRightError, EmailAddrNoForNormal)
 		}
 		return nil
 
-	case UserLevelSilver:
-		if resultSize > EmailAddrNoForSilver {
-			return NoRightError
+	case UserLevelPlusVip:
+		if resultSize > EmailAddrNoForPlus {
+			return fmt.Errorf("%w: plus vip users can only bind %d email addresses", NoRightError, EmailAddrNoForPlus)
 		}
 		return nil
 
-	case UserLevelGold:
+	case UserLevelEnterpriseVip:
 		return nil
 	}
 	return nil
@@ -77,19 +78,19 @@ func checkRightsOfAccount(operation *pbs.AccountOperation) error {
 		}
 		return nil
 
-	case UserLevelBronze:
-		if len(newEmailList) > EmailAddrNoForBronze {
+	case UserLevelNormalVip:
+		if len(newEmailList) > EmailAddrNoForNormal {
 			return NoRightError
 		}
 		return nil
 
-	case UserLevelSilver:
-		if len(newEmailList) > EmailAddrNoForSilver {
+	case UserLevelPlusVip:
+		if len(newEmailList) > EmailAddrNoForPlus {
 			return NoRightError
 		}
 		return nil
 
-	case UserLevelGold:
+	case UserLevelEnterpriseVip:
 		return nil
 	}
 
