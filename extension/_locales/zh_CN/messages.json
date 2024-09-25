@@ -318,5 +318,9 @@
   "copy_success": {
     "message": "复制成功",
     "description": ""
+  },
+  "invalid_password": {
+    "message": "密码错误",
+    "description": ""
   }
 }

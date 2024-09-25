@@ -318,5 +318,9 @@
   "copy_success": {
     "message": "Copy Success",
     "description": ""
+  },
+  "invalid_password": {
+    "message": "Password Invalid",
+    "description": ""
   }
 }

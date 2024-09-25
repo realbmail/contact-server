@@ -35,7 +35,11 @@ function openAllWallets(): void {
         if (!response.status) {
             const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
             console.log("------>>>error:", response.error)
-            errTips.innerText = response.error;
+            if (response.error.includes("bad seed size") || response.error.includes("Malformed UTF-8 data")) {
+                errTips.innerText = browser.i18n.getMessage('invalid_password');
+            } else {
+                errTips.innerText = response.error;
+            }
             return;
         }
         console.log("------------>>>", response.message);
