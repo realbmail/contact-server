@@ -7,7 +7,7 @@ import {
     showView,
     signDataByMessage
 } from "./common";
-import {sessionGet, sessionSet} from "./session_storage";
+import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {
     __currentAccountAddress,
     __currentAccountData,
@@ -101,6 +101,7 @@ export async function populateDashboard() {
 }
 
 async function quitThisAccount() {
+    await sessionRemove(__currentAccountAddress);
     const rsp = await sendMessageToBackground(null, MsgType.WalletClose);
     if (!rsp || rsp.success <= 0) {
         showDialog("Error", "failed to quit");
@@ -283,7 +284,7 @@ function queryCurrentEmailAddr() {
                     if (success) {
                         bindOrUnbindBtn.style.display = 'none';
                     }
-                })
+                }, {once: true})
             } else {
                 console.log('------>>>Element not found or has no value');
             }

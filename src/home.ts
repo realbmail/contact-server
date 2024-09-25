@@ -288,7 +288,13 @@ async function actionOfWalletImport(): Promise<void> {
     passwordInput.value = '';
     const importedConfirmPassword = document.getElementById("imported-confirm-password") as HTMLInputElement;
     importedConfirmPassword.value = '';
-    navigateTo('#onboarding/account-home');
+    //TODO: skip buy vip page
+    // navigateTo('#onboarding/account-home');
+
+    const address = wallet.address.bmail_address;
+    await freeActiveAccount(address);
+    navigateTo('#onboarding/account-success');
+
 }
 
 
@@ -460,10 +466,14 @@ function initMnemonicConfirmDiv(): void {
     confirmRecoverBtn.addEventListener('click', confirmImportedWallet);
 }
 
-function confirmUserInputPhrase(): void {
+async function confirmUserInputPhrase(): Promise<void> {
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
-    navigateTo('#onboarding/account-home');
+    // navigateTo('#onboarding/account-home');
+
+    const wallet = await queryCurWallet();
+    await freeActiveAccount(wallet?.address.bmail_address);
+    navigateTo('#onboarding/account-success');
 }
 
 function confirmImportedWallet(): void {
@@ -493,7 +503,9 @@ function initCreateSuccessDiv() {
     confirmBtn.addEventListener('click', buyVipMembership);
 
     const freeAccountBtn = parentDiv.querySelector(".confirm-button.free-active") as HTMLButtonElement;
-    freeAccountBtn.addEventListener('click', freeActiveAccount);
+    freeAccountBtn.addEventListener('click', async () => {
+        await freeActiveAccount();
+    });
 
     const allCards = parentDiv.querySelectorAll(".membership") as NodeListOf<HTMLElement>;
     allCards.forEach(membership => {
@@ -549,14 +561,17 @@ async function generateQrCodeForVipBuying() {
     qrImg.src = qrUrl;
 }
 
-async function freeActiveAccount() {
+async function freeActiveAccount(address?: string) {
     const errorDiv = document.getElementById("account-home-error") as HTMLDivElement;
     errorDiv.style.display = "none";
     errorDiv.innerText = "";
     showLoading();
     try {
-        const walletAddrDiv = document.querySelector(".current-wallet-address-val") as HTMLElement;
-        const address = walletAddrDiv.innerText;
+        if (!address) {
+            const walletAddrDiv = document.querySelector(".current-wallet-address-val") as HTMLElement;
+            address = walletAddrDiv.innerText;
+        }
+
         if (!address) {
             console.log("------>>> no valid account address found")
             return

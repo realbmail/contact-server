@@ -134,7 +134,6 @@ export function newWallet(mnemonic: string, password: string): DbWallet {
     const key = new MailKey(seedUint8Array);
     const seedHex = encodeHex(seedUint8Array);
     const data = encryptAes(seedHex, password);
-    console.log("------>>>seed to remove:",seedHex, JSON.stringify(data));
     return new DbWallet(key.address, data);
 }
 

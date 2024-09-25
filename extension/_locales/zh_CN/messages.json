@@ -48,7 +48,7 @@
     "description": ""
   },
   "import_container_tip": {
-    "message": "你可以将整个秘密恢复短语粘贴到任何字段中",
+    "message": "你可以将整个助记词短语粘贴到任何字段中",
     "description": ""
   },
   "home_confirm_recovery": {
@@ -284,7 +284,7 @@
     "description": ""
   },
   "no_valid_license": {
-    "message": "无效授权",
+    "message": "无",
     "description": ""
   },
   "valid_license_title": {

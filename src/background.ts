@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import browser, {Runtime} from "webextension-polyfill";
-import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
+import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem, databaseQueryAll} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
@@ -204,6 +204,7 @@ async function createWallet(mnemonic: string, password: string, sendResponse: (r
     try {
         await checkAndInitDatabase();
         const wallet = newWallet(mnemonic, password);
+        await databaseQueryAll(__tableNameWallet);
         await databaseAddItem(__tableNameWallet, wallet);
         const mKey = castToMemWallet(password, wallet);
         await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
