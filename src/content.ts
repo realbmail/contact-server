@@ -7,7 +7,7 @@ import {HostArr, Inject_Msg_Flag, MsgType} from "./consts";
 import {readCurrentMailAddress} from "./content_common";
 import {sendMessageToBackground} from "./common";
 
-import {BmailError, EventData, InjectResult} from "./inject_msg";
+import {__injectRequests, EventData, injectCall, procResponse, wrapResponse} from "./inject_msg";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -110,32 +110,38 @@ window.addEventListener("message", async (event) => {
     switch (eventData.type) {
         case MsgType.QueryCurBMail:
             const response = await sendMessageToBackground(eventData.params, eventData.type);
-            const rspEvent = wrapResponse(eventData.id, eventData.type, response);
+            const rspEvent = wrapResponse(eventData.id, eventData.type, response, false);
             window.postMessage(rspEvent, "*");
             break;
+
+        case MsgType.QueryCurEmail:
+            const processor = __injectRequests[eventData.id];
+            if (!processor) return;
+            procResponse(processor, eventData);
+            break;
+
         default:
             console.log("------>>> unknown event type:", eventData);
             return;
     }
 });
 
-function wrapResponse(id: string, type: string, response: any): EventData {
-    let result: InjectResult;
-    if (response.success <= 0) {
-        const error = new BmailError(response.success, response.data).toJSON();
-        result = new InjectResult(false, null, error);
-    } else {
-        result = new InjectResult(true, response.data);
-    }
-    return new EventData(id, Inject_Msg_Flag, type, result);
-}
-
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
     console.log("------>>>on message from background:", request.action);
     if (request.action === MsgType.QueryCurEmail) {
         const emailAddr = readCurrentMailAddress();
-        sendResponse({value: emailAddr});
+        if (emailAddr) {
+            sendResponse({value: emailAddr});
+            return;
+        }
+
+        injectCall(MsgType.QueryCurEmail, {}, false).then(emailAddr => {
+            sendResponse({value: emailAddr});
+        }).catch((err) => {
+            console.log("------>>> query email address from injected js failed:", err)
+            sendResponse({value: null});
+        });
     }
     return true;
 });

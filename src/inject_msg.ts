@@ -1,6 +1,8 @@
+import {Inject_Msg_Flag, Plugin_Request_Timeout} from "./consts";
+
 export const __injectRequests: { [key: string]: InjectRequest } = {}
 
-interface InjectRequest {
+export interface InjectRequest {
     resolve: (value?: any) => void;
     reject: (reason?: any) => void;
 }
@@ -53,4 +55,50 @@ export class EventData {
         this.params = params;
         this.toPlugin = toPlugin ?? false;
     }
+}
+
+export function injectCall(type: string, params: any, fromClientToPlugin?: boolean): Promise<any> {
+    const id = Math.random().toString().slice(-4);
+    return new Promise((resolve, reject) => {
+        __injectRequests[id] = {resolve, reject};
+        const event = new EventData(id, Inject_Msg_Flag, type, params, fromClientToPlugin);
+        window.postMessage(event, '*');
+
+        setTimeout(() => {
+            if (__injectRequests[id]) {
+                reject(new Error('Request timed out'));
+                delete __injectRequests[id];
+            }
+        }, Plugin_Request_Timeout);
+    });
+}
+
+export function wrapResponse(id: string, type: string, response: any, toPlugin?: boolean): EventData {
+    let result: InjectResult;
+    if (response.success <= 0) {
+        const error = new BmailError(response.success, response.data).toJSON();
+        result = new InjectResult(false, null, error);
+    } else {
+        result = new InjectResult(true, response.data);
+    }
+    return new EventData(id, Inject_Msg_Flag, type, result, toPlugin);
+}
+
+export function procResponse(processor: InjectRequest, eventData: EventData) {
+    const result = eventData.params as InjectResult;
+
+    if (!result) {
+        const error = new BmailError(-2, "No valid response").toJSON();
+        processor.reject(error);
+        delete __injectRequests[eventData.id];
+        return;
+    }
+
+    if (!result.success || result.error) {
+        processor.reject(result.error);
+    } else {
+        processor.resolve(result.data);
+    }
+
+    delete __injectRequests[eventData.id];
 }

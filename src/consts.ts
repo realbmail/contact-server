@@ -43,3 +43,4 @@ export enum HostArr {
 export const httpServerUrl = "https://bmail.simplenets.org:8443"
 // const httpServerUrl = "http://127.0.0.1:8001"
 export const Inject_Msg_Flag = "BMAIL_INJECTION_MSG_ORIGIN";
+export const Plugin_Request_Timeout = 10000;
