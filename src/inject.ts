@@ -1,14 +1,25 @@
-import {Inject_Msg_Flag, MsgType} from "./consts";
+import {ECNoCallbackFound, Inject_Msg_Flag, MsgType} from "./consts";
 import {__injectRequests, EventData, injectCall, procResponse, wrapResponse} from "./inject_msg";
 
 function createBmailObj() {
+
     window.bmail = {
         version: '1.2.5',
+        onEmailQuery: null,
+
         connect: async function (): Promise<any> {
             return await injectCall(MsgType.QueryCurBMail, {}, true);
         },
-        onEmailQuery: null  // 类型已经定义为 QueryEmailAddr | null
+
+        encryptMailTxt: async function (emailAddr: string[], plainTxt: string): Promise<any> {
+            return await injectCall(MsgType.EncryptData, {emails: emailAddr, data: plainTxt}, true);
+        },
+
+        decryptMailTxt: async function (cipherText: string): Promise<any> {
+            return await injectCall(MsgType.DecryptData, {data: cipherText}, true);
+        },
     };
+
     console.log("++++++>>>bmail object inject success");
 }
 
@@ -16,7 +27,7 @@ function queryEmailForPlugin(eventData: EventData) {
     let rspEvent: EventData;
     if (!window.bmail || !window.bmail.onEmailQuery) {
         rspEvent = wrapResponse(eventData.id, eventData.type, {
-            success: -1,
+            success: ECNoCallbackFound,
             data: "no email query callback found"
         }, true);
     } else {

@@ -3,7 +3,7 @@ import {appendForNetEase} from "./content_netease";
 import {appendForGoogle} from "./content_google";
 import {appendForQQ} from "./content_qq";
 import {appendForOutLook} from "./content_outlook";
-import {HostArr, Inject_Msg_Flag, MsgType} from "./consts";
+import {ECDecryptFailed, ECEncryptedFailed, ECWalletClosed, HostArr, Inject_Msg_Flag, MsgType} from "./consts";
 import {readCurrentMailAddress} from "./content_common";
 import {sendMessageToBackground} from "./common";
 
@@ -97,6 +97,10 @@ export function appendTipDialog(template: HTMLTemplateElement) {
     document.body.appendChild(waitClone);
 }
 
+const loginFirstTip = wrapResponse('', '', {
+    success: ECWalletClosed,
+    data: "open your wallet first please!"
+}, false);
 
 window.addEventListener("message", async (event) => {
     if (event.source !== window || !event.data) return;
@@ -107,10 +111,11 @@ window.addEventListener("message", async (event) => {
 
     console.log("------>>>on message from injected js:", eventData.type);
 
+    let rspEvent: EventData;
     switch (eventData.type) {
         case MsgType.QueryCurBMail:
             const response = await sendMessageToBackground(eventData.params, eventData.type);
-            const rspEvent = wrapResponse(eventData.id, eventData.type, response, false);
+            rspEvent = wrapResponse(eventData.id, eventData.type, response, false);
             window.postMessage(rspEvent, "*");
             break;
 
@@ -120,11 +125,69 @@ window.addEventListener("message", async (event) => {
             procResponse(processor, eventData);
             break;
 
+        case MsgType.EncryptData:
+            await encryptData(eventData)
+            break;
+
+        case MsgType.DecryptData:
+            await decryptData(eventData);
+            break;
+
         default:
             console.log("------>>> unknown event type:", eventData);
             return;
     }
 });
+
+async function enOrDecryptForInject(eventData: EventData, request: any, errorType: number): Promise<EventData> {
+    let rspEvent: EventData
+    const mailRsp = await browser.runtime.sendMessage(request)
+    if (mailRsp.success <= 0) {
+        if (mailRsp.success === 0) {
+            return loginFirstTip;
+        } else {
+            rspEvent = wrapResponse(eventData.id, eventData.type, {
+                success: errorType,
+                data: mailRsp.message
+            }, false);
+        }
+    } else {
+        rspEvent = wrapResponse(eventData.id, eventData.type, {success: 1, data: mailRsp.data}, false);
+    }
+    return rspEvent;
+}
+
+async function encryptData(eventData: EventData) {
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return loginFirstTip;
+    }
+
+    const data = eventData.params;
+
+    const request = {
+        action: MsgType.EncryptData,
+        receivers: data.emails,
+        data: data.data
+    }
+
+    const rspEvent = await enOrDecryptForInject(eventData, request, ECEncryptedFailed)
+    window.postMessage(rspEvent, "*");
+}
+
+async function decryptData(eventData: EventData) {
+    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+    if (statusRsp.success < 0) {
+        return loginFirstTip;
+    }
+    const data = eventData.params;
+    const request = {
+        action: MsgType.DecryptData,
+        data: data.data
+    }
+    const rspEvent = await enOrDecryptForInject(eventData, request, ECDecryptFailed)
+    window.postMessage(rspEvent, "*");
+}
 
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {

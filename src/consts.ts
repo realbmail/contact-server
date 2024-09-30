@@ -44,3 +44,8 @@ export const httpServerUrl = "https://bmail.simplenets.org:8443"
 // const httpServerUrl = "http://127.0.0.1:8001"
 export const Inject_Msg_Flag = "BMAIL_INJECTION_MSG_ORIGIN";
 export const Plugin_Request_Timeout = 10000;
+
+export const ECWalletClosed = -1
+export const ECEncryptedFailed = -3
+export const ECDecryptFailed = -4
+export const ECNoCallbackFound = -5
