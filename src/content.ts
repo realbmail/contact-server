@@ -7,7 +7,7 @@ import {HostArr, Inject_Msg_Flag, MsgType} from "./consts";
 import {readCurrentMailAddress} from "./content_common";
 import {sendMessageToBackground} from "./common";
 
-import {EventData, InjectResult} from "./inject_msg";
+import {BmailError, EventData, InjectResult} from "./inject_msg";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -103,23 +103,32 @@ window.addEventListener("message", async (event) => {
 
     const eventData = event.data as EventData;
     if (!eventData) return;
-    if (eventData.flag !== Inject_Msg_Flag) return;
+    if (eventData.flag !== Inject_Msg_Flag || !eventData.toPlugin) return;
 
     console.log("------>>>on message from injected js:", eventData.type);
 
     switch (eventData.type) {
         case MsgType.QueryCurBMail:
             const response = await sendMessageToBackground(eventData.params, eventData.type);
-            let result: InjectResult;
-            if (response.success <= 0) {
-                result = new InjectResult(false, null, new Error(`error code: ${response.success} message: ${response.data}`));
-            } else {
-                result = new InjectResult(true, response.data);
-            }
-            const rspEvent = new EventData(eventData.id, Inject_Msg_Flag, MsgType.InjectRsp, result)
+            const rspEvent = wrapResponse(eventData.id, eventData.type, response);
             window.postMessage(rspEvent, "*");
+            break;
+        default:
+            console.log("------>>> unknown event type:", eventData);
+            return;
     }
 });
+
+function wrapResponse(id: string, type: string, response: any): EventData {
+    let result: InjectResult;
+    if (response.success <= 0) {
+        const error = new BmailError(response.success, response.data).toJSON();
+        result = new InjectResult(false, null, error);
+    } else {
+        result = new InjectResult(true, response.data);
+    }
+    return new EventData(id, Inject_Msg_Flag, type, result);
+}
 
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {

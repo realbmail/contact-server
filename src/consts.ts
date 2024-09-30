@@ -17,7 +17,6 @@ export enum MsgType {
     OpenPlugin = 'OpenPlugin',
     BindAction = 'BindAction',
     QueryCurBMail = 'QueryCurBMail',
-    InjectRsp = 'InjectRsp',
 }
 
 
