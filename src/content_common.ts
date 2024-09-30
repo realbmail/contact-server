@@ -3,8 +3,6 @@ import {
     EncryptedMailDivSearch,
     extractJsonString,
     hideLoading,
-    HostArr,
-    MsgType,
     replaceTextInRange,
     sendMessageToBackground,
     showLoading
@@ -15,19 +13,11 @@ import {MailFlag} from "./bmail_body";
 import {queryEmailAddrQQ} from "./content_qq";
 import {EmailReflects} from "./proto/bmail_srv";
 import {queryEmailAddrOutLook} from "./content_outlook";
+import {HostArr, MsgType} from "./consts";
 
 let __cur_email_address: string | null | undefined;
 
 export const __decrypt_button_css_name = '.bmail-decrypt-btn'
-
-browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
-    console.log("------>>>on message:", request.action);
-    if (request.action === MsgType.QueryCurEmail) {
-        const emailAddr = readCurrentMailAddress();
-        sendResponse({value: emailAddr});
-    }
-    return true;
-});
 
 function bmailInboxAction() {
     console.log("------>>> bmail inbox")
@@ -36,7 +26,7 @@ function bmailInboxAction() {
     });
 }
 
-function readCurrentMailAddress() {
+export function readCurrentMailAddress() {
     const hostname = window.location.hostname;
     if (__cur_email_address) {
         return __cur_email_address;

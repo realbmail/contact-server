@@ -1,7 +1,6 @@
 import {
     BMRequestToSrv,
     encodeHex, hideLoading,
-    MsgType,
     sendMessageToBackground,
     showLoading,
     showView,
@@ -19,6 +18,7 @@ import {
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import {queryCurWallet} from "./wallet";
 import browser from "webextension-polyfill";
+import {MsgType} from "./consts";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;

@@ -2,44 +2,7 @@ import * as QRCode from 'qrcode';
 import browser from "webextension-polyfill";
 import {BMReq, BMRsp} from "./proto/bmail_srv";
 import {MailFlag} from "./bmail_body";
-
-export enum MsgType {
-    PluginClicked = 'PluginClicked',
-    WalletCreate = 'WalletCreate',
-    WalletOpen = 'WalletOpen',
-    WalletClose = 'WalletClose',
-    EncryptData = 'EncryptData',
-    DecryptData = 'DecryptData',
-    BMailInbox = 'BMailInbox',
-    AddInboxBtn = 'AddInboxBtn',
-    QueryCurEmail = 'QueryCurEmail',
-    EmailAddrToBmailAddr = 'EmailAddrToBmailAddr',
-    CheckIfLogin = 'CheckIfLogin',
-    SignData = 'SignData',
-    QueryAccountDetails = 'QueryAccountDetails',
-    EmailBindOp = 'EmailBindOp',
-    IfBindThisEmail = 'IfBindThisEmail',
-    OpenPlugin = 'OpenPlugin',
-    BindAction = 'BindAction',
-}
-
-export enum WalletStatus {
-    Init = 'Init',
-    NoWallet = 'NoWallet',
-    Locked = 'Locked',
-    Unlocked = 'Unlocked',
-    Expired = 'Expired',
-    Error = 'error',
-    InvalidTarget = 'InvalidTarget'
-}
-
-export enum HostArr {
-    Google = 'mail.google.com',
-    Mail163 = 'mail.163.com',
-    Mail126 = 'mail.126.com',
-    QQ = 'mail.qq.com',
-    OutLook = 'outlook.live.com'
-}
+import {httpServerUrl, MsgType} from "./consts";
 
 export const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
 
@@ -78,13 +41,6 @@ export async function createQRCodeImg(data: string) {
         return null
     }
 }
-
-// const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
-// const httpServerUrl = "http://bmail.simplenets.org:8001"
-const httpServerUrl = "https://bmail.simplenets.org:8443"
-
-// const httpServerUrl = "http://127.0.0.1:8001"
-
 
 export async function httpApi(path: string, param: any) {
     const response = await fetch(httpServerUrl + path, {
@@ -161,23 +117,6 @@ export function extractEmail(input: string): string | null {
     // 如果找到匹配项，返回匹配的电子邮件地址，否则返回 null
     return match ? match[0] : null;
 }
-
-// export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
-//     const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
-//     let match;
-//
-//     while ((match = jsonRegex.exec(input)) !== null) {
-//         const jsonString = match[0];
-//
-//         if (jsonString.includes(MailFlag)) {
-//             const offset = match.index;
-//             const endOffset = offset + jsonString.length;
-//             return {json: jsonString, offset, endOffset};
-//         }
-//     }
-//     return null;
-// }
-
 
 export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
     // 保存原始 HTML 标签的位置

@@ -13,10 +13,11 @@ import {
 import {
     emailRegex,
     extractEmail, hideLoading,
-    MsgType, sendMessageToBackground,
+    sendMessageToBackground,
     showLoading,
 } from "./common";
 import browser from "webextension-polyfill";
+import {MsgType} from "./consts";
 
 export function appendForQQ(template: HTMLTemplateElement) {
 

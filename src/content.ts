@@ -1,9 +1,13 @@
 import browser from "webextension-polyfill";
-import {HostArr} from "./common";
 import {appendForNetEase} from "./content_netease";
 import {appendForGoogle} from "./content_google";
 import {appendForQQ} from "./content_qq";
 import {appendForOutLook} from "./content_outlook";
+import {HostArr, Inject_Msg_Flag, MsgType} from "./consts";
+import {readCurrentMailAddress} from "./content_common";
+import {sendMessageToBackground} from "./common";
+
+import {EventData, InjectResult} from "./inject_msg";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -92,3 +96,37 @@ export function appendTipDialog(template: HTMLTemplateElement) {
     const waitClone = waitingDiv.cloneNode(true) as HTMLElement;
     document.body.appendChild(waitClone);
 }
+
+
+window.addEventListener("message", async (event) => {
+    if (event.source !== window || !event.data) return;
+
+    const eventData = event.data as EventData;
+    if (!eventData) return;
+    if (eventData.flag !== Inject_Msg_Flag) return;
+
+    console.log("------>>>on message from injected js:", eventData.type);
+
+    switch (eventData.type) {
+        case MsgType.QueryCurBMail:
+            const response = await sendMessageToBackground(eventData.params, eventData.type);
+            let result: InjectResult;
+            if (response.success <= 0) {
+                result = new InjectResult(false, null, new Error(`error code: ${response.success} message: ${response.data}`));
+            } else {
+                result = new InjectResult(true, response.data);
+            }
+            const rspEvent = new EventData(eventData.id, Inject_Msg_Flag, MsgType.InjectRsp, result)
+            window.postMessage(rspEvent, "*");
+    }
+});
+
+
+browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
+    console.log("------>>>on message from background:", request.action);
+    if (request.action === MsgType.QueryCurEmail) {
+        const emailAddr = readCurrentMailAddress();
+        sendResponse({value: emailAddr});
+    }
+    return true;
+});

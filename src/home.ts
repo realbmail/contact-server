@@ -2,7 +2,6 @@ import {initDatabase} from "./database";
 import {
     BMRequestToSrv,
     createQRCodeImg, encodeHex,
-    MsgType,
     sendMessageToBackground,
     showView, signDataByMessage
 } from "./common";
@@ -11,6 +10,7 @@ import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
 import {DbWallet, queryCurWallet} from "./wallet";
 import {AccountOperation} from "./proto/bmail_srv";
+import {MsgType} from "./consts";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;

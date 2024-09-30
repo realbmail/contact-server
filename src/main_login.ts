@@ -1,9 +1,10 @@
 import browser from "webextension-polyfill";
-import {hideLoading, MsgType, showLoading, showView} from "./common";
+import {hideLoading, showLoading, showView} from "./common";
 import {MailAddress} from "./wallet";
 import {sessionSet} from "./session_storage";
 import {__currentAccountAddress, router, showDialog} from "./main_common";
 import {__tableNameWallet, databaseDeleteByFilter} from "./database";
+import {MsgType} from "./consts";
 
 export function initLoginDiv(): void {
     const unlock = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;

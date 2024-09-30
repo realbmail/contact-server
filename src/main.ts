@@ -1,7 +1,6 @@
 import browser from "webextension-polyfill";
 import {
-    MsgType,
-    showView, WalletStatus
+    showView
 } from "./common";
 import {initDatabase} from "./database";
 import {translateMainPage} from "./local";
@@ -12,6 +11,7 @@ import {
 } from "./main_common";
 import {initLoginDiv} from "./main_login";
 import {initDashBoard} from "./main_dashboard";
+import {MsgType, WalletStatus} from "./consts";
 
 document.addEventListener("DOMContentLoaded", initBMailExtension as EventListener);
 

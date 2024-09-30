@@ -3,9 +3,10 @@ import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem, databaseQueryAll} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
-import {BMRequestToSrv, decodeHex, MsgType, WalletStatus} from "./common";
+import {BMRequestToSrv, decodeHex} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
 import {BMailAccount, AccountOperation, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
+import {MsgType, WalletStatus} from "./consts";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -107,8 +108,13 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
         case MsgType.IfBindThisEmail:
             checkIfAccountBound(request.data, sendResponse).then();
             return true;
+
         case MsgType.OpenPlugin:
             browser.action.openPopup().then();
+            return true;
+
+        case MsgType.QueryCurBMail:
+            queryCurrentBmailAddress(sendResponse).then();
             return true
         default:
             sendResponse({status: false, message: 'unknown action'});
@@ -168,11 +174,11 @@ runtime.onSuspend.addListener(() => {
 });
 
 async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
-    const availableUrl = await currentTabIsValid();
-    if (!availableUrl) {
-        sendResponse({status: WalletStatus.InvalidTarget, message: ''});
-        return;
-    }
+    // const availableUrl = await currentTabIsValid();
+    // if (!availableUrl) {
+    //     sendResponse({status: WalletStatus.InvalidTarget, message: ''});
+    //     return;
+    // }
 
     await checkAndInitDatabase();
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
@@ -345,9 +351,10 @@ async function checkLoginStatus(sendResponse: (response: any) => void) {
     const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
     if (status !== WalletStatus.Unlocked) {
         await browser.action.openPopup();
-        sendResponse({success: -1});
+        sendResponse({success: -1, data: "open wallet first please!"});
         return;
     }
+
     sendResponse({success: 1});
 }
 
@@ -570,4 +577,21 @@ async function bindingAction(isUnbind: boolean, email: string, sendResponse: (re
         console.log("[service worker] bind account failed:", err);
         sendResponse({success: -1, message: err.message});
     }
+}
+
+async function queryCurrentBmailAddress(sendResponse: (response: any) => void) {
+    const status = await sessionGet(__key_wallet_status) || WalletStatus.Init
+    if (status !== WalletStatus.Unlocked) {
+        await browser.action.openPopup();
+        sendResponse({success: -1, data: "open wallet first please!"});
+        return;
+    }
+
+    const addr = await sessionGet(__dbKey_cur_addr) as MailAddress
+    if (!addr) {
+        sendResponse({success: -1, data: "open wallet first please!"});
+        return;
+    }
+
+    sendResponse({success: 1, data: addr.bmail_address});
 }

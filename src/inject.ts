@@ -1,30 +1,65 @@
+import {Inject_Msg_Flag, MsgType} from "./consts";
+import {__injectRequests, EventData, InjectResult} from "./inject_msg";
+
 function createBmailObj() {
     (window as any).bmail = {
-        version: '1.0.0',
-        connect: function () {
-            console.log('bmail connect function called');
+        version: '1.2.5',
+        connect: async function (): Promise<any> {
+            return await __injectCall(MsgType.QueryCurBMail, {});
         }
     };
-    console.log("++++++>>>bmail initialized");
+    console.log("++++++>>>bmail object inject success");
 }
 
-createBmailObj();
+function dispatchMessage() {
+    window.addEventListener("message", (event) => {
+        if (event.source !== window || !event.data) return;
 
-document.addEventListener('DOMContentLoaded', initInjectElemAction);
+        const eventData = event.data as EventData;
+        if (!eventData || eventData.flag !== Inject_Msg_Flag || eventData.type !== MsgType.InjectRsp) return;
 
-function initInjectElemAction() {
-    console.log("++++++>>> injection init success");
-    addBmailInbox().then();
+        const processor = __injectRequests[eventData.id];
+        if (!processor) return;
+
+        console.log("------>>> got message:", eventData);
+        const result = eventData.params as InjectResult;
+
+        if (!result) {
+            processor.reject("No valid response");
+            delete __injectRequests[eventData.id];
+            return;
+        }
+
+        if (!result.success || result.error) {
+            processor.reject(result.error);
+        } else {
+            processor.resolve(result.data);
+        }
+
+        delete __injectRequests[eventData.id];
+    });
 }
 
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    initInjectElemAction();
+function initBmailInjection() {
+    createBmailObj();
+    dispatchMessage();
 }
 
-async function addBmailInbox() {
-    // waitForElement(() => {
-    //     const bmailInboxBtn = document.querySelector(".bmail-send-action");
-    //     return bmailInboxBtn !== undefined && bmailInboxBtn !== null;
-    // })
-}
+initBmailInjection();
 
+
+function __injectCall(type: string, params: any): Promise<any> {
+    const id = Math.random().toString().slice(-4);
+    return new Promise((resolve, reject) => {
+        __injectRequests[id] = {resolve, reject};
+        const event = new EventData(id, Inject_Msg_Flag, type, params);
+        window.postMessage(event, '*');
+
+        setTimeout(() => {
+            if (__injectRequests[id]) {
+                reject(new Error('Request timed out'));
+                delete __injectRequests[id];
+            }
+        }, 10000); // 超时处理
+    });
+}
