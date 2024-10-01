@@ -13,7 +13,8 @@ import {MailFlag} from "./bmail_body";
 import {queryEmailAddrQQ} from "./content_qq";
 import {EmailReflects} from "./proto/bmail_srv";
 import {queryEmailAddrOutLook} from "./content_outlook";
-import {HostArr, MsgType} from "./consts";
+import {ECNoValidMailReceiver, ECQueryBmailFailed, HostArr, MsgType} from "./consts";
+import {BmailError} from "./inject_msg";
 
 let __cur_email_address: string | null | undefined;
 
@@ -351,6 +352,50 @@ export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mail
     appendDecryptForDiv(cryptoBtnDiv, mailArea);
     return cryptoBtnDiv;
 }
+
+export async function parseEmailToBmail(emails: string[]): Promise<string[]> {
+    let receiver: string[] = [];
+    let emailToQuery: string[] = [];
+
+    if (emails.length <= 0) {
+        throw new BmailError(ECNoValidMailReceiver, "no valid email address to query")
+    }
+
+    for (let i = 0; i < emails.length; i++) {
+        const email = emails[i];
+        const address = __localContactMap.get(email);
+        if (address) {
+            receiver.push(address);
+            console.log("------>>> from cache:", email, " address:=>", address);
+            continue;
+        }
+        emailToQuery.push(email);
+    }
+
+    if (emailToQuery.length <= 0) {
+        return receiver;
+    }
+
+    const mailRsp = await sendMessageToBackground(emailToQuery, MsgType.EmailAddrToBmailAddr);
+    if (mailRsp.success < 0) {
+        throw new BmailError(ECQueryBmailFailed, "failed to query bmail address by email address")
+    }
+
+    const contacts = mailRsp.data as EmailReflects;
+    for (let i = 0; i < emailToQuery.length; i++) {
+        const email = emailToQuery[i];
+        const contact = contacts.reflects[email];
+        if (!contact || !contact.address) {
+            throw new BmailError(ECQueryBmailFailed, "no valid bmail address for:" + email);
+        }
+
+        __localContactMap.set(email, contact.address);
+        receiver.push(contact.address);
+    }
+
+    return receiver;
+}
+
 
 export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElement>, callback: (div: HTMLElement) => string | null): Promise<string[] | null> {
     const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)

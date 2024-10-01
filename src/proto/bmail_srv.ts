@@ -266,7 +266,7 @@ export const BMRsp = {
 };
 
 function createBaseQueryReq(): QueryReq {
-  return {address: "", oneEmailAddr: "", emailList: [], signInTime: ""};
+    return {address: "", oneEmailAddr: "", emailList: [], signInTime: ""};
 }
 
 export const QueryReq = {
@@ -461,7 +461,7 @@ export const AccountOperation = {
 };
 
 function createBaseBindAction(): BindAction {
-  return {address: "", mail: ""};
+    return {address: "", mail: ""};
 }
 
 export const BindAction = {

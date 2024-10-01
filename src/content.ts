@@ -3,11 +3,19 @@ import {appendForNetEase} from "./content_netease";
 import {appendForGoogle} from "./content_google";
 import {appendForQQ} from "./content_qq";
 import {appendForOutLook} from "./content_outlook";
-import {ECDecryptFailed, ECEncryptedFailed, ECWalletClosed, HostArr, Inject_Msg_Flag, MsgType} from "./consts";
-import {readCurrentMailAddress} from "./content_common";
+import {
+    ECDecryptFailed,
+    ECEncryptedFailed, ECInternalError,
+    ECNoValidMailReceiver,
+    ECWalletClosed,
+    HostArr,
+    Inject_Msg_Flag,
+    MsgType
+} from "./consts";
+import {parseEmailToBmail, readCurrentMailAddress} from "./content_common";
 import {sendMessageToBackground} from "./common";
 
-import {__injectRequests, EventData, injectCall, procResponse, wrapResponse} from "./inject_msg";
+import {__injectRequests, BmailError, EventData, injectCall, procResponse, wrapResponse} from "./inject_msg";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -126,11 +134,13 @@ window.addEventListener("message", async (event) => {
             break;
 
         case MsgType.EncryptData:
-            await encryptData(eventData)
+            rspEvent = await encryptData(eventData)
+            window.postMessage(rspEvent, "*");
             break;
 
         case MsgType.DecryptData:
-            await decryptData(eventData);
+            rspEvent = await decryptData(eventData);
+            window.postMessage(rspEvent, "*");
             break;
 
         default:
@@ -158,35 +168,60 @@ async function enOrDecryptForInject(eventData: EventData, request: any, errorTyp
 }
 
 async function encryptData(eventData: EventData) {
-    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0) {
-        return loginFirstTip;
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            loginFirstTip.id = eventData.id;
+            return loginFirstTip;
+        }
+
+        const data = eventData.params;
+
+        const receiver = await parseEmailToBmail(data.emails);
+        const request = {
+            action: MsgType.EncryptData,
+            receivers: receiver,
+            data: data.data
+        }
+
+        return await enOrDecryptForInject(eventData, request, ECEncryptedFailed)
+
+    } catch (err) {
+        return parseAsBmailError(eventData.id, err)
     }
+}
 
-    const data = eventData.params;
-
-    const request = {
-        action: MsgType.EncryptData,
-        receivers: data.emails,
-        data: data.data
+function parseAsBmailError(id: string, err: any): EventData {
+    if (err instanceof BmailError) {
+        return wrapResponse(id, 'error', {
+            success: err.code,
+            data: err.message
+        }, false);
+    } else {
+        return wrapResponse(id, 'error', {
+            success: ECInternalError,
+            data: err
+        }, false);
     }
-
-    const rspEvent = await enOrDecryptForInject(eventData, request, ECEncryptedFailed)
-    window.postMessage(rspEvent, "*");
 }
 
 async function decryptData(eventData: EventData) {
-    const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-    if (statusRsp.success < 0) {
-        return loginFirstTip;
+    try {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            loginFirstTip.id = eventData.id;
+            return loginFirstTip;
+        }
+
+        const data = eventData.params;
+        const request = {
+            action: MsgType.DecryptData,
+            data: data.data
+        }
+        return await enOrDecryptForInject(eventData, request, ECDecryptFailed)
+    } catch (e) {
+        return parseAsBmailError(eventData.id, e);
     }
-    const data = eventData.params;
-    const request = {
-        action: MsgType.DecryptData,
-        data: data.data
-    }
-    const rspEvent = await enOrDecryptForInject(eventData, request, ECDecryptFailed)
-    window.postMessage(rspEvent, "*");
 }
 
 
