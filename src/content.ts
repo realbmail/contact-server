@@ -1,21 +1,20 @@
 import browser from "webextension-polyfill";
 import {appendForNetEase} from "./content_netease";
 import {appendForGoogle} from "./content_google";
-import {appendForQQ} from "./content_qq";
+import {appendForQQ, queryEmailAddrQQ} from "./content_qq";
 import {appendForOutLook} from "./content_outlook";
 import {
     ECDecryptFailed,
     ECEncryptedFailed, ECInternalError,
-    ECNoValidMailReceiver,
     ECWalletClosed,
     HostArr,
     Inject_Msg_Flag,
     MsgType
 } from "./consts";
-import {parseEmailToBmail, readCurrentMailAddress} from "./content_common";
+import {parseEmailToBmail, readCurrentMailAddress, setupEmailAddressByInjection} from "./content_common";
 import {sendMessageToBackground} from "./common";
 
-import {__injectRequests, BmailError, EventData, injectCall, procResponse, wrapResponse} from "./inject_msg";
+import {BmailError, EventData, wrapResponse} from "./inject_msg";
 
 function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
@@ -126,13 +125,10 @@ window.addEventListener("message", async (event) => {
             rspEvent = wrapResponse(eventData.id, eventData.type, response, false);
             window.postMessage(rspEvent, "*");
             break;
-
-        case MsgType.QueryCurEmail:
-            const processor = __injectRequests[eventData.id];
-            if (!processor) return;
-            procResponse(processor, eventData);
+        case MsgType.SetEmailByInjection:
+            rspEvent = setupEmailAddressByInjection(eventData)
+            window.postMessage(rspEvent, "*");
             break;
-
         case MsgType.EncryptData:
             rspEvent = await encryptData(eventData)
             window.postMessage(rspEvent, "*");
@@ -176,6 +172,8 @@ async function encryptData(eventData: EventData) {
         }
 
         const data = eventData.params;
+
+        queryEmailAddrQQ()
 
         const receiver = await parseEmailToBmail(data.emails);
         const request = {
@@ -229,17 +227,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse: (response:
     console.log("------>>>on message from background:", request.action);
     if (request.action === MsgType.QueryCurEmail) {
         const emailAddr = readCurrentMailAddress();
-        if (emailAddr) {
-            sendResponse({value: emailAddr});
-            return;
-        }
-
-        injectCall(MsgType.QueryCurEmail, {}, false).then(emailAddr => {
-            sendResponse({value: emailAddr});
-        }).catch((err) => {
-            console.log("------>>> query email address from injected js failed:", err)
-            sendResponse({value: null});
-        });
+        sendResponse({value: emailAddr ?? ""});
     }
     return true;
 });

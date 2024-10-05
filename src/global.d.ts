@@ -4,11 +4,10 @@ declare global {
         bmail: {
             version: string;
             connect: () => Promise<any>;
-            onEmailQuery: QueryEmailAddr | null;
+            setupEmail: (userEmail: string) => Promise<any>;
             encryptMailTxt: (emailAddr: string[], plainTxt: string) => Promise<any>;
             decryptMailTxt: (cipherText: string) => Promise<any>;
         };
     }
 }
 
-type QueryEmailAddr = () => string | null | undefined;

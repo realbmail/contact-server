@@ -2,7 +2,7 @@ import browser from "webextension-polyfill";
 import {
     EncryptedMailDivSearch,
     extractJsonString,
-    hideLoading,
+    hideLoading, isValidEmail,
     replaceTextInRange,
     sendMessageToBackground,
     showLoading
@@ -13,8 +13,14 @@ import {MailFlag} from "./bmail_body";
 import {queryEmailAddrQQ} from "./content_qq";
 import {EmailReflects} from "./proto/bmail_srv";
 import {queryEmailAddrOutLook} from "./content_outlook";
-import {ECNoValidMailReceiver, ECQueryBmailFailed, HostArr, MsgType} from "./consts";
-import {BmailError} from "./inject_msg";
+import {
+    ECInvalidEmailAddress,
+    ECNoValidMailReceiver,
+    ECQueryBmailFailed,
+    HostArr,
+    MsgType
+} from "./consts";
+import {BmailError, EventData, wrapResponse} from "./inject_msg";
 
 let __cur_email_address: string | null | undefined;
 
@@ -27,12 +33,25 @@ function bmailInboxAction() {
     });
 }
 
+export function setupEmailAddressByInjection(eventData: EventData) {
+    const email = eventData.params?.email
+    let result: any;
+    if (!email || !isValidEmail(email)) {
+        result = new BmailError(ECInvalidEmailAddress, "email address is invalid")
+    } else {
+        __cur_email_address = email
+        console.log("------>>>setup email address success:=>", email);
+        result = {success: true}
+    }
+    return wrapResponse(eventData.id, eventData.type, result, false);
+}
+
 export function readCurrentMailAddress() {
-    const hostname = window.location.hostname;
     if (__cur_email_address) {
         return __cur_email_address;
     }
 
+    const hostname = window.location.hostname;
     switch (true) {
         case hostname.includes(HostArr.Mail126):
         case hostname.includes(HostArr.Mail163):
@@ -518,21 +537,6 @@ export function processInitialTextNodesForGoogle(mailArea: HTMLElement) {
     mailArea.insertBefore(newDiv, mailArea.firstChild);
 }
 
-// export function findFirstTextNodeWithEncryptedDiv(mailArea: HTMLElement): Node | null {
-//
-//     const walker = document.createTreeWalker(mailArea, NodeFilter.SHOW_TEXT);
-//
-//     let currentNode: Node | null = walker.nextNode();
-//     while (currentNode) {
-//         if (currentNode.nodeValue?.includes('<div class="bmail-encrypted-data-wrapper">')) {
-//             return currentNode;
-//         }
-//         currentNode = walker.nextNode();
-//     }
-//
-//     return null;
-// }
-
 export function findAllTextNodesWithEncryptedDiv(mailArea: HTMLElement): Node[] {
     const walker = document.createTreeWalker(mailArea, NodeFilter.SHOW_TEXT);
 
@@ -547,29 +551,6 @@ export function findAllTextNodesWithEncryptedDiv(mailArea: HTMLElement): Node[] 
     }
 
     return matchingNodes;
-}
-
-export function wrapJsonStrings(input: string): string {
-
-    if (input.includes('&lt;div class="bmail-encrypted-data-wrapper"&gt;')) {
-        return input.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    }
-
-
-    const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
-    let result = input;
-    let match;
-
-    let offsetAdjustment = 0;
-    while ((match = jsonRegex.exec(input)) !== null) {
-        const jsonString = match[0];
-        const wrappedJsonString = `<div class="bmail-encrypted-data-wrapper">${jsonString}</div>`;
-        const start = match.index + offsetAdjustment;
-        const end = start + jsonString.length;
-        result = result.slice(0, start) + wrappedJsonString + result.slice(end);
-        offsetAdjustment += wrappedJsonString.length - jsonString.length;
-    }
-    return result;
 }
 
 export async function decryptMailForEditionOfSentMail(originalTxtDiv: HTMLElement) {

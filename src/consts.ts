@@ -6,7 +6,6 @@ export enum MsgType {
     EncryptData = 'EncryptData',
     DecryptData = 'DecryptData',
     BMailInbox = 'BMailInbox',
-    AddInboxBtn = 'AddInboxBtn',
     QueryCurEmail = 'QueryCurEmail',
     EmailAddrToBmailAddr = 'EmailAddrToBmailAddr',
     CheckIfLogin = 'CheckIfLogin',
@@ -17,6 +16,7 @@ export enum MsgType {
     OpenPlugin = 'OpenPlugin',
     BindAction = 'BindAction',
     QueryCurBMail = 'QueryCurBMail',
+    SetEmailByInjection = 'SetEmailByInjection',
 }
 
 
@@ -51,4 +51,7 @@ export const ECDecryptFailed = -4
 export const ECNoCallbackFound = -5
 export const ECNoValidMailReceiver = -6
 export const ECQueryBmailFailed = -7
+export const ECInvalidEmailAddress = -8
 export const ECInternalError = -1007
+
+

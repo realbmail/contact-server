@@ -1,50 +1,30 @@
-import {ECNoCallbackFound, Inject_Msg_Flag, MsgType} from "./consts";
-import {__injectRequests, EventData, injectCall, procResponse, wrapResponse} from "./inject_msg";
+import {Inject_Msg_Flag, MsgType} from "./consts";
+import {
+    __injectRequests, BmailError,
+    EventData,
+    injectCall,
+    InjectRequest,
+    InjectResult
+} from "./inject_msg";
 
-function createBmailObj() {
-
+async function createBmailObj() {
     window.bmail = {
         version: '1.2.5',
-        onEmailQuery: null,
-
+        setupEmail: async function (userEmail: string): Promise<any> {
+            return await injectCall(MsgType.SetEmailByInjection, {email: userEmail}, true);
+        },
         connect: async function (): Promise<any> {
             return await injectCall(MsgType.QueryCurBMail, {}, true);
         },
-
         encryptMailTxt: async function (emailAddr: string[], plainTxt: string): Promise<any> {
             return await injectCall(MsgType.EncryptData, {emails: emailAddr, data: plainTxt}, true);
         },
-
         decryptMailTxt: async function (cipherText: string): Promise<any> {
             return await injectCall(MsgType.DecryptData, {data: cipherText}, true);
-        },
+        }
     };
 
     console.log("++++++>>>bmail object inject success");
-}
-
-function queryEmailForPlugin(eventData: EventData) {
-    let rspEvent: EventData;
-    if (!window.bmail || !window.bmail.onEmailQuery) {
-        rspEvent = wrapResponse(eventData.id, eventData.type, {
-            success: ECNoCallbackFound,
-            data: "no email query callback found"
-        }, true);
-    } else {
-        const email = window.bmail.onEmailQuery();
-        rspEvent = wrapResponse(eventData.id, eventData.type, {success: true, data: email}, true);
-    }
-    window.postMessage(rspEvent, "*");
-}
-
-function procPluginRequest(eventData: EventData) {
-    switch (eventData.type) {
-        case MsgType.QueryCurEmail:
-            queryEmailForPlugin(eventData);
-            break;
-        default:
-            return;
-    }
 }
 
 function dispatchMessage() {
@@ -57,19 +37,38 @@ function dispatchMessage() {
         console.log("-------->>> got message from background:=>", eventData.type)
 
         const processor = __injectRequests[eventData.id];
-        if (processor) {
-            procResponse(processor, eventData);
+        if (!processor) {
+            console.log("------>>> no processor for injection processor");
             return;
         }
-
-        procPluginRequest(eventData);
+        procResponse(processor, eventData);
+        return;
     });
 }
 
 function initBmailInjection() {
-    createBmailObj();
+    createBmailObj().then();
     dispatchMessage();
 }
 
 initBmailInjection();
+
+function procResponse(processor: InjectRequest, eventData: EventData) {
+    const result = eventData.params as InjectResult;
+
+    if (!result) {
+        const error = new BmailError(-2, "No valid response").toJSON();
+        processor.reject(error);
+        delete __injectRequests[eventData.id];
+        return;
+    }
+
+    if (!result.success || result.error) {
+        processor.reject(result.error);
+    } else {
+        processor.resolve(result.data);
+    }
+
+    delete __injectRequests[eventData.id];
+}
 

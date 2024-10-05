@@ -84,21 +84,3 @@ export function wrapResponse(id: string, type: string, response: any, toPlugin?:
     return new EventData(id, Inject_Msg_Flag, type, result, toPlugin);
 }
 
-export function procResponse(processor: InjectRequest, eventData: EventData) {
-    const result = eventData.params as InjectResult;
-
-    if (!result) {
-        const error = new BmailError(-2, "No valid response").toJSON();
-        processor.reject(error);
-        delete __injectRequests[eventData.id];
-        return;
-    }
-
-    if (!result.success || result.error) {
-        processor.reject(result.error);
-    } else {
-        processor.resolve(result.data);
-    }
-
-    delete __injectRequests[eventData.id];
-}
