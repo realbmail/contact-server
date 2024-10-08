@@ -3,10 +3,10 @@ import {
     __localContactMap,
     addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailForEditionOfSentMail, decryptMailInReading,
-    encryptMailInComposing, findAllTextNodesWithEncryptedDiv,
+    encryptMailInComposing, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
     observeForElement,
     observeFrame,
-    parseBmailInboxBtn,
+    parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn, processReceivers,
     queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog
 } from "./content_common";
@@ -19,7 +19,7 @@ import {
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
 
-export function appendForQQ(template: HTMLTemplateElement) {
+function appendForQQ(template: HTMLTemplateElement) {
 
     observeForElement(document.body, 1000,
         () => {
@@ -55,7 +55,7 @@ async function appendBmailInboxMenuQQ(template: HTMLTemplateElement) {
     }
 }
 
-export function queryEmailAddrQQ() {
+function queryEmailAddrQQ() {
     const parentDiv = document.querySelector(".profile-user-info");
     const userEmailSpan1 = parentDiv?.querySelector('span.user-email');
     const userEmailSpan2 = document.getElementById("useraddr");
@@ -619,3 +619,17 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
 
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const template = await parseContentHtml('html/inject_qq.html');
+    appendForQQ(template);
+    console.log("------>>> qq content init success");
+});
+
+class DomainBMailProvider implements MailAddressProvider {
+    readCurrentMailAddress(): string {
+        return queryEmailAddrQQ() ?? "";
+    }
+}
+
+(window as any).mailAddressProvider = new DomainBMailProvider();

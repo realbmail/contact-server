@@ -1,22 +1,22 @@
 import browser from "webextension-polyfill";
-import {appendForNetEase} from "./content_netease";
-import {appendForGoogle} from "./content_google";
-import {appendForQQ, queryEmailAddrQQ} from "./content_qq";
-import {appendForOutLook} from "./content_outlook";
 import {
     ECDecryptFailed,
     ECEncryptedFailed, ECInternalError,
     ECWalletClosed,
-    HostArr,
     Inject_Msg_Flag,
     MsgType
 } from "./consts";
-import {parseEmailToBmail, readCurrentMailAddress, setupEmailAddressByInjection} from "./content_common";
+import {
+    parseContentHtml,
+    parseEmailToBmail,
+    setupEmailAddressByInjection
+} from "./content_common";
 import {sendMessageToBackground} from "./common";
 
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
 
-function addBmailObject(jsFilePath: string): void {
+
+export function addBmailObject(jsFilePath: string): void {
     const script: HTMLScriptElement = document.createElement('script');
     script.src = browser.runtime.getURL(jsFilePath);
     script.onload = function () {
@@ -25,46 +25,13 @@ function addBmailObject(jsFilePath: string): void {
     (document.head || document.documentElement).appendChild(script);
 }
 
-function addCustomStyles(cssFilePath: string): void {
+export function addCustomStyles(cssFilePath: string): void {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.type = 'text/css';
     link.href = browser.runtime.getURL(cssFilePath);
     document.head.appendChild(link);
 }
-
-async function addCustomElements(htmlFilePath: string, targetSelectorMap: {
-    [key: string]: (target: HTMLTemplateElement) => void
-}): Promise<void> {
-    try {
-        const response = await fetch(browser.runtime.getURL(htmlFilePath));
-        if (!response.ok) {
-            throw new Error(`Failed to fetch ${htmlFilePath}: ${response.statusText}`);
-        }
-        const htmlContent = await response.text();
-        const template = document.createElement('template');
-        template.innerHTML = htmlContent;
-
-        const hostname = window.location.hostname;
-        for (const [key, appendFun] of Object.entries(targetSelectorMap)) {
-            if (hostname.includes(key)) {
-                appendFun(template);
-                break;
-            }
-        }
-        appendTipDialog(template);
-    } catch (error) {
-        console.error('Error loading custom elements:', error);
-    }
-}
-
-const targetSelectorMap = {
-    [HostArr.Google]: appendForGoogle,
-    [HostArr.Mail163]: appendForNetEase,
-    [HostArr.Mail126]: appendForNetEase,
-    [HostArr.QQ]: appendForQQ,
-    [HostArr.OutLook]: appendForOutLook
-};
 
 function translateInjectedElm() {
     const bmailElement = document.getElementById("bmail-send-action-btn");
@@ -73,14 +40,16 @@ function translateInjectedElm() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     addBmailObject('js/inject.js');
     addCustomStyles('file/common.css');
     addCustomStyles('file/inject.css');
-    addCustomElements('html/inject.html', targetSelectorMap).then(() => {
-        console.log("++++++>>>content js run success");
-        translateInjectedElm();
-    });
+
+    const template = await parseContentHtml('html/inject.html');
+    appendTipDialog(template);
+    translateInjectedElm();
+
+    console.log("------>>> shared content init success");
 });
 
 
@@ -125,10 +94,12 @@ window.addEventListener("message", async (event) => {
             rspEvent = wrapResponse(eventData.id, eventData.type, response, false);
             window.postMessage(rspEvent, "*");
             break;
+
         case MsgType.SetEmailByInjection:
             rspEvent = setupEmailAddressByInjection(eventData)
             window.postMessage(rspEvent, "*");
             break;
+
         case MsgType.EncryptData:
             rspEvent = await encryptData(eventData)
             window.postMessage(rspEvent, "*");
@@ -172,9 +143,6 @@ async function encryptData(eventData: EventData) {
         }
 
         const data = eventData.params;
-
-        queryEmailAddrQQ()
-
         const receiver = await parseEmailToBmail(data.emails);
         const request = {
             action: MsgType.EncryptData,
@@ -221,13 +189,3 @@ async function decryptData(eventData: EventData) {
         return parseAsBmailError(eventData.id, e);
     }
 }
-
-
-browser.runtime.onMessage.addListener((request, sender, sendResponse: (response: any) => void) => {
-    console.log("------>>>on message from background:", request.action);
-    if (request.action === MsgType.QueryCurEmail) {
-        const emailAddr = readCurrentMailAddress();
-        sendResponse({value: emailAddr ?? ""});
-    }
-    return true;
-});

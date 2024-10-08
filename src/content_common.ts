@@ -7,17 +7,12 @@ import {
     sendMessageToBackground,
     showLoading
 } from "./common";
-import {queryEmailAddrNetEase} from "./content_netease";
-import {queryEmailAddrGoogle} from "./content_google";
 import {MailFlag} from "./bmail_body";
-import {queryEmailAddrQQ} from "./content_qq";
 import {EmailReflects} from "./proto/bmail_srv";
-import {queryEmailAddrOutLook} from "./content_outlook";
 import {
     ECInvalidEmailAddress,
     ECNoValidMailReceiver,
     ECQueryBmailFailed,
-    HostArr,
     MsgType
 } from "./consts";
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
@@ -25,6 +20,11 @@ import {BmailError, EventData, wrapResponse} from "./inject_msg";
 let __cur_email_address: string | null | undefined;
 
 export const __decrypt_button_css_name = '.bmail-decrypt-btn'
+
+export interface MailAddressProvider {
+    readCurrentMailAddress(): string;
+}
+
 
 function bmailInboxAction() {
     console.log("------>>> bmail inbox")
@@ -45,39 +45,6 @@ export function setupEmailAddressByInjection(eventData: EventData) {
     }
     return wrapResponse(eventData.id, eventData.type, result, false);
 }
-
-export function readCurrentMailAddress() {
-    if (__cur_email_address) {
-        return __cur_email_address;
-    }
-
-    const hostname = window.location.hostname;
-    switch (true) {
-        case hostname.includes(HostArr.Mail126):
-        case hostname.includes(HostArr.Mail163):
-            __cur_email_address = queryEmailAddrNetEase();
-            break;
-
-        case hostname.includes(HostArr.Google):
-            __cur_email_address = queryEmailAddrGoogle();
-            break;
-
-        case hostname.includes(HostArr.QQ):
-            __cur_email_address = queryEmailAddrQQ();
-            break;
-
-        case hostname.includes(HostArr.OutLook):
-            __cur_email_address = queryEmailAddrOutLook();
-            break;
-
-        default:
-            __cur_email_address = undefined;
-            break;
-    }
-
-    return __cur_email_address;
-}
-
 
 export function parseBmailInboxBtn(template: HTMLTemplateElement, inboxDivStr: string) {
     const bmailInboxBtn = template.content.getElementById(inboxDivStr);
@@ -415,7 +382,6 @@ export async function parseEmailToBmail(emails: string[]): Promise<string[]> {
     return receiver;
 }
 
-
 export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElement>, callback: (div: HTMLElement) => string | null): Promise<string[] | null> {
     const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
     if (statusRsp.success < 0) {
@@ -572,3 +538,32 @@ export async function decryptMailForEditionOfSentMail(originalTxtDiv: HTMLElemen
     }
     originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
 }
+
+export async function parseContentHtml(htmlFilePath: string): Promise<HTMLTemplateElement> {
+    const response = await fetch(browser.runtime.getURL(htmlFilePath));
+    if (!response.ok) {
+        throw new Error(`Failed to fetch ${htmlFilePath}: ${response.statusText}`);
+    }
+    const htmlContent = await response.text();
+    const template = document.createElement('template');
+    template.innerHTML = htmlContent;
+    return template;
+}
+
+export function readCurrentMailAddress(): string {
+    const provider: MailAddressProvider = (window as any).mailAddressProvider;
+    if (provider && typeof provider.readCurrentMailAddress === 'function') {
+        return provider.readCurrentMailAddress();
+    } else {
+        return "";
+    }
+}
+
+browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response: any) => void) => {
+    console.log("------>>>on message from background:", request.action);
+    if (request.action === MsgType.QueryCurEmail) {
+        const emailAddr = readCurrentMailAddress();
+        sendResponse({value: emailAddr ?? ""});
+    }
+    return true;
+});

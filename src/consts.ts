@@ -30,14 +30,6 @@ export enum WalletStatus {
     InvalidTarget = 'InvalidTarget'
 }
 
-export enum HostArr {
-    Google = 'mail.google.com',
-    Mail163 = 'mail.163.com',
-    Mail126 = 'mail.126.com',
-    QQ = 'mail.qq.com',
-    OutLook = 'outlook.live.com'
-}
-
 // const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
 // const httpServerUrl = "http://bmail.simplenets.org:8001"
 export const httpServerUrl = "https://bmail.simplenets.org:8443"
@@ -48,10 +40,9 @@ export const Plugin_Request_Timeout = 20_000;
 export const ECWalletClosed = -1
 export const ECEncryptedFailed = -3
 export const ECDecryptFailed = -4
-export const ECNoCallbackFound = -5
-export const ECNoValidMailReceiver = -6
-export const ECQueryBmailFailed = -7
-export const ECInvalidEmailAddress = -8
+export const ECNoValidMailReceiver = -5
+export const ECQueryBmailFailed = -6
+export const ECInvalidEmailAddress = -7
 export const ECInternalError = -1007
 
 

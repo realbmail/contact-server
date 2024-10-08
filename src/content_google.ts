@@ -2,15 +2,15 @@ import {
     __decrypt_button_css_name,
     addDecryptButtonForBmailBody,
     checkFrameBody,
-    encryptMailInComposing,
+    encryptMailInComposing, MailAddressProvider,
     observeForElement,
-    parseBmailInboxBtn,
-    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
+    parseBmailInboxBtn, parseContentHtml,
+    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, readCurrentMailAddress, showTipsDialog
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
 
-export function appendForGoogle(template: HTMLTemplateElement) {
+function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google') as HTMLElement;
 
     console.log("------>>> start to append element to google mail");
@@ -42,7 +42,7 @@ async function addBMailInboxToMenu(clone: HTMLElement) {
     console.log("------>>> add bmail inbox button success=>")
 }
 
-export function queryEmailAddrGoogle() {
+function queryEmailAddrGoogle() {
     const pageTitle = document.title;
     const match = pageTitle.match(emailRegex);
     if (match) {
@@ -227,3 +227,17 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
 
     mainContent.insertBefore(cryptoBtnDiv, mainContent.firstChild);
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const template = await parseContentHtml('html/inject_google.html');
+    appendForGoogle(template);
+    console.log("------>>> google content init success");
+});
+
+class DomainBMailProvider implements MailAddressProvider {
+    readCurrentMailAddress(): string {
+        return queryEmailAddrGoogle() ?? "";
+    }
+}
+
+(window as any).mailAddressProvider = new DomainBMailProvider();

@@ -10,14 +10,14 @@ import {
     replaceTextNodeWithDiv,
     __decrypt_button_css_name,
     findAllTextNodesWithEncryptedDiv,
-    decryptMailForEditionOfSentMail, observeForElementDirect
+    decryptMailForEditionOfSentMail, observeForElementDirect, parseContentHtml, MailAddressProvider
 } from "./content_common";
 import {
     extractEmail,
     hideLoading, showLoading
 } from "./common";
 
-export function appendForNetEase(template: HTMLTemplateElement) {
+function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
     if (!clone) {
         console.warn("------>>> failed to parse bmail inbox button");
@@ -102,7 +102,7 @@ function appendBmailInboxMenu(clone: HTMLElement) {
     }
 }
 
-export function queryEmailAddrNetEase() {
+function queryEmailAddrNetEase() {
     const mailAddr = document.getElementById('spnUid');
     if (!mailAddr) {
         return null;
@@ -434,3 +434,17 @@ async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElem
         hideLoading();
     }
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const template = await parseContentHtml('html/inject_netease.html');
+    appendForNetEase(template);
+    console.log("------>>> netease content init success");
+});
+
+class DomainBMailProvider implements MailAddressProvider {
+    readCurrentMailAddress(): string {
+        return queryEmailAddrNetEase() ?? "";
+    }
+}
+
+(window as any).mailAddressProvider = new DomainBMailProvider();

@@ -1,8 +1,8 @@
 import {
     __decrypt_button_css_name,
     addDecryptButtonForBmailBody, appendDecryptForDiv, decryptMailInReading,
-    encryptMailInComposing, findAllTextNodesWithEncryptedDiv,
-    observeForElement, parseBmailInboxBtn,
+    encryptMailInComposing, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
+    observeForElement, parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn,
     processReceivers, replaceTextNodeWithDiv, showTipsDialog
 } from "./content_common";
@@ -10,7 +10,7 @@ import browser from "webextension-polyfill";
 import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
 import {MailFlag} from "./bmail_body";
 
-export function queryEmailAddrOutLook() {
+function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
     if (!element) return;
     console.log("-------->>> account info:", element.href);
@@ -24,7 +24,7 @@ export function queryEmailAddrOutLook() {
     return loginHint;
 }
 
-export function appendForOutLook(template: HTMLTemplateElement) {
+function appendForOutLook(template: HTMLTemplateElement) {
 
     observeForElement(document.body, 800,
         () => {
@@ -233,106 +233,6 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
     }
 }
 
-//
-// function prepareOneMailInConversation(oneMail: HTMLElement, template: HTMLTemplateElement) {
-//     const toolBarDiv = oneMail.querySelector('div[role="toolbar"]');
-//     if (!toolBarDiv) {
-//         console.log("------>>> tool bar not found");
-//         const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection") as HTMLElement;
-//         if (moreMailDataBar) {
-//             moreMailDataBar.addEventListener("click", () => {
-//                 setTimeout(() => {
-//                     prepareOneMailInConversation(oneMail, template);
-//                 }, 1000);
-//             })
-//         } else {
-//             const element = oneMail.querySelector('div[class="AL_OM l8Tnu"]');
-//             if (element) {
-//                 setTimeout(() => {
-//                     addMailDecryptForReadingOutLook(template).then();
-//                 }, 1000);
-//             }
-//         }
-//         return;
-//     }
-//
-//     const decryptBtn = toolBarDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
-//     if (decryptBtn) {
-//         console.log("------>>> decrypt button already been added for reading");
-//         return;
-//     }
-//
-//     const mailArea = oneMail.querySelector('.wide-content-host') as HTMLElement
-//     if (!mailArea) {
-//         console.log("------>>> no reading mail body found");
-//         return;
-//     }
-//     const documentDiv = mailArea.querySelector('div[role="document"]') as HTMLElement;
-//     const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(documentDiv);
-//     nakedBmailTextDiv.forEach(wrappedDiv => {
-//         replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
-//     })
-//
-//
-//     let cryptoBtnDiv = addDecryptButtonForBmailBody(template, mailArea, 'bmail_decrypt_btn_in_compose_outlook');
-//
-//     const moreMailContentBtn = oneMail.querySelector(".T_6Xj");
-//     console.log("----->>> more mail content btn:=>", moreMailContentBtn);
-//     moreMailContentBtn?.addEventListener("click", async () => {
-//         setTimeout(() => {
-//             const quoteOrReply = oneMail.querySelector(".wnVEW")?.querySelector('div[role="document"]') as HTMLElement;
-//             if (!quoteOrReply) {
-//                 return;
-//             }
-//
-//             const nakedBmailTextDiv = findAllTextNodesWithEncryptedDiv(quoteOrReply);
-//             nakedBmailTextDiv.forEach(wrappedDiv => {
-//                 replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
-//             })
-//
-//             if (!cryptoBtnDiv) {
-//                 cryptoBtnDiv = addDecryptButtonForBmailBody(template, quoteOrReply, 'bmail_decrypt_btn_in_compose_outlook')
-//                 if (cryptoBtnDiv) {
-//                     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-//                 }
-//             } else {
-//                 const cryptoBtn = cryptoBtnDiv.querySelector(__decrypt_button_css_name) as HTMLElement;
-//                 if (quoteOrReply.textContent?.includes(MailFlag) && cryptoBtn.dataset.encoded === 'false') {
-//                     let BMailDivs = EncryptedMailDivSearch(quoteOrReply) as HTMLElement[];
-//                     BMailDivs.forEach(bmailBody => {
-//                         decryptMailInReading(bmailBody, cryptoBtn).then();
-//                     });
-//                 }
-//             }
-//         }, 500);
-//     })
-//     if (cryptoBtnDiv) {
-//         toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
-//     }
-// }
-
-//
-// async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
-//     const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
-//     if (!readArea) {
-//         console.log("------>>> no reading area found");
-//         return;
-//     }
-//
-//     const editArea = document.querySelector("[id^='docking_InitVisiblePart_']") as HTMLElement | null;
-//     if (editArea) {
-//         await addCryptButtonToComposeDivOutLook(template);
-//         return;
-//     }
-//
-//     const allInboxMailDiv = readArea.querySelectorAll(".aVla3") as NodeListOf<HTMLElement>;
-//     console.log("------>>> reading area found", allInboxMailDiv.length);
-//
-//     allInboxMailDiv.forEach((oneMail) => {
-//         prepareOneMailInConversation(oneMail, template)
-//     });
-// }
-
 async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
     const readArea = document.querySelector('div[data-app-section="ConversationContainer"]');
     if (!readArea) {
@@ -492,3 +392,17 @@ function prepareMailHistory(oneMail: HTMLElement, template: HTMLTemplateElement)
         addCryptBtnToMailHistory(mailContent, template);
     }, true)
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const template = await parseContentHtml('html/inject_outlook.html');
+    appendForOutLook(template);
+    console.log("------>>> outlook content init success");
+});
+
+class DomainBMailProvider implements MailAddressProvider {
+    readCurrentMailAddress(): string {
+        return queryEmailAddrOutLook() ?? "";
+    }
+}
+
+(window as any).mailAddressProvider = new DomainBMailProvider();

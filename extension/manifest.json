@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BMail",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "default_locale": "en",
   "description": "Blockchain Mail Protocol.",
   "action": {
@@ -31,6 +31,43 @@
   "content_scripts": [
     {
       "matches": [
+        "https://mail.google.com/*"
+      ],
+      "js": [
+        "js/content_google.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://outlook.live.com/*"
+      ],
+      "js": [
+        "js/content_outlook.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://*.mail.qq.com/*"
+      ],
+      "js": [
+        "js/content_qq.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://*.mail.163.com/*",
+        "https://*.mail.126.com/*"
+      ],
+      "js": [
+        "js/content_netease.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
         "<all_urls>"
       ],
       "js": [
@@ -45,6 +82,10 @@
         "file/inject.css",
         "file/common.css",
         "html/inject.html",
+        "html/inject_google.html",
+        "html/inject_qq.html",
+        "html/inject_netease.html",
+        "html/inject_outlook.html",
         "js/inject.js",
         "file/logo_16.png",
         "file/logo_16_out.png",
