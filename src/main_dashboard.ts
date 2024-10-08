@@ -16,7 +16,6 @@ import {
     showToastMessage, UserLevel
 } from "./main_common";
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
-import {queryCurWallet} from "./wallet";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
 
@@ -110,25 +109,6 @@ async function quitThisAccount() {
     showView('#onboarding/main-login', router);
 }
 
-async function showUserKeyStore() {
-    try {
-        const wallet = await queryCurWallet();
-        if (!wallet) {
-            throw new Error("Wallet not found");
-        }
-        const keyStoreStr = JSON.stringify(wallet, null, 4);
-
-        showDialog("key store", keyStoreStr, "Copy", async function () {
-            await navigator.clipboard.writeText(keyStoreStr);
-            alert("Copy success");
-            return true;
-        })
-    } catch (e) {
-        const err = e as Error;
-        showDialog("Error", err.message);
-    }
-}
-
 function levelToStr(level: number) {
     switch (level) {
         case UserLevel.UserLevelInActive:
@@ -175,7 +155,7 @@ function setupElementByAccountData(accountData: BMailAccount) {
         clone.style.display = "block";
         clone.removeAttribute('id');
         const button = clone.querySelector('button') as HTMLElement;
-        button.addEventListener('click', async (e) => {
+        button.addEventListener('click', async () => {
             const success = await mailBindingAction(true, email);
             if (success) {
                 clone.parentNode?.removeChild(clone);
@@ -186,32 +166,6 @@ function setupElementByAccountData(accountData: BMailAccount) {
         parentDiv.append(clone);
     });
 }
-
-async function emailBindingOperate(isDel: boolean, email: string): Promise<boolean> {
-    showLoading();
-    try {
-        const data = {
-            isDel: isDel,
-            emails: [email],
-        }
-        const rsp = await sendMessageToBackground(data, MsgType.EmailBindOp);
-        if (rsp.success < 0) {
-            showDialog("error", rsp.message);
-            return false;
-        }
-        await loadAndSetupAccount(true);
-        if (isDel) {
-            queryCurrentEmailAddr();
-        }
-        return true;
-    } catch (e) {
-        showDialog("error", JSON.stringify(e));
-        return false;
-    } finally {
-        hideLoading();
-    }
-}
-
 
 async function mailBindingAction(isUnbind: boolean, email: string): Promise<boolean> {
     showLoading();
@@ -279,7 +233,7 @@ function queryCurrentEmailAddr() {
                 }
                 const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
                 bindOrUnbindBtn.style.display = "block";
-                bindOrUnbindBtn.addEventListener('click', async (e) => {
+                bindOrUnbindBtn.addEventListener('click', async () => {
                     const success = await mailBindingAction(false, currentEmail);
                     if (success) {
                         bindOrUnbindBtn.style.display = 'none';
@@ -310,13 +264,14 @@ async function activeCurrentAccount(actBtn: HTMLButtonElement) {
         const message = AccountOperation.encode(payload).finish()
         const signature = await signDataByMessage(encodeHex(message));
         if (!signature) {
-            throw new Error("sign data failed")
+            showDialog("error", "sign data failed");
+            return;
         }
+
         const srvRsp = await BMRequestToSrv("/account_create", address, message, signature)
         console.log("------->>>fetch success:=>", srvRsp);
         actBtn.style.display = 'none';
         await loadAndSetupAccount(true);
-
     } catch (e) {
         console.log("------->>>fetch failed:=>", e);
         showDialog("error", JSON.stringify(e));

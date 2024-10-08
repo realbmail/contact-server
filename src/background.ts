@@ -5,15 +5,15 @@ import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_sto
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
-import {BMailAccount, AccountOperation, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
+import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 import {MsgType, WalletStatus} from "./consts";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
 const tabs = browser.tabs;
 const __alarm_name__: string = '__alarm_name__timer__';
-const __key_wallet_status: string = '__key_wallet_status';
-const __dbKey_cur_key: string = '__dbKey_cur_key__';
+export const __key_wallet_status: string = '__key_wallet_status';
+export const __dbKey_cur_key: string = '__dbKey_cur_key__';
 const __dbKey_cur_addr: string = '__dbKey_cur_addr__';
 const __dbKey_cur_account_details: string = '__dbKey_cur_account_details__';
 
@@ -37,14 +37,8 @@ function updateIcon(isLoggedIn: boolean) {
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     console.log("[service work] action :=>", request.action, sender.url);
+
     switch (request.action) {
-        case MsgType.PluginClicked:
-            pluginClicked(sendResponse).then(() => {
-            }).catch((error: Error) => {
-                console.error("[service work] Failed to set value:", error);
-                sendResponse({status: false, error: error});
-            });
-            return true;
 
         case MsgType.WalletCreate:
             const param = request.data;
@@ -95,10 +89,6 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
 
         case MsgType.QueryAccountDetails:
             getAccount(request.data.address, request.data.force, sendResponse).then()
-            return true;
-
-        case MsgType.EmailBindOp:
-            bindingOperation(request.data.isDel, request.data.emails, sendResponse).then();
             return true;
 
         case MsgType.BindAction:
@@ -173,38 +163,6 @@ runtime.onSuspend.addListener(() => {
     closeDatabase();
 });
 
-async function pluginClicked(sendResponse: (response: any) => void): Promise<void> {
-    // const availableUrl = await currentTabIsValid();
-    // if (!availableUrl) {
-    //     sendResponse({status: WalletStatus.InvalidTarget, message: ''});
-    //     return;
-    // }
-
-    await checkAndInitDatabase();
-    let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
-    if (walletStatus === WalletStatus.Init) {
-        const wallet = await queryCurWallet();
-        console.log('[service work] queryCurWallet result:', wallet);
-        if (!wallet) {
-            console.log('[service work] Wallet not found');
-            sendResponse({status: WalletStatus.NoWallet, message: ''});
-            return;
-        }
-
-        sendResponse({status: WalletStatus.Locked, message: ''});
-        return;
-    }
-
-    if (walletStatus === WalletStatus.Unlocked) {
-        const mKey = await sessionGet(__dbKey_cur_key) as Uint8Array;
-        if (!mKey) {
-            sendResponse({status: WalletStatus.Locked, message: 'no valid key found'});
-            return;
-        }
-        sendResponse({status: walletStatus});
-        return;
-    }
-}
 
 async function createWallet(mnemonic: string, password: string, sendResponse: (response: any) => void): Promise<void> {
     try {
@@ -265,12 +223,6 @@ const urlsToMatch = [
     "https://*.outlook.live.com/*"
 ];
 
-tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && tab.url) {
-        console.log("[service work] tabs onUpdated =>");
-    }
-});
-
 tabs.onActivated.addListener(async (activeInfo) => {
     const ok = await checkTabUrl(activeInfo.tabId);
     console.log("[service work] tabs onActivated =>", ok);
@@ -288,17 +240,6 @@ async function checkTabUrl(tabId: number): Promise<boolean> {
     };
 
     return urlsToMatch.some(pattern => matchesPattern(tab.url!, pattern));
-}
-
-async function currentTabIsValid() {
-    const tabsList = await tabs.query({active: true, currentWindow: true});
-    if (tabsList.length == 0) {
-        return false
-    }
-    if (!tabsList[0].id) {
-        return false;
-    }
-    return checkTabUrl(tabsList[0].id);
 }
 
 async function checkWalletStatus(sendResponse: (response: any) => void) {
@@ -418,7 +359,7 @@ async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount 
         const sig = await signData(message);
         if (!sig) {
             console.log("[service work]  signature not found");
-            throw new Error("sig not found");
+            return null;
         }
 
         const srvRsp = await BMRequestToSrv("/query_account", address, message, sig)
@@ -432,37 +373,6 @@ async function loadAccountDetailsFromSrv(address: string): Promise<BMailAccount 
     } catch (err) {
         console.log("[service work] load account details from server =>", err);
         return null;
-    }
-}
-
-async function bindingOperation(isDel: boolean, emails: string[], sendResponse: (response: any) => void) {
-    try {
-        const addr = await sessionGet(__dbKey_cur_addr) as MailAddress | null;
-        if (!addr) {
-            sendResponse({success: -1, message: "open wallet first"});
-            return;
-        }
-
-        const payload: AccountOperation = AccountOperation.create({
-            isDel: isDel,
-            address: addr.bmail_address,
-            emails: emails,
-        });
-
-        const message = AccountOperation.encode(payload).finish();
-        const sig = await signData(message);
-        if (!sig) {
-            sendResponse({success: -1, message: "sign data failed"});
-            return;
-        }
-        const srvRsp = await BMRequestToSrv("/operate_account", addr.bmail_address, message, sig)
-        console.log("[service worker] unbinding success:=>", srvRsp);
-        sendResponse({success: 1, message: "success"});
-
-    } catch (e) {
-        const err = e as Error;
-        console.log("[service worker] bind account failed:", err);
-        sendResponse({success: -1, message: err.message});
     }
 }
 
@@ -503,7 +413,8 @@ async function searchAccountByEmails(emails: string[], sendResponse: (response: 
         const signature = await signData(message);
         if (!signature) {
             console.log("[service worker] sign data failed");
-            throw new Error("sign data failed")
+            sendResponse({success: -1, message: "sign data failed"});
+            return;
         }
         const rspData = await BMRequestToSrv("/query_by_email_array", addr.bmail_address, message, signature);
         if (!rspData) {
@@ -512,7 +423,6 @@ async function searchAccountByEmails(emails: string[], sendResponse: (response: 
             return;
         }
         const result = EmailReflects.decode(rspData) as EmailReflects
-
         sendResponse({success: 1, data: result});
     } catch (e) {
         console.log("[service worker] search bmail accounts failed:", e)

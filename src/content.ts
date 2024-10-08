@@ -8,7 +8,7 @@ import {
 } from "./consts";
 import {
     parseContentHtml,
-    parseEmailToBmail,
+    parseEmailToBmail, readCurrentMailAddress,
     setupEmailAddressByInjection
 } from "./content_common";
 import {sendMessageToBackground} from "./common";
@@ -189,3 +189,12 @@ async function decryptData(eventData: EventData) {
         return parseAsBmailError(eventData.id, e);
     }
 }
+
+browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response: any) => void) => {
+    console.log("------>>>on message from background:", request.action);
+    if (request.action === MsgType.QueryCurEmail) {
+        const emailAddr = readCurrentMailAddress();
+        sendResponse({value: emailAddr ?? ""});
+    }
+    return true;
+});

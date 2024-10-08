@@ -558,12 +558,3 @@ export function readCurrentMailAddress(): string {
         return "";
     }
 }
-
-browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response: any) => void) => {
-    console.log("------>>>on message from background:", request.action);
-    if (request.action === MsgType.QueryCurEmail) {
-        const emailAddr = readCurrentMailAddress();
-        sendResponse({value: emailAddr ?? ""});
-    }
-    return true;
-});

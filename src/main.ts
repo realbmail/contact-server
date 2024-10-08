@@ -2,16 +2,18 @@ import browser from "webextension-polyfill";
 import {
     showView
 } from "./common";
-import {initDatabase} from "./database";
+import {checkAndInitDatabase, initDatabase} from "./database";
 import {translateMainPage} from "./local";
 import {loadLastSystemSetting} from "./setting";
-import {sessionSet} from "./session_storage";
+import {sessionGet, sessionSet} from "./session_storage";
 import {
     __systemSetting, router
 } from "./main_common";
 import {initLoginDiv} from "./main_login";
 import {initDashBoard} from "./main_dashboard";
-import {MsgType, WalletStatus} from "./consts";
+import {WalletStatus} from "./consts";
+import {queryCurWallet} from "./wallet";
+import {__dbKey_cur_key, __key_wallet_status} from "./background";
 
 document.addEventListener("DOMContentLoaded", initBMailExtension as EventListener);
 
@@ -21,43 +23,53 @@ async function initBMailExtension(): Promise<void> {
         sessionSet(__systemSetting, setting);
     });
     translateMainPage();
-    checkBackgroundStatus();
+    await checkBackgroundStatus();
     initLoginDiv();
     initDashBoard();
 }
 
-function checkBackgroundStatus(): void {
-    const request = {action: MsgType.PluginClicked};
+async function checkBackgroundStatus(): Promise<void> {
 
-    browser.runtime.sendMessage(request).then((response: any) => {
-        console.log("request=>", JSON.stringify(request));
-        if (!response) {
-            console.error('Error: Response is undefined or null.');
+    const status = await checkWalletStatus();
+
+    switch (status) {
+        case WalletStatus.NoWallet:
+            browser.tabs.create({
+                url: browser.runtime.getURL("html/home.html#onboarding/welcome")
+            }).then();
             return;
-        }
-        console.log("------>>>response=>", JSON.stringify(response));
 
-        switch (response.status) {
-            case WalletStatus.NoWallet:
-                browser.tabs.create({
-                    url: browser.runtime.getURL("html/home.html#onboarding/welcome")
-                }).then();
-                return;
-            case WalletStatus.Locked:
-            case WalletStatus.Expired:
-                showView('#onboarding/main-login', router);
-                return;
-            case WalletStatus.Unlocked:
-                showView('#onboarding/main-dashboard', router);
-                return;
-            case WalletStatus.Error:
-                alert("error:" + response.message);
-                return;
-            case WalletStatus.InvalidTarget:
-                showView('#onboarding/invalid-service-target', router);
-                return;
+        case WalletStatus.Locked:
+        case WalletStatus.Expired:
+            showView('#onboarding/main-login', router);
+            return;
+
+        case WalletStatus.Unlocked:
+            showView('#onboarding/main-dashboard', router);
+            return;
+    }
+}
+
+async function checkWalletStatus(): Promise<WalletStatus> {
+
+    await checkAndInitDatabase();
+
+    let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
+    if (walletStatus === WalletStatus.Init) {
+        const wallet = await queryCurWallet();
+        console.log('[service work] queryCurWallet result:', wallet);
+        if (!wallet) {
+            return WalletStatus.NoWallet;
         }
-    }).catch((error: any) => {
-        console.error('Error sending message:', error);
-    });
+        return WalletStatus.Locked;
+    }
+
+    if (walletStatus === WalletStatus.Unlocked) {
+        const mKey = await sessionGet(__dbKey_cur_key) as Uint8Array;
+        if (!mKey) {
+            return WalletStatus.Locked;
+        }
+    }
+
+    return walletStatus;
 }

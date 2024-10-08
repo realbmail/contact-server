@@ -1,5 +1,4 @@
 export enum MsgType {
-    PluginClicked = 'PluginClicked',
     WalletCreate = 'WalletCreate',
     WalletOpen = 'WalletOpen',
     WalletClose = 'WalletClose',
@@ -11,7 +10,6 @@ export enum MsgType {
     CheckIfLogin = 'CheckIfLogin',
     SignData = 'SignData',
     QueryAccountDetails = 'QueryAccountDetails',
-    EmailBindOp = 'EmailBindOp',
     IfBindThisEmail = 'IfBindThisEmail',
     OpenPlugin = 'OpenPlugin',
     BindAction = 'BindAction',
@@ -19,15 +17,12 @@ export enum MsgType {
     SetEmailByInjection = 'SetEmailByInjection',
 }
 
-
 export enum WalletStatus {
     Init = 'Init',
     NoWallet = 'NoWallet',
     Locked = 'Locked',
     Unlocked = 'Unlocked',
-    Expired = 'Expired',
-    Error = 'error',
-    InvalidTarget = 'InvalidTarget'
+    Expired = 'Expired'
 }
 
 // const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"

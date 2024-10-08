@@ -1,21 +1,21 @@
 import browser from "webextension-polyfill";
 import {
-    checkFrameBody,
-    encryptMailInComposing,
-    parseBmailInboxBtn,
-    parseCryptoMailBtn,
-    showTipsDialog,
+    __decrypt_button_css_name,
     addDecryptButtonForBmailBody,
+    checkFrameBody,
+    decryptMailForEditionOfSentMail,
+    encryptMailInComposing,
+    findAllTextNodesWithEncryptedDiv,
+    MailAddressProvider,
+    observeForElementDirect,
+    parseBmailInboxBtn,
+    parseContentHtml,
+    parseCryptoMailBtn,
     processReceivers,
     replaceTextNodeWithDiv,
-    __decrypt_button_css_name,
-    findAllTextNodesWithEncryptedDiv,
-    decryptMailForEditionOfSentMail, observeForElementDirect, parseContentHtml, MailAddressProvider
+    showTipsDialog
 } from "./content_common";
-import {
-    extractEmail,
-    hideLoading, showLoading
-} from "./common";
+import {extractEmail, hideLoading, showLoading} from "./common";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -30,9 +30,7 @@ function appendForNetEase(template: HTMLTemplateElement) {
 
     const dvContainer = document.getElementById("dvContainer") as HTMLElement;
     observeForElementDirect(dvContainer, 500, () => {
-        const readDiv = document.querySelector("[id^='_dvModuleContainer_read.ReadModule']") as HTMLElement;
-        console.log("---------------------->>>>>>>dvContainer =>", readDiv)
-        return readDiv;
+        return document.querySelector("[id^='_dvModuleContainer_read.ReadModule']") as HTMLElement;
     }, async () => {
         checkHasMailContent(template);
     }, true);
@@ -310,7 +308,6 @@ function monitorTabMenu(callback?: (isDelete: boolean) => void) {
         let isDelete = true;
         if (currentChildCount !== lastChildCount) {
             if (currentChildCount > lastChildCount) {
-                console.log(`------>>>Added li: `);
                 isDelete = false;
             } else {
                 mutationsList.forEach(mutation => {
@@ -371,11 +368,9 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
     }
 
     headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
-    console.log("------>>> decrypt button add success");
 }
 
 function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplateElement) {
-    console.log("------------------>>>> checking reply area");
 
     const quickReply = mailArea.querySelector('div[id$="_dvAttach_reply"]')
     if (!quickReply) {
@@ -390,7 +385,7 @@ function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplat
     }
     const title = browser.i18n.getMessage('crypto_and_send');
     const mailBody = mailArea.querySelector('textarea[id$="_replyInput_inputId"]') as HTMLTextAreaElement;
-    mailBody?.addEventListener('click', (e: Event) => {
+    mailBody?.addEventListener('click', () => {
         let cryptoBtn = toolBarDiv.querySelector('.bmail-crypto-btn') as HTMLElement;
         if (cryptoBtn) {
             console.log("----->>> crypto button already been added for quick reply area");
