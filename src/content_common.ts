@@ -219,7 +219,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
 function observeAction(target: HTMLElement, idleThreshold: number,
                        foundFunc: () => HTMLElement | null, callback: () => Promise<void>,
                        options: MutationObserverInit, continueMonitor?: boolean) {
-    const cb: MutationCallback = (mutationsList, observer) => {
+    const cb: MutationCallback = (_, observer) => {
         const element = foundFunc();
         if (!element) {
             return;
@@ -332,7 +332,7 @@ export function addDecryptButtonForBmailBody(template: HTMLTemplateElement, mail
 
     const title = browser.i18n.getMessage('decrypt_mail_body')
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48_out.png', __decrypt_button_css_name,
-        title, btnId, async btn => {
+        title, btnId, async _ => {
         }) as HTMLElement;
 
     appendDecryptForDiv(cryptoBtnDiv, mailArea);
@@ -555,6 +555,7 @@ export function readCurrentMailAddress(): string {
     if (provider && typeof provider.readCurrentMailAddress === 'function') {
         return provider.readCurrentMailAddress();
     } else {
-        return "";
+        console.log("------------>>> no valid mail address providers", __cur_email_address);
+        return __cur_email_address ?? "";
     }
 }
