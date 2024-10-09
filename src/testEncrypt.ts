@@ -6,13 +6,13 @@ import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
-import {decodeHex, encodeHex, signDataByMessage} from "./common";
+import {decodeHex, encodeHex} from "./common";
 import {
     decodePubKey,
     decryptAes,
     encryptAes,
     generateKeyPairFromSecretKey,
-    generatePrivateKey,
+    generateRandomKey,
     MailKey
 } from "./wallet";
 import base58 from "bs58";
@@ -76,7 +76,7 @@ export function testEncryptData() {
 export function testCurve() {
     // 生成curve25519的密钥对
     const aliceKeyPair = nacl.box.keyPair();
-    const bobSecretKey = generatePrivateKey();
+    const bobSecretKey = generateRandomKey();
     const bobKeyPair = generateKeyPairFromSecretKey(bobSecretKey);
 
     // Alice 的公钥
@@ -115,9 +115,9 @@ export function testCurve() {
 }
 
 export function testBmailPub() {
-    const secretKey = generatePrivateKey();
+    const secretKey = generateRandomKey();
     const key = new MailKey(secretKey);
-    const bobSecretKey = generatePrivateKey();
+    const bobSecretKey = generateRandomKey();
     const bobKeyPair = generateKeyPairFromSecretKey(bobSecretKey);
 
     console.log("------>>> uint8 array pub:", key.address, decodePubKey(key.address.bmail_address), bobKeyPair.secretKey)
@@ -148,7 +148,7 @@ export function testBmailPub() {
 
 
 export function testCurveEd() {
-    const seed = generatePrivateKey();
+    const seed = generateRandomKey();
     const keyPair = nacl.sign.keyPair.fromSeed(seed);
     const edPriPart = keyPair.secretKey.slice(0, 32);
     console.log("------>>>", nacl.sign.secretKeyLength, keyPair.publicKey, keyPair.secretKey, edPriPart);
@@ -228,7 +228,7 @@ export function testEd2curve() {
 }
 
 export function testEdCrypto() {
-    const seed = generatePrivateKey();
+    const seed = generateRandomKey();
     console.log("----->>>>seed:", seed, encodeHex(seed));
     const edKeyPair = nacl.sign.keyPair.fromSeed(seed);
     console.log("----->>>>ed pub key:", edKeyPair.publicKey, encodeHex(edKeyPair.publicKey));

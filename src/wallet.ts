@@ -193,7 +193,7 @@ export function decodePubKey(pubKeyStr: string): Uint8Array {
 }
 
 
-export function generatePrivateKey(): Uint8Array {
+export function generateRandomKey(): Uint8Array {
     return nacl.randomBytes(nacl.box.secretKeyLength);
 }
 

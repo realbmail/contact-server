@@ -16,6 +16,7 @@ import {
     MsgType
 } from "./consts";
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
+import {AttachmentEncryptKey} from "./content_attachment";
 
 let __cur_email_address: string | null | undefined;
 
@@ -136,7 +137,7 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
 }
 
-export async function encryptMailInComposing(mailBody: HTMLElement, receiver: string[] | null): Promise<boolean> {
+export async function encryptMailInComposing(mailBody: HTMLElement, receiver: string[] | null, attachment?: string): Promise<boolean> {
     if (!receiver || receiver.length === 0) {
         return false;
     }
@@ -150,7 +151,8 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
     const mailRsp = await browser.runtime.sendMessage({
         action: MsgType.EncryptData,
         receivers: receiver,
-        data: mailBody.innerHTML
+        data: mailBody.innerHTML,
+        attachment: attachment
     })
 
     if (mailRsp.success <= 0) {

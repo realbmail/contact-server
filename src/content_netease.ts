@@ -16,7 +16,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import {extractEmail, hideLoading, showLoading} from "./common";
-import {checkAttachmentBtn} from "./content_attachment";
+import {checkAttachmentBtn, queryAttachmentKey, removeAttachmentKey} from "./content_attachment";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -177,7 +177,14 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
     await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
     headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     // console.log("------>>> encrypt button add success");
-    checkAttachmentBtn(composeDiv, template);
+
+    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    if (!overlayButton) {
+        console.log("----->>> overlayButton not found");
+        return;
+    }
+
+    checkAttachmentBtn(composeDiv, overlayButton.cloneNode(true) as HTMLElement);
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
@@ -204,12 +211,20 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
             return extractEmail(div.textContent ?? "");
         });
 
-        const success = await encryptMailInComposing(mailBody, receiver);
+        const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
+        const composId = attachmentDiv.getAttribute('id') as string;
+
+        const attachment = queryAttachmentKey(composId);
+        const success = await encryptMailInComposing(mailBody, receiver, attachment);
         if (!success) {
             return;
         }
 
         sendDiv.click();
+
+        if (attachment) {
+            removeAttachmentKey(composId)
+        }
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
         showTipsDialog("error", "encrypt mail content failed");

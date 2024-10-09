@@ -40,4 +40,4 @@ export const ECQueryBmailFailed = -6
 export const ECInvalidEmailAddress = -7
 export const ECInternalError = -1007
 
-
+export const AttachmentFileSuffix = "bmail"

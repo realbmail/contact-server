@@ -7,6 +7,7 @@ import {BMRequestToSrv, decodeHex} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 import {MsgType, WalletStatus} from "./consts";
+import {AttachmentEncryptKey} from "./content_attachment";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -68,7 +69,7 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
             return true;
 
         case  MsgType.EncryptData:
-            encryptData(request.receivers, request.data, sendResponse).then();
+            encryptData(request.receivers, request.data, sendResponse, request.attachment).then();
             return true;
 
         case MsgType.DecryptData:
@@ -254,7 +255,7 @@ async function checkWalletStatus(sendResponse: (response: any) => void) {
     return new MailKey(new Uint8Array(sObj));
 }
 
-async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (response: any) => void) {
+async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (response: any) => void, attachment?: string) {
     try {
         const mKey = await checkWalletStatus(sendResponse);
         if (!mKey) {
@@ -265,7 +266,7 @@ async function encryptData(peerAddr: string[], plainTxt: string, sendResponse: (
             return null;
         }
 
-        const mail = encodeMail(peerAddr, plainTxt, mKey)
+        const mail = encodeMail(peerAddr, plainTxt, mKey, attachment);
         console.log("[service work] encrypted mail body =>", mail);
         sendResponse({success: true, data: JSON.stringify(mail)});
     } catch (err) {

@@ -1,6 +1,6 @@
 import naclUtil from "tweetnacl-util";
 import nacl from "tweetnacl";
-import {decodePubKey, generatePrivateKey, MailKey} from "./wallet";
+import {decodePubKey, generateRandomKey, MailKey} from "./wallet";
 import {decodeHex, encodeHex} from "./common";
 import {ed2CurvePub} from "./edwards25519";
 
@@ -13,15 +13,27 @@ export class BMailBody {
     cryptoBody: string;
     nonce: Uint8Array;
     sender: string;
-    mailFlag: string
+    mailFlag: string;
+    attachment: string = "";
 
-    constructor(version: number, secrets: Map<string, string>, body: string, nonce: Uint8Array, sender: string) {
+    constructor(version: number, secrets: Map<string, string>, body: string, nonce: Uint8Array, sender: string, attachment?: string) {
         this.version = version;
         this.receivers = secrets;
         this.cryptoBody = body;
         this.nonce = nonce;
         this.sender = sender;
         this.mailFlag = MailFlag;
+        this.attachment = attachment ?? "";
+    }
+
+    static fromJSON(jsonStr: string): BMailBody {
+        const json = JSON.parse(jsonStr);
+        const version = json.version;
+        const receivers = new Map<string, string>(json.receivers);
+        const cryptoBody = json.cryptoBody;
+        const nonce = decodeHex(json.nonce);
+        const sender = json.sender;
+        return new BMailBody(version, receivers, cryptoBody, nonce, sender, json.attachment);
     }
 
     toJSON() {
@@ -29,26 +41,17 @@ export class BMailBody {
             version: this.version,
             receivers: Array.from(this.receivers.entries()),
             cryptoBody: this.cryptoBody,
-            nonce: Array.from(this.nonce),
+            nonce: encodeHex(this.nonce),
             sender: this.sender,
-            mailFlag: this.mailFlag
+            mailFlag: this.mailFlag,
+            attachment: this.attachment,
         };
-    }
-
-    static fromJSON(jsonStr: string): BMailBody {
-        const json = JSON.parse(jsonStr);
-        const version = json.version;
-        const receivers = new Map<string, string>(json.receivers); // 将二维数组转换回 Map
-        const cryptoBody = json.cryptoBody;
-        const nonce = new Uint8Array(json.nonce); // 将普通数组转换回 Uint8Array
-        const sender = json.sender;
-        return new BMailBody(version, receivers, cryptoBody, nonce, sender);
     }
 }
 
-export function encodeMail(peers: string[], data: string, key: MailKey): BMailBody {
+export function encodeMail(peers: string[], data: string, key: MailKey, attachment?: string): BMailBody {
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
-    const aesKey = generatePrivateKey();
+    const aesKey = generateRandomKey();
     let secrets = new Map<string, string>();
 
     peers.push(key.address.bmail_address);//add self for decrypt.
@@ -65,7 +68,10 @@ export function encodeMail(peers: string[], data: string, key: MailKey): BMailBo
     })
 
     const encryptedBody = nacl.secretbox(naclUtil.decodeUTF8(data), nonce, aesKey);
-    return new BMailBody(MailBodyVersion, secrets, naclUtil.encodeBase64(encryptedBody), nonce, key.address.bmail_address)
+
+    return new BMailBody(MailBodyVersion, secrets,
+        naclUtil.encodeBase64(encryptedBody),
+        nonce, key.address.bmail_address, attachment);
 }
 
 export function decodeMail(mailData: string, key: MailKey) {
