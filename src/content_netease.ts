@@ -177,7 +177,7 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
     await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
     headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     // console.log("------>>> encrypt button add success");
-    checkAttachmentBtn(composeDiv);
+    checkAttachmentBtn(composeDiv, template);
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
