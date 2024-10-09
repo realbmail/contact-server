@@ -16,3 +16,5 @@ resources/.arch-internal-preview.css
 /extension/js/
 /node_modules/
 /package-lock.json
+/src/proto/bmail_srv.ts
+/extension/html/test.html
