@@ -1,14 +1,10 @@
 import browser from "webextension-polyfill";
+import {ECDecryptFailed, ECEncryptedFailed, ECInternalError, ECWalletClosed, Inject_Msg_Flag, MsgType} from "./consts";
 import {
-    ECDecryptFailed,
-    ECEncryptedFailed, ECInternalError,
-    ECWalletClosed,
-    Inject_Msg_Flag,
-    MsgType
-} from "./consts";
-import {
+    addCustomStyles,
     parseContentHtml,
-    parseEmailToBmail, readCurrentMailAddress,
+    parseEmailToBmail,
+    readCurrentMailAddress,
     setupEmailAddressByInjection
 } from "./content_common";
 import {sendMessageToBackground} from "./common";
@@ -23,14 +19,6 @@ export function addBmailObject(jsFilePath: string): void {
         script.remove();
     };
     (document.head || document.documentElement).appendChild(script);
-}
-
-export function addCustomStyles(cssFilePath: string): void {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = browser.runtime.getURL(cssFilePath);
-    document.head.appendChild(link);
 }
 
 function translateInjectedElm() {

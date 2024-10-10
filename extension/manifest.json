@@ -81,6 +81,8 @@
       "resources": [
         "file/inject.css",
         "file/common.css",
+        "file/google.css",
+        "file/netease.css",
         "html/inject.html",
         "html/inject_google.html",
         "html/inject_qq.html",

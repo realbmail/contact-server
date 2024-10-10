@@ -1,5 +1,5 @@
 import {
-    __decrypt_button_css_name,
+    __decrypt_button_css_name, addCustomStyles,
     addDecryptButtonForBmailBody,
     checkFrameBody,
     encryptMailInComposing, extractAesKeyId, MailAddressProvider,
@@ -9,7 +9,7 @@ import {
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
-import {checkAttachmentBtn} from "./content_attachment";
+import {checkAttachmentBtn, decryptAttachment} from "./content_attachment";
 
 function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google') as HTMLElement;
@@ -145,6 +145,11 @@ function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: 
         return;
     }
 
+    if (attachmentDiv.querySelector(".attachmentOverlayButton")) {
+        console.log("----->>> overly button already added before for mail composing");
+        return;
+    }
+
     const aekId = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
@@ -233,7 +238,66 @@ async function addCryptoBtnToReadingMailGoogle(template: HTMLTemplateElement, ma
         }
 
         mailParentDiv.insertBefore(cryptoBtnDiv, mailParentDiv.firstChild);
+        setTimeout(() => {
+            addDecryptBtnForAttachment(oneMail, template);
+        }, 1000);
     })
+}
+
+function parseBmailDecryptButton(template: HTMLTemplateElement, idx: number, url: string, parsedId: {
+    id: string;
+    originalFileName: string
+}): HTMLElement {
+    const cryptoBtnDiv = template.content.getElementById("attachmentDecryptGoogle") as HTMLElement;
+    const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
+    clone.setAttribute('id', "");
+    clone.addEventListener('click', async () => {
+        // await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
+        await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
+
+        console.log("------>>> bmail decrypt download");
+    });
+
+    const id = "attachmentDecryptGoogle_tips_" + idx;
+    clone.querySelector(".attachmentDecryptGoogle_tips")!.setAttribute('id', id);
+    clone.querySelector("button")!.setAttribute('data-tooltip-id', id);
+
+    return clone;
+}
+
+function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplateElement) {
+    const attachmentArea = oneMail.querySelector(".hq.gt")?.querySelector(".aQH")
+    if (!attachmentArea) {
+        console.log("------>>> no attachment list");
+        return;
+    }
+
+    const attachmentDiv = attachmentArea.querySelectorAll("span.aZo.N5jrZb");
+    if (!attachmentDiv || !attachmentDiv.length) {
+        console.log("------>>>no attachment item found");
+        return;
+    }
+
+    for (let i = 0; i < attachmentDiv.length; i++) {
+        const attachmentItem = attachmentDiv[i] as HTMLElement;
+
+        const urlLinkDiv = attachmentItem.querySelector("a.aQy.e") as HTMLLinkElement;
+        const attachmentTool = attachmentItem.querySelector(".aQw");
+        const fileName = attachmentItem.querySelector("span.aV3")?.textContent
+
+        if (!attachmentTool || attachmentTool.childNodes.length < 2 || !fileName || !urlLinkDiv.href) {
+            console.log("------>>> failed find the attachment tool or file name or url", attachmentTool, fileName, urlLinkDiv.href);
+            return;
+        }
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
+            console.log("------>>> no need to add decrypt button to this attachment element");
+            continue;
+        }
+
+        const clone = parseBmailDecryptButton(template, i, urlLinkDiv.href, parsedId);
+        attachmentTool.insertBefore(clone, attachmentTool.firstChild);
+    }
 }
 
 async function monitorComposeActionGoogle(template: HTMLTemplateElement) {
@@ -275,6 +339,7 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('file/google.css');
     const template = await parseContentHtml('html/inject_google.html');
     appendForGoogle(template);
     // console.log("------>>> google content init success");

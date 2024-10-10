@@ -2,7 +2,8 @@ import browser from "webextension-polyfill";
 import {
     EncryptedMailDivSearch,
     extractJsonString,
-    hideLoading, isValidEmail,
+    hideLoading,
+    isValidEmail,
     replaceTextInRange,
     sendMessageToBackground,
     showLoading
@@ -657,4 +658,12 @@ export function extractAesKeyId(fileName?: string | null | undefined): { id: str
     }
 
     return {id, originalFileName};
+}
+
+export function addCustomStyles(cssFilePath: string): void {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = browser.runtime.getURL(cssFilePath);
+    document.head.appendChild(link);
 }

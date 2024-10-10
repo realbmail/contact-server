@@ -1,9 +1,9 @@
 import {generateRandomKey} from "./wallet";
-import {decodeHex, encodeHex} from "./common";
+import {decodeHex, encodeHex, sendMessageToBackground} from "./common";
 import nacl from "tweetnacl";
-import {AttachmentFileSuffix} from "./consts";
+import {AttachmentFileSuffix, MsgType} from "./consts";
 import browser from "webextension-polyfill";
-import {showCustomModal} from "./content_common";
+import {showCustomModal, showTipsDialog} from "./content_common";
 
 export class AttachmentEncryptKey {
     id: string;
@@ -274,4 +274,27 @@ function decryptData(encryptedData: Uint8Array, aesKey: AttachmentEncryptKey, fi
 
     URL.revokeObjectURL(downloadUrl);
     console.log('------>>> 文件下载并解密成功');
+}
+
+export async function decryptAttachment(aekId: string, url: string, fileName: string) {
+
+    const aesKey = loadAKForReading(aekId);
+    if (!aesKey) {
+
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+
+        showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+        return;
+    }
+
+    try {
+        await downloadAndDecryptFile(url, aesKey, fileName);
+    } catch (e) {
+        console.log("------>>> download and decrypt attachment failed:", e);
+        const err = e as Error;
+        showTipsDialog("Error", err.message);
+    }
 }

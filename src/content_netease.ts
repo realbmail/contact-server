@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import {
-    __decrypt_button_css_name,
+    __decrypt_button_css_name, addCustomStyles,
     addDecryptButtonForBmailBody,
     checkFrameBody,
     decryptMailForEditionOfSentMail,
@@ -17,7 +17,7 @@ import {
 } from "./content_common";
 import {extractEmail, hideLoading, sendMessageToBackground, showLoading} from "./common";
 import {
-    checkAttachmentBtn,
+    checkAttachmentBtn, decryptAttachment,
     downloadAndDecryptFile, loadAKForReading
 } from "./content_attachment";
 import {MsgType} from "./consts";
@@ -190,12 +190,19 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
         console.log("----->>> overlayButton not found");
         return;
     }
+
     const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
     const fileInput = attachmentDiv?.querySelector('input[type="file"]') as HTMLInputElement | null;
     if (!fileInput) {
         console.log("----->>> file input not found");
         return;
     }
+
+    if (attachmentDiv.querySelector(".attachmentOverlayButton")) {
+        console.log("----->>> overly button already added before for mail composing");
+        return;
+    }
+
     const aekID = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekID);
@@ -400,6 +407,7 @@ async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElem
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('file/netease.css');
     const template = await parseContentHtml('html/inject_netease.html');
     appendForNetEase(template);
     console.log("------>>> netease content init success");
@@ -454,25 +462,3 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
     }
 }
 
-async function decryptAttachment(aekId: string, url: string, fileName: string) {
-
-    const aesKey = loadAKForReading(aekId);
-    if (!aesKey) {
-
-        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-        if (statusRsp.success < 0) {
-            return;
-        }
-
-        showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
-        return;
-    }
-
-    try {
-        await downloadAndDecryptFile(url, aesKey, fileName);
-    } catch (e) {
-        console.log("------>>> download and decrypt attachment failed:", e);
-        const err = e as Error;
-        showTipsDialog("Error", err.message);
-    }
-}
