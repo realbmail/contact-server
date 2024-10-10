@@ -2,7 +2,7 @@ import {
     __decrypt_button_css_name,
     addDecryptButtonForBmailBody,
     checkFrameBody,
-    encryptMailInComposing, MailAddressProvider,
+    encryptMailInComposing, extractAesKeyId, MailAddressProvider,
     observeForElement,
     parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
@@ -86,11 +86,12 @@ function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: H
     const toolBarTr = composeDiv.querySelector("tr.btC") as HTMLElement;
     const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
 
-    _prepareAttachmentForCompose(template, toolBarTr);
+    _prepareAttachmentForCompose(template, toolBarTr, composeDiv);
 
     const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
         "bmail_crypto_btn_in_compose_google", async _ => {
-            await encryptMailAndSendGoogle(mailBodyDiv, titleForm, sendDiv);
+            const aekId = findAttachmentKeyID(composeDiv);
+            await encryptMailAndSendGoogle(mailBodyDiv, titleForm, sendDiv, aekId);
             setTimeout(() => {
                 addCryptoBtnToReadingMailGoogle(template).then();
             }, 1000);
@@ -109,7 +110,27 @@ function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: H
     }
 }
 
-function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: HTMLElement) {
+function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
+    const attachFileArea = composeDiv.querySelector(".bA3 .GM")?.querySelectorAll(".dL");
+    if (!attachFileArea || attachFileArea.length === 0) {
+        console.log("------>>> no attached filed found");
+        return undefined;
+    }
+    let aekId = "";
+    for (let i = 0; i < attachFileArea.length; i++) {
+        const element = attachFileArea.item(i);
+        const fileName = element.querySelector(".vI")?.textContent;
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
+            continue;
+        }
+        aekId = parsedId.id;
+        break;
+    }
+    return aekId;
+}
+
+function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: HTMLElement, composeDiv: HTMLElement) {
     const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
@@ -124,9 +145,11 @@ function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: 
         return;
     }
 
+    const aekId = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone);
+    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
 }
+
 
 async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
     const allComposeDiv = document.querySelectorAll(_composeBtnParentClass);
@@ -136,7 +159,7 @@ async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
     });
 }
 
-async function encryptMailAndSendGoogle(mailBody: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement) {
+async function encryptMailAndSendGoogle(mailBody: HTMLElement, titleForm: HTMLElement, sendDiv: HTMLElement, aekId?: string) {
     showLoading();
     try {
         const divsWithDataHoverCardId = titleForm.querySelectorAll('div[data-hovercard-id]') as NodeListOf<HTMLElement>;
@@ -144,7 +167,7 @@ async function encryptMailAndSendGoogle(mailBody: HTMLElement, titleForm: HTMLEl
             return div.getAttribute('data-hovercard-id') as string | null;
         });
 
-        const success = await encryptMailInComposing(mailBody, receiver);
+        const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;
         }

@@ -17,7 +17,7 @@ import {
     MsgType
 } from "./consts";
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
-import {AttachmentEncryptKey} from "./content_attachment";
+import {AttachmentEncryptKey, loadAKForCompose, removeAttachmentKey} from "./content_attachment";
 
 let __cur_email_address: string | null | undefined;
 
@@ -138,7 +138,7 @@ export function setBtnStatus(hasEncrypted: boolean, btn: HTMLElement) {
     }
 }
 
-export async function encryptMailInComposing(mailBody: HTMLElement, receiver: string[] | null, attachment?: string): Promise<boolean> {
+export async function encryptMailInComposing(mailBody: HTMLElement, receiver: string[] | null, aekId?: string): Promise<boolean> {
     if (!receiver || receiver.length === 0) {
         return false;
     }
@@ -147,6 +147,11 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
     if (!bodyTextContent || bodyTextContent.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_body"));
         return false;
+    }
+
+    let attachment;
+    if (aekId) {
+        attachment = loadAKForCompose(aekId);
     }
 
     const mailRsp = await browser.runtime.sendMessage({
@@ -166,6 +171,10 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
     // mailBody.innerText = mailRsp.data;
     mailBody.innerHTML = '<div class="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
     // checkFrameBody(mailBody, btn);
+
+    if (aekId) {
+        removeAttachmentKey(aekId);
+    }
     return true;
 }
 

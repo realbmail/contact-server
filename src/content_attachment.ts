@@ -100,6 +100,7 @@ export function loadAKForReading(aekId: string): AttachmentEncryptKey | undefine
 }
 
 export function removeAttachmentKey(aekID: string) {
+
     localStorage.removeItem(aekID);
     sessionStorage.removeItem(aekID);
 }

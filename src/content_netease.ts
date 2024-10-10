@@ -18,9 +18,7 @@ import {
 import {extractEmail, hideLoading, sendMessageToBackground, showLoading} from "./common";
 import {
     checkAttachmentBtn,
-    downloadAndDecryptFile, loadAKForReading,
-    loadAKForCompose,
-    removeAttachmentKey
+    downloadAndDecryptFile, loadAKForReading
 } from "./content_attachment";
 import {MsgType} from "./consts";
 
@@ -199,12 +197,12 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
         console.log("----->>> file input not found");
         return;
     }
-    const aekId = findAttachmentKey(composeDiv);
+    const aekID = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
+    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekID);
 }
 
-function findAttachmentKey(composeDiv: HTMLElement): string | undefined {
+function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
     const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLInputElement;
     const allAttachDivs = attachArea.querySelectorAll(".G0");
     if (allAttachDivs.length === 0) {
@@ -223,11 +221,7 @@ function findAttachmentKey(composeDiv: HTMLElement): string | undefined {
         break;
     }
 
-    if (!aekId) {
-        return undefined;
-    }
-
-    return loadAKForCompose(aekId);
+    return aekId;
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
@@ -254,20 +248,16 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
             return extractEmail(div.textContent ?? "");
         });
 
-        const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
-        const composId = attachmentDiv.getAttribute('id') as string;
+        const aekId = findAttachmentKeyID(composeDiv);
 
-        const attachment = findAttachmentKey(composeDiv);
-        const success = await encryptMailInComposing(mailBody, receiver, attachment);
+        const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;
         }
 
         sendDiv.click();
 
-        if (attachment) {
-            removeAttachmentKey(composId)
-        }
+
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
         showTipsDialog("error", "encrypt mail content failed");
