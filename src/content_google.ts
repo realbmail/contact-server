@@ -5,15 +5,16 @@ import {
     encryptMailInComposing, MailAddressProvider,
     observeForElement,
     parseBmailInboxBtn, parseContentHtml,
-    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, readCurrentMailAddress, showTipsDialog
+    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
+import {checkAttachmentBtn} from "./content_attachment";
 
 function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google') as HTMLElement;
 
-    console.log("------>>> start to append element to google mail");
+    // console.log("------>>> start to append element to google mail");
     const viewAllMailDiv = document.querySelector(".bodycontainer");
     if (viewAllMailDiv) {
         console.log("------>>> this is view all mail content");
@@ -26,7 +27,7 @@ function appendForGoogle(template: HTMLTemplateElement) {
         () => {
             return document.querySelector('.TK') as HTMLElement;
         }, async () => {
-            console.log("------>>>start to populate google area");
+            // console.log("------>>>start to populate google area");
             monitorReadingActionGoogle(template).then();
             addBMailInboxToMenu(clone).then();
         });
@@ -39,7 +40,7 @@ async function addBMailInboxToMenu(clone: HTMLElement) {
         return;
     }
     composBtn.parentNode!.appendChild(clone);
-    console.log("------>>> add bmail inbox button success=>")
+    // console.log("------>>> add bmail inbox button success=>")
 }
 
 function queryEmailAddrGoogle() {
@@ -84,15 +85,18 @@ function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: H
 
     const toolBarTr = composeDiv.querySelector("tr.btC") as HTMLElement;
     const sendDiv = toolBarTr.querySelector(".dC")?.firstChild as HTMLElement;
+
+    _prepareAttachmentForCompose(template, toolBarTr);
+
     const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
-        "bmail_crypto_btn_in_compose_google", async btn => {
+        "bmail_crypto_btn_in_compose_google", async _ => {
             await encryptMailAndSendGoogle(mailBodyDiv, titleForm, sendDiv);
             setTimeout(() => {
                 addCryptoBtnToReadingMailGoogle(template).then();
             }, 1000);
         });
     if (!clone) {
-        console.log("------>>> node not found");
+        console.log("------>>> crypt button not found");
         return;
     }
 
@@ -103,6 +107,25 @@ function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: H
     if (secondTd) {
         toolBarTr.insertBefore(newTd, secondTd);
     }
+}
+
+function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: HTMLElement) {
+    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    if (!overlayButton) {
+        console.log("----->>> overlayButton not found");
+        return;
+    }
+
+    const multiToolArea = toolBarTr.querySelector(".a8X.gU .bAK") as HTMLElement;
+    const fileInput = multiToolArea.querySelector('input[name="Filedata"]') as HTMLInputElement;
+    const attachmentDiv = multiToolArea.querySelector('.a1.aaA.aMZ') as HTMLElement;
+    if (!fileInput || !attachmentDiv) {
+        console.log("----->>> file input not found", fileInput, attachmentDiv);
+        return;
+    }
+
+    const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
+    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone);
 }
 
 async function addCryptoBtnToComposeDivGoogle(template: HTMLTemplateElement) {
@@ -145,7 +168,7 @@ async function monitorReadingActionGoogle(template: HTMLTemplateElement) {
             return null;
         }
         oldDivNo = div.length;
-        console.log("-------->>>div-------------------------------->>>", div)
+        // console.log("-------->>>div-------------------------------->>>", div)
         return div[0] as HTMLElement;
     }, async () => {
         addCryptoBtnToReadingMailGoogle(template, mainArea).then();
@@ -231,7 +254,7 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
 document.addEventListener('DOMContentLoaded', async () => {
     const template = await parseContentHtml('html/inject_google.html');
     appendForGoogle(template);
-    console.log("------>>> google content init success");
+    // console.log("------>>> google content init success");
 });
 
 class DomainBMailProvider implements MailAddressProvider {

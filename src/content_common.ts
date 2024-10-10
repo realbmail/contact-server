@@ -238,7 +238,7 @@ function observeAction(target: HTMLElement, idleThreshold: number,
         let idleTimer = setTimeout(() => {
             callback().then();
             clearTimeout(idleTimer);
-            console.log('---------->>> observer action finished:=> continue=>', continueMonitor);
+            // console.log('---------->>> observer action finished:=> continue=>', continueMonitor);
         }, idleThreshold);
     };
 
