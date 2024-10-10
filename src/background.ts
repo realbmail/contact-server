@@ -4,7 +4,7 @@ import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem,
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex} from "./common";
-import {decodeMail, encodeMail} from "./bmail_body";
+import {decodeMail, encodeMail, initMailBodyVersion} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 import {MsgType, WalletStatus} from "./consts";
 
@@ -142,6 +142,9 @@ self.addEventListener('activate', (event) => {
     console.log('[service work] Service Worker activating......');
     updateIcon(false);
     resetStorage().then();
+
+    const manifestData = browser.runtime.getManifest();
+    initMailBodyVersion(manifestData.version);
 });
 
 runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType) => {
@@ -281,7 +284,7 @@ async function decryptData(mail: string, sendResponse: (response: any) => void) 
             return;
         }
         const mailBody = decodeMail(mail, mKey);
-        sendResponse({success: 1, data: mailBody});
+        sendResponse({success: 1, data: mailBody.body, attachment: mailBody.attachment});
     } catch (err) {
         console.log("[service worker] decrypt data failed:", err)
         sendResponse({success: -1, message: browser.i18n.getMessage("decrypt_mail_body_failed") + ` error: ${err}`});

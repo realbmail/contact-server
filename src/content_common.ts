@@ -183,6 +183,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
             setBtnStatus(true, cryptoBtn);
             return;
         }
+
         mailContent.dataset.orignCrpted = mailContent.innerHTML;
 
         if (mailContent.innerHTML.includes('<wbr>')) {
@@ -210,6 +211,8 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
         mailContent.innerHTML = replaceTextInRange(mailContent.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
         mailContent.dataset.hasDecrypted = "true";
         setBtnStatus(false, cryptoBtn);
+
+        console.log("--------------------------->>>>>>mail attachment infos:", mailRsp.attachment);
 
     } catch (error) {
         console.log("------>>>failed to decrypt mail data in reading:=>", error);

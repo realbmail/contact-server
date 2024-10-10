@@ -4,11 +4,16 @@ import {decodePubKey, generateRandomKey, MailKey} from "./wallet";
 import {decodeHex, encodeHex} from "./common";
 import {ed2CurvePub} from "./edwards25519";
 
-export const MailBodyVersion = 1;
+export let MailBodyVersion = '1.2.6';
 export const MailFlag = "0be465716ad37c9119253196f921e677";
 
+export function initMailBodyVersion(version: string) {
+    MailBodyVersion = version;
+    console.log('--------------->>扩展版本号：', MailBodyVersion);
+}
+
 export class BMailBody {
-    version: number;
+    version: string;
     receivers: Map<string, string>;
     cryptoBody: string;
     nonce: Uint8Array;
@@ -16,7 +21,7 @@ export class BMailBody {
     mailFlag: string;
     attachment: string = "";
 
-    constructor(version: number, secrets: Map<string, string>, body: string, nonce: Uint8Array, sender: string, attachment?: string) {
+    constructor(version: string, secrets: Map<string, string>, body: string, nonce: Uint8Array, sender: string, attachment?: string) {
         this.version = version;
         this.receivers = secrets;
         this.cryptoBody = body;
@@ -69,12 +74,30 @@ export function encodeMail(peers: string[], data: string, key: MailKey, attachme
 
     const encryptedBody = nacl.secretbox(naclUtil.decodeUTF8(data), nonce, aesKey);
 
+    let encodedAttachmentKey: string | undefined;
+    if (attachment) {
+        const attData = nacl.secretbox(naclUtil.decodeUTF8(attachment), nonce, aesKey);
+        encodedAttachmentKey = naclUtil.encodeBase64(attData);
+    }
+
     return new BMailBody(MailBodyVersion, secrets,
         naclUtil.encodeBase64(encryptedBody),
-        nonce, key.address.bmail_address, attachment);
+        nonce, key.address.bmail_address, encodedAttachmentKey);
 }
 
-export function decodeMail(mailData: string, key: MailKey) {
+export class PlainMailBody {
+    version: string;
+    body: string;
+    attachment: string = "";
+
+    constructor(version: string, body: string, attachment?: string) {
+        this.version = version;
+        this.body = body;
+        this.attachment = attachment ?? "";
+    }
+}
+
+export function decodeMail(mailData: string, key: MailKey): PlainMailBody {
 
     const mail = BMailBody.fromJSON(mailData);
     const address = key.address;
@@ -99,5 +122,14 @@ export function decodeMail(mailData: string, key: MailKey) {
         throw new Error("decrypt mail body failed");
     }
 
-    return naclUtil.encodeUTF8(bodyBin)
+    let attachment: string | undefined;
+    if (mail.attachment) {
+        const attachmentBin = nacl.secretbox.open(naclUtil.decodeBase64(mail.attachment), mail.nonce, aesKey);
+        if (!attachmentBin) {
+            throw new Error("decrypt mail attachment keys failed");
+        }
+        attachment = naclUtil.encodeUTF8(attachmentBin);
+    }
+
+    return new PlainMailBody(MailBodyVersion, naclUtil.encodeUTF8(bodyBin), attachment);
 }
