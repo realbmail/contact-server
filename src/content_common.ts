@@ -623,29 +623,29 @@ export function showCustomModal(
     };
 }
 
-
-export function extractAesKeyId(fileName?: string | null | undefined): string {
+export function extractAesKeyId(fileName?: string | null | undefined): { id: string; originalFileName: string } | null {
     if (!fileName) {
-        return "";
+        return null;
     }
     const suffixWithUnderscore = "_" + AttachmentFileSuffix;
 
     if (!fileName.endsWith(suffixWithUnderscore)) {
-        return "";
+        return null;
     }
 
     const fileNameWithoutSuffix = fileName.substring(0, fileName.length - suffixWithUnderscore.length);
 
     const lastDotIndex = fileNameWithoutSuffix.lastIndexOf(".");
     if (lastDotIndex === -1) {
-        return "";
+        return null;
     }
 
     const id = fileNameWithoutSuffix.substring(lastDotIndex + 1);
+    const originalFileName = fileNameWithoutSuffix.substring(0, lastDotIndex);
 
-    if (!id) {
-        return "";
+    if (!id || !originalFileName) {
+        return null;
     }
 
-    return id;
+    return {id, originalFileName};
 }

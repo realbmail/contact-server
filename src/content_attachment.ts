@@ -230,9 +230,7 @@ function processFileData(event: ProgressEvent<FileReader>, originalFile: File, a
 
     const encryptedBody = nacl.secretbox(data, aesKey.nonce, aesKey.key);
 
-    const encrypted = encodeHex(encryptedBody);
-
-    const encryptedBlob = new Blob([encrypted], {type: 'application/octet-stream'});
+    const encryptedBlob = new Blob([encryptedBody], {type: 'application/octet-stream'});
 
     aesKey.cacheAKForCompose();
 
@@ -242,45 +240,38 @@ function processFileData(event: ProgressEvent<FileReader>, originalFile: File, a
 }
 
 export async function downloadAndDecryptFile(url: string, aesKey: AttachmentEncryptKey, fileName: string) {
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            credentials: 'include', // 如果需要携带 Cookie
-        });
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include', // 如果需要携带 Cookie
+    });
 
-        if (!response.ok) {
-            throw new Error(`网络响应失败，状态码：${response.status}`);
-        }
-
-        const encryptedDataBuffer = await response.arrayBuffer();
-        const encryptedData = new Uint8Array(encryptedDataBuffer);
-
-        const decryptedData = decryptData(encryptedData, aesKey);
-
-        // 创建 Blob 对象
-        const blob = new Blob([decryptedData], {type: 'application/octet-stream'});
-
-        const downloadUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = fileName; // 设置下载文件名
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        URL.revokeObjectURL(downloadUrl);
-
-        console.log('------>>> 文件下载并解密成功');
-    } catch (error) {
-        console.error('文件下载或解密失败：', error);
-        alert('文件下载或解密失败，请重试或联系支持。');
+    if (!response.ok) {
+        throw new Error(`网络响应失败，状态码：${response.status}`);
     }
+
+    const encryptedDataBuffer = await response.arrayBuffer();
+    const encryptedData = new Uint8Array(encryptedDataBuffer);
+
+    decryptData(encryptedData, aesKey, fileName);
 }
 
-function decryptData(encryptedData: Uint8Array, aesKey: AttachmentEncryptKey): Uint8Array {
+function decryptData(encryptedData: Uint8Array, aesKey: AttachmentEncryptKey, fileName: string) {
     const decryptedData = nacl.secretbox.open(encryptedData, aesKey.nonce, aesKey.key);
     if (!decryptedData) {
         throw new Error('解密失败，可能是密钥不正确或数据已损坏');
     }
-    return decryptedData;
+
+    // 创建 Blob 对象
+    const blob = new Blob([decryptedData], {type: 'application/octet-stream'});
+
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(downloadUrl);
+    console.log('------>>> 文件下载并解密成功');
 }

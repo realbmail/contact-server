@@ -215,10 +215,11 @@ function findAttachmentKey(composeDiv: HTMLElement): string | undefined {
     for (let i = 0; i < allAttachDivs.length; i++) {
         const element = allAttachDivs[i];
         const fileName = element.querySelector(".o0")?.textContent;
-        aekId = extractAesKeyId(fileName);
-        if (!aekId) {
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
             continue;
         }
+        aekId = parsedId.id;
         break;
     }
 
@@ -426,7 +427,6 @@ class DomainBMailProvider implements MailAddressProvider {
 
 function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplateElement) {
     const ulElement = mailArea.querySelector('ul[id$="_ulCommonAttachItem"]') as HTMLUListElement | null;
-    console.log(ulElement?.children);
 
     const attachmentDiv = ulElement?.querySelectorAll(".dM1 .ey0")
     if (!attachmentDiv || attachmentDiv.length === 0) {
@@ -441,8 +441,8 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
         }
 
         const fileName = attachment.querySelector(".dn0 .cg0")?.textContent;
-        const aekId = extractAesKeyId(fileName);
-        if (!aekId) {
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
             console.log("------>>> no need to add decrypt button to this attachment element");
             return;
         }
@@ -458,7 +458,7 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
         const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
         clone.setAttribute('id', "");
         clone.addEventListener('click', async () => {
-            await decryptAttachment(aekId, url, fileName!);
+            await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
         });
 
         attachment.insertBefore(clone, downloadLinkDiv);
@@ -479,5 +479,11 @@ async function decryptAttachment(aekId: string, url: string, fileName: string) {
         return;
     }
 
-    await downloadAndDecryptFile(url, aesKey, fileName);
+    try {
+        await downloadAndDecryptFile(url, aesKey, fileName);
+    } catch (e) {
+        console.log("------>>> download and decrypt attachment failed:", e);
+        const err = e as Error;
+        showTipsDialog("Error", err.message);
+    }
 }
