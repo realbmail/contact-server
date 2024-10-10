@@ -203,7 +203,6 @@ async function handleTempInputChange(event: Event, fileInput: HTMLInputElement, 
     }
 }
 
-
 function encryptFile(file: File, aesKey: AttachmentEncryptKey): Promise<File> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();

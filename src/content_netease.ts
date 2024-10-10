@@ -89,7 +89,6 @@ function checkHasMailContent(template: HTMLTemplateElement) {
 }
 
 function appendBmailInboxMenu(clone: HTMLElement) {
-    // const ulElements = document.querySelectorAll('ul[aria-label="左侧导航"]');
     const ulElements = document.querySelectorAll('ul[id^="_mail_tree_0_"]');
 
     const targetElement = Array.from(ulElements).find((element) => {
