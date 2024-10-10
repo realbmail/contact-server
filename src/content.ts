@@ -71,6 +71,10 @@ export function appendTipDialog(template: HTMLTemplateElement) {
     const waitingDiv = template.content.getElementById("dialog-waiting-overlay") as HTMLDivElement;
     const waitClone = waitingDiv.cloneNode(true) as HTMLElement;
     document.body.appendChild(waitClone);
+
+    const confirmDiv = template.content.getElementById("dialog-confirm-container") as HTMLDivElement;
+    const confirmClone = confirmDiv.cloneNode(true) as HTMLElement;
+    document.body.appendChild(confirmClone);
 }
 
 const loginFirstTip = wrapResponse('', '', {

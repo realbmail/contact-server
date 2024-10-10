@@ -42,11 +42,18 @@ export class AttachmentEncryptKey {
 const keySuffix = "_attachment_key";
 
 function generateAttachmentKey(composeId: string): AttachmentEncryptKey {
+    const keyStr = localStorage.getItem(composeId + keySuffix);
+    if (keyStr) {
+        return AttachmentEncryptKey.fromJson(keyStr);
+    }
+
     const key = generateRandomKey();
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
+
     const obj = new AttachmentEncryptKey(key, nonce);
     localStorage.setItem(composeId + keySuffix, AttachmentEncryptKey.toJson(obj));
-    return obj
+
+    return obj;
 }
 
 export function queryAttachmentKey(composeId: string): string | undefined {
@@ -83,21 +90,9 @@ export function checkAttachmentBtn(composeDiv: HTMLElement, overlayButton: HTMLE
 
     const attachmentKey = generateAttachmentKey(attachmentDiv.getAttribute('id')!);
     overlayButton.addEventListener('click', (event) => handleOverlayButtonClick(event, fileInput, attachmentKey, overlayButton));
+
     attachmentDiv.appendChild(overlayButton);
 }
-
-// async function handleOverlayButtonClick(event: MouseEvent, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
-//     event.stopPropagation();
-//     event.preventDefault();
-//
-//     const tempInput = document.createElement('input');
-//     tempInput.type = 'file';
-//     tempInput.multiple = true;
-//
-//     tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, aesKey));
-//     tempInput.click();
-// }
-
 
 async function handleOverlayButtonClick(
     event: MouseEvent,
@@ -105,46 +100,41 @@ async function handleOverlayButtonClick(
     aesKey: AttachmentEncryptKey,
     overlayButton: HTMLElement
 ): Promise<void> {
-    // 弹出确认对话框
-    const tips = browser.i18n.getMessage('confirm_to_encrypt_attachment');
-    const shouldEncrypt = confirm(tips);
+    // 阻止默认事件
+    event.stopPropagation();
+    event.preventDefault();
 
-    if (shouldEncrypt) {
-        // 用户选择加密，阻止默认事件，执行加密逻辑
-        event.stopPropagation();
-        event.preventDefault();
-
+    const okFun = () => {
         const tempInput = document.createElement('input');
         tempInput.type = 'file';
         tempInput.multiple = true;
 
         tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, aesKey));
         tempInput.click();
-    } else {
-        // 用户选择不加密，阻止默认事件，执行默认的文件加载逻辑
-        event.stopPropagation();
-        event.preventDefault();
+    };
 
-        // 暂时恢复 fileInput 的交互和显示
+    const noFun = () => {
         fileInput.style.pointerEvents = 'auto';
         fileInput.style.opacity = '1';
 
-        // 防止 overlayButton 遮挡，暂时禁用其 pointerEvents
         overlayButton.style.pointerEvents = 'none';
-
-        // 触发原始的文件输入元素的点击事件
         fileInput.click();
 
-        // 在下一次事件循环中恢复样式
         setTimeout(() => {
-            // 恢复 fileInput 的样式
             fileInput.style.pointerEvents = 'none';
             fileInput.style.opacity = '0';
-
-            // 恢复 overlayButton 的 pointerEvents
             overlayButton.style.pointerEvents = 'auto';
-        }, 0);
-    }
+        }, 2);
+    };
+
+    // 调用 showCustomModal 函数
+    showCustomModal(
+        browser.i18n.getMessage('tips_for_attachment_encryption'),
+        browser.i18n.getMessage('encrypted_upload'),
+        browser.i18n.getMessage('direct_upload'),
+        okFun,
+        noFun
+    );
 }
 
 
@@ -212,9 +202,57 @@ function processFileData(event: ProgressEvent<FileReader>, originalFile: File, a
 
     const encryptedBlob = new Blob([encrypted], {type: 'application/octet-stream'});
 
-    const encryptedFile = new File([encryptedBlob], `${originalFile.name}.${AttachmentFileSuffix}`, {
+    return new File([encryptedBlob], `${originalFile.name}.${AttachmentFileSuffix}`, {
         type: 'application/octet-stream',
     });
+}
 
-    return encryptedFile;
+
+function showCustomModal(
+    tips: string,
+    okTxt: string,
+    noTxt: string,
+    okFun?: () => void,
+    noFun?: () => void
+) {
+    const modal = document.getElementById('dialog-confirm-container') as HTMLElement;
+
+    const tipsElement = document.getElementById('dialog-confirm-tips') as HTMLElement;
+    const okButton = document.getElementById('dialog-confirm-ok') as HTMLButtonElement;
+    const noButton = document.getElementById('dialog-confirm-no') as HTMLButtonElement;
+    const closeButton = modal.querySelector('.dialog-confirm-close-button') as HTMLElement;
+
+    tipsElement.textContent = tips;
+    okButton.textContent = okTxt;
+    noButton.textContent = noTxt;
+
+    modal.style.display = 'block';
+
+    okButton.onclick = null;
+    noButton.onclick = null;
+    closeButton.onclick = null;
+
+    okButton.onclick = () => {
+        modal.style.display = 'none';
+        if (okFun) {
+            okFun();
+        }
+    };
+
+    noButton.onclick = () => {
+        modal.style.display = 'none';
+        if (noFun) {
+            noFun();
+        }
+    };
+
+    closeButton.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 }

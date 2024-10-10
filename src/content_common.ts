@@ -16,7 +16,6 @@ import {
     MsgType
 } from "./consts";
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
-import {AttachmentEncryptKey} from "./content_attachment";
 
 let __cur_email_address: string | null | undefined;
 

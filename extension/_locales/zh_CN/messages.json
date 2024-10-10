@@ -322,5 +322,17 @@
   "invalid_password": {
     "message": "密码错误",
     "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "是否通过Bmail对附件进行加密？",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "加密上传",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "直接上传",
+    "description": ""
   }
 }

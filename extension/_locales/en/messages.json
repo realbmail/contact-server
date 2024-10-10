@@ -322,5 +322,17 @@
   "invalid_password": {
     "message": "Password Invalid",
     "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "Encrypt attachments By Bmail Plugin?",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "Encrypted upload",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "Direct upload",
+    "description": ""
   }
 }
