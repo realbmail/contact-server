@@ -3,12 +3,15 @@ import {decodeHex, encodeHex} from "./common";
 import nacl from "tweetnacl";
 import {AttachmentFileSuffix} from "./consts";
 import browser from "webextension-polyfill";
+import {showCustomModal} from "./content_common";
 
 export class AttachmentEncryptKey {
+    id: string;
     key: Uint8Array;
     nonce: Uint8Array;
 
-    constructor(key: Uint8Array, nonce: Uint8Array) {
+    constructor(id: string, key: Uint8Array, nonce: Uint8Array) {
+        this.id = id;
         this.key = key;
         this.nonce = nonce;
     }
@@ -17,17 +20,26 @@ export class AttachmentEncryptKey {
         if (!aek) {
             return "";
         }
+
         const combinedLength = nacl.box.secretKeyLength + nacl.secretbox.nonceLength;
         const combined = new Uint8Array(combinedLength);
 
         combined.set(aek.key, 0);
         combined.set(aek.nonce, aek.key.length);
 
-        return encodeHex(combined);
+        return `${aek.id}_` + encodeHex(combined);
     }
 
     static fromJson(aekStr: string): AttachmentEncryptKey {
-        const combined = decodeHex(aekStr);
+        const underscoreIndex = aekStr.indexOf('_');
+        if (underscoreIndex === -1) {
+            throw new Error('Invalid input string format.');
+        }
+
+        const id = aekStr.substring(0, underscoreIndex);
+        const hexData = aekStr.substring(underscoreIndex + 1);
+
+        const combined = decodeHex(hexData);
 
         const keyLength = nacl.box.secretKeyLength;
         const nonceLength = nacl.secretbox.nonceLength;
@@ -35,31 +47,27 @@ export class AttachmentEncryptKey {
         const key = combined.slice(0, keyLength);
         const nonce = combined.slice(keyLength, keyLength + nonceLength);
 
-        return new AttachmentEncryptKey(key, nonce);
+        return new AttachmentEncryptKey(id, key, nonce);
+    }
+
+    cacheAttachmentKey() {
+        const keyStr = localStorage.getItem(this.id);
+        if (keyStr) {
+            return;
+        }
+        localStorage.setItem(this.id, AttachmentEncryptKey.toJson(this));
     }
 }
 
-const keySuffix = "_attachment_key";
-
-function generateAttachmentKey(composeId: string): AttachmentEncryptKey {
-    const keyStr = localStorage.getItem(composeId + keySuffix);
-    if (keyStr) {
-        return AttachmentEncryptKey.fromJson(keyStr);
-    }
-
+function generateAttachmentKey(): AttachmentEncryptKey {
     const key = generateRandomKey();
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
-
-    const obj = new AttachmentEncryptKey(key, nonce);
-    localStorage.setItem(composeId + keySuffix, AttachmentEncryptKey.toJson(obj));
-
-    return obj;
+    return new AttachmentEncryptKey('' + Date.now(), key, nonce);
 }
 
-export function queryAttachmentKey(composeId: string): string | undefined {
-
+export function queryAttachmentKey(aekId: string): string | undefined {
     try {
-        const keyStr = localStorage.getItem(composeId + keySuffix);
+        const keyStr = localStorage.getItem(aekId);
         if (!keyStr) {
             return undefined;
         }
@@ -70,7 +78,7 @@ export function queryAttachmentKey(composeId: string): string | undefined {
 }
 
 export function removeAttachmentKey(composeId: string) {
-    localStorage.removeItem(composeId + keySuffix);
+    localStorage.removeItem(composeId);
 }
 
 export function checkAttachmentBtn(composeDiv: HTMLElement, overlayButton: HTMLElement): void {
@@ -88,7 +96,7 @@ export function checkAttachmentBtn(composeDiv: HTMLElement, overlayButton: HTMLE
         attachmentDiv.style.position = 'relative';
     }
 
-    const attachmentKey = generateAttachmentKey(attachmentDiv.getAttribute('id')!);
+    const attachmentKey = generateAttachmentKey();
     overlayButton.addEventListener('click', (event) => handleOverlayButtonClick(event, fileInput, attachmentKey, overlayButton));
 
     attachmentDiv.appendChild(overlayButton);
@@ -100,7 +108,6 @@ async function handleOverlayButtonClick(
     aesKey: AttachmentEncryptKey,
     overlayButton: HTMLElement
 ): Promise<void> {
-    // 阻止默认事件
     event.stopPropagation();
     event.preventDefault();
 
@@ -127,7 +134,6 @@ async function handleOverlayButtonClick(
         }, 2);
     };
 
-    // 调用 showCustomModal 函数
     showCustomModal(
         browser.i18n.getMessage('tips_for_attachment_encryption'),
         browser.i18n.getMessage('encrypted_upload'),
@@ -136,7 +142,6 @@ async function handleOverlayButtonClick(
         noFun
     );
 }
-
 
 async function handleTempInputChange(event: Event, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
     const tempInput = event.target as HTMLInputElement;
@@ -202,57 +207,10 @@ function processFileData(event: ProgressEvent<FileReader>, originalFile: File, a
 
     const encryptedBlob = new Blob([encrypted], {type: 'application/octet-stream'});
 
-    return new File([encryptedBlob], `${originalFile.name}.${AttachmentFileSuffix}`, {
+    aesKey.cacheAttachmentKey();
+
+    return new File([encryptedBlob], `${originalFile.name}.${aesKey.id + "_" + AttachmentFileSuffix}`, {
         type: 'application/octet-stream',
     });
 }
 
-
-function showCustomModal(
-    tips: string,
-    okTxt: string,
-    noTxt: string,
-    okFun?: () => void,
-    noFun?: () => void
-) {
-    const modal = document.getElementById('dialog-confirm-container') as HTMLElement;
-
-    const tipsElement = document.getElementById('dialog-confirm-tips') as HTMLElement;
-    const okButton = document.getElementById('dialog-confirm-ok') as HTMLButtonElement;
-    const noButton = document.getElementById('dialog-confirm-no') as HTMLButtonElement;
-    const closeButton = modal.querySelector('.dialog-confirm-close-button') as HTMLElement;
-
-    tipsElement.textContent = tips;
-    okButton.textContent = okTxt;
-    noButton.textContent = noTxt;
-
-    modal.style.display = 'block';
-
-    okButton.onclick = null;
-    noButton.onclick = null;
-    closeButton.onclick = null;
-
-    okButton.onclick = () => {
-        modal.style.display = 'none';
-        if (okFun) {
-            okFun();
-        }
-    };
-
-    noButton.onclick = () => {
-        modal.style.display = 'none';
-        if (noFun) {
-            noFun();
-        }
-    };
-
-    closeButton.onclick = () => {
-        modal.style.display = 'none';
-    };
-
-    window.onclick = (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
-}

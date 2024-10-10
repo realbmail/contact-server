@@ -4,7 +4,7 @@ import {
     addDecryptButtonForBmailBody,
     checkFrameBody,
     decryptMailForEditionOfSentMail,
-    encryptMailInComposing,
+    encryptMailInComposing, extractAesKeyId,
     findAllTextNodesWithEncryptedDiv,
     MailAddressProvider,
     observeForElementDirect,
@@ -187,6 +187,30 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
     checkAttachmentBtn(composeDiv, overlayButton.cloneNode(true) as HTMLElement);
 }
 
+function checkAttachmentKey(composeDiv: HTMLElement): string | undefined {
+    const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLInputElement;
+    const allAttachDivs = attachArea.querySelectorAll(".G0");
+    if (allAttachDivs.length === 0) {
+        return undefined;
+    }
+
+    let aekId = "";
+    for (let i = 0; i < allAttachDivs.length; i++) {
+        const element = allAttachDivs[i];
+        const fileName = element.querySelector(".o0")?.textContent;
+        aekId = extractAesKeyId(fileName);
+        if (!aekId) {
+            continue;
+        }
+        break;
+    }
+
+    if (!aekId) {
+        return undefined;
+    }
+
+    return queryAttachmentKey(aekId);
+}
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
 
     showLoading();
@@ -214,7 +238,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
         const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
         const composId = attachmentDiv.getAttribute('id') as string;
 
-        const attachment = queryAttachmentKey(composId);
+        const attachment = checkAttachmentKey(composeDiv);
         const success = await encryptMailInComposing(mailBody, receiver, attachment);
         if (!success) {
             return;

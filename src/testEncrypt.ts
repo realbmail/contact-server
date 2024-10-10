@@ -18,6 +18,7 @@ import {
 import base58 from "bs58";
 import {ed2CurvePub, ed2CurvePri} from "./edwards25519";
 import {AccountOperation} from "./proto/bmail_srv";
+import {AttachmentEncryptKey} from "./content_attachment";
 
 export function testEncryptData() {
 
@@ -323,3 +324,32 @@ export function testAes() {
     const message = decryptAes(data, "123");
     console.log("------>>>", message);
 }
+
+export function testAttachmentEncryptKey() {
+    // 使用字符串类型的 id
+    const id = '' + Date.now();
+    const key = generateRandomKey();
+    const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
+
+    const aek = new AttachmentEncryptKey(id, key, nonce);
+    const jsonString = AttachmentEncryptKey.toJson(aek);
+
+    console.log('Serialized string:', jsonString);
+
+    const deserializedAek = AttachmentEncryptKey.fromJson(jsonString);
+
+    console.log('Deserialized id:', deserializedAek.id);
+    console.log('Deserialized key:', deserializedAek.key);
+    console.log('Deserialized nonce:', deserializedAek.nonce);
+
+    // 验证 id、key 和 nonce 是否一致
+    const idEqual = id === deserializedAek.id;
+    const keyEqual = nacl.verify(key, deserializedAek.key);
+    const nonceEqual = nacl.verify(nonce, deserializedAek.nonce);
+
+    console.log('ID equal:', idEqual);
+    console.log('Key equal:', keyEqual);
+    console.log('Nonce equal:', nonceEqual);
+}
+
+

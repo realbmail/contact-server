@@ -10,6 +10,7 @@ import {
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 import {
+    AttachmentFileSuffix,
     ECInvalidEmailAddress,
     ECNoValidMailReceiver,
     ECQueryBmailFailed,
@@ -559,4 +560,81 @@ export function readCurrentMailAddress(): string {
         console.log("------------>>> no valid mail address providers", __cur_email_address);
         return __cur_email_address ?? "";
     }
+}
+
+
+export function showCustomModal(
+    tips: string,
+    okTxt: string,
+    noTxt: string,
+    okFun?: () => void,
+    noFun?: () => void
+) {
+    const modal = document.getElementById('dialog-confirm-container') as HTMLElement;
+
+    const tipsElement = document.getElementById('dialog-confirm-tips') as HTMLElement;
+    const okButton = document.getElementById('dialog-confirm-ok') as HTMLButtonElement;
+    const noButton = document.getElementById('dialog-confirm-no') as HTMLButtonElement;
+    const closeButton = modal.querySelector('.dialog-confirm-close-button') as HTMLElement;
+
+    tipsElement.textContent = tips;
+    okButton.textContent = okTxt;
+    noButton.textContent = noTxt;
+
+    modal.style.display = 'block';
+
+    okButton.onclick = null;
+    noButton.onclick = null;
+    closeButton.onclick = null;
+
+    okButton.onclick = () => {
+        modal.style.display = 'none';
+        if (okFun) {
+            okFun();
+        }
+    };
+
+    noButton.onclick = () => {
+        modal.style.display = 'none';
+        if (noFun) {
+            noFun();
+        }
+    };
+
+    closeButton.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+
+export function extractAesKeyId(fileName?: string | null | undefined): string {
+    if (!fileName) {
+        return "";
+    }
+    const suffixWithUnderscore = "_" + AttachmentFileSuffix;
+
+    if (!fileName.endsWith(suffixWithUnderscore)) {
+        return "";
+    }
+
+    const fileNameWithoutSuffix = fileName.substring(0, fileName.length - suffixWithUnderscore.length);
+
+    const lastDotIndex = fileNameWithoutSuffix.lastIndexOf(".");
+    if (lastDotIndex === -1) {
+        return "";
+    }
+
+    const id = fileNameWithoutSuffix.substring(lastDotIndex + 1);
+
+    if (!id) {
+        return "";
+    }
+
+    return id;
 }
