@@ -71,6 +71,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         const composeDiv = document.querySelectorAll<HTMLElement>("[id^='_dvModuleContainer_compose.ComposeModule']");
         composeDiv.forEach(div => {
             prepareComposeEnv(div, template).then();
+            prepareAttachmentForCompose(div, template);
         });
 
         clearTimeout(debounceTimer);
@@ -177,17 +178,26 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
     await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
     headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
     // console.log("------>>> encrypt button add success");
+}
 
+function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemplateElement) {
     const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
         return;
     }
-
-    checkAttachmentBtn(composeDiv, overlayButton.cloneNode(true) as HTMLElement);
+    const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
+    const fileInput = attachmentDiv?.querySelector('input[type="file"]') as HTMLInputElement | null;
+    if (!fileInput) {
+        console.log("----->>> file input not found");
+        return;
+    }
+    const aekId = findAttachmentKey(composeDiv);
+    const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
+    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
 }
 
-function checkAttachmentKey(composeDiv: HTMLElement): string | undefined {
+function findAttachmentKey(composeDiv: HTMLElement): string | undefined {
     const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLInputElement;
     const allAttachDivs = attachArea.querySelectorAll(".G0");
     if (allAttachDivs.length === 0) {
@@ -211,6 +221,7 @@ function checkAttachmentKey(composeDiv: HTMLElement): string | undefined {
 
     return queryAttachmentKey(aekId);
 }
+
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
 
     showLoading();
@@ -238,7 +249,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
         const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
         const composId = attachmentDiv.getAttribute('id') as string;
 
-        const attachment = checkAttachmentKey(composeDiv);
+        const attachment = findAttachmentKey(composeDiv);
         const success = await encryptMailInComposing(mailBody, receiver, attachment);
         if (!success) {
             return;

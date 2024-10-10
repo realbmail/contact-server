@@ -73,6 +73,20 @@ export function queryAttachmentKey(aekId: string): string | undefined {
         }
         return keyStr;
     } catch (err) {
+        console.log("------->>> query attachment aes key error:", err);
+        return undefined;
+    }
+}
+
+export function parseAttachmentKey(aekId: string): AttachmentEncryptKey | undefined {
+    try {
+        const keyStr = localStorage.getItem(aekId);
+        if (!keyStr) {
+            return undefined;
+        }
+        return AttachmentEncryptKey.fromJson(keyStr);
+    } catch (err) {
+        console.log("------->>> parse attachment aes key error:", err);
         return undefined;
     }
 }
@@ -81,14 +95,7 @@ export function removeAttachmentKey(composeId: string) {
     localStorage.removeItem(composeId);
 }
 
-export function checkAttachmentBtn(composeDiv: HTMLElement, overlayButton: HTMLElement): void {
-    const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
-    const fileInput = attachmentDiv?.querySelector('input[type="file"]') as HTMLInputElement | null;
-    if (!fileInput) {
-        console.log("----->>> file input not found");
-        return;
-    }
-
+export function checkAttachmentBtn(attachmentDiv: HTMLElement, fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string): void {
     fileInput.style.pointerEvents = 'none';
     fileInput.style.opacity = '0';
 
@@ -96,7 +103,19 @@ export function checkAttachmentBtn(composeDiv: HTMLElement, overlayButton: HTMLE
         attachmentDiv.style.position = 'relative';
     }
 
-    const attachmentKey = generateAttachmentKey();
+    let attachmentKey: AttachmentEncryptKey
+    if (aekId) {
+        const attStr = localStorage.getItem(aekId);
+        if (!attStr) {
+            console.log("---->>> found attachment id but lost aes key");
+            return;
+        }
+
+        attachmentKey = AttachmentEncryptKey.fromJson(attStr);
+    } else {
+        attachmentKey = generateAttachmentKey();
+    }
+
     overlayButton.addEventListener('click', (event) => handleOverlayButtonClick(event, fileInput, attachmentKey, overlayButton));
 
     attachmentDiv.appendChild(overlayButton);

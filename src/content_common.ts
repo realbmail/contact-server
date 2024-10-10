@@ -17,6 +17,7 @@ import {
     MsgType
 } from "./consts";
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
+import {AttachmentEncryptKey} from "./content_attachment";
 
 let __cur_email_address: string | null | undefined;
 
@@ -212,7 +213,10 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
         mailContent.dataset.hasDecrypted = "true";
         setBtnStatus(false, cryptoBtn);
 
-        console.log("--------------------------->>>>>>mail attachment infos:", mailRsp.attachment);
+        if (mailRsp.attachment) {
+            const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
+            attachmentKey.cacheAttachmentKey();
+        }
 
     } catch (error) {
         console.log("------>>>failed to decrypt mail data in reading:=>", error);
