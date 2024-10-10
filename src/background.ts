@@ -7,7 +7,6 @@ import {BMRequestToSrv, decodeHex} from "./common";
 import {decodeMail, encodeMail} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 import {MsgType, WalletStatus} from "./consts";
-import {AttachmentEncryptKey} from "./content_attachment";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;

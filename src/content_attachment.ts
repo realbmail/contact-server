@@ -2,6 +2,7 @@ import {generateRandomKey} from "./wallet";
 import {decodeHex, encodeHex} from "./common";
 import nacl from "tweetnacl";
 import {AttachmentFileSuffix} from "./consts";
+import browser from "webextension-polyfill";
 
 export class AttachmentEncryptKey {
     key: Uint8Array;
@@ -18,9 +19,6 @@ export class AttachmentEncryptKey {
         }
         const combinedLength = nacl.box.secretKeyLength + nacl.secretbox.nonceLength;
         const combined = new Uint8Array(combinedLength);
-
-        console.log('aek.key.length:', aek.key.length);
-        console.log('aek.nonce.length:', aek.nonce.length);
 
         combined.set(aek.key, 0);
         combined.set(aek.nonce, aek.key.length);
@@ -84,21 +82,71 @@ export function checkAttachmentBtn(composeDiv: HTMLElement, overlayButton: HTMLE
     }
 
     const attachmentKey = generateAttachmentKey(attachmentDiv.getAttribute('id')!);
-    overlayButton.addEventListener('click', (event) => handleOverlayButtonClick(event, fileInput, attachmentKey));
+    overlayButton.addEventListener('click', (event) => handleOverlayButtonClick(event, fileInput, attachmentKey, overlayButton));
     attachmentDiv.appendChild(overlayButton);
 }
 
-async function handleOverlayButtonClick(event: MouseEvent, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
-    event.stopPropagation();
-    event.preventDefault();
+// async function handleOverlayButtonClick(event: MouseEvent, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
+//     event.stopPropagation();
+//     event.preventDefault();
+//
+//     const tempInput = document.createElement('input');
+//     tempInput.type = 'file';
+//     tempInput.multiple = true;
+//
+//     tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, aesKey));
+//     tempInput.click();
+// }
 
-    const tempInput = document.createElement('input');
-    tempInput.type = 'file';
-    tempInput.multiple = true;
 
-    tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, aesKey));
-    tempInput.click();
+async function handleOverlayButtonClick(
+    event: MouseEvent,
+    fileInput: HTMLInputElement,
+    aesKey: AttachmentEncryptKey,
+    overlayButton: HTMLElement
+): Promise<void> {
+    // 弹出确认对话框
+    const tips = browser.i18n.getMessage('confirm_to_encrypt_attachment');
+    const shouldEncrypt = confirm(tips);
+
+    if (shouldEncrypt) {
+        // 用户选择加密，阻止默认事件，执行加密逻辑
+        event.stopPropagation();
+        event.preventDefault();
+
+        const tempInput = document.createElement('input');
+        tempInput.type = 'file';
+        tempInput.multiple = true;
+
+        tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, aesKey));
+        tempInput.click();
+    } else {
+        // 用户选择不加密，阻止默认事件，执行默认的文件加载逻辑
+        event.stopPropagation();
+        event.preventDefault();
+
+        // 暂时恢复 fileInput 的交互和显示
+        fileInput.style.pointerEvents = 'auto';
+        fileInput.style.opacity = '1';
+
+        // 防止 overlayButton 遮挡，暂时禁用其 pointerEvents
+        overlayButton.style.pointerEvents = 'none';
+
+        // 触发原始的文件输入元素的点击事件
+        fileInput.click();
+
+        // 在下一次事件循环中恢复样式
+        setTimeout(() => {
+            // 恢复 fileInput 的样式
+            fileInput.style.pointerEvents = 'none';
+            fileInput.style.opacity = '0';
+
+            // 恢复 overlayButton 的 pointerEvents
+            overlayButton.style.pointerEvents = 'auto';
+        }, 0);
+    }
 }
+
 
 async function handleTempInputChange(event: Event, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
     const tempInput = event.target as HTMLInputElement;
