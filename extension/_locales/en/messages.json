@@ -334,5 +334,9 @@
   "direct_upload": {
     "message": "Direct upload",
     "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "Decrypt mail body first",
+    "description": ""
   }
 }

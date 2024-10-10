@@ -15,8 +15,14 @@ import {
     replaceTextNodeWithDiv,
     showTipsDialog
 } from "./content_common";
-import {extractEmail, hideLoading, showLoading} from "./common";
-import {checkAttachmentBtn, queryAttachmentKey, removeAttachmentKey} from "./content_attachment";
+import {extractEmail, hideLoading, sendMessageToBackground, showLoading} from "./common";
+import {
+    checkAttachmentBtn,
+    downloadAndDecryptFile, loadAKForReading,
+    loadAKForCompose,
+    removeAttachmentKey
+} from "./content_attachment";
+import {MsgType} from "./consts";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -79,6 +85,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
         readDiv.forEach(div => {
             addMailDecryptForReadingNetease(div, template);
             addEncryptBtnForQuickReply(div, template);
+            addDecryptBtnForAttachment(div, template);
         });
     }, 1500);
 }
@@ -219,7 +226,7 @@ function findAttachmentKey(composeDiv: HTMLElement): string | undefined {
         return undefined;
     }
 
-    return queryAttachmentKey(aekId);
+    return loadAKForCompose(aekId);
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
@@ -417,3 +424,60 @@ class DomainBMailProvider implements MailAddressProvider {
 (window as any).mailAddressProvider = new DomainBMailProvider();
 
 
+function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplateElement) {
+    const ulElement = mailArea.querySelector('ul[id$="_ulCommonAttachItem"]') as HTMLUListElement | null;
+    console.log(ulElement?.children);
+
+    const attachmentDiv = ulElement?.querySelectorAll(".dM1 .ey0")
+    if (!attachmentDiv || attachmentDiv.length === 0) {
+        console.log("------>>>", "no attachment found");
+        return;
+    }
+
+    for (let i = 0; i < attachmentDiv.length; i++) {
+        const attachment = attachmentDiv[i] as HTMLElement;
+        if (attachment.querySelector(".attachmentDecryptLink")) {
+            continue;
+        }
+
+        const fileName = attachment.querySelector(".dn0 .cg0")?.textContent;
+        const aekId = extractAesKeyId(fileName);
+        if (!aekId) {
+            console.log("------>>> no need to add decrypt button to this attachment element");
+            return;
+        }
+
+        const downloadLinkDiv = attachment.querySelector("a.js-component-link.cK0") as HTMLLinkElement;
+        const url = downloadLinkDiv.href;
+        if (!url) {
+            console.log("------>>>", "failed to find download link of encrypted attachment");
+            return;
+        }
+
+        const cryptoBtnDiv = template.content.getElementById("attachmentDecryptLink") as HTMLElement;
+        const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
+        clone.setAttribute('id', "");
+        clone.addEventListener('click', async () => {
+            await decryptAttachment(aekId, url, fileName!);
+        });
+
+        attachment.insertBefore(clone, downloadLinkDiv);
+    }
+}
+
+async function decryptAttachment(aekId: string, url: string, fileName: string) {
+
+    const aesKey = loadAKForReading(aekId);
+    if (!aesKey) {
+
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+
+        showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+        return;
+    }
+
+    await downloadAndDecryptFile(url, aesKey, fileName);
+}

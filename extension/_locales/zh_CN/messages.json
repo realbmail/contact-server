@@ -334,5 +334,9 @@
   "direct_upload": {
     "message": "直接上传",
     "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "请首先解密邮件内容",
+    "description": ""
   }
 }

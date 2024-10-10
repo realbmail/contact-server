@@ -169,7 +169,6 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
     return true;
 }
 
-
 export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: HTMLElement): Promise<void> {
     showLoading();
     try {
@@ -215,7 +214,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
 
         if (mailRsp.attachment) {
             const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
-            attachmentKey.cacheAttachmentKey();
+            attachmentKey.cacheAkForReading();
         }
 
     } catch (error) {
@@ -545,7 +544,12 @@ export async function decryptMailForEditionOfSentMail(originalTxtDiv: HTMLElemen
     if (mailRsp.success <= 0) {
         return;
     }
+
     originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
+    if (mailRsp.attachment) {
+        const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
+        attachmentKey.cacheAkForReading();
+    }
 }
 
 export async function parseContentHtml(htmlFilePath: string): Promise<HTMLTemplateElement> {
