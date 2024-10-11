@@ -15,12 +15,10 @@ import {
     replaceTextNodeWithDiv,
     showTipsDialog
 } from "./content_common";
-import {extractEmail, hideLoading, sendMessageToBackground, showLoading} from "./common";
+import {extractEmail, hideLoading, showLoading} from "./common";
 import {
-    checkAttachmentBtn, decryptAttachment,
-    downloadAndDecryptFile, loadAKForReading
+    checkAttachmentBtn, decryptAttachment
 } from "./content_attachment";
-import {MsgType} from "./consts";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");

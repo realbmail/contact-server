@@ -1,7 +1,7 @@
 import {
     __decrypt_button_css_name,
     addDecryptButtonForBmailBody, appendDecryptForDiv, decryptMailInReading,
-    encryptMailInComposing, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
+    encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
     observeForElement, parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn,
     processReceivers, replaceTextNodeWithDiv, showTipsDialog
@@ -9,6 +9,7 @@ import {
 import browser from "webextension-polyfill";
 import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
 import {MailFlag} from "./bmail_body";
+import {checkAttachmentBtn} from "./content_attachment";
 
 function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -30,7 +31,7 @@ function appendForOutLook(template: HTMLTemplateElement) {
         () => {
             return document.querySelector(".DPg26 .xKrjQ");
         }, async () => {
-            console.log("------->>>start to populate outlook mail menu");
+            // console.log("------->>>start to populate outlook mail menu");
             appendBmailInboxMenuOutLook(template).then();
             monitorContactAction().then();
         });
@@ -38,7 +39,7 @@ function appendForOutLook(template: HTMLTemplateElement) {
     observeForElement(document.body, 800, () => {
         return document.getElementById("ReadingPaneContainerId")?.firstElementChild as HTMLElement;
     }, async () => {
-        console.log("------->>>start to populate outlook mail area");
+        // console.log("------->>>start to populate outlook mail area");
         monitorMailAreaOutLook(template).then();
     });
 }
@@ -103,10 +104,10 @@ async function monitorMailAreaOutLook(template: HTMLTemplateElement) {
                 return null;
             }
             oldDiv = targetDiv;
-            console.log("------>>> targetDiv area:", targetDiv);
+            // console.log("------>>> targetDiv area:", targetDiv);
             return targetDiv;
         }, async () => {
-            console.log("------->>>start to populate outlook mail area");
+            // console.log("------->>>start to populate outlook mail area");
             addCryptButtonToComposeDivOutLook(template).then();
             addMailDecryptForReadingOutLook(template).then();
         }, true);
@@ -136,7 +137,7 @@ function monitorReceiverChanges(composeArea: HTMLElement) {
         return receivers[0];
     }, async () => {
         const receivers = receiverTable.querySelectorAll("._EType_RECIPIENT_ENTITY") as NodeListOf<HTMLElement>;
-        console.log("----->>> all nodes:", receivers);
+        // console.log("----->>> all nodes:", receivers);
         for (let i = 0; i < receivers.length; i++) {
             const div = receivers[i];
             const divTxt = div.textContent ?? ""
@@ -170,6 +171,7 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
     }
 
     monitorReceiverChanges(composeArea);
+    prepareAttachmentForCompose(composeArea, template);
 
     const cryptoBtn = toolBarDiv.querySelector(".bmail-crypto-btn") as HTMLElement;
     if (cryptoBtn) {
@@ -180,13 +182,12 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
     const sendDiv = toolBarDiv.querySelector('button.ms-Button.ms-Button--primary.ms-Button--hasMenu') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
-        title, 'bmail_crypto_btn_in_compose_outlook', async btn => {
+        title, 'bmail_crypto_btn_in_compose_outlook', async _ => {
             await encryptMailAndSendOutLook(composeArea, sendDiv);
         }
     ) as HTMLElement;
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1] as HTMLElement);
 }
-
 
 async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
@@ -219,8 +220,8 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
             sendDiv.click();
             return;
         }
-
-        const success = await encryptMailInComposing(mailBody, receiver);
+        const aekID = findAttachmentKeyID(composeArea);
+        const success = await encryptMailInComposing(mailBody, receiver, aekID);
         if (!success) {
             return;
         }
@@ -406,3 +407,67 @@ class DomainBMailProvider implements MailAddressProvider {
 }
 
 (window as any).mailAddressProvider = new DomainBMailProvider();
+
+
+function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTemplateElement) {
+    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    if (!overlayButton) {
+        console.log("----->>> overlayButton not found");
+        return;
+    }
+
+    const nodeList = document.querySelectorAll('input[type="file"]');
+    if (nodeList.length < 2) {
+        console.log("------>>> no input file found for local attachment");
+        return;
+    }
+
+    const fileInput = nodeList[1] as HTMLInputElement;
+
+    const toolbar = document.getElementById("RibbonRoot") as HTMLElement;
+    const attachmentDropdownBtn = toolbar.querySelector('button[data-ktp-target="ktp-m-a-f"]') as HTMLElement | null;
+    if (!attachmentDropdownBtn) {
+        console.log("------>>> attachment button not found");
+        return;
+    }
+
+    // console.log("------>>> attachment button found:=>", attachmentDropdownBtn);
+
+    attachmentDropdownBtn.addEventListener('click', () => {
+        setTimeout(() => {
+            const floatDiv = document.getElementById("fluent-default-layer-host");
+            const attachmentDiv = floatDiv?.querySelector("div.ms-FocusZone.css-172 ul ul li") as HTMLElement;
+            if (!attachmentDiv) {
+                console.log("------>>> attachment div not found");
+                return;
+            }
+
+            // console.log("------>>> drop down list:=>", attachmentDiv);
+            const aekID = findAttachmentKeyID(composeArea);
+            const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
+            checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekID);
+        }, 300);
+    });
+}
+
+function findAttachmentKeyID(composeArea: HTMLElement): string | undefined {
+    const attachArea = composeArea.querySelector(".RrjjU.D_1qK.disableTextSelection") as HTMLElement
+    const allAttachDivs = attachArea?.querySelectorAll("div.Y0d3P");
+    if (!allAttachDivs || allAttachDivs.length === 0) {
+        return undefined;
+    }
+
+    let aekId = "";
+    for (let i = 0; i < allAttachDivs.length; i++) {
+        const element = allAttachDivs[i];
+        const fileName = element.querySelector(".VlyYV.PQeLQ.QEiYT")?.textContent;
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
+            continue;
+        }
+        aekId = parsedId.id;
+        break;
+    }
+
+    return aekId;
+}

@@ -422,7 +422,7 @@ export async function processReceivers(allEmailAddressDiv: NodeListOf<HTMLElemen
         return null;
     }
 
-    console.log("----->>> current email address:=>", currentEmailAddress);
+    // console.log("----->>> current email address:=>", currentEmailAddress);
 
     if (!allEmailAddressDiv || allEmailAddressDiv.length <= 0) {
         showTipsDialog("Tips", browser.i18n.getMessage("encrypt_mail_receiver"));
