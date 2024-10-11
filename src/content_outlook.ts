@@ -320,7 +320,9 @@ function prepareOpenedMail(oneMail: HTMLElement, template: HTMLTemplateElement) 
         }, 500);
     })
 
-    addDecryptBtnForAttachment(oneMail, template);
+    setTimeout(() => {
+        addDecryptBtnForAttachment(oneMail, template);
+    }, 300);
 }
 
 function showMoreMailContent(oneMail: HTMLElement, toolBarDiv: HTMLElement, template: HTMLTemplateElement, cryptoBtnDiv?: HTMLElement | null) {
@@ -501,9 +503,20 @@ function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplate
 }
 
 function addBmailBtnToDropdownDiv(remove: boolean) {
-    const dropdownDiv = document.getElementById("fluent-default-layer-host")?.querySelector(".ms-Callout.ms-ContextualMenu-Callout");
-    if (!dropdownDiv) {
+    const contextMenuDiv = document.getElementById("fluent-default-layer-host")?.querySelector("ul.ms-ContextualMenu-list");
+    if (!contextMenuDiv) {
         console.log("------>>> dropdown menu for download not found");
         return;
     }
+    for (let i = 0; i < contextMenuDiv.childNodes.length; i++) {
+        const element = contextMenuDiv.childNodes[i];
+        console.log("------>>> children node:", element);
+    }
+    const downloadBtn = contextMenuDiv.childNodes[2].firstChild as HTMLElement;
+    const clone = downloadBtn.cloneNode(true) as HTMLElement;
+    contextMenuDiv.appendChild(clone);
+    clone.addEventListener('click', (e) => {
+        downloadBtn.click();
+    })
 }
+
