@@ -1,5 +1,5 @@
 import {
-    __decrypt_button_css_name,
+    __decrypt_button_css_name, addCustomStyles,
     addDecryptButtonForBmailBody, appendDecryptForDiv, decryptMailInReading,
     encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
     observeForElement, parseBmailInboxBtn, parseContentHtml,
@@ -395,6 +395,7 @@ function prepareMailHistory(oneMail: HTMLElement, template: HTMLTemplateElement)
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('css/outlook.css');
     const template = await parseContentHtml('html/inject_outlook.html');
     appendForOutLook(template);
     console.log("------>>> outlook content init success");
