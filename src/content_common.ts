@@ -633,7 +633,17 @@ export function showCustomModal(
     };
 }
 
-export function extractAesKeyId(fileName?: string | null | undefined): { id: string; originalFileName: string } | null {
+export class AttachmentKeyID {
+    id: string;
+    originalFileName: string;
+
+    constructor(id: string, origFileName: string) {
+        this.id = id;
+        this.originalFileName = origFileName;
+    }
+}
+
+export function extractAesKeyId(fileName?: string | null | undefined): AttachmentKeyID | null {
     if (!fileName) {
         return null;
     }
@@ -657,7 +667,7 @@ export function extractAesKeyId(fileName?: string | null | undefined): { id: str
         return null;
     }
 
-    return {id, originalFileName};
+    return new AttachmentKeyID(id, originalFileName);
 }
 
 export function addCustomStyles(cssFilePath: string): void {

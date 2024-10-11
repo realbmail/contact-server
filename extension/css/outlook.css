@@ -89,3 +89,17 @@
 .bmail-crypto-btn-div-outlook:hover {
     background-color: #2C2D47;
 }
+
+.attachmentDecryptOutlook {
+    background-color: rgba(242, 133, 82, 0.2); /* 绿色背景色 */
+    color: #F28552; /* 白色文字 */
+    padding: 8px 12px; /* 内边距 */
+    font-size: 14px; /* 字体大小 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    transition: background-color 0.3s ease; /* 背景色过渡效果 */
+    z-index: 100;
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}

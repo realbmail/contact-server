@@ -4,6 +4,9 @@ import nacl from "tweetnacl";
 import {AttachmentFileSuffix, MsgType} from "./consts";
 import browser from "webextension-polyfill";
 import {showCustomModal, showTipsDialog} from "./content_common";
+import {saveAs} from 'file-saver';
+
+const wrapKeyID = (id: string): string => "bamil_key_" + id;
 
 export class AttachmentEncryptKey {
     id: string;
@@ -51,19 +54,19 @@ export class AttachmentEncryptKey {
     }
 
     cacheAKForCompose() {
-        const keyStr = localStorage.getItem(this.id);
+        const keyStr = localStorage.getItem(wrapKeyID(this.id));
         if (keyStr) {
             return;
         }
-        localStorage.setItem(this.id, AttachmentEncryptKey.toJson(this));
+        localStorage.setItem(wrapKeyID(this.id), AttachmentEncryptKey.toJson(this));
     }
 
     cacheAkForReading() {
-        const keyStr = sessionStorage.getItem(this.id);
+        const keyStr = sessionStorage.getItem(wrapKeyID(this.id));
         if (keyStr) {
             return;
         }
-        sessionStorage.setItem(this.id, AttachmentEncryptKey.toJson(this));
+        sessionStorage.setItem(wrapKeyID(this.id), AttachmentEncryptKey.toJson(this));
     }
 }
 
@@ -75,7 +78,7 @@ function generateAttachmentKey(): AttachmentEncryptKey {
 
 export function loadAKForCompose(aekId: string): string | undefined {
     try {
-        const keyStr = localStorage.getItem(aekId);
+        const keyStr = localStorage.getItem(wrapKeyID(aekId));
         if (!keyStr) {
             return undefined;
         }
@@ -88,7 +91,7 @@ export function loadAKForCompose(aekId: string): string | undefined {
 
 export function loadAKForReading(aekId: string): AttachmentEncryptKey | undefined {
     try {
-        const keyStr = sessionStorage.getItem(aekId);
+        const keyStr = sessionStorage.getItem(wrapKeyID(aekId));
         if (!keyStr) {
             return undefined;
         }
@@ -99,10 +102,9 @@ export function loadAKForReading(aekId: string): AttachmentEncryptKey | undefine
     }
 }
 
-export function removeAttachmentKey(aekID: string) {
-
-    localStorage.removeItem(aekID);
-    sessionStorage.removeItem(aekID);
+export function removeAttachmentKey(aekId: string) {
+    localStorage.removeItem(wrapKeyID(aekId));
+    sessionStorage.removeItem(wrapKeyID(aekId));
 }
 
 export function checkAttachmentBtn(attachmentDiv: HTMLElement, fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string): void {
@@ -115,7 +117,7 @@ export function checkAttachmentBtn(attachmentDiv: HTMLElement, fileInput: HTMLIn
 
     let attachmentKey: AttachmentEncryptKey
     if (aekId) {
-        const attStr = localStorage.getItem(aekId);
+        const attStr = localStorage.getItem(wrapKeyID(aekId));
         if (!attStr) {
             console.log("---->>> found attachment id but lost aes key");
             return;
@@ -254,31 +256,6 @@ export async function downloadAndDecryptFile(url: string, aesKey: AttachmentEncr
 
     decryptAttachmentFileData(encryptedData, aesKey, fileName);
 }
-
-// function decryptAttachmentFileData(encryptedData: Uint8Array, aesKey: AttachmentEncryptKey, fileName: string) {
-//     const decryptedData = nacl.secretbox.open(encryptedData, aesKey.nonce, aesKey.key);
-//     if (!decryptedData) {
-//         throw new Error('解密失败，可能是密钥不正确或数据已损坏');
-//     }
-//
-//     // 创建 Blob 对象
-//     const blob = new Blob([decryptedData], {type: 'application/octet-stream'});
-//
-//     const downloadUrl = URL.createObjectURL(blob);
-//     const a = document.createElement('a');
-//     a.href = downloadUrl;
-//     a.download = fileName;
-//     document.body.appendChild(a);
-//     a.click();
-//     document.body.removeChild(a);
-//
-//     URL.revokeObjectURL(downloadUrl);
-//     console.log('------>>> 文件下载并解密成功');
-// }
-
-
-import {saveAs} from 'file-saver';
-
 
 function decryptAttachmentFileData(
     encryptedData: Uint8Array,

@@ -209,7 +209,7 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
                 let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
                 if (!emailAddr) {
                     emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
-                    console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
+                    // console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
                 }
                 return emailAddr;
             });
@@ -319,6 +319,8 @@ function prepareOpenedMail(oneMail: HTMLElement, template: HTMLTemplateElement) 
             showMoreMailContent(oneMail, toolBarDiv, template, cryptoBtnDiv);
         }, 500);
     })
+
+    addDecryptBtnForAttachment(oneMail, template);
 }
 
 function showMoreMailContent(oneMail: HTMLElement, toolBarDiv: HTMLElement, template: HTMLTemplateElement, cryptoBtnDiv?: HTMLElement | null) {
@@ -471,4 +473,37 @@ function findAttachmentKeyID(composeArea: HTMLElement): string | undefined {
     }
 
     return aekId;
+}
+
+function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplateElement) {
+    const attachmentListDiv = oneMail.querySelector(".RrjjU.disableTextSelection");
+    const attachments = attachmentListDiv?.querySelectorAll(".Y0d3P");
+    if (!attachments || !attachments.length) {
+        console.log("------>>> no attachment found");
+        return;
+    }
+
+    for (let i = 0; i < attachments.length; i++) {
+        const attachment = attachments[i];
+        const moreActionBtn = attachment.querySelector(".o4euS button");
+        if (!moreActionBtn) {
+            console.log("------>>> more action for attachment operation not found", attachment);
+            continue;
+        }
+        const fileName = attachment.querySelector(".VlyYV.PQeLQ.QEiYT")?.textContent;
+        const parsedId = extractAesKeyId(fileName);
+        moreActionBtn.addEventListener('click', () => {
+            setTimeout(() => {
+                addBmailBtnToDropdownDiv(parsedId === null);
+            }, 300);
+        })
+    }
+}
+
+function addBmailBtnToDropdownDiv(remove: boolean) {
+    const dropdownDiv = document.getElementById("fluent-default-layer-host")?.querySelector(".ms-Callout.ms-ContextualMenu-Callout");
+    if (!dropdownDiv) {
+        console.log("------>>> dropdown menu for download not found");
+        return;
+    }
 }
