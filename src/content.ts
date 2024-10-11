@@ -30,8 +30,8 @@ function translateInjectedElm() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     addBmailObject('js/inject.js');
-    addCustomStyles('file/common.css');
-    addCustomStyles('file/inject.css');
+    addCustomStyles('css/common.css');
+    addCustomStyles('css/inject.css');
 
     const template = await parseContentHtml('html/inject.html');
     appendTipDialog(template);

@@ -339,7 +339,7 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    addCustomStyles('file/google.css');
+    addCustomStyles('css/google.css');
     const template = await parseContentHtml('html/inject_google.html');
     appendForGoogle(template);
     // console.log("------>>> google content init success");

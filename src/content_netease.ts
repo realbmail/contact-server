@@ -405,7 +405,7 @@ async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElem
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    addCustomStyles('file/netease.css');
+    addCustomStyles('css/netease.css');
     const template = await parseContentHtml('html/inject_netease.html');
     appendForNetEase(template);
     console.log("------>>> netease content init success");

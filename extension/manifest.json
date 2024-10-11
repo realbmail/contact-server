@@ -79,10 +79,12 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "file/inject.css",
-        "file/common.css",
-        "file/google.css",
-        "file/netease.css",
+        "css/inject.css",
+        "css/common.css",
+        "css/google.css",
+        "css/netease.css",
+        "css/outlook.css",
+        "css/qq.css",
         "html/inject.html",
         "html/inject_google.html",
         "html/inject_qq.html",
