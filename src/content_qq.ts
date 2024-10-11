@@ -112,7 +112,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     const title = browser.i18n.getMessage('crypto_and_send');
     const receiverTable = composeBodyDiv.querySelector('div.compose_mail_wrapper') as HTMLElement;
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
-        title, 'bmail_crypto_btn_in_compose_qq', async btn => {
+        title, 'bmail_crypto_btn_in_compose_qq', async _ => {
             await encryptMailAndSendQQ(mailContentDiv, receiverTable, sendDiv);
         }
     ) as HTMLElement;
@@ -308,7 +308,7 @@ async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBa
     }
 
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
-        title, 'bmail_crypto_btn_in_compose_qq_simple', async btn => {
+        title, 'bmail_crypto_btn_in_compose_qq_simple', async _ => {
             await encryptSimpleMailReplyQQ(mailContentDiv, email, sendDiv);
         }
     ) as HTMLElement;
@@ -425,7 +425,7 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     const mailContentDiv = await checkMailContentOldVersion(composeDocument);
 
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
-        title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
+        title, 'bmail_crypto_btn_in_compose_qq_old', async _ => {
             await encryptMailAndSendQQOldVersion(mailContentDiv, receiverTable, sendDiv);
         }
     ) as HTMLElement;
@@ -551,7 +551,7 @@ function addListenerForQuickReplyOldVersion(template: HTMLTemplateElement, doc: 
         const mailContentDiv = (iframe.contentDocument as Document).body as HTMLElement;
 
         const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
-            title, 'bmail_crypto_btn_in_compose_qq_old', async btn => {
+            title, 'bmail_crypto_btn_in_compose_qq_old', async _ => {
                 const spansWithEAttribute = doc.querySelectorAll('span[e]') as NodeListOf<HTMLElement>; // 查询包含 e 属性的所有 span 元素
 
                 const receiver = await processReceivers(spansWithEAttribute, (span) => {
