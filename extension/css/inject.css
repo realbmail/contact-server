@@ -53,25 +53,11 @@
     margin-top: 12px;
 }
 
-.bmail_left_menu_btn_div-163 {
-    background-color: rgba(242, 133, 82, 0.2);
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
-    margin-left: 4px;
-    height: 36px;
-}
-
-.bmail_left_menu_btn_div-163 img,
 .bmail-crypto-btn-div img{
     width: 18px;
     height: auto;
 }
 
-
-.bmail_left_menu_btn_div-163:hover,
 .bmail_left_menu_btn_div_qq:hover{
     background-color: #04062E;
 }
