@@ -77,7 +77,7 @@ body.loading #dialog-waiting-overlay {
     align-items: center; /* Horizontally center the content */
     background-color: #fefefe;
     margin: 15% auto;
-    padding: 42px 21px;
+    padding: 42px 42px;
     max-width: 25%; /* Ensure it doesn't exceed the screen width */
     width: auto; /* Let the width adapt to the content */
     text-align: center;
@@ -97,7 +97,7 @@ body.loading #dialog-waiting-overlay {
     margin-left: 24px;
     position: absolute;
     top: 42px;
-    right: 20px;
+    right: 42px;
 }
 
 .dialog-confirm-close-button:hover,
@@ -108,12 +108,13 @@ body.loading #dialog-waiting-overlay {
 #dialog-confirm-ok {
     background-color: #F28552;
     border: 2px solid #F28552;
+    color: white;
 
 }
 #dialog-confirm-no {
     background-color: #ffffff;
-    border: 2px solid rgba(88, 94, 109, 0.3);
-
+    border: 2px solid rgba(242, 133, 82, 0.4);
+    color: #F28552;
 }
 #dialog-confirm-no:hover{
     background-color: #04062E;
@@ -127,6 +128,8 @@ body.loading #dialog-waiting-overlay {
     display: flex;
     justify-content: space-between; /* 保持按钮之间的间距 */
     gap: 10px; /* 可选：增加按钮之间的间距 */
+    width: 100%;
+
 }
 .dialog-confirm-content-btn button{
     flex-grow: 1; /* 让按钮占据相同的宽度 */
@@ -134,12 +137,13 @@ body.loading #dialog-waiting-overlay {
     font-weight: 500;
     padding: 12px 24px;
     border: none;
-    width: 190px;
+    width: 100%;
     cursor: pointer;
     margin: 0 6px;
     border-radius: 3px;
     white-space: nowrap; /* 确保文字不换行 */
 }
+
 .dialog-confirm-content-btn button:hover {
     color: #F28552;
 }
