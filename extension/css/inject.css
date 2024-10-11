@@ -58,95 +58,9 @@
     height: auto;
 }
 
-.bmail_left_menu_btn_div_qq:hover{
-    background-color: #04062E;
-}
-
 .bmail-send-action {
     color: #F28552 !important;
     margin-left: 4px;
-
-}
-.bmail_left_menu_btn_div_qq{
-    background-color: rgba(242, 133, 82, 0.2);
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
-    margin-left: 4px;
-    border-radius: 6px;
-    height: 32px;
-}
-.bmail_left_menu_btn_div_qq {
-    padding: 0 2px 0 12px;
-    margin-left: 2px;
-}
-.bmail_left_menu_btn_div_qq span{
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 20px;
-    padding-left: 12px;
-}
-.bmail_left_menu_btn_div_qq img {
-    width: 16px;
-    height: auto;
-    margin: 2px;
-}
-.bmail-crypto-btn-div-qq{
-    background-color: #04062E;
-    border-radius: 4px;
-    margin-left:16px;
-    cursor: pointer;
-    height: 32px;
-    font-size: 14px;
-    outline: none;
-    padding: 0;
-    text-align: center;
-    user-select: none;
-    color: #F28552;
-    width: 98px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.bmail-crypto-btn-div-qq :hover{
-    background-color: #2C2D47;
-}
-.bmail-crypto-btn-div-qq img{
-    width: 18px;
-    height: auto;
-}
-.bmail-btn_in_compose-div-qq {
-    background-color: rgba(242, 133, 82, 0.2);
-    border:2px solid rgba(242, 133, 82, 0.5);
-    border-radius: 4px;
-    margin-right:16px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    outline: none;
-    padding: 4px 0;
-    text-align: center;
-    user-select: none;
-    color: #F28552;
-    width: 98px;
-}
-
-.bmail-btn_in_compose-div-qq:hover{
-    background-color: rgba(242, 133, 82, 0.4);
-}
-
-.bmail-decrypt-div-qq{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-content: center;
-}
-
-.bmail-btn_in_compose-div-qq img {
-    width: 32px;
-    height: auto;
 }
 
 .bmail-crypto-action img{

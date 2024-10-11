@@ -1,6 +1,6 @@
 import {
     __decrypt_button_css_name,
-    __localContactMap,
+    __localContactMap, addCustomStyles,
     addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailForEditionOfSentMail, decryptMailInReading,
     encryptMailInComposing, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
@@ -621,6 +621,7 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('css/qq.css');
     const template = await parseContentHtml('html/inject_qq.html');
     appendForQQ(template);
     console.log("------>>> qq content init success");
