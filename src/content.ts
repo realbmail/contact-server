@@ -192,16 +192,16 @@ browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response
             sendResponse({value: emailAddr ?? ""});
             break;
         case MsgType.BMailDownload:
-            procDownloadFile(request.blobUrl)
+            procDownloadFile(request.fileName)
             break;
     }
     return true;
 });
 
-function procDownloadFile(filePath?: string) {
-    if (!filePath) {
-        console.log("------>>> miss parameters: blob url");
+function procDownloadFile(fileName?: string) {
+    if (!fileName) {
+        console.log("------>>> miss parameters:fileName");
         return;
     }
-    console.log("------>>>  blob url", filePath);
+    console.log("------>>>  fileName", fileName);
 }

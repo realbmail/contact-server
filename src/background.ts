@@ -510,20 +510,23 @@ async function queryCurrentBmailAddress(sendResponse: (response: any) => void) {
     sendResponse({success: 1, data: addr.bmail_address});
 }
 
-browser.downloads.onCreated.addListener((downloadItem) => {
 
+browser.downloads.onCreated.addListener((downloadItem) => {
     if (!downloadItem.url.includes("outlook.live.com")) {
         return;
     }
 
-    browser.downloads.onChanged.addListener((delta) => {
+    browser.downloads.onChanged.addListener(async (delta) => {
+
         if (!delta.state || delta.state.current !== "complete") {
             return;
         }
 
-        console.log("----------->>> download item found:", delta);
+        const items = await browser.downloads.search({id: delta.id});
+        const downloadFile = items[0];
+        console.log("----------->>> Downloaded file: ", downloadFile);
 
-        const fileName = delta.filename?.current
+        const fileName = downloadFile.filename
         if (!fileName) {
             console.log("----------->>> file name in download item not found:", delta);
             return;
@@ -537,7 +540,7 @@ browser.downloads.onCreated.addListener((downloadItem) => {
 
         browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
             for (let tab of tabs) {
-                browser.tabs.sendMessage(tab.id!, {action: MsgType.BMailDownload, filePath: fileName}).then();
+                browser.tabs.sendMessage(tab.id!, {action: MsgType.BMailDownload, fileName: fileName}).then();
             }
         });
     });
