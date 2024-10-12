@@ -270,7 +270,7 @@ function decryptAttachmentFileData(
     const blob = new Blob([decryptedData], {type: 'application/octet-stream'});
 
     saveAs(blob, fileName);
-    console.log('------>>> 文件下载并解密成功');
+    console.log('------>>> 文件下载并解密成功', fileName);
 }
 
 export async function decryptAttachment(aekId: string, url: string, fileName: string) {

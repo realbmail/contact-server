@@ -510,38 +510,52 @@ async function queryCurrentBmailAddress(sendResponse: (response: any) => void) {
     sendResponse({success: 1, data: addr.bmail_address});
 }
 
+// 使用一个 Set 来跟踪目标下载的 ID
+const targetDownloadIds = new Set<number>();
 
+// 在 onCreated 监听器中记录目标下载的 ID
 browser.downloads.onCreated.addListener((downloadItem) => {
-    if (!downloadItem.url.includes("outlook.live.com")) {
+    if (downloadItem.url.includes("outlook.live.com")) {
+        targetDownloadIds.add(downloadItem.id);
+    }
+});
+
+// 在 onChanged 监听器中处理目标下载
+browser.downloads.onChanged.addListener(async (delta) => {
+    if (!delta.state || delta.state.current !== "complete") {
         return;
     }
 
-    browser.downloads.onChanged.addListener(async (delta) => {
+    const downloadId = delta.id;
+    if (!targetDownloadIds.has(downloadId)) {
+        return;
+    }
 
-        if (!delta.state || delta.state.current !== "complete") {
-            return;
-        }
+    const items = await browser.downloads.search({id: downloadId});
+    const downloadFile = items[0];
+    console.log("----------->>> Downloaded file: ", downloadFile);
 
-        const items = await browser.downloads.search({id: delta.id});
-        const downloadFile = items[0];
-        console.log("----------->>> Downloaded file: ", downloadFile);
+    const fileName = downloadFile.filename;
+    if (!fileName) {
+        console.log("----------->>> file name in download item not found:", delta);
+        targetDownloadIds.delete(downloadId); // 清除已处理的下载 ID
+        return;
+    }
 
-        const fileName = downloadFile.filename
-        if (!fileName) {
-            console.log("----------->>> file name in download item not found:", delta);
-            return;
-        }
+    const bmailFile = extractAesKeyId(fileName);
+    if (!bmailFile) {
+        console.log("----------->>> this file is not for bmail :", fileName);
+        targetDownloadIds.delete(downloadId); // 清除已处理的下载 ID
+        return;
+    }
 
-        const bmailFile = extractAesKeyId(fileName);
-        if (!bmailFile) {
-            console.log("----------->>> this file is not for bmail :", fileName);
-            return;
-        }
+    const tabs = await browser.tabs.query({active: true, currentWindow: true});
+    if (!tabs[0]) {
+        return;
+    }
 
-        browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
-            for (let tab of tabs) {
-                browser.tabs.sendMessage(tab.id!, {action: MsgType.BMailDownload, fileName: fileName}).then();
-            }
-        });
-    });
+    browser.tabs.sendMessage(tabs[0].id!, {action: MsgType.BMailDownload, fileName: fileName}).then();
+
+    // 处理完成后移除下载 ID
+    targetDownloadIds.delete(downloadId);
 });

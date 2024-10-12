@@ -212,7 +212,7 @@ export function moveParenthesesBeforeExtension(filename: string): string {
         const extension = match[2];
         const parenContent = match[3];
 
-        return `${name} (${parenContent})${extension}`;
+        return `${name} (${parenContent})${extension}`.trim();
     }
 
     const regexNoExtension = /^(.*)\s*\(([^)]+)\)$/;
@@ -220,9 +220,9 @@ export function moveParenthesesBeforeExtension(filename: string): string {
     if (matchNoExt) {
         const name = matchNoExt[1];
         const parenContent = matchNoExt[2];
-        return `${name} (${parenContent})`;
+        return `${name} (${parenContent})`.trim();
     }
 
-    return filename;
+    return filename.trim();
 }
 
