@@ -202,3 +202,18 @@ export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
     // console.log("------------------>>div size with bmail content-------------->>>>", closestJsonElements.length);
     return closestJsonElements;
 }
+
+
+export function moveParenthesesBeforeExtension(filename: string): string {
+    const match = filename.match(/\((\d+)\)$/); // 检查是否以 (数字) 结尾
+    if (match) {
+        const extensionIndex = filename.lastIndexOf('.'); // 找到最后一个点的位置
+        if (extensionIndex > 0) {
+            // 将小括号和数字移动到 "." 之前
+            const baseName = filename.substring(0, extensionIndex);
+            const extension = filename.substring(extensionIndex);
+            return `${baseName} ${match[0]}${extension}`;
+        }
+    }
+    return filename; // 如果不匹配 (数字) 结尾，返回原字符串
+}

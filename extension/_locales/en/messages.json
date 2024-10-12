@@ -347,5 +347,8 @@
   },
   "bmail_filepath_tips": {
     "message": "Please select the file from the following path:"
+  },
+  "bmail_file_load_failed": {
+    "message": "Failed to load bmail file to decrypt"
   }
 }

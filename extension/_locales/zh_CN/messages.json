@@ -347,5 +347,8 @@
   },
   "bmail_filepath_tips": {
     "message": "请从以下路径选择文件: "
+  },
+  "bmail_file_load_failed": {
+    "message": "加载bmail文件失败"
   }
 }

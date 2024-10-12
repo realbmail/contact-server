@@ -295,3 +295,25 @@ export async function decryptAttachment(aekId: string, url: string, fileName: st
         showTipsDialog("Error", err.message);
     }
 }
+
+export function decryptFile(file: File, aesKey: AttachmentEncryptKey, filename: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            try {
+                const data = new Uint8Array(event.target?.result as ArrayBuffer);
+                decryptAttachmentFileData(data, aesKey, filename)
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        };
+
+        reader.onerror = function (error) {
+            reject(error);
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+}

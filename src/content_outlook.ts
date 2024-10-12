@@ -4,12 +4,20 @@ import {
     encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, ContentPageProvider,
     observeForElement, parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn,
-    processReceivers, replaceTextNodeWithDiv, showTipsDialog
+    processReceivers, replaceTextNodeWithDiv, showTipsDialog, AttachmentKeyID
 } from "./content_common";
 import browser from "webextension-polyfill";
-import {EncryptedMailDivSearch, extractEmail, hideLoading, showLoading} from "./common";
+import {
+    EncryptedMailDivSearch,
+    extractEmail,
+    hideLoading,
+    moveParenthesesBeforeExtension,
+    sendMessageToBackground,
+    showLoading
+} from "./common";
 import {MailFlag} from "./bmail_body";
-import {checkAttachmentBtn} from "./content_attachment";
+import {checkAttachmentBtn, decryptFile, loadAKForReading} from "./content_attachment";
+import {AttachmentFileSuffix, MsgType} from "./consts";
 
 function queryEmailAddrOutLook() {
     const element = document.getElementById("O365_AppName") as HTMLLinkElement | null;
@@ -404,7 +412,6 @@ class Provider implements ContentPageProvider {
     }
 
     async prepareContent(): Promise<void> {
-
         addCustomStyles('css/outlook.css');
         const template = await parseContentHtml('html/inject_outlook.html');
         appendForOutLook(template);
@@ -413,7 +420,7 @@ class Provider implements ContentPageProvider {
     }
 
     async processDownloadFile(fileName: string): Promise<void> {
-        procDownloadFile(fileName);
+        await procDownloadFile(fileName);
     }
 }
 
@@ -500,15 +507,19 @@ function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplate
         }
         const fileName = attachment.querySelector(".VlyYV.PQeLQ.QEiYT")?.textContent;
         const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
+            return;
+        }
+
         moreActionBtn.addEventListener('click', () => {
             setTimeout(() => {
-                addBmailBtnToDropdownDiv(parsedId === null);
+                addBmailBtnToDropdownDiv(template, parsedId);
             }, 300);
         })
     }
 }
 
-function addBmailBtnToDropdownDiv(remove: boolean) {
+function addBmailBtnToDropdownDiv(template: HTMLTemplateElement, aekId: AttachmentKeyID) {
     const contextMenuDiv = document.getElementById("fluent-default-layer-host")?.querySelector("ul.ms-ContextualMenu-list");
     if (!contextMenuDiv) {
         console.log("------>>> dropdown menu for download not found");
@@ -519,12 +530,26 @@ function addBmailBtnToDropdownDiv(remove: boolean) {
         return;
     }
 
-    const downloadBtn = contextMenuDiv.childNodes[2] as HTMLElement;
-    if (remove) {
-        downloadBtn.classList.remove('bmailDownloadBtnTips');
-    } else {
-        downloadBtn.classList.add('bmailDownloadBtnTips');
-    }
+    const downloadBtn = contextMenuDiv.childNodes[2].firstChild as HTMLElement;
+
+    const bmailDownloadLi = template.content.getElementById("attachmentDecryptOutlook") as HTMLElement;
+    const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
+
+    clone.addEventListener('click', async () => {
+        const aesKey = loadAKForReading(aekId.id);
+        if (!aesKey) {
+            const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+            if (statusRsp.success < 0) {
+                return;
+            }
+
+            showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+            return;
+        }
+        downloadBtn.click();
+    });
+
+    contextMenuDiv.appendChild(clone);
 }
 
 function appendDecryptDialog(template: HTMLTemplateElement) {
@@ -545,17 +570,76 @@ function appendDecryptDialog(template: HTMLTemplateElement) {
     cancelBtn.addEventListener('click', () => {
         clone.style.display = 'none';
     })
-
+    decryptBtn.addEventListener('click', () => {
+        dialog.querySelector('input')!.click();
+    });
     document.body.appendChild(clone);
 }
 
+function extractFileNameWithExtension(filePath: string): string | null {
+    const lastSlashIndex = filePath.lastIndexOf('/');
+    if (lastSlashIndex !== -1) {
+        return filePath.slice(lastSlashIndex + 1);
+    } else {
+        return null;
+    }
+}
 
-function procDownloadFile(fileName?: string) {
-    if (!fileName) {
-        console.log("------>>> miss parameters:fileName");
+async function procDownloadFile(filePath?: string) {
+    if (!filePath) {
+        console.log("------>>> miss parameters:filePath");
         return;
     }
-    console.log("------>>>  fileName", fileName);
+    const fileName = extractFileNameWithExtension(filePath);
+    if (!fileName) {
+        console.log("------>>>  filePath", filePath);
+        return;
+    }
+
+    const aekId = extractAesKeyId(fileName);
+    if (!aekId) {
+        console.log("----->>> not bmail file:", fileName);
+        return;
+    }
+
     const dialog = document.getElementById("bmail-decrypt-dialog") as HTMLElement
     dialog.style.display = 'block';
+    dialog.querySelector(".bmail-file-path")!.textContent = filePath;
+
+    const fileInput = dialog.querySelector('input') as HTMLInputElement;
+    fileInput.accept = "." + aekId.id + "_" + AttachmentFileSuffix;
+
+    const inputFun = (event: Event) => {
+        decryptDownloadedFile(event, aekId).then(() => {
+            dialog.style.display = 'none';
+            fileInput.value = '';
+            fileInput.accept = "";
+            fileInput.removeEventListener('change', inputFun);
+        });
+    }
+
+    fileInput.addEventListener('change', inputFun);
+}
+
+async function decryptDownloadedFile(event: Event, aekId: AttachmentKeyID): Promise<void> {
+    const aesKey = loadAKForReading(aekId.id);
+    if (!aesKey) {
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+        if (statusRsp.success < 0) {
+            return;
+        }
+
+        showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+        return;
+    }
+
+    const tempInput = event.target as HTMLInputElement;
+    const files = tempInput.files;
+    if (!files || files.length === 0) {
+        showTipsDialog("Tips", browser.i18n.getMessage("bmail_file_load_failed"));
+        return;
+    }
+
+    const fileName = moveParenthesesBeforeExtension(aekId.originalFileName);
+    await decryptFile(files[0], aesKey, fileName);
 }
