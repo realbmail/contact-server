@@ -80,23 +80,10 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "css/inject.css",
-        "css/common.css",
-        "css/google.css",
-        "css/netease.css",
-        "css/outlook.css",
-        "css/qq.css",
-        "html/inject.html",
-        "html/inject_google.html",
-        "html/inject_qq.html",
-        "html/inject_netease.html",
-        "html/inject_outlook.html",
+        "css/*.css",
+        "html/*.html",
         "js/inject.js",
-        "file/logo_16.png",
-        "file/logo_16_out.png",
-        "file/logo_48.png",
-        "file/logo_48_out.png",
-        "file/logo_48_out-black.png",
+        "file/*",
         "img/*"
       ],
       "matches": [
