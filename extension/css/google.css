@@ -1,5 +1,5 @@
 .attachmentDecryptGoogle {
-    padding: 12px; /* 内边距 */
+    padding: 6px; /* 内边距 */
     border-radius: 4px; /* 圆角 */
     font-size: 16px; /* 字体大小 */
     cursor: pointer; /* 鼠标悬停时显示手型 */
@@ -18,13 +18,15 @@
     background-position: center; /* 背景图片居中 */
     background-size: contain; /* 背景图片根据容器大小自适应 */
 }
-
+.attachmentDecryptGoogle:hover{
+    background-color: rgba(4, 6, 46, 0.8);
+}
 .attachmentDecryptGoogle_tips {
     background-color: #4CAF50;
 }
 .dwLd {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     padding: 0;
     margin: auto;
     background-color: transparent;
