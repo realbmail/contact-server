@@ -570,9 +570,7 @@ function appendDecryptDialog(template: HTMLTemplateElement) {
     cancelBtn.addEventListener('click', () => {
         clone.style.display = 'none';
     })
-    decryptBtn.addEventListener('click', () => {
-        dialog.querySelector('input')!.click();
-    });
+
     document.body.appendChild(clone);
 }
 
@@ -614,11 +612,15 @@ async function procDownloadFile(filePath?: string) {
             dialog.style.display = 'none';
             fileInput.value = '';
             fileInput.accept = "";
-            fileInput.removeEventListener('change', inputFun);
         });
     }
-
+    fileInput.removeEventListener('change', inputFun);
     fileInput.addEventListener('change', inputFun);
+
+    const clickFun = () => fileInput.click();
+    const decryptBtn = dialog.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    decryptBtn.removeEventListener('click', clickFun);
+    decryptBtn.addEventListener('click', clickFun);
 }
 
 async function decryptDownloadedFile(event: Event, aekId: AttachmentKeyID): Promise<void> {

@@ -203,17 +203,26 @@ export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
     return closestJsonElements;
 }
 
-
 export function moveParenthesesBeforeExtension(filename: string): string {
-    const match = filename.match(/\((\d+)\)$/); // 检查是否以 (数字) 结尾
+    const regex = /^(.*?)(\.[^.]+)\s*\(([^)]+)\)$/;
+    const match = filename.match(regex);
+
     if (match) {
-        const extensionIndex = filename.lastIndexOf('.'); // 找到最后一个点的位置
-        if (extensionIndex > 0) {
-            // 将小括号和数字移动到 "." 之前
-            const baseName = filename.substring(0, extensionIndex);
-            const extension = filename.substring(extensionIndex);
-            return `${baseName} ${match[0]}${extension}`;
-        }
+        const name = match[1];
+        const extension = match[2];
+        const parenContent = match[3];
+
+        return `${name} (${parenContent})${extension}`;
     }
-    return filename; // 如果不匹配 (数字) 结尾，返回原字符串
+
+    const regexNoExtension = /^(.*)\s*\(([^)]+)\)$/;
+    const matchNoExt = filename.match(regexNoExtension);
+    if (matchNoExt) {
+        const name = matchNoExt[1];
+        const parenContent = matchNoExt[2];
+        return `${name} (${parenContent})`;
+    }
+
+    return filename;
 }
+
