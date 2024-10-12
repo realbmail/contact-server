@@ -77,7 +77,7 @@ body.loading #dialog-waiting-overlay {
     align-items: center; /* Horizontally center the content */
     background-color: #fefefe;
     margin: 15% auto;
-    padding: 42px 42px;
+    padding: 32px;
     max-width: 25%; /* Ensure it doesn't exceed the screen width */
     width: auto; /* Let the width adapt to the content */
     text-align: center;
@@ -96,8 +96,8 @@ body.loading #dialog-waiting-overlay {
     cursor: pointer;
     margin-left: 24px;
     position: absolute;
-    top: 42px;
-    right: 42px;
+    top: 32px;
+    right: 32px;
 }
 
 .dialog-confirm-close-button:hover,
@@ -135,7 +135,7 @@ body.loading #dialog-waiting-overlay {
     flex-grow: 1; /* 让按钮占据相同的宽度 */
     font-size: 16px;
     font-weight: 500;
-    padding: 12px 24px;
+    padding: 9px 24px;
     border: none;
     width: 100%;
     cursor: pointer;
