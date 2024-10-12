@@ -599,8 +599,6 @@ async function procDownloadFile(filePath?: string) {
         console.log("----->>> not bmail file:", fileName);
         return;
     }
-    console.log("----->>> 11111111 bmail file:", fileName, aekId);
-
     const dialog = document.getElementById("bmail-decrypt-dialog") as HTMLElement
     dialog.style.display = 'block';
     dialog.querySelector(".bmail-file-path")!.textContent = filePath;
@@ -609,7 +607,6 @@ async function procDownloadFile(filePath?: string) {
     fileInput.accept = "." + aekId.id + "_" + AttachmentFileSuffix;
 
     const inputFun = async (event: Event) => {
-        console.log("----->>> 2222222 bmail file:", fileName, aekId);
         await decryptDownloadedFile(event, aekId);
         dialog.style.display = 'none';
         fileInput.value = '';
