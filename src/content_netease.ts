@@ -415,6 +415,9 @@ class Provider implements ContentPageProvider {
         appendForNetEase(template);
         console.log("------>>> netease content init success");
     }
+
+    async processDownloadFile(_: string): Promise<void> {
+    }
 }
 
 (window as any).contentPageProvider = new Provider();

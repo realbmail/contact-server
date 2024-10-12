@@ -103,3 +103,17 @@
     align-items: center;
     justify-content: flex-start;
 }
+
+.bmailDownloadBtnTips {
+    background-color: #84ab85;
+}
+
+.bmailDownloadBtnTips:hover {
+    background-color: #4CAF50;
+}
+
+.bmail-decrypt-dialog {
+    z-index: 1000;
+    display: none;
+    background-color: #98989A;
+}

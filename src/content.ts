@@ -186,22 +186,20 @@ async function decryptData(eventData: EventData) {
 
 browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response: any) => void) => {
     console.log("------>>>on message from background:", request.action);
+
     switch (request.action) {
         case MsgType.QueryCurEmail:
             const emailAddr = readCurrentMailAddress();
             sendResponse({value: emailAddr ?? ""});
             break;
+
         case MsgType.BMailDownload:
-            procDownloadFile(request.fileName)
+            const provider: ContentPageProvider = (window as any).contentPageProvider;
+            if (!provider) {
+                return;
+            }
+            provider.processDownloadFile(request.fileName).then();
             break;
     }
     return true;
 });
-
-function procDownloadFile(fileName?: string) {
-    if (!fileName) {
-        console.log("------>>> miss parameters:fileName");
-        return;
-    }
-    console.log("------>>>  fileName", fileName);
-}

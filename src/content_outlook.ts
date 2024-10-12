@@ -398,10 +398,6 @@ function prepareMailHistory(oneMail: HTMLElement, template: HTMLTemplateElement)
     }, true)
 }
 
-async function prepareContentPage() {
-
-}
-
 class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrOutLook() ?? "";
@@ -412,9 +408,13 @@ class Provider implements ContentPageProvider {
         addCustomStyles('css/outlook.css');
         const template = await parseContentHtml('html/inject_outlook.html');
         appendForOutLook(template);
+        appendDecryptDialog(template);
         console.log("------>>> outlook content init success");
     }
 
+    async processDownloadFile(fileName: string): Promise<void> {
+        procDownloadFile(fileName);
+    }
 }
 
 (window as any).contentPageProvider = new Provider();
@@ -514,14 +514,48 @@ function addBmailBtnToDropdownDiv(remove: boolean) {
         console.log("------>>> dropdown menu for download not found");
         return;
     }
-    for (let i = 0; i < contextMenuDiv.childNodes.length; i++) {
-        const element = contextMenuDiv.childNodes[i];
+    if (contextMenuDiv.childNodes.length !== 3) {
+        console.log("------>>> failed to att css to download button");
+        return;
     }
-    const downloadBtn = contextMenuDiv.childNodes[2].firstChild as HTMLElement;
-    const clone = downloadBtn.cloneNode(true) as HTMLElement;
-    contextMenuDiv.appendChild(clone);
-    clone.addEventListener('click', (e) => {
-        downloadBtn.click();
+
+    const downloadBtn = contextMenuDiv.childNodes[2] as HTMLElement;
+    if (remove) {
+        downloadBtn.classList.remove('bmailDownloadBtnTips');
+    } else {
+        downloadBtn.classList.add('bmailDownloadBtnTips');
+    }
+}
+
+function appendDecryptDialog(template: HTMLTemplateElement) {
+    const dialog = template.content.getElementById("bmail-decrypt-dialog");
+    if (!dialog) {
+        console.log("------>>>failed to find decrypt dialog");
+        return;
+    }
+
+    const clone = dialog.cloneNode(true) as HTMLElement;
+    clone.querySelector(".bmail-download-tips")!.textContent = browser.i18n.getMessage('bmail_download_tips');
+    clone.querySelector(".bmail-filepath-tips")!.textContent = browser.i18n.getMessage('bmail_filepath_tips');
+    const decryptBtn = clone.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    const cancelBtn = clone.querySelector(".bmail-cancel-btn") as HTMLElement;
+
+    decryptBtn.innerText = browser.i18n.getMessage('decrypt_mail_body');
+    cancelBtn.innerText = browser.i18n.getMessage('Cancel');
+    cancelBtn.addEventListener('click', () => {
+        clone.style.display = 'none';
     })
 
+    document.body.appendChild(clone);
+}
+
+
+function procDownloadFile(fileName?: string) {
+    if (!fileName) {
+        console.log("------>>> miss parameters:fileName");
+        return;
+    }
+    console.log("------>>>  fileName", fileName);
+    const dialog = document.getElementById("bmail-decrypt-dialog") as HTMLElement
+    dialog.style.display = 'block';
 }

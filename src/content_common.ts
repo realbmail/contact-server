@@ -26,8 +26,9 @@ export const __decrypt_button_css_name = '.bmail-decrypt-btn'
 
 export interface ContentPageProvider {
     readCurrentMailAddress(): string;
-
     prepareContent(): Promise<void>
+
+    processDownloadFile(filePath: string): Promise<void>
 }
 
 

@@ -338,20 +338,19 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
     mainContent.insertBefore(cryptoBtnDiv, mainContent.firstChild);
 }
 
-async function prepareContentPage() {
-
-}
-
 class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrGoogle() ?? "";
     }
-
     async prepareContent(): Promise<void> {
         addCustomStyles('css/google.css');
         const template = await parseContentHtml('html/inject_google.html');
         appendForGoogle(template);
         console.log("------>>> google content init success");
+    }
+
+    async processDownloadFile(_: string): Promise<void> {
+        return;
     }
 }
 

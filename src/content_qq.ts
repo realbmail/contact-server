@@ -632,6 +632,9 @@ class Provider implements ContentPageProvider {
         appendForQQ(template);
         console.log("------>>> qq content init success");
     }
+
+    async processDownloadFile(_: string): Promise<void> {
+    }
 }
 
 (window as any).contentPageProvider = new Provider();

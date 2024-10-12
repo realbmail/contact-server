@@ -338,5 +338,14 @@
   "decrypt_mail_body_first": {
     "message": "Decrypt mail body first",
     "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "The downloaded file needs to be decrypted in order to view it. Please select the file after downloading."
+  },
+  "Cancel": {
+    "message": "Cancel"
+  },
+  "bmail_filepath_tips": {
+    "message": "Please select the file from the following path:"
   }
 }

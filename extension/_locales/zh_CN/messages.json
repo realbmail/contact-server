@@ -71,6 +71,9 @@
     "message": "加密",
     "description": ""
   },
+  "Cancel": {
+    "message": "取消"
+  },
   "decrypt_mail_body": {
     "message": "解密",
     "description": ""
@@ -338,5 +341,11 @@
   "decrypt_mail_body_first": {
     "message": "请首先解密邮件内容",
     "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "下载的文件需要解密才能查看，请选择下载后的文件。"
+  },
+  "bmail_filepath_tips": {
+    "message": "请从以下路径选择文件: "
   }
 }
