@@ -23,7 +23,7 @@ function appendForQQ(template: HTMLTemplateElement) {
 
     observeForElement(document.body, 1000,
         () => {
-            return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement || document.getElementById("leftPanel") as HTMLElement;
+            return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement || document.getElementById("SysFolderList") as HTMLElement;
         }, async () => {
             console.log("------->>>start to populate qq mail area",);
             monitorComposeActionQQ(template).then();
@@ -37,7 +37,7 @@ function appendForQQ(template: HTMLTemplateElement) {
 
 async function appendBmailInboxMenuQQ(template: HTMLTemplateElement) {
     const menuParentDiv1 = document.querySelector(".ui-float-scroll-body.sidebar-menus");
-    const menuParentDiv2 = document.getElementById("SysFolderList")?.firstElementChild as HTMLElement;
+    const menuParentDiv2 = document.querySelector("#SysFolderList ul") as HTMLElement;
     const menuParentDiv = menuParentDiv1 || menuParentDiv2;
     if (!menuParentDiv) {
         console.log("------>>> menu parent div not found");
