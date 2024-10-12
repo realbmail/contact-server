@@ -599,6 +599,7 @@ async function procDownloadFile(filePath?: string) {
         console.log("----->>> not bmail file:", fileName);
         return;
     }
+    console.log("----->>> 11111111 bmail file:", fileName, aekId);
 
     const dialog = document.getElementById("bmail-decrypt-dialog") as HTMLElement
     dialog.style.display = 'block';
@@ -607,19 +608,23 @@ async function procDownloadFile(filePath?: string) {
     const fileInput = dialog.querySelector('input') as HTMLInputElement;
     fileInput.accept = "." + aekId.id + "_" + AttachmentFileSuffix;
 
-    const inputFun = (event: Event) => {
-        decryptDownloadedFile(event, aekId).then(() => {
-            dialog.style.display = 'none';
-            fileInput.value = '';
-            fileInput.accept = "";
-        });
+    const inputFun = async (event: Event) => {
+        console.log("----->>> 2222222 bmail file:", fileName, aekId);
+        await decryptDownloadedFile(event, aekId);
+        dialog.style.display = 'none';
+        fileInput.value = '';
+        fileInput.accept = "";
+        fileInput.removeEventListener('change', inputFun);
     }
-    fileInput.removeEventListener('change', inputFun);
     fileInput.addEventListener('change', inputFun);
 
     const clickFun = () => fileInput.click();
     const decryptBtn = dialog.querySelector(".bmail-decrypt-btn") as HTMLElement;
-    decryptBtn.removeEventListener('click', clickFun);
+    if (decryptBtn.dataset.hasProcAction === "true") {
+        return;
+    }
+
+    decryptBtn.dataset.hasProcAction = "true";
     decryptBtn.addEventListener('click', clickFun);
 }
 

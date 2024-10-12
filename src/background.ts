@@ -533,7 +533,7 @@ browser.downloads.onChanged.addListener(async (delta) => {
 
     const items = await browser.downloads.search({id: downloadId});
     const downloadFile = items[0];
-    console.log("----------->>> Downloaded file: ", downloadFile);
+    // console.log("----------->>> Downloaded file: ", downloadFile);
 
     const fileName = downloadFile.filename;
     if (!fileName) {
@@ -554,8 +554,7 @@ browser.downloads.onChanged.addListener(async (delta) => {
         return;
     }
 
-    browser.tabs.sendMessage(tabs[0].id!, {action: MsgType.BMailDownload, fileName: fileName}).then();
+    await browser.tabs.sendMessage(tabs[0].id!, {action: MsgType.BMailDownload, fileName: fileName});
 
-    // 处理完成后移除下载 ID
     targetDownloadIds.delete(downloadId);
 });

@@ -196,9 +196,11 @@ browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response
         case MsgType.BMailDownload:
             const provider: ContentPageProvider = (window as any).contentPageProvider;
             if (!provider) {
+                sendResponse({success: true});
                 return;
             }
             provider.processDownloadFile(request.fileName).then();
+            sendResponse({success: true});
             break;
     }
     return true;
