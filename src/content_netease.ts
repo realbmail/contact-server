@@ -6,7 +6,7 @@ import {
     decryptMailForEditionOfSentMail,
     encryptMailInComposing, extractAesKeyId,
     findAllTextNodesWithEncryptedDiv,
-    MailAddressProvider,
+    ContentPageProvider,
     observeForElementDirect,
     parseBmailInboxBtn,
     parseContentHtml,
@@ -404,20 +404,20 @@ async function encryptDataAndSendForQuickReplyNetEase(mailBody: HTMLTextAreaElem
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    addCustomStyles('css/netease.css');
-    const template = await parseContentHtml('html/inject_netease.html');
-    appendForNetEase(template);
-    console.log("------>>> netease content init success");
-});
-
-class DomainBMailProvider implements MailAddressProvider {
+class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrNetEase() ?? "";
     }
+
+    async prepareContent(): Promise<void> {
+        addCustomStyles('css/netease.css');
+        const template = await parseContentHtml('html/inject_netease.html');
+        appendForNetEase(template);
+        console.log("------>>> netease content init success");
+    }
 }
 
-(window as any).mailAddressProvider = new DomainBMailProvider();
+(window as any).contentPageProvider = new Provider();
 
 
 function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplateElement) {

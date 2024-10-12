@@ -3,7 +3,7 @@ import {
     __localContactMap, addCustomStyles,
     addDecryptButtonForBmailBody,
     checkFrameBody, decryptMailForEditionOfSentMail, decryptMailInReading,
-    encryptMailInComposing, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
+    encryptMailInComposing, findAllTextNodesWithEncryptedDiv, ContentPageProvider,
     observeForElement,
     observeFrame,
     parseBmailInboxBtn, parseContentHtml,
@@ -620,17 +620,18 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    addCustomStyles('css/qq.css');
-    const template = await parseContentHtml('html/inject_qq.html');
-    appendForQQ(template);
-    console.log("------>>> qq content init success");
-});
 
-class DomainBMailProvider implements MailAddressProvider {
+class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrQQ() ?? "";
     }
+
+    async prepareContent(): Promise<void> {
+        addCustomStyles('css/qq.css');
+        const template = await parseContentHtml('html/inject_qq.html');
+        appendForQQ(template);
+        console.log("------>>> qq content init success");
+    }
 }
 
-(window as any).mailAddressProvider = new DomainBMailProvider();
+(window as any).contentPageProvider = new Provider();

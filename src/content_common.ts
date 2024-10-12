@@ -24,8 +24,10 @@ let __cur_email_address: string | null | undefined;
 
 export const __decrypt_button_css_name = '.bmail-decrypt-btn'
 
-export interface MailAddressProvider {
+export interface ContentPageProvider {
     readCurrentMailAddress(): string;
+
+    prepareContent(): Promise<void>
 }
 
 
@@ -574,7 +576,7 @@ export async function parseContentHtml(htmlFilePath: string): Promise<HTMLTempla
 }
 
 export function readCurrentMailAddress(): string {
-    const provider: MailAddressProvider = (window as any).mailAddressProvider;
+    const provider: ContentPageProvider = (window as any).contentPageProvider;
     if (provider && typeof provider.readCurrentMailAddress === 'function') {
         return provider.readCurrentMailAddress();
     } else {

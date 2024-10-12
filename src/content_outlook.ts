@@ -1,7 +1,7 @@
 import {
     __decrypt_button_css_name, addCustomStyles,
     addDecryptButtonForBmailBody, appendDecryptForDiv, decryptMailInReading,
-    encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, MailAddressProvider,
+    encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, ContentPageProvider,
     observeForElement, parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn,
     processReceivers, replaceTextNodeWithDiv, showTipsDialog
@@ -398,20 +398,26 @@ function prepareMailHistory(oneMail: HTMLElement, template: HTMLTemplateElement)
     }, true)
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    addCustomStyles('css/outlook.css');
-    const template = await parseContentHtml('html/inject_outlook.html');
-    appendForOutLook(template);
-    console.log("------>>> outlook content init success");
-});
+async function prepareContentPage() {
 
-class DomainBMailProvider implements MailAddressProvider {
+}
+
+class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrOutLook() ?? "";
     }
+
+    async prepareContent(): Promise<void> {
+
+        addCustomStyles('css/outlook.css');
+        const template = await parseContentHtml('html/inject_outlook.html');
+        appendForOutLook(template);
+        console.log("------>>> outlook content init success");
+    }
+
 }
 
-(window as any).mailAddressProvider = new DomainBMailProvider();
+(window as any).contentPageProvider = new Provider();
 
 
 function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTemplateElement) {
@@ -510,7 +516,6 @@ function addBmailBtnToDropdownDiv(remove: boolean) {
     }
     for (let i = 0; i < contextMenuDiv.childNodes.length; i++) {
         const element = contextMenuDiv.childNodes[i];
-        console.log("------>>> children node:", element);
     }
     const downloadBtn = contextMenuDiv.childNodes[2].firstChild as HTMLElement;
     const clone = downloadBtn.cloneNode(true) as HTMLElement;
@@ -518,5 +523,5 @@ function addBmailBtnToDropdownDiv(remove: boolean) {
     clone.addEventListener('click', (e) => {
         downloadBtn.click();
     })
-}
 
+}

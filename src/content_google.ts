@@ -2,7 +2,7 @@ import {
     __decrypt_button_css_name, addCustomStyles,
     addDecryptButtonForBmailBody,
     checkFrameBody,
-    encryptMailInComposing, extractAesKeyId, MailAddressProvider,
+    encryptMailInComposing, extractAesKeyId, ContentPageProvider,
     observeForElement,
     parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
@@ -338,17 +338,21 @@ function addDecryptBtnToSimpleMailAllDiv(template: HTMLTemplateElement, viewAllM
     mainContent.insertBefore(cryptoBtnDiv, mainContent.firstChild);
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    addCustomStyles('css/google.css');
-    const template = await parseContentHtml('html/inject_google.html');
-    appendForGoogle(template);
-    // console.log("------>>> google content init success");
-});
+async function prepareContentPage() {
 
-class DomainBMailProvider implements MailAddressProvider {
+}
+
+class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrGoogle() ?? "";
     }
+
+    async prepareContent(): Promise<void> {
+        addCustomStyles('css/google.css');
+        const template = await parseContentHtml('html/inject_google.html');
+        appendForGoogle(template);
+        console.log("------>>> google content init success");
+    }
 }
 
-(window as any).mailAddressProvider = new DomainBMailProvider();
+(window as any).contentPageProvider = new Provider();

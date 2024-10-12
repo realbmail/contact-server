@@ -6,6 +6,7 @@ export enum MsgType {
     DecryptData = 'DecryptData',
     BMailInbox = 'BMailInbox',
     QueryCurEmail = 'QueryCurEmail',
+    BMailDownload = 'BMailDownload',
     EmailAddrToBmailAddr = 'EmailAddrToBmailAddr',
     CheckIfLogin = 'CheckIfLogin',
     SignData = 'SignData',

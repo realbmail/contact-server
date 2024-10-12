@@ -20,7 +20,8 @@
   "permissions": [
     "storage",
     "activeTab",
-    "alarms"
+    "alarms",
+    "downloads"
   ],
   "host_permissions": [
     "https://bmail.simplenets.org/*"

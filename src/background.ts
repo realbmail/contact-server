@@ -7,6 +7,7 @@ import {BMRequestToSrv, decodeHex} from "./common";
 import {decodeMail, encodeMail, initMailBodyVersion} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 import {MsgType, WalletStatus} from "./consts";
+import {extractAesKeyId} from "./content_common";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
@@ -508,3 +509,36 @@ async function queryCurrentBmailAddress(sendResponse: (response: any) => void) {
 
     sendResponse({success: 1, data: addr.bmail_address});
 }
+
+browser.downloads.onCreated.addListener((downloadItem) => {
+
+    if (!downloadItem.url.includes("outlook.live.com")) {
+        return;
+    }
+
+    browser.downloads.onChanged.addListener((delta) => {
+        if (!delta.state || delta.state.current !== "complete") {
+            return;
+        }
+
+        console.log("----------->>> download item found:", delta);
+
+        const fileName = delta.filename?.current
+        if (!fileName) {
+            console.log("----------->>> file name in download item not found:", delta);
+            return;
+        }
+
+        const bmailFile = extractAesKeyId(fileName);
+        if (!bmailFile) {
+            console.log("----------->>> this file is not for bmail :", fileName);
+            return;
+        }
+
+        browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
+            for (let tab of tabs) {
+                browser.tabs.sendMessage(tab.id!, {action: MsgType.BMailDownload, filePath: fileName}).then();
+            }
+        });
+    });
+});

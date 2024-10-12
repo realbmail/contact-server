@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import {ECDecryptFailed, ECEncryptedFailed, ECInternalError, ECWalletClosed, Inject_Msg_Flag, MsgType} from "./consts";
 import {
-    addCustomStyles,
+    addCustomStyles, ContentPageProvider,
     parseContentHtml,
     parseEmailToBmail,
     readCurrentMailAddress,
@@ -31,6 +31,10 @@ function translateInjectedElm() {
 document.addEventListener('DOMContentLoaded', async () => {
     addBmailObject('js/inject.js');
     addCustomStyles('css/common.css');
+
+    const provider: ContentPageProvider = (window as any).contentPageProvider;
+    await provider.prepareContent();
+
     const template = await parseContentHtml('html/inject.html');
     appendTipDialog(template);
     translateInjectedElm();
@@ -182,9 +186,22 @@ async function decryptData(eventData: EventData) {
 
 browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response: any) => void) => {
     console.log("------>>>on message from background:", request.action);
-    if (request.action === MsgType.QueryCurEmail) {
-        const emailAddr = readCurrentMailAddress();
-        sendResponse({value: emailAddr ?? ""});
+    switch (request.action) {
+        case MsgType.QueryCurEmail:
+            const emailAddr = readCurrentMailAddress();
+            sendResponse({value: emailAddr ?? ""});
+            break;
+        case MsgType.BMailDownload:
+            procDownloadFile(request.blobUrl)
+            break;
     }
     return true;
 });
+
+function procDownloadFile(filePath?: string) {
+    if (!filePath) {
+        console.log("------>>> miss parameters: blob url");
+        return;
+    }
+    console.log("------>>>  blob url", filePath);
+}
