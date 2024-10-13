@@ -510,13 +510,19 @@ async function queryCurrentBmailAddress(sendResponse: (response: any) => void) {
     sendResponse({success: 1, data: addr.bmail_address});
 }
 
-// 使用一个 Set 来跟踪目标下载的 ID
 const targetDownloadIds = new Set<number>();
 
-// 在 onCreated 监听器中记录目标下载的 ID
-browser.downloads.onCreated.addListener((downloadItem) => {
-    if (downloadItem.url.includes("outlook.live.com")) {
+browser.downloads.onCreated.addListener(async (downloadItem) => {
+    const downloadUrl = downloadItem.url;
+    if (downloadUrl.includes("outlook.live.com")) {
         targetDownloadIds.add(downloadItem.id);
+    } else if (downloadUrl.includes("mail.qq.com")) {
+        const tabs = await browser.tabs.query({active: true});
+        if (!tabs[0]) {
+            return;
+        }
+        console.log("------>>>>active url=>", tabs[0].url);
+        await browser.tabs.sendMessage(tabs[0].id!, {action: MsgType.BMailDownload, downloadUrl: downloadUrl});
     }
 });
 

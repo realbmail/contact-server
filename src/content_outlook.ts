@@ -418,7 +418,7 @@ class Provider implements ContentPageProvider {
         console.log("------>>> outlook content init success");
     }
 
-    async processDownloadFile(fileName: string): Promise<void> {
+    async processAttachmentDownload(fileName?: string, _downloadUrl?: string): Promise<void> {
         await procDownloadFile(fileName);
     }
 }

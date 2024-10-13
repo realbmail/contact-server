@@ -12,13 +12,13 @@ import {
 } from "./content_common";
 import {
     emailRegex,
-    extractEmail, hideLoading,
+    extractEmail, extractNameFromUrl, hideLoading,
     sendMessageToBackground,
     showLoading,
 } from "./common";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
-import {checkAttachmentBtn} from "./content_attachment";
+import {checkAttachmentBtn, downloadAndDecryptFile, loadAKForReading} from "./content_attachment";
 
 function appendForQQ(template: HTMLTemplateElement) {
 
@@ -346,12 +346,12 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
         })
     }
 
-    addDecryptBtnForAttachment(mailArea, template);
+    addDecryptBtnForAttachment(template);
 }
 
-function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplateElement) {
+function addDecryptBtnForAttachment(template: HTMLTemplateElement) {
 
-    const attachmentDiv = mailArea.querySelector(".mail-detail-attaches")?.querySelectorAll(".mail-detail-attaches-card");
+    const attachmentDiv = document.querySelectorAll(".frame-main .mail-detail-attaches .mail-detail-attaches-card");
     if (!attachmentDiv || attachmentDiv.length === 0) {
         console.log("------>>>", "no attachment found");
         return;
@@ -375,10 +375,33 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
             console.log("------>>> no need to add decrypt button to this attachment element");
             return;
         }
+        const toolbar = attachment.querySelector(".xmail-ui-hyperlink.attach-link")?.parentNode
+        if (!toolbar || toolbar.childNodes.length !== 4) {
+            console.log("------>>> download tool bar not found");
+            return;
+        }
 
+        const downloadBtn = toolbar.childNodes[1] as HTMLElement;
+
+        const bmailDownloadLi = template.content.getElementById("attachmentDecryptLink") as HTMLElement;
+        const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
+        clone.addEventListener('click', async () => {
+            const aesKey = loadAKForReading(parsedId.id);
+            if (!aesKey) {
+                const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+                if (statusRsp.success < 0) {
+                    return;
+                }
+
+                showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+                return;
+            }
+
+            downloadBtn.click();
+        });
+
+        toolbar.append(clone);
     }
-
-
 }
 
 async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBar: HTMLElement) {
@@ -738,8 +761,20 @@ class Provider implements ContentPageProvider {
         console.log("------>>> qq content init success");
     }
 
-    async processDownloadFile(_: string): Promise<void> {
+    async processAttachmentDownload(_fileName?: string, downloadUrl?: string): Promise<void> {
+        await downloadAndDecryptAgain(downloadUrl);
     }
+
 }
 
 (window as any).contentPageProvider = new Provider();
+
+async function downloadAndDecryptAgain(downloadUrl?: string) {
+    if (!downloadUrl) {
+        console.log("------>>> miss parameters:downloadUrl");
+        return;
+    }
+
+    const fileName = extractNameFromUrl(downloadUrl, 'name');
+    console.log("------>>> download file name:", fileName);
+}

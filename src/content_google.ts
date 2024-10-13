@@ -349,7 +349,7 @@ class Provider implements ContentPageProvider {
         console.log("------>>> google content init success");
     }
 
-    async processDownloadFile(_: string): Promise<void> {
+    async processAttachmentDownload(_fileName?: string, _downloadUrl?: string): Promise<void> {
         return;
     }
 }
