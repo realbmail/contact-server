@@ -253,15 +253,12 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
         });
 
         const aekId = findAttachmentKeyID(composeDiv);
-
         const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;
         }
 
         sendDiv.click();
-
-
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
         showTipsDialog("error", "encrypt mail content failed");

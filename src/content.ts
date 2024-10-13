@@ -33,7 +33,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     addCustomStyles('css/common.css');
 
     const provider: ContentPageProvider = (window as any).contentPageProvider;
-    await provider.prepareContent();
+    if (provider) {
+        await provider.prepareContent();
+    }
 
     const template = await parseContentHtml('html/inject.html');
     appendTipDialog(template);

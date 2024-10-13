@@ -8,7 +8,7 @@ import {
     observeFrame,
     parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn, processReceivers,
-    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog
+    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog, extractAesKeyId
 } from "./content_common";
 import {
     emailRegex,
@@ -18,6 +18,7 @@ import {
 } from "./common";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
+import {checkAttachmentBtn} from "./content_attachment";
 
 function appendForQQ(template: HTMLTemplateElement) {
 
@@ -122,6 +123,71 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
     } else {
         toolBar.appendChild(cryptoBtnDiv);
     }
+
+    prepareAttachmentForCompose(template);
+}
+
+function prepareAttachmentForCompose(template: HTMLTemplateElement) {
+
+    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    if (!overlayButton) {
+        console.log("----->>> overlayButton not found");
+        return;
+    }
+
+    const aekID = findAttachmentKeyID();
+    const fileInput = document.getElementById("attachUploadBtn") as HTMLInputElement;
+    if (!fileInput) {
+        console.log("----->>> file input not found");
+        return;
+    }
+
+    addOverlyButton(fileInput.closest('div') as HTMLElement, fileInput, overlayButton, aekID);
+
+    const dropdownBtn = document.querySelector(".xm_new_toolbar_container")?.querySelector("i.xm_icons.xm_icons_ArrowDown") as HTMLElement
+    dropdownBtn?.addEventListener('click', () => {
+        setTimeout(() => {
+            const attachmentDiv = document.getElementById("dropdownInner")?.querySelector(".xm_dropdownMenu_item") as HTMLInputElement;
+            addOverlyButton(attachmentDiv, fileInput, overlayButton, aekID);
+        }, 300);
+    });
+}
+
+function addOverlyButton(attachmentDiv: HTMLElement, fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string) {
+    if (!fileInput || !attachmentDiv) {
+        console.log("----->>> file input not found");
+        return;
+    }
+
+    if (attachmentDiv.querySelector(".attachmentOverlayButton")) {
+        console.log("----->>> overly button already added before for mail composing");
+        return;
+    }
+
+    const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
+    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
+}
+
+function findAttachmentKeyID(): string | undefined {
+
+    const allAttachDivs = document.querySelector(".compose_attach_list")?.querySelectorAll(".compose_attach_item.compose_attach_item_complete");
+    if (!allAttachDivs || allAttachDivs.length === 0) {
+        return undefined;
+    }
+
+    let aekId = "";
+    for (let i = 0; i < allAttachDivs.length; i++) {
+        const element = allAttachDivs[i];
+        const fileSuffix = element.querySelector(".compose_attach_item_name.no_shrink")?.textContent;
+        const parsedId = extractAesKeyId(fileSuffix);
+        if (!parsedId) {
+            continue;
+        }
+        aekId = parsedId.id;
+        break;
+    }
+
+    return aekId;
 }
 
 async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
@@ -213,11 +279,11 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
 
     mainArea.addEventListener("click", (event) => {
         const targetElement = event.target as HTMLElement;
-        console.log("------>>>target element", targetElement)
+        // console.log("------>>>target element", targetElement)
         const mailItemDiv = targetElement.closest('div.mail-list-page-item') as HTMLElement | null;
         const nextOrPreviousMailBtn = targetElement.closest(".mail-list-page-toolbar.toolbar-only-reader")
         if (!mailItemDiv && !nextOrPreviousMailBtn) {
-            console.log("------>>> this is not a mail reading action");
+            // console.log("------>>> this is not a mail reading action");
             return;
         }
 
