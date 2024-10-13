@@ -178,8 +178,13 @@ function findAttachmentKeyID(): string | undefined {
     let aekId = "";
     for (let i = 0; i < allAttachDivs.length; i++) {
         const element = allAttachDivs[i];
+        const fileName = element.querySelector(".compose_attach_item_name.ml8")?.textContent;
         const fileSuffix = element.querySelector(".compose_attach_item_name.no_shrink")?.textContent;
-        const parsedId = extractAesKeyId(fileSuffix);
+        if (!fileSuffix || !fileName) {
+            return undefined;
+        }
+
+        const parsedId = extractAesKeyId(fileName + fileSuffix);
         if (!parsedId) {
             continue;
         }
@@ -247,12 +252,12 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, receiverTable: HTMLEl
             return;
         }
 
-        const success = await encryptMailInComposing(mailBody, receiver);
+        const aekId = findAttachmentKeyID();
+        const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;
         }
         sendDiv.click();
-
     } catch (e) {
         console.log("------>>> mail crypto err:", e);
         showTipsDialog("error", "encrypt mail content failed");

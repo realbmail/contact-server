@@ -257,7 +257,6 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
         if (!success) {
             return;
         }
-
         sendDiv.click();
     } catch (err) {
         console.log("------>>> mail crypto err:", err);
