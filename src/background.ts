@@ -533,7 +533,7 @@ browser.downloads.onCreated.addListener(async (downloadItem) => {
 });
 
 async function downloadQQAttachment(url: string) {
-    const fileName = extractNameFromUrl(url, 'name');
+    const fileName = extractNameFromUrl(url, 'name') || extractNameFromUrl(url, 'filename');
     const parsedId = extractAesKeyId(fileName);
     if (!parsedId) {
         console.log("------>>> no need to decrypt this file", fileName);

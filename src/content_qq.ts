@@ -354,6 +354,7 @@ function addDecryptBtnForAttachment(template: HTMLTemplateElement) {
         console.log("------>>>", "no attachment found");
         return;
     }
+    const bmailDownloadLi = template.content.getElementById("attachmentDecryptLink") as HTMLElement;
 
     for (let i = 0; i < attachmentDiv.length; i++) {
         const attachment = attachmentDiv[i] as HTMLElement;
@@ -374,32 +375,31 @@ function addDecryptBtnForAttachment(template: HTMLTemplateElement) {
             return;
         }
         const toolbar = attachment.querySelector(".xmail-ui-hyperlink.attach-link")?.parentNode
-        if (!toolbar || toolbar.childNodes.length !== 4) {
+        if (!toolbar || toolbar.childNodes.length < 2) {
             console.log("------>>> download tool bar not found");
             return;
         }
-
-        const downloadBtn = toolbar.childNodes[1] as HTMLElement;
-
-        const bmailDownloadLi = template.content.getElementById("attachmentDecryptLink") as HTMLElement;
         const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
-        clone.addEventListener('click', async () => {
-            const aesKey = loadAKForReading(parsedId.id);
-            if (!aesKey) {
-                const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
-                if (statusRsp.success < 0) {
-                    return;
-                }
+        const downBtn = toolbar.childNodes[1] as HTMLElement;
+        addDecryptBtnToAttachmentItem(downBtn, clone, parsedId.id);
+        toolbar.append(clone);
+    }
+}
 
-                showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+function addDecryptBtnToAttachmentItem(downloadBtn: HTMLElement, clone: HTMLElement, aekID: string) {
+    clone.addEventListener('click', async () => {
+        const aesKey = loadAKForReading(aekID);
+        if (!aesKey) {
+            const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
+            if (statusRsp.success < 0) {
                 return;
             }
 
-            downloadBtn.click();
-        });
-
-        toolbar.append(clone);
-    }
+            showTipsDialog("Tips", browser.i18n.getMessage("decrypt_mail_body_first"))
+            return;
+        }
+        downloadBtn.click();
+    });
 }
 
 async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBar: HTMLElement) {
@@ -794,8 +794,44 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     }
 
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
+
+    addDecryptBtnForAttachmentOldVersion(template, doc);
+
 }
 
+function addDecryptBtnForAttachmentOldVersion(template: HTMLTemplateElement, doc: Document) {
+
+    const attachmentDiv = doc.getElementById("attachment")?.querySelectorAll(".att_bt.attachitem");
+    if (!attachmentDiv || attachmentDiv.length === 0) {
+        console.log("------>>>", "no attachment found");
+        return;
+    }
+    const bmailDownloadLi = template.content.getElementById("attachmentDecryptLinkQQOldVersion") as HTMLElement;
+
+    for (let i = 0; i < attachmentDiv.length; i++) {
+        const attachment = attachmentDiv[i] as HTMLElement;
+        if (attachment.querySelector(".attachmentDecryptLinkQQOldVersion")) {
+            continue;
+        }
+
+        const filename = attachment.querySelector(".name_big span")?.textContent;
+        const parsedId = extractAesKeyId(filename);
+        if (!parsedId) {
+            console.log("------>>> no need to add decrypt button to this attachment element");
+            return;
+        }
+
+        const toolbarNodes = attachment.querySelector(".down_big")?.querySelectorAll("a")
+        if (!toolbarNodes || toolbarNodes.length < 2) {
+            console.log("------>>> download tool bar not found");
+            return;
+        }
+        const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
+        const downBtn = toolbarNodes[1] as HTMLElement;
+        addDecryptBtnToAttachmentItem(downBtn, clone, parsedId.id);
+        downBtn.parentNode!.append(clone);
+    }
+}
 
 class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
