@@ -18,7 +18,7 @@ import {
 } from "./common";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
-import {checkAttachmentBtn, downloadAndDecryptFile, loadAKForReading} from "./content_attachment";
+import {checkAttachmentBtn, decryptAttachment, loadAKForReading} from "./content_attachment";
 
 function appendForQQ(template: HTMLTemplateElement) {
 
@@ -775,5 +775,10 @@ async function downloadAndDecryptAgain(downloadUrl?: string) {
     }
 
     const fileName = extractNameFromUrl(downloadUrl, 'name');
-    console.log("------>>> download file name:", fileName);
+    const aekID = extractAesKeyId(fileName);
+    if (!aekID) {
+        console.log("------>>>invalid download file name:", fileName);
+        return;
+    }
+    await decryptAttachment(aekID.id, downloadUrl, aekID.originalFileName);
 }
