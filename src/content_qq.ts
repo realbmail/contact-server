@@ -523,7 +523,7 @@ async function monitorComposeActionQQ(template: HTMLTemplateElement) {
 async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElement) {
     const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
     const iframeDocument = iframe?.contentDocument || iframe?.contentWindow?.document;
-    const composeForm = iframeDocument?.getElementById("frm") as HTMLIFrameElement | null;
+    const composeForm = iframeDocument?.getElementById("frm") as HTMLElement | null;
     if (!composeForm) {
         console.log("------>>> no compose form found for qq mail of old version")
         return;
@@ -559,6 +559,35 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     ) as HTMLElement;
 
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[2]);
+
+    prepareAttachmentForComposeOldVersion(iframeDocument as Document, template);
+
+}
+
+function findAttachmentKeyIDOldVersion(): string | undefined {
+    return;
+}
+
+function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTMLTemplateElement) {
+
+    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    if (!overlayButton) {
+        console.log("----->>> overlayButton not found");
+        return;
+    }
+
+    const aekId = findAttachmentKeyIDOldVersion();
+
+    const attachmentToolBar = frameDoc.getElementById("composecontainer");
+    const fileInput = attachmentToolBar?.querySelector('input[type="file"]') as HTMLInputElement;
+    const attachmentDiv = attachmentToolBar?.querySelector(".compose_toolbtn.qmEditorAttach.dragAndDropTrap_box") as HTMLElement;
+    if (!fileInput || !attachmentDiv) {
+        console.log("----->>> compose attachment tool bar not found");
+        return;
+    }
+
+    const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
+    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
 }
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
