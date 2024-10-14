@@ -93,7 +93,7 @@
 .attachmentDecryptOutlook {
     background-color: rgba(242, 133, 82, 0.2); /* 绿色背景色 */
     color: #F28552; /* 白色文字 */
-    padding: 8px 12px; /* 内边距 */
+    padding: 8px 8px; /* 内边距 */
     font-size: 14px; /* 字体大小 */
     cursor: pointer; /* 鼠标悬停时显示手型 */
     transition: background-color 0.3s ease; /* 背景色过渡效果 */
@@ -114,4 +114,20 @@
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.5);
+}
+.outlook-icon-dw {
+    display: inline-block;
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+    font-family: controlIcons;
+    color: var(--themePrimary);
+    min-height: 1px;
+    max-height: 36px;
+    font-size: 16px;
+    width: 16px;
+    margin: 0px 4px;
+    vertical-align: middle;
+    flex-shrink: 0;
 }

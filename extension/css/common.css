@@ -136,16 +136,24 @@ body.loading #dialog-waiting-overlay {
     font-size: 16px;
     font-weight: 500;
     padding: 9px 24px;
-    border: none;
+    border: 4px;
     width: 100%;
     cursor: pointer;
     margin: 0 6px;
     border-radius: 3px;
     white-space: nowrap; /* 确保文字不换行 */
+    background-color: #F28552;
+    color: white;
 }
 
 .dialog-confirm-content-btn button:hover {
+    background-color: #04062E;
     color: #F28552;
+}
+.dialog-confirm-content-btn .bmail-cancel-btn {
+    color: #F28552;
+    background-color: #e8eaea;
+
 }
 
 .bmail_dialog_container {
@@ -253,4 +261,10 @@ body.loading #dialog-waiting-overlay {
 
 .bmail_receiver_invalid {
     background-color: #f60000;
+}
+.outlokk-backimg {
+    background-image: url("../file/logo_opacity.png");
+    background-repeat: no-repeat; /* 禁止背景图重复 */
+    background-position: center; /* 背景图片居中 */
+    background-size: contain; /* 背景图片根据容器大小自适应 */
 }
