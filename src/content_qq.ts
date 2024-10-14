@@ -561,7 +561,6 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[2]);
 
     prepareAttachmentForComposeOldVersion(iframeDocument as Document, template);
-
 }
 
 function findAttachmentKeyIDOldVersion(): string | undefined {
@@ -570,7 +569,7 @@ function findAttachmentKeyIDOldVersion(): string | undefined {
 
 function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTMLTemplateElement) {
 
-    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    const overlayButton = template.content.getElementById('attachmentOverlayButtonForQQOldVersion') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
         return;
@@ -580,12 +579,11 @@ function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTM
 
     const attachmentToolBar = frameDoc.getElementById("composecontainer");
     const fileInput = attachmentToolBar?.querySelector('input[type="file"]') as HTMLInputElement;
-    const attachmentDiv = attachmentToolBar?.querySelector(".compose_toolbtn.qmEditorAttach.dragAndDropTrap_box") as HTMLElement;
+    const attachmentDiv = attachmentToolBar?.querySelector(".compose_toolbtn.qmEditorAttach") as HTMLElement
     if (!fileInput || !attachmentDiv) {
         console.log("----->>> compose attachment tool bar not found");
         return;
     }
-
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
 }
