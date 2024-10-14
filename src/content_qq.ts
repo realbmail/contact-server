@@ -345,6 +345,40 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
             }, 1000);
         })
     }
+
+    addDecryptBtnForAttachment(mailArea, template);
+}
+
+function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplateElement) {
+
+    const attachmentDiv = mailArea.querySelector(".mail-detail-attaches")?.querySelectorAll(".mail-detail-attaches-card");
+    if (!attachmentDiv || attachmentDiv.length === 0) {
+        console.log("------>>>", "no attachment found");
+        return;
+    }
+
+    for (let i = 0; i < attachmentDiv.length; i++) {
+        const attachment = attachmentDiv[i] as HTMLElement;
+        if (attachment.querySelector(".attachmentDecryptLink")) {
+            continue;
+        }
+
+        const fileNamePrefix = attachment.querySelector(".attach-name")?.textContent;
+        const fileNameSuffix = attachment.querySelector(".attach-suffix")?.textContent;
+        if (!fileNameSuffix || !fileNameSuffix) {
+            console.log("------>>> no attachment file name found");
+            return;
+        }
+
+        const parsedId = extractAesKeyId(fileNamePrefix + fileNameSuffix);
+        if (!parsedId) {
+            console.log("------>>> no need to add decrypt button to this attachment element");
+            return;
+        }
+
+    }
+
+
 }
 
 async function addCryptoBtnToSimpleReply(template: HTMLTemplateElement, replayBar: HTMLElement) {

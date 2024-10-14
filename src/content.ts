@@ -39,13 +39,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const template = await parseContentHtml('html/inject.html');
     appendTipDialog(template);
+    appendDecryptDialog(template);
     translateInjectedElm();
 
     console.log("------>>> shared content init success");
 });
 
 
-export function appendTipDialog(template: HTMLTemplateElement) {
+function appendTipDialog(template: HTMLTemplateElement) {
     const dialog = template.content.getElementById("bmail_dialog_container");
     if (!dialog) {
         console.log("------>>>failed to find tip dialog");
@@ -67,6 +68,28 @@ export function appendTipDialog(template: HTMLTemplateElement) {
     const confirmDiv = template.content.getElementById("dialog-confirm-container") as HTMLDivElement;
     const confirmClone = confirmDiv.cloneNode(true) as HTMLElement;
     document.body.appendChild(confirmClone);
+}
+
+function appendDecryptDialog(template: HTMLTemplateElement) {
+    const dialog = template.content.getElementById("bmail-decrypt-dialog");
+    if (!dialog) {
+        console.log("------>>>failed to find decrypt dialog");
+        return;
+    }
+
+    const clone = dialog.cloneNode(true) as HTMLElement;
+    clone.querySelector(".bmail-download-tips")!.textContent = browser.i18n.getMessage('bmail_download_tips');
+    clone.querySelector(".bmail-filepath-tips")!.textContent = browser.i18n.getMessage('bmail_filepath_tips');
+    const decryptBtn = clone.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    const cancelBtn = clone.querySelector(".bmail-cancel-btn") as HTMLElement;
+
+    decryptBtn.innerText = browser.i18n.getMessage('decrypt_mail_body');
+    cancelBtn.innerText = browser.i18n.getMessage('Cancel');
+    cancelBtn.addEventListener('click', () => {
+        clone.style.display = 'none';
+    })
+
+    document.body.appendChild(clone);
 }
 
 const loginFirstTip = wrapResponse('', '', {

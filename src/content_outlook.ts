@@ -415,7 +415,6 @@ class Provider implements ContentPageProvider {
         addCustomStyles('css/outlook.css');
         const template = await parseContentHtml('html/inject_outlook.html');
         appendForOutLook(template);
-        appendDecryptDialog(template);
         console.log("------>>> outlook content init success");
     }
 
@@ -550,28 +549,6 @@ function addBmailBtnToDropdownDiv(template: HTMLTemplateElement, aekId: Attachme
     });
 
     contextMenuDiv.appendChild(clone);
-}
-
-function appendDecryptDialog(template: HTMLTemplateElement) {
-    const dialog = template.content.getElementById("bmail-decrypt-dialog");
-    if (!dialog) {
-        console.log("------>>>failed to find decrypt dialog");
-        return;
-    }
-
-    const clone = dialog.cloneNode(true) as HTMLElement;
-    clone.querySelector(".bmail-download-tips")!.textContent = browser.i18n.getMessage('bmail_download_tips');
-    clone.querySelector(".bmail-filepath-tips")!.textContent = browser.i18n.getMessage('bmail_filepath_tips');
-    const decryptBtn = clone.querySelector(".bmail-decrypt-btn") as HTMLElement;
-    const cancelBtn = clone.querySelector(".bmail-cancel-btn") as HTMLElement;
-
-    decryptBtn.innerText = browser.i18n.getMessage('decrypt_mail_body');
-    cancelBtn.innerText = browser.i18n.getMessage('Cancel');
-    cancelBtn.addEventListener('click', () => {
-        clone.style.display = 'none';
-    })
-
-    document.body.appendChild(clone);
 }
 
 function extractFileNameWithExtension(filePath: string): string | null {
