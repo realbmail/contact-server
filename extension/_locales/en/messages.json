@@ -350,5 +350,8 @@
   },
   "bmail_file_load_failed": {
     "message": "Failed to load bmail file to decrypt"
+  },
+  "bmail_file_key_invalid": {
+    "message": "Failed to find key for attachment"
   }
 }

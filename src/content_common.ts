@@ -28,7 +28,7 @@ export interface ContentPageProvider {
     readCurrentMailAddress(): string;
     prepareContent(): Promise<void>
 
-    processAttachmentDownload(filePath?: string, downloadUrl?: string): Promise<void>
+    processAttachmentDownload(filePath?: string, attachmentData?: any): Promise<void>
 }
 
 function bmailInboxAction() {
@@ -226,7 +226,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
 
         if (mailRsp.attachment) {
             const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
-            attachmentKey.cacheAkForReading();
+            await attachmentKey.cacheAkForReading();
         }
 
     } catch (error) {
@@ -560,7 +560,7 @@ export async function decryptMailForEditionOfSentMail(originalTxtDiv: HTMLElemen
     originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
     if (mailRsp.attachment) {
         const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
-        attachmentKey.cacheAkForReading();
+        await attachmentKey.cacheAkForReading();
     }
 }
 

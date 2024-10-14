@@ -25,8 +25,7 @@
     "downloads"
   ],
   "host_permissions": [
-    "https://bmail.simplenets.org/*",
-    "https://wx.mail.qq.com/*"
+    "https://bmail.simplenets.org/*"
   ],
   "background": {
     "service_worker": "js/background.js"

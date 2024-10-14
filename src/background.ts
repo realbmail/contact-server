@@ -3,7 +3,7 @@ import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem, databaseQueryAll} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
-import {BMRequestToSrv, decodeHex} from "./common";
+import {BMRequestToSrv, decodeHex, extractNameFromUrl} from "./common";
 import {decodeMail, encodeMail, initMailBodyVersion} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
 import {MsgType, WalletStatus} from "./consts";
@@ -511,33 +511,68 @@ async function queryCurrentBmailAddress(sendResponse: (response: any) => void) {
 }
 
 const targetDownloadIds = new Set<number>();
+const initiatedDownloadUrls = new Set<string>();
 
 browser.downloads.onCreated.addListener(async (downloadItem) => {
     const downloadUrl = downloadItem.url;
+
+    if (initiatedDownloadUrls.has(downloadUrl)) {
+        initiatedDownloadUrls.delete(downloadUrl);
+        return;
+    }
+
     if (downloadUrl.includes("outlook.live.com")) {
         targetDownloadIds.add(downloadItem.id);
     } else if (downloadUrl.includes("mail.qq.com")) {
-
-        const tabs = await browser.tabs.query({url: "*://*.mail.qq.com/*"});
-        for (let i = 0; i < tabs.length; i++) {
-            const tab = tabs[i];
-            if (!tab.id || !tab.url) {
-                continue;
-            }
-            // console.log("------>>>>tab.url=>", tab.url,tab.active);
-
-            browser.tabs.sendMessage(tab.id!, {
-                action: MsgType.BMailDownload,
-                downloadUrl: downloadUrl
-            }).catch(err => {
-                console.log("url", tab.active, tab.url, "error:", err)
-            });
+        try {
+            await downloadQQAttachment(downloadUrl);
+        } catch (e) {
+            console.log("------>>> download qq attachment failed:", e, downloadUrl);
         }
-
     }
 });
 
-// 在 onChanged 监听器中处理目标下载
+async function downloadQQAttachment(url: string) {
+    const fileName = extractNameFromUrl(url, 'name');
+    const parsedId = extractAesKeyId(fileName);
+    if (!parsedId) {
+        console.log("------>>> no need to decrypt this file", fileName);
+        return;
+    }
+    initiatedDownloadUrls.add(url);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include', // 如果需要携带 Cookie
+    });
+
+    if (!response.ok) {
+        throw new Error(`网络响应失败，状态码：${response.status}`);
+    }
+    const fileData = await response.arrayBuffer();
+    const rawData = new Uint8Array(fileData);
+
+
+    const attData = {
+        data: Array.from(rawData),
+        aekID: parsedId.id,
+        fileName: parsedId.originalFileName,
+    }
+
+    const tabs = await browser.tabs.query({url: "*://*.mail.qq.com/*"});
+    for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i];
+        if (!tab.id || !tab.url) {
+            continue;
+        }
+
+        await browser.tabs.sendMessage(tab.id!, {
+            action: MsgType.BMailDownload,
+            attachment: attData,
+        });
+    }
+}
+
 browser.downloads.onChanged.addListener(async (delta) => {
     if (!delta.state || delta.state.current !== "complete") {
         return;

@@ -418,7 +418,7 @@ class Provider implements ContentPageProvider {
         console.log("------>>> outlook content init success");
     }
 
-    async processAttachmentDownload(fileName?: string, _downloadUrl?: string): Promise<void> {
+    async processAttachmentDownload(fileName?: string, _attachmentData?: any): Promise<void> {
         await procDownloadFile(fileName);
     }
 }
@@ -535,7 +535,7 @@ function addBmailBtnToDropdownDiv(template: HTMLTemplateElement, aekId: Attachme
     const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
 
     clone.addEventListener('click', async () => {
-        const aesKey = loadAKForReading(aekId.id);
+        const aesKey = await loadAKForReading(aekId.id);
         if (!aesKey) {
             const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
             if (statusRsp.success < 0) {
@@ -603,7 +603,7 @@ async function procDownloadFile(filePath?: string) {
 }
 
 async function decryptDownloadedFile(event: Event, aekId: AttachmentKeyID): Promise<void> {
-    const aesKey = loadAKForReading(aekId.id);
+    const aesKey = await loadAKForReading(aekId.id);
     if (!aesKey) {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {

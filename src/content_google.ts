@@ -252,10 +252,7 @@ function parseBmailDecryptButton(template: HTMLTemplateElement, idx: number, url
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
     clone.setAttribute('id', "");
     clone.addEventListener('click', async () => {
-        // await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
         await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
-
-        console.log("------>>> bmail decrypt download");
     });
 
     const id = "attachmentDecryptGoogle_tips_" + idx;
@@ -349,7 +346,7 @@ class Provider implements ContentPageProvider {
         console.log("------>>> google content init success");
     }
 
-    async processAttachmentDownload(_fileName?: string, _downloadUrl?: string): Promise<void> {
+    async processAttachmentDownload(_fileName?: string, _attachmentData?: any): Promise<void> {
         return;
     }
 }

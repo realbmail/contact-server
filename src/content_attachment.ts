@@ -257,7 +257,7 @@ export async function downloadAndDecryptFile(url: string, aesKey: AttachmentEncr
     decryptAttachmentFileData(encryptedData, aesKey, fileName);
 }
 
-function decryptAttachmentFileData(
+export function decryptAttachmentFileData(
     encryptedData: Uint8Array,
     aesKey: AttachmentEncryptKey,
     fileName: string
@@ -290,7 +290,7 @@ export async function decryptAttachment(aekId: string, url: string, fileName: st
     try {
         await downloadAndDecryptFile(url, aesKey, fileName);
     } catch (e) {
-        console.log("------>>> download and decrypt attachment failed:", e);
+        console.log("------>>> download and decrypt attachment failed:", e, url);
         const err = e as Error;
         showTipsDialog("Error", err.message);
     }

@@ -412,7 +412,7 @@ class Provider implements ContentPageProvider {
         console.log("------>>> netease content init success");
     }
 
-    async processAttachmentDownload(_fileName?: string, _downloadUrl?: string): Promise<void> {
+    async processAttachmentDownload(_fileName?: string, _attachmentData?: any): Promise<void> {
     }
 }
 

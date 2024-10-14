@@ -12,13 +12,13 @@ import {
 } from "./content_common";
 import {
     emailRegex,
-    extractEmail, extractNameFromUrl, hideLoading,
+    extractEmail, hideLoading,
     sendMessageToBackground,
     showLoading,
 } from "./common";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
-import {checkAttachmentBtn, decryptAttachment, loadAKForReading} from "./content_attachment";
+import {checkAttachmentBtn, decryptAttachmentFileData, loadAKForReading} from "./content_attachment";
 
 function appendForQQ(template: HTMLTemplateElement) {
 
@@ -26,7 +26,7 @@ function appendForQQ(template: HTMLTemplateElement) {
         () => {
             return document.querySelector(".ui-float-scroll-body.sidebar-menus") as HTMLElement || document.getElementById("SysFolderList") as HTMLElement;
         }, async () => {
-            console.log("------->>>start to populate qq mail area",);
+            console.log("------->>>start to populate qq mail area");
             monitorComposeActionQQ(template).then();
             appendBmailInboxMenuQQ(template).then();
             monitorQQMailReading(template).then();
@@ -761,24 +761,27 @@ class Provider implements ContentPageProvider {
         console.log("------>>> qq content init success");
     }
 
-    async processAttachmentDownload(_fileName?: string, downloadUrl?: string): Promise<void> {
-        await downloadAndDecryptAgain(downloadUrl);
+    async processAttachmentDownload(_fileName?: string, attachmentData?: any): Promise<void> {
+        console.log("-------->>>", attachmentData)
+        await downloadAndDecryptAgain(attachmentData);
     }
 }
 
 (window as any).contentPageProvider = new Provider();
 
-async function downloadAndDecryptAgain(downloadUrl?: string) {
-    if (!downloadUrl) {
+async function downloadAndDecryptAgain(attachmentData?: any) {
+    if (!attachmentData) {
         console.log("------>>> miss parameters:downloadUrl");
         return;
     }
-
-    const fileName = extractNameFromUrl(downloadUrl, 'name');
-    const aekID = extractAesKeyId(fileName);
-    if (!aekID) {
-        console.log("------>>>invalid download file name:", fileName);
+    const aesKey = loadAKForReading(attachmentData.aekID);
+    if (!aesKey) {
+        showTipsDialog("warn", browser.i18n.getMessage("bmail_file_key_invalid"))
         return;
     }
-    await decryptAttachment(aekID.id, downloadUrl, aekID.originalFileName);
+
+    const encryptedData = new Uint8Array(attachmentData.data);
+    const fileName = attachmentData.fileName;
+    decryptAttachmentFileData(encryptedData, aesKey, fileName);
+    // console.log("------->>>> data size:=>", attachmentData.length);
 }
