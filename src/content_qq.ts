@@ -175,7 +175,6 @@ function findAttachmentKeyID(): string | undefined {
         return undefined;
     }
 
-    let aekId = "";
     for (let i = 0; i < allAttachDivs.length; i++) {
         const element = allAttachDivs[i];
         const fileName = element.querySelector(".compose_attach_item_name.ml8")?.textContent;
@@ -188,11 +187,10 @@ function findAttachmentKeyID(): string | undefined {
         if (!parsedId) {
             continue;
         }
-        aekId = parsedId.id;
-        break;
+        return parsedId.id;
     }
 
-    return aekId;
+    return undefined;
 }
 
 async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
@@ -564,7 +562,30 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
 }
 
 function findAttachmentKeyIDOldVersion(): string | undefined {
-    return;
+    const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
+    const frameDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    if (!frameDoc) {
+        return undefined;
+    }
+    const attachArea = frameDoc.getElementById("attachContainer")?.querySelectorAll('span[ui-type="filename"]')
+
+    if (!attachArea || !attachArea.length) {
+        return undefined;
+    }
+
+    for (let i = 0; i < attachArea.length; i++) {
+        const element = attachArea.item(i) as HTMLElement;
+        const fileName = element.innerText;
+        console.log("--------------->>>>file name:", fileName);
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
+            continue;
+        }
+
+        return parsedId.id;
+    }
+
+    return undefined;
 }
 
 function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTMLTemplateElement) {
@@ -576,7 +597,6 @@ function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTM
     }
 
     const aekId = findAttachmentKeyIDOldVersion();
-
     const attachmentToolBar = frameDoc.getElementById("composecontainer");
     const fileInput = attachmentToolBar?.querySelector('input[type="file"]') as HTMLInputElement;
     const attachmentDiv = attachmentToolBar?.querySelector(".compose_toolbtn.qmEditorAttach") as HTMLElement
@@ -648,7 +668,8 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, receiverTab
             return div.getAttribute('addr')?.trim() as string | null;
         });
 
-        const success = await encryptMailInComposing(mailBody, receiver);
+        const aekId = findAttachmentKeyIDOldVersion();
+        const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;
         }
