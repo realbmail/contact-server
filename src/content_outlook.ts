@@ -464,7 +464,7 @@ function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTem
             const aekID = findAttachmentKeyID(composeArea);
             const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
             checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekID);
-        }, 300);
+        }, 600);
     });
 }
 
