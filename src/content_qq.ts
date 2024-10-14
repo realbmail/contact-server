@@ -764,7 +764,6 @@ class Provider implements ContentPageProvider {
     async processAttachmentDownload(_fileName?: string, downloadUrl?: string): Promise<void> {
         await downloadAndDecryptAgain(downloadUrl);
     }
-
 }
 
 (window as any).contentPageProvider = new Provider();

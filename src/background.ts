@@ -517,12 +517,23 @@ browser.downloads.onCreated.addListener(async (downloadItem) => {
     if (downloadUrl.includes("outlook.live.com")) {
         targetDownloadIds.add(downloadItem.id);
     } else if (downloadUrl.includes("mail.qq.com")) {
-        const tabs = await browser.tabs.query({active: true});
-        if (!tabs[0]) {
-            return;
+
+        const tabs = await browser.tabs.query({url: "*://*.mail.qq.com/*"});
+        for (let i = 0; i < tabs.length; i++) {
+            const tab = tabs[i];
+            if (!tab.id || !tab.url) {
+                continue;
+            }
+            // console.log("------>>>>tab.url=>", tab.url,tab.active);
+
+            browser.tabs.sendMessage(tab.id!, {
+                action: MsgType.BMailDownload,
+                downloadUrl: downloadUrl
+            }).catch(err => {
+                console.log("url", tab.active, tab.url, "error:", err)
+            });
         }
-        console.log("------>>>>active url=>", tabs[0].url);
-        await browser.tabs.sendMessage(tabs[0].id!, {action: MsgType.BMailDownload, downloadUrl: downloadUrl});
+
     }
 });
 
