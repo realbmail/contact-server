@@ -524,6 +524,7 @@ browser.downloads.onCreated.addListener(async (downloadItem) => {
     if (downloadUrl.includes("outlook.live.com")) {
         targetDownloadIds.add(downloadItem.id);
     } else if (downloadUrl.includes("mail.qq.com")) {
+        console.log("------>>> qq download url:=>", downloadUrl);
         try {
             await downloadQQAttachment(downloadUrl);
         } catch (e) {

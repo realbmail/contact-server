@@ -233,12 +233,12 @@ export function extractNameFromUrl(url: string, key: string): string | null {
         const params = parsedUrl.searchParams;
         const nameParam = params.get(key);
         if (!nameParam) {
-            console.warn("URL 中未找到 `name` 参数。");
+            console.log("------>>> URL 中未找到参数", key);
             return null;
         }
         return decodeURIComponent(nameParam);
     } catch (error) {
-        console.error("解析 URL 时出错:", error);
+        console.warn("------>>>解析 URL 时出错:", error);
         return null;
     }
 }
