@@ -109,9 +109,17 @@
 .attachmentEncryptBtnGmail {
     top: 0;
     left: 0;
-    width: 20px;
-/ / 需要改 height: 100 %;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
-    background: transparent;
-    border: chartreuse 2px solid;
+    background-color: rgba(242, 133, 82, 0.1);
+    background-image: url("../file/logo_file.png");
+    background-repeat: no-repeat; /* 禁止背景图重复 */
+    background-position: center; /* 背景图片居中 */
+    background-size: 20px 20px;
+    padding: 2px;
+    margin-right: 8px;
+}
+.attachmentEncryptBtnGmail:hover{
+    background-color: rgba(242, 133, 82, 0.2);
 }
