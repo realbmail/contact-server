@@ -9,7 +9,7 @@ import {
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
-import {addAttachmentEncryptBtn, checkAttachmentBtn, decryptAttachment} from "./content_attachment";
+import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
 
 function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google') as HTMLElement;

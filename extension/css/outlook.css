@@ -131,3 +131,14 @@
     vertical-align: middle;
     flex-shrink: 0;
 }
+
+
+.attachmentEncryptBtnOutlook {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    cursor: pointer;
+    background: chocolate;
+    border: chartreuse 2px solid;
+}

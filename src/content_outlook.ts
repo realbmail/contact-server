@@ -16,7 +16,7 @@ import {
     showLoading
 } from "./common";
 import {MailFlag} from "./bmail_body";
-import {checkAttachmentBtn, decryptFile, loadAKForReading} from "./content_attachment";
+import {addAttachmentEncryptBtn, decryptFile, loadAKForReading} from "./content_attachment";
 import {AttachmentFileSuffix, MsgType} from "./consts";
 
 function queryEmailAddrOutLook() {
@@ -427,7 +427,7 @@ class Provider implements ContentPageProvider {
 
 
 function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTemplateElement) {
-    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    const overlayButton = template.content.getElementById('attachmentEncryptBtnOutlook') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
         return;
@@ -448,21 +448,20 @@ function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTem
         return;
     }
 
-    // console.log("------>>> attachment button found:=>", attachmentDropdownBtn);
-
     attachmentDropdownBtn.addEventListener('click', () => {
         setTimeout(() => {
             const floatDiv = document.getElementById("fluent-default-layer-host");
-            const attachmentDiv = floatDiv?.querySelector("div.ms-FocusZone.css-172 ul ul li") as HTMLElement;
-            if (!attachmentDiv) {
-                console.log("------>>> attachment div not found");
+            const attachmentDiv = floatDiv?.querySelector("div.ms-FocusZone.css-172 ul ul") as HTMLElement;
+            if (!attachmentDiv || attachmentDiv.querySelector(".attachmentEncryptBtnOutlook")) {
+                console.log("------>>> attachment div not found or duplicate element");
                 return;
             }
 
-            // console.log("------>>> drop down list:=>", attachmentDiv);
             const aekID = findAttachmentKeyID(composeArea);
             const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-            checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekID);
+            overlyClone.querySelector(".button_txt_lbl")!.textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
+            addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
+            attachmentDiv.insertBefore(overlyClone, attachmentDiv.firstChild);
         }, 600);
     });
 }
@@ -535,7 +534,7 @@ function addBmailBtnToDropdownDiv(template: HTMLTemplateElement, aekId: Attachme
     const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
 
     clone.addEventListener('click', async () => {
-        const aesKey = await loadAKForReading(aekId.id);
+        const aesKey = loadAKForReading(aekId.id);
         if (!aesKey) {
             const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
             if (statusRsp.success < 0) {
@@ -603,7 +602,7 @@ async function procDownloadFile(filePath?: string) {
 }
 
 async function decryptDownloadedFile(event: Event, aekId: AttachmentKeyID): Promise<void> {
-    const aesKey = await loadAKForReading(aekId.id);
+    const aesKey = loadAKForReading(aekId.id);
     if (!aesKey) {
         const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin)
         if (statusRsp.success < 0) {
