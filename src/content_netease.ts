@@ -437,14 +437,14 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
         const parsedId = extractAesKeyId(fileName);
         if (!parsedId) {
             console.log("------>>> no need to add decrypt button to this attachment element");
-            return;
+            continue;
         }
 
         const downloadLinkDiv = attachment.querySelector("a.js-component-link.cK0") as HTMLLinkElement;
         const url = downloadLinkDiv.href;
         if (!url) {
             console.log("------>>>", "failed to find download link of encrypted attachment");
-            return;
+            continue;
         }
 
         const cryptoBtnDiv = template.content.getElementById("attachmentDecryptLink") as HTMLElement;

@@ -284,7 +284,7 @@ function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplate
 
         if (!attachmentTool || attachmentTool.childNodes.length < 2 || !fileName || !urlLinkDiv.href) {
             console.log("------>>> failed find the attachment tool or file name or url", attachmentTool, fileName, urlLinkDiv.href);
-            return;
+            continue;
         }
         const parsedId = extractAesKeyId(fileName);
         if (!parsedId) {
