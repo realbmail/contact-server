@@ -227,18 +227,99 @@ export function moveParenthesesBeforeExtension(filename: string): string {
 }
 
 
+
 export function extractNameFromUrl(url: string, key: string): string | null {
     try {
-        const parsedUrl = new URL(url);
-        const params = parsedUrl.searchParams;
-        const nameParam = params.get(key);
-        if (!nameParam) {
+        // 使用正则表达式提取原始的百分号编码值
+        const regex = new RegExp(`[?&]${encodeURIComponent(key)}=([^&]*)`);
+        const match = url.match(regex);
+        const rawParam = match ? match[1] : null;
+
+        if (!rawParam) {
             console.log("------>>> URL 中未找到参数", key);
             return null;
         }
-        return decodeURIComponent(nameParam);
+
+        console.log('------>>> 百分号编码的参数:', rawParam);
+
+        // 直接使用 GB18030 解码
+        try {
+            const decodedGbk = decodeFilename(rawParam);
+            console.log('------>>> 使用 GB18030 解码:', decodedGbk);
+            return decodedGbk;
+        } catch (gbkError) {
+            console.warn(`------>>> 参数 ${key} 无法以 GB18030 解码`);
+            console.warn(`------>>> 解码错误信息:`, gbkError);
+            return null;
+        }
+
     } catch (error) {
         console.warn("------>>>解析 URL 时出错:", error);
         return null;
     }
 }
+
+import * as iconv from 'iconv-lite';
+
+
+function encodeFilename(str: string): string {
+    // 使用 GB18030 编码字符串，得到字节数组
+    const buffer = iconv.encode(str, 'gb18030');
+
+    // 遍历字节数组，进行百分号编码
+    let encoded = '';
+    for (const byte of buffer) {
+        if (byte > 0x7F) { // 非 ASCII 字节需要编码
+            encoded += `%${byte.toString(16).toUpperCase().padStart(2, '0')}`;
+        } else {
+            encoded += String.fromCharCode(byte); // ASCII 字节保持不变
+        }
+    }
+
+    return encoded;
+}
+
+function decodeFilename(encodedStr: string): string {
+    // 将百分号编码的字符串转换为字节数组
+    const bytes: number[] = [];
+    for (let i = 0; i < encodedStr.length;) {
+        if (encodedStr[i] === '%') {
+            const hex = encodedStr.substr(i + 1, 2);
+            if (!/^[0-9A-Fa-f]{2}$/.test(hex)) {
+                throw new Error(`无效的百分号编码: %${hex}`);
+            }
+            const byte = parseInt(hex, 16);
+            bytes.push(byte);
+            i += 3; // 跳过 '%XX'
+        } else {
+            // 对于非编码字符，直接取其 ASCII 码
+            bytes.push(encodedStr.charCodeAt(i));
+            i += 1;
+        }
+    }
+
+    // 创建 Buffer
+    const buffer = Buffer.from(bytes);
+
+    // 使用 GB18030 解码
+    const decodedStr = iconv.decode(buffer, 'gb18030');
+
+    return decodedStr;
+}
+
+const originalString = '身份证_正面.jpg.1728979699178_bmail';
+
+// 编码字符串
+const encodedString = encodeFilename(originalString);
+
+// 输出编码结果
+console.log('编码后的 filename:', encodedString);
+
+// 解码 filename
+const decodedFilename = decodeFilename(encodedString);
+console.log('解码后的 filename:', decodedFilename);
+
+const url2 = "https://mail.qq.com/cgi-bin/download?mailid=ZL0115-wZC48HVWX_T6CH4ZyYfVNea&filename=%C9%ED%B7%DD%D6%A4_%D5%FD%C3%E6.jpg.1728979699178_bmail&sid=BFUt01aZfdbbWS9I"
+const url = 'https://mail.qq.com/cgi-bin/download?mailid=ZL0115-wZC48HVWX_T6CH4ZyYfVNea&filename=%C9%ED%B7%DD%D6%A4_%D5%FD%C3%E6.jpg.1728979699178_bmail&sid=BFUt01aZfdbbWS9I'
+console.log('解码后的 url:', extractNameFromUrl(url, 'filename'));
+console.log('解码后的 url:', extractNameFromUrl(url2, 'filename'));
