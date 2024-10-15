@@ -356,5 +356,8 @@
   },
   "bmail_attachment_encrypt_btn": {
     "message": "BMail Encrypted Attachment"
+  },
+  "bmail_attachment_decrypt": {
+    "message": "BMail Decrypt"
   }
 }

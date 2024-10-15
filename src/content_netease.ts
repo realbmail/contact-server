@@ -450,6 +450,7 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
         const cryptoBtnDiv = template.content.getElementById("attachmentDecryptLink") as HTMLElement;
         const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
         clone.setAttribute('id', "");
+        clone.querySelector(".cb1")!.textContent = browser.i18n.getMessage("bmail_attachment_decrypt");
         clone.addEventListener('click', async () => {
             await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
         });

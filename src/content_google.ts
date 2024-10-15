@@ -251,6 +251,7 @@ function parseBmailDecryptButton(template: HTMLTemplateElement, idx: number, url
     const cryptoBtnDiv = template.content.getElementById("attachmentDecryptGoogle") as HTMLElement;
     const clone = cryptoBtnDiv.cloneNode(true) as HTMLElement;
     clone.setAttribute('id', "");
+    clone.querySelector(".attachmentDecryptGoogle_tips")!.textContent = browser.i18n.getMessage("bmail_attachment_decrypt");
     clone.addEventListener('click', async () => {
         await decryptAttachment(parsedId.id, url, parsedId.originalFileName);
     });

@@ -330,7 +330,7 @@ function prepareOpenedMail(oneMail: HTMLElement, template: HTMLTemplateElement) 
 
     setTimeout(() => {
         addDecryptBtnForAttachment(oneMail, template);
-    }, 300);
+    }, 500);
 }
 
 function showMoreMailContent(oneMail: HTMLElement, toolBarDiv: HTMLElement, template: HTMLTemplateElement, cryptoBtnDiv?: HTMLElement | null) {
@@ -532,7 +532,7 @@ function addBmailBtnToDropdownDiv(template: HTMLTemplateElement, aekId: Attachme
 
     const bmailDownloadLi = template.content.getElementById("attachmentDecryptOutlook") as HTMLElement;
     const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
-
+    clone.querySelector(".ms-ContextualMenu-itemText.label-531")!.textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
     clone.addEventListener('click', async () => {
         const aesKey = loadAKForReading(aekId.id);
         if (!aesKey) {
