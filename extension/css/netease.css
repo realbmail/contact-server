@@ -13,7 +13,7 @@
 }
 
 .attachmentDecryptLink:hover {
-    background-color: #04062E; /* 较深的绿色 */
+    background-color: #04062E !important; /* 较深的绿色 */
 }
 
 .bmail_left_menu_btn_div-163 {
