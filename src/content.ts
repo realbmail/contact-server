@@ -78,6 +78,7 @@ function appendDecryptDialog(template: HTMLTemplateElement) {
     }
 
     const clone = dialog.cloneNode(true) as HTMLElement;
+    clone.style.display = 'none';
     clone.querySelector(".bmail-download-tips")!.textContent = browser.i18n.getMessage('bmail_download_tips');
     clone.querySelector(".bmail-filepath-tips")!.textContent = browser.i18n.getMessage('bmail_filepath_tips');
     const decryptBtn = clone.querySelector(".bmail-decrypt-btn") as HTMLElement;
