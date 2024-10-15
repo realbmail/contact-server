@@ -107,6 +107,32 @@ export function removeAttachmentKey(aekId: string) {
     sessionStorage.removeItem(wrapKeyID(aekId));
 }
 
+export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string): void {
+
+    let attachmentKey: AttachmentEncryptKey
+    if (aekId) {
+        const attStr = localStorage.getItem(wrapKeyID(aekId));
+        if (!attStr) {
+            console.log("---->>> found attachment id but lost aes key");
+            return;
+        }
+
+        attachmentKey = AttachmentEncryptKey.fromJson(attStr);
+    } else {
+        attachmentKey = generateAttachmentKey();
+    }
+
+    overlayButton.addEventListener('click', () => {
+        console.log("---->>> ---->>> ---->>> ---->>> ---->>> ---->>> ", attachmentKey);
+        const tempInput = document.createElement('input');
+        tempInput.type = 'file';
+        tempInput.multiple = true;
+
+        tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, attachmentKey));
+        tempInput.click();
+    });
+}
+
 export function checkAttachmentBtn(attachmentDiv: HTMLElement, fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string): void {
     fileInput.style.pointerEvents = 'none';
     fileInput.style.opacity = '0';

@@ -353,5 +353,8 @@
   },
   "bmail_file_key_invalid": {
     "message": "Failed to find key for attachment"
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "BMail Encrypted Attachment"
   }
 }

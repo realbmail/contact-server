@@ -366,18 +366,18 @@ function addDecryptBtnForAttachment(template: HTMLTemplateElement) {
         const fileNameSuffix = attachment.querySelector(".attach-suffix")?.textContent;
         if (!fileNameSuffix || !fileNameSuffix) {
             console.log("------>>> no attachment file name found");
-            return;
+            continue;
         }
 
         const parsedId = extractAesKeyId(fileNamePrefix + fileNameSuffix);
         if (!parsedId) {
             console.log("------>>> no need to add decrypt button to this attachment element");
-            return;
+            continue;
         }
         const toolbar = attachment.querySelector(".xmail-ui-hyperlink.attach-link")?.parentNode
         if (!toolbar || toolbar.childNodes.length < 2) {
             console.log("------>>> download tool bar not found");
-            return;
+            continue;
         }
         const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
         const downBtn = toolbar.childNodes[1] as HTMLElement;
@@ -818,13 +818,13 @@ function addDecryptBtnForAttachmentOldVersion(template: HTMLTemplateElement, doc
         const parsedId = extractAesKeyId(filename);
         if (!parsedId) {
             console.log("------>>> no need to add decrypt button to this attachment element");
-            return;
+            continue;
         }
 
         const toolbarNodes = attachment.querySelector(".down_big")?.querySelectorAll("a")
         if (!toolbarNodes || toolbarNodes.length < 2) {
             console.log("------>>> download tool bar not found");
-            return;
+            continue;
         }
         const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
         const downBtn = toolbarNodes[1] as HTMLElement;

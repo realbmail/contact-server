@@ -353,5 +353,8 @@
   },
   "bmail_file_key_invalid": {
     "message": "没有找到附件的解密私钥"
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "BMail加密附件"
   }
 }

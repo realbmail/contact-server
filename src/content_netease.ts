@@ -16,9 +16,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import {extractEmail, hideLoading, showLoading} from "./common";
-import {
-    checkAttachmentBtn, decryptAttachment
-} from "./content_attachment";
+import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -183,27 +181,28 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
 }
 
 function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemplateElement) {
-    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    const overlayButton = template.content.getElementById('attachmentEncryptBtnNetease') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
         return;
     }
-
-    const attachmentDiv = composeDiv.querySelector('div[id$="_attachBrowser"]') as HTMLInputElement;
+    overlayButton.innerText = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
+    const attachmentDiv = composeDiv.querySelector('div[id$="_attachOperate"]') as HTMLInputElement;
     const fileInput = attachmentDiv?.querySelector('input[type="file"]') as HTMLInputElement | null;
     if (!fileInput) {
         console.log("----->>> file input not found");
         return;
     }
 
-    if (attachmentDiv.querySelector(".attachmentOverlayButton")) {
+    if (attachmentDiv.querySelector(".attachmentEncryptBtnNetease")) {
         console.log("----->>> overly button already added before for mail composing");
         return;
     }
 
     const aekID = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekID);
+    addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
+    attachmentDiv.appendChild(overlyClone);
 }
 
 function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {

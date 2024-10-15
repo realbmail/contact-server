@@ -35,3 +35,12 @@
 .bmail_left_menu_btn_div-163:hover {
     background-color: #04062E;
 }
+
+.attachmentEncryptBtnNetease {
+    top: 0;
+    left: 0;
+    height: 100%;
+    cursor: pointer;
+    background: chocolate;
+    border: chartreuse 2px solid;
+}
