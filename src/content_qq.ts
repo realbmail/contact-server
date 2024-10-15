@@ -597,7 +597,8 @@ function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTM
     }
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     overlyClone.children[0].textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
-    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
+    addAttachmentEncryptBtn(fileInput, overlyClone, aekId);
+    attachmentDiv.appendChild(overlyClone);
 }
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
