@@ -98,6 +98,7 @@
     left: 0; /* 确保它覆盖整个父元素 */
     width: 100%; /* 根据需要调整覆盖范围 */
     height: 100%; /* 根据需要调整覆盖范围 */
-    background-color: rgba(255, 255, 255, 0); /* 透明背景确保不遮挡底层内容 */
     pointer-events: none; /* 确保不影响用户操作底层元素 */
+    margin: 0 12px;
+    padding: 4px 12px;
 }
