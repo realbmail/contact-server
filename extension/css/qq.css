@@ -102,3 +102,12 @@
     margin: 0 12px;
     padding: 4px 12px;
 }
+
+.attachmentOverlayBtnQQ {
+    top: 0;
+    left: 0;
+    height: 100%;
+    cursor: pointer;
+    background: chocolate;
+    border: chartreuse 2px solid;
+}

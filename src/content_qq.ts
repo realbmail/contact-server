@@ -18,7 +18,12 @@ import {
 } from "./common";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
-import {checkAttachmentBtn, decryptAttachmentFileData, loadAKForReading} from "./content_attachment";
+import {
+    addAttachmentEncryptBtn,
+    checkAttachmentBtn,
+    decryptAttachmentFileData,
+    loadAKForReading
+} from "./content_attachment";
 
 function appendForQQ(template: HTMLTemplateElement) {
 
@@ -129,44 +134,30 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
 
 function prepareAttachmentForCompose(template: HTMLTemplateElement) {
 
-    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    const overlayButton = template.content.getElementById('attachmentOverlayBtnQQ') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
         return;
     }
 
-    const aekID = findAttachmentKeyID();
     const fileInput = document.getElementById("attachUploadBtn") as HTMLInputElement;
-    if (!fileInput) {
-        console.log("----->>> file input not found");
-        return;
-    }
-
-    addOverlyButton(fileInput.closest('div') as HTMLElement, fileInput, overlayButton, aekID);
-
-    const dropdownBtn = document.querySelector(".xm_new_toolbar_container")?.querySelector("i.xm_icons.xm_icons_ArrowDown") as HTMLElement
-    dropdownBtn?.addEventListener('click', () => {
-        setTimeout(() => {
-            const attachmentDiv = document.getElementById("dropdownInner")?.querySelector(".xm_dropdownMenu_item") as HTMLInputElement;
-            addOverlyButton(attachmentDiv, fileInput, overlayButton, aekID);
-        }, 300);
-    });
-}
-
-function addOverlyButton(attachmentDiv: HTMLElement, fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string) {
+    const attachmentDiv = document.querySelector(".toolbar") as HTMLElement;
     if (!fileInput || !attachmentDiv) {
-        console.log("----->>> file input not found");
+        console.log("----->>> file input or tool bar not found");
         return;
     }
-
-    if (attachmentDiv.querySelector(".attachmentOverlayButton")) {
+    if (attachmentDiv.querySelector(".attachmentOverlayBtnQQ")) {
         console.log("----->>> overly button already added before for mail composing");
         return;
     }
 
+    const aekID = findAttachmentKeyID();
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
+    overlyClone.textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
+    addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
+    attachmentDiv.appendChild(overlyClone);
 }
+
 
 function findAttachmentKeyID(): string | undefined {
 
@@ -605,6 +596,7 @@ function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTM
         return;
     }
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
+    overlyClone.children[0].textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
     checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
 }
 
