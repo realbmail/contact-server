@@ -9,7 +9,7 @@ import {
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./common";
 import browser from "webextension-polyfill";
-import {checkAttachmentBtn, decryptAttachment} from "./content_attachment";
+import {addAttachmentEncryptBtn, checkAttachmentBtn, decryptAttachment} from "./content_attachment";
 
 function appendForGoogle(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, 'bmail_left_menu_btn_google') as HTMLElement;
@@ -131,28 +131,28 @@ function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
 }
 
 function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: HTMLElement, composeDiv: HTMLElement) {
-    const overlayButton = template.content.getElementById('attachmentOverlayButton') as HTMLButtonElement | null;
+    const overlayButton = template.content.getElementById('attachmentEncryptBtnGmail') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
         return;
     }
 
-    const multiToolArea = toolBarTr.querySelector(".a8X.gU .bAK") as HTMLElement;
-    const fileInput = multiToolArea.querySelector('input[name="Filedata"]') as HTMLInputElement;
-    const attachmentDiv = multiToolArea.querySelector('.a1.aaA.aMZ') as HTMLElement;
+    const attachmentDiv = toolBarTr.querySelector(".a8X.gU .bAK") as HTMLElement;
+    const fileInput = attachmentDiv.querySelector('input[name="Filedata"]') as HTMLInputElement;
     if (!fileInput || !attachmentDiv) {
         console.log("----->>> file input not found", fileInput, attachmentDiv);
         return;
     }
 
-    if (attachmentDiv.querySelector(".attachmentOverlayButton")) {
+    if (attachmentDiv.querySelector(".attachmentEncryptBtnGmail")) {
         console.log("----->>> overly button already added before for mail composing");
         return;
     }
 
     const aekId = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    checkAttachmentBtn(attachmentDiv, fileInput, overlyClone, aekId);
+    addAttachmentEncryptBtn(fileInput, overlyClone, aekId);
+    attachmentDiv.insertBefore(overlyClone, attachmentDiv.firstChild);
 }
 
 
@@ -339,6 +339,7 @@ class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrGoogle() ?? "";
     }
+
     async prepareContent(): Promise<void> {
         addCustomStyles('css/google.css');
         const template = await parseContentHtml('html/inject_google.html');

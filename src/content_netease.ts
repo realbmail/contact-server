@@ -186,7 +186,6 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
         console.log("----->>> overlayButton not found");
         return;
     }
-    overlayButton.innerText = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
     const attachmentDiv = composeDiv.querySelector('div[id$="_attachOperate"]') as HTMLInputElement;
     const fileInput = attachmentDiv?.querySelector('input[type="file"]') as HTMLInputElement | null;
     if (!fileInput) {
@@ -199,6 +198,7 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
         return;
     }
 
+    overlayButton.innerText = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
     const aekID = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     addAttachmentEncryptBtn(fileInput, overlyClone, aekID);

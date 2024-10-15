@@ -105,3 +105,13 @@
     margin-left: 4px;
     font-weight: 600;
 }
+
+.attachmentEncryptBtnGmail {
+    top: 0;
+    left: 0;
+    width: 20px;
+/ / 需要改 height: 100 %;
+    cursor: pointer;
+    background: transparent;
+    border: chartreuse 2px solid;
+}

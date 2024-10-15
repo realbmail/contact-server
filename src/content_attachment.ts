@@ -123,7 +123,6 @@ export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButt
     }
 
     overlayButton.addEventListener('click', () => {
-        console.log("---->>> ---->>> ---->>> ---->>> ---->>> ---->>> ", attachmentKey);
         const tempInput = document.createElement('input');
         tempInput.type = 'file';
         tempInput.multiple = true;
