@@ -41,6 +41,22 @@
     left: 0;
     height: 100%;
     cursor: pointer;
-    background: chocolate;
-    border: chartreuse 2px solid;
+    background-color: rgba(242, 133, 82, 0.1);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border: none;
+    color: #F28552;
+    padding: 1px 12px 1px 32px; /* 增加右侧内边距以容纳背景图片 */
+    font-size: 14px;
+    font-weight: 500;
+    background-image: url("../file/logo_file.png");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 16px 16px;
+    border-radius: 6px;
+    margin: 4px 0;
+}
+.attachmentEncryptBtnNetease:hover {
+    background-color: rgba(242, 133, 82, 0.3);
 }
