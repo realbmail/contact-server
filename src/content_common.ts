@@ -26,6 +26,7 @@ export const __decrypt_button_css_name = '.bmail-decrypt-btn'
 
 export interface ContentPageProvider {
     readCurrentMailAddress(): string;
+
     prepareContent(): Promise<void>
 
     processAttachmentDownload(filePath?: string, attachmentData?: any): Promise<void>
@@ -226,7 +227,7 @@ export async function decryptMailInReading(mailContent: HTMLElement, cryptoBtn: 
 
         if (mailRsp.attachment) {
             const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
-            await attachmentKey.cacheAkForReading();
+            attachmentKey.cacheAkForReading();
         }
 
     } catch (error) {
@@ -560,7 +561,7 @@ export async function decryptMailForEditionOfSentMail(originalTxtDiv: HTMLElemen
     originalTxtDiv.innerHTML = replaceTextInRange(originalTxtDiv.innerHTML, bmailContent.offset, bmailContent.endOffset, mailRsp.data);
     if (mailRsp.attachment) {
         const attachmentKey = AttachmentEncryptKey.fromJson(mailRsp.attachment);
-        await attachmentKey.cacheAkForReading();
+        attachmentKey.cacheAkForReading();
     }
 }
 
