@@ -61,7 +61,6 @@ export function initDashBoard(): void {
     });
 }
 
-
 export async function loadAndSetupAccount(force?: boolean) {
     const accountAddr = await sessionGet(__currentAccountAddress);
     if (!accountAddr) {
@@ -80,7 +79,7 @@ export async function loadAndSetupAccount(force?: boolean) {
         return;
     }
     const accountData = statusRsp.data as BMailAccount;
-    console.log("------>>> account query success:", accountData);
+    // console.log("------>>> account query success:", accountData);
     setupElementByAccountData(accountData);
     await sessionSet(__currentAccountData, accountData);
 }
