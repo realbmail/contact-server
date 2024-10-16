@@ -20,7 +20,6 @@ import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
 import {
     addAttachmentEncryptBtn,
-    checkAttachmentBtn,
     decryptAttachmentFileData,
     loadAKForReading
 } from "./content_attachment";
@@ -153,7 +152,7 @@ function prepareAttachmentForCompose(template: HTMLTemplateElement) {
 
     const aekID = findAttachmentKeyID();
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    overlyClone.textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
+    overlyClone.textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
     addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
     attachmentDiv.appendChild(overlyClone);
 }
@@ -371,6 +370,7 @@ function addDecryptBtnForAttachment(template: HTMLTemplateElement) {
             continue;
         }
         const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
+        clone.textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
         const downBtn = toolbar.childNodes[1] as HTMLElement;
         addDecryptBtnToAttachmentItem(downBtn, clone, parsedId.id);
         toolbar.append(clone);
@@ -596,7 +596,7 @@ function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTM
         return;
     }
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    overlyClone.children[0].textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
+    overlyClone.children[0].textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
     addAttachmentEncryptBtn(fileInput, overlyClone, aekId);
     attachmentDiv.appendChild(overlyClone);
 }
@@ -789,7 +789,6 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
 
     addDecryptBtnForAttachmentOldVersion(template, doc);
-
 }
 
 function addDecryptBtnForAttachmentOldVersion(template: HTMLTemplateElement, doc: Document) {
@@ -821,6 +820,7 @@ function addDecryptBtnForAttachmentOldVersion(template: HTMLTemplateElement, doc
         }
         const clone = bmailDownloadLi.cloneNode(true) as HTMLElement;
         const downBtn = toolbarNodes[1] as HTMLElement;
+        clone.textContent = browser.i18n.getMessage('bmail_attachment_decrypt');
         addDecryptBtnToAttachmentItem(downBtn, clone, parsedId.id);
         downBtn.parentNode!.append(clone);
     }

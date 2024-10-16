@@ -355,9 +355,9 @@
     "message": "没有找到附件的解密私钥"
   },
   "bmail_attachment_encrypt_btn": {
-    "message": "BMail加密附件"
+    "message": "加密上传"
   },
   "bmail_attachment_decrypt": {
-    "message": "BMail解码"
+    "message": "解密下载"
   }
 }

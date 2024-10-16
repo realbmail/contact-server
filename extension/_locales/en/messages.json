@@ -355,9 +355,9 @@
     "message": "Failed to find key for attachment"
   },
   "bmail_attachment_encrypt_btn": {
-    "message": "BMail Encrypted Attachment"
+    "message": "Encrypt&Upload"
   },
   "bmail_attachment_decrypt": {
-    "message": "BMail Decrypt"
+    "message": "Decrypt&Download"
   }
 }
