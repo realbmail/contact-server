@@ -153,6 +153,11 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
         return false;
     }
 
+    //TODO::duplicate encrypt mail content
+    if (mailBody.innerHTML.includes(MailFlag)) {
+        return true;
+    }
+
     let attachment;
     if (aekId) {
         attachment = loadAKForCompose(aekId);
@@ -172,9 +177,7 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
         showTipsDialog("Tips", mailRsp.message);
         return false;
     }
-    // mailBody.innerText = mailRsp.data;
     mailBody.innerHTML = '<div class="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
-    // checkFrameBody(mailBody, btn);
 
     if (aekId) {
         removeAttachmentKey(aekId);

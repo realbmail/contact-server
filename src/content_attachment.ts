@@ -3,7 +3,7 @@ import {decodeHex, encodeHex, sendMessageToBackground} from "./common";
 import nacl from "tweetnacl";
 import {AttachmentFileSuffix, MsgType} from "./consts";
 import browser from "webextension-polyfill";
-import {showCustomModal, showTipsDialog} from "./content_common";
+import {showTipsDialog} from "./content_common";
 import {saveAs} from 'file-saver';
 
 const wrapKeyID = (id: string): string => "bamil_key_" + id;
@@ -70,10 +70,13 @@ export class AttachmentEncryptKey {
     }
 }
 
-function generateAttachmentKey(): AttachmentEncryptKey {
+function generateAttachmentKey(id?: string): AttachmentEncryptKey {
     const key = generateRandomKey();
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
-    return new AttachmentEncryptKey('' + Date.now(), key, nonce);
+    if (!id) {
+        id = '' + Date.now();
+    }
+    return new AttachmentEncryptKey(id, key, nonce);
 }
 
 export function loadAKForCompose(aekId: string): string | undefined {
@@ -113,11 +116,11 @@ export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButt
     if (aekId) {
         const attStr = localStorage.getItem(wrapKeyID(aekId));
         if (!attStr) {
-            console.log("---->>> found attachment id but lost aes key");
-            return;
+            attachmentKey = generateAttachmentKey(aekId);
+            localStorage.setItem(wrapKeyID(aekId), AttachmentEncryptKey.toJson(attachmentKey));
+        } else {
+            attachmentKey = AttachmentEncryptKey.fromJson(attStr);
         }
-
-        attachmentKey = AttachmentEncryptKey.fromJson(attStr);
     } else {
         attachmentKey = generateAttachmentKey();
     }
@@ -130,73 +133,6 @@ export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButt
         tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, attachmentKey));
         tempInput.click();
     });
-}
-
-export function checkAttachmentBtn(attachmentDiv: HTMLElement, fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string): void {
-    fileInput.style.pointerEvents = 'none';
-    fileInput.style.opacity = '0';
-
-    if (getComputedStyle(attachmentDiv).position === 'static') {
-        attachmentDiv.style.position = 'relative';
-    }
-
-    let attachmentKey: AttachmentEncryptKey
-    if (aekId) {
-        const attStr = localStorage.getItem(wrapKeyID(aekId));
-        if (!attStr) {
-            console.log("---->>> found attachment id but lost aes key");
-            return;
-        }
-
-        attachmentKey = AttachmentEncryptKey.fromJson(attStr);
-    } else {
-        attachmentKey = generateAttachmentKey();
-    }
-
-    overlayButton.addEventListener('click', (event) => handleOverlayButtonClick(event, fileInput, attachmentKey, overlayButton));
-
-    attachmentDiv.appendChild(overlayButton);
-}
-
-async function handleOverlayButtonClick(
-    event: MouseEvent,
-    fileInput: HTMLInputElement,
-    aesKey: AttachmentEncryptKey,
-    overlayButton: HTMLElement
-): Promise<void> {
-    event.stopPropagation();
-    event.preventDefault();
-
-    const okFun = () => {
-        const tempInput = document.createElement('input');
-        tempInput.type = 'file';
-        tempInput.multiple = true;
-
-        tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, aesKey));
-        tempInput.click();
-    };
-
-    const noFun = () => {
-        fileInput.style.pointerEvents = 'auto';
-        fileInput.style.opacity = '1';
-
-        overlayButton.style.pointerEvents = 'none';
-        fileInput.click();
-
-        setTimeout(() => {
-            fileInput.style.pointerEvents = 'none';
-            fileInput.style.opacity = '0';
-            overlayButton.style.pointerEvents = 'auto';
-        }, 2);
-    };
-
-    showCustomModal(
-        browser.i18n.getMessage('tips_for_attachment_encryption'),
-        browser.i18n.getMessage('encrypted_upload'),
-        browser.i18n.getMessage('direct_upload'),
-        okFun,
-        noFun
-    );
 }
 
 async function handleTempInputChange(event: Event, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
