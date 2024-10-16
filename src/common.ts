@@ -227,8 +227,6 @@ export function moveParenthesesBeforeExtension(filename: string): string {
     return filename.trim();
 }
 
-
-
 export function extractNameFromUrl(url: string, key: string): string | null {
     try {
         const regex = new RegExp(`[?&]${encodeURIComponent(key)}=([^&]*)`);
@@ -236,26 +234,30 @@ export function extractNameFromUrl(url: string, key: string): string | null {
         const rawParam = match ? match[1] : null;
 
         if (!rawParam) {
-            console.log("------>>> URL 中未找到参数", key);
+            console.log(`------>>> URL 中未找到参数 ${key}`);
             return null;
         }
-
-        // console.log('------>>> 百分号编码的参数:', rawParam);
 
         try {
-            // console.log('------>>> 使用 GB18030 解码:', decodedGbk);
-            return decodeFilename(rawParam);
-        } catch (gbkError) {
-            console.warn(`------>>> 参数 ${key} 无法以 GB18030 解码`);
-            console.warn(`------>>> 解码错误信息:`, gbkError);
-            return null;
+            // 尝试使用 decodeURIComponent 解码
+            return decodeURIComponent(rawParam);
+        } catch (decodeError) {
+            console.warn(`------>>> 参数 ${key} 无法用 UTF-8 解码，尝试 GB18030 解码`);
+            // 捕获 UTF-8 解码错误并尝试 GB18030 解码
+            try {
+                return decodeFilename(rawParam);
+            } catch (gbkError) {
+                console.warn(`------>>> 参数 ${key} 无法以 GB18030 解码`);
+                console.warn(`------>>> GB18030 解码错误信息:`, gbkError);
+                return null;
+            }
         }
-
     } catch (error) {
-        console.warn("------>>>解析 URL 时出错:", error);
+        console.warn("------>>> 解析 URL 时出错:", error);
         return null;
     }
 }
+
 
 function decodeFilename(encodedStr: string): string {
     const bytes: number[] = [];
