@@ -16,6 +16,7 @@ export enum MsgType {
     BindAction = 'BindAction',
     QueryCurBMail = 'QueryCurBMail',
     SetEmailByInjection = 'SetEmailByInjection',
+    KeepAlive = 'KeepAlive',
 }
 
 export enum WalletStatus {

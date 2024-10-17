@@ -72,6 +72,9 @@ export async function sendMessageToBackground(data: any, actTyp: string): Promis
     } catch (e) {
         const error = e as Error;
         console.warn("------>>>send message error", error);
+        if (error.message.includes("Extension context invalidated")) {
+            window.location.reload();
+        }
         return {success: -1, data: error.message}
     }
 }

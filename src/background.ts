@@ -41,6 +41,10 @@ runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, send
 
     switch (request.action) {
 
+        case MsgType.KeepAlive:
+            sendResponse({status: true});
+            return true;
+
         case MsgType.WalletCreate:
             const param = request.data;
             createWallet(param.mnemonic, param.password, sendResponse).then();
