@@ -54,32 +54,40 @@ function appendForOutLook(template: HTMLTemplateElement) {
 
 const __nameToEmailMap = new Map();
 
+function handleSelection(selectedLi: HTMLElement | null) {
+    if (!selectedLi) {
+        return;
+    }
+    const emailName = selectedLi.querySelector('.MwdHX')?.textContent;
+    const emailAddress = selectedLi.querySelector('.Umn8G.MwdHX')?.textContent;
+    console.log('-------->>>name:', emailName, "------>>> address:", emailAddress);
+    if (!emailName || !emailAddress) {
+        return;
+    }
+    __nameToEmailMap.set(emailName, emailAddress);
+}
+
 async function monitorContactAction() {
     const div = document.getElementById("fluent-default-layer-host") as HTMLElement;
     let oldDiv: HTMLElement | null = null;
-    observeForElement(div, 0, () => {
+    observeForElement(div, 500, () => {
         const ulElement = div.querySelector('ul.ms-FloatingSuggestionsList-container') as HTMLElement | null;
         if (oldDiv === ulElement) {
             return null;
         }
         oldDiv = ulElement;
-
-        ulElement?.addEventListener('click', (event) => {
-            const clickedLi = (event.target as HTMLElement).closest('li');
-            if (!clickedLi) {
-                return;
-            }
-            const emailName = clickedLi.querySelector('.MwdHX')?.textContent;
-            const emailAddress = clickedLi.querySelector('.Umn8G.MwdHX')?.textContent;
-            console.log('-------->>>name:', emailName, "------>>> address:", emailAddress);
-            if (!emailName || !emailAddress) {
-                return;
-            }
-            __nameToEmailMap.set(emailName, emailAddress);
-        });
-
         return ulElement;
     }, async () => {
+        const ulElement = div.querySelector('ul.ms-FloatingSuggestionsList-container') as HTMLElement;
+
+        if (!ulElement) {
+            console.log("------>>>  contact list should not be null:");
+            return;
+        }
+
+        ulElement.querySelectorAll("li").forEach((el: HTMLElement) => {
+            handleSelection(el);
+        })
     }, true);
 }
 
@@ -217,7 +225,7 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
                 let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
                 if (!emailAddr) {
                     emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
-                    // console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
+                    console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
                 }
                 return emailAddr;
             });
