@@ -11,7 +11,6 @@ import {extractAesKeyId} from "./content_common";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
-const tabs = browser.tabs;
 const __alarm_name__: string = '__alarm_name__timer__';
 export const __key_wallet_status: string = '__key_wallet_status';
 export const __dbKey_cur_key: string = '__dbKey_cur_key__';
@@ -155,7 +154,7 @@ self.addEventListener('activate', (event) => {
 runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType) => {
     console.log("[service work] onInstalled event triggered......");
     if (details.reason === "install") {
-        tabs.create({
+        browser.tabs.create({
             url: runtime.getURL("html/home.html#onboarding/welcome")
         }).then(() => {
         });
@@ -231,25 +230,6 @@ const urlsToMatch = [
     "https://*.outlook.live.com/*"
 ];
 
-tabs.onActivated.addListener(async (activeInfo) => {
-    const ok = await checkTabUrl(activeInfo.tabId);
-    console.log("[service work] tabs onActivated =>", ok);
-});
-
-async function checkTabUrl(tabId: number): Promise<boolean> {
-    const tab = await tabs.get(tabId);
-    if (!tab.url) {
-        return false;
-    }
-
-    const matchesPattern = (url: string, pattern: string) => {
-        const regex = new RegExp("^" + pattern.replace(/\*/g, ".*"));
-        return regex.test(url);
-    };
-
-    return urlsToMatch.some(pattern => matchesPattern(tab.url!, pattern));
-}
-
 async function checkWalletStatus(sendResponse: (response: any) => void) {
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
     const sObj = await sessionGet(__dbKey_cur_key);
@@ -303,7 +283,6 @@ async function checkLoginStatus(sendResponse: (response: any) => void) {
         sendResponse({success: -1, data: "open wallet first please!"});
         return;
     }
-
     sendResponse({success: 1});
 }
 
