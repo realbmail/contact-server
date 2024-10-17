@@ -444,14 +444,23 @@ function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTem
     const toolbar = document.getElementById("RibbonRoot") as HTMLElement;
     const attachmentDropdownBtn = toolbar.querySelector('button[data-ktp-target="ktp-m-a-f"]') as HTMLElement | null;
     if (!attachmentDropdownBtn) {
-        console.log("------>>> attachment button not found");
+        const messageBtn = toolbar.querySelector('button[data-ktp-target="ktp-m"]')
+        if (!messageBtn) {
+            console.log("------>>> attachment button not found");
+            return;
+        }
+        messageBtn.addEventListener('click', async () => {
+            setTimeout(() => {
+                prepareAttachmentForCompose(composeArea, template);
+            }, 400);
+        })
         return;
     }
 
     attachmentDropdownBtn.addEventListener('click', () => {
         setTimeout(() => {
             const floatDiv = document.getElementById("fluent-default-layer-host");
-            const attachmentDiv = floatDiv?.querySelector("div.ms-FocusZone.css-172 ul ul") as HTMLElement;
+            const attachmentDiv = floatDiv?.querySelector("div.ms-FocusZone ul ul") as HTMLElement;
             if (!attachmentDiv || attachmentDiv.querySelector(".attachmentEncryptBtnOutlook")) {
                 console.log("------>>> attachment div not found or duplicate element");
                 return;
