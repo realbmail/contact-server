@@ -233,7 +233,7 @@ browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response
 });
 
 const intervalId = setInterval(() => {
-    sendMessageToBackground("", MsgType.KeepAlive);
+    sendMessageToBackground("", MsgType.KeepAlive).then();
 }, 5000);
 
 window.addEventListener('beforeunload', () => {
