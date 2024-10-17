@@ -1,0 +1,369 @@
+{
+  "home_title": {
+    "message": "Расширение электронной почты Blockchain",
+    "description": "Название страницы расширения"
+  },
+  "home_user_content": {
+    "message": "Информация для пользователей",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "Создать аккаунт",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "Импортировать аккаунт",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "Пароль:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "Не менее 8 символов",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "Подтверждение пароля",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "Создать новый аккаунт",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "Показать мнемоническую фразу",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "Скрыть мнемоническую фразу",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "Следующий шаг",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "Подтвердить импорт",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "Вы можете вставить всю мнемоническую фразу в любое поле",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "Подтвердить восстановление приватного ключа",
+    "description": ""
+  },
+  "address_label": {
+    "message": "Адрес:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail",
+    "description": ""
+  },
+  "email_label": {
+    "message": "Текущий адрес электронной почты:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "Зашифровать",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "Отмена"
+  },
+  "decrypt_mail_body": {
+    "message": "Дешифровать",
+    "description": ""
+  },
+  "OK": {
+    "message": "ОК",
+    "description": ""
+  },
+  "Tips": {
+    "message": "Советы",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "Адрес получателя пуст",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "Содержимое письма не может быть пустым",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " не является действительным аккаунтом BMail",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "Не удалось расшифровать содержимое письма",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "Текущий адрес электронной почты недействителен",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "Сначала свяжите текущий адрес электронной почты",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "Недействительная мнемоническая фраза",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "Текущий аккаунт:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "Бесплатный участник",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/месяц",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "Точка-точка шифрования текста",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "Привязать адрес электронной почты",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "Обычный участник",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/месяц",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "Точка-точка шифрования вложений",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "Плюс-участник",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/месяц",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "Корпоративный участник",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/месяц",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "SDK проверки электронной почты для предприятий",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "Неограниченное количество привязок адресов электронной почты",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "Блокчейн-домен (ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/месяц",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "Купить",
+    "description": ""
+  },
+  "active_account": {
+    "message": "Активировать бесплатно",
+    "description": ""
+  },
+  "des_pin_title": {
+    "message": "Как закрепить расширение на панели инструментов",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "Нажмите на значок расширения в правом верхнем углу браузера, чтобы открыть меню",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "Выберите значок расширения, который хотите закрепить в меню",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "Нажмите на кнопку с булавкой рядом с расширением, чтобы закрепить его на панели инструментов",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "Сканировать QR-код для оплаты",
+    "description": ""
+  },
+  "title_login_welcome": {
+    "message": "Добро пожаловать!",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "Децентрализованное приложение Web3",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "Пароль",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "Разблокировать",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "Новый аккаунт",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "Забыли пароль",
+    "description": ""
+  },
+  "address_level": {
+    "message": "Уровень пользователя:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "Копировать в буфер обмена",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "Лицензия:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "Отвязать",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "Привязанные адреса:",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "Это расширение не поддерживает этот сайт",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "Пожалуйста, нажмите на один из этих сайтов, а затем откройте расширение",
+    "description": ""
+  },
+  "service_email": {
+    "message": "Email службы поддержки",
+    "description": ""
+  },
+  "close": {
+    "message": "Закрыть",
+    "description": ""
+  },
+  "ok": {
+    "message": "ОК",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "Как восстановить пароль от аккаунта",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "Нажмите 'Забыли пароль'",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "Введите мнемоническую фразу этого аккаунта в поле ниже",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "Без ограничений",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "Лицензия действительна до:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "Привязать этот адрес",
+    "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "Неактивный",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "Бесплатный пользователь",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "Обычный участник",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "Премиум-участник",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "Корпоративный участник",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "Копирование прошло успешно",
+    "description": ""
+  },
+  "invalid_password": {
+    "message": "Неверный пароль",
+    "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "Хотите зашифровать вложение через BMail?",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "Загрузить зашифрованным",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "Загрузить напрямую",
+    "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "Пожалуйста, сначала расшифруйте содержимое письма",
+    "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "Загруженный файл должен быть расшифрован, чтобы его можно было просмотреть. Пожалуйста, выберите загруженный файл.",
+    "description": ""
+  },
+  "bmail_filepath_tips": {
+    "message": "Пожалуйста, выберите файл по следующему пути:",
+    "description": ""
+  },
+  "bmail_file_load_failed": {
+    "message": "Не удалось загрузить файл BMail",
+    "description": ""
+  },
+  "bmail_file_key_invalid": {
+    "message": "Не найдена ключ для расшифровки вложения",
+    "description": ""
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "Загрузить зашифрованным",
+    "description": ""
+  },
+  "bmail_attachment_decrypt": {
+    "message": "Загрузить расшифрованным",
+    "description": ""
+  }
+}

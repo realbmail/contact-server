@@ -1,0 +1,369 @@
+{
+  "home_title": {
+    "message": "블록체인 이메일 확장",
+    "description": "확장 페이지의 제목"
+  },
+  "home_user_content": {
+    "message": "사용자 안내",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "계정 생성",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "계정 가져오기",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "비밀번호:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "최소 8자",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "비밀번호 확인",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "새 계정 생성",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "시드 문구 표시",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "시드 문구 숨기기",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "다음 단계",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "가져오기 확인",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "시드 문구 전체를 임의의 필드에 붙여넣을 수 있습니다",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "비공개 키 복구 확인",
+    "description": ""
+  },
+  "address_label": {
+    "message": "주소:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail",
+    "description": ""
+  },
+  "email_label": {
+    "message": "현재 이메일 주소:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "암호화",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "취소"
+  },
+  "decrypt_mail_body": {
+    "message": "복호화",
+    "description": ""
+  },
+  "OK": {
+    "message": "확인",
+    "description": ""
+  },
+  "Tips": {
+    "message": "팁",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "수신자 주소가 비어 있습니다",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "이메일 내용은 비워둘 수 없습니다",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " 는 유효한 BMail 계정이 아닙니다",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "이메일 내용 복호화 실패",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "현재 이메일 주소가 유효하지 않습니다",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "먼저 현재 이메일 주소를 바인딩하세요",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "유효하지 않은 시드 문구",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "현재 계정:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "무료 회원",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/월",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "P2P 텍스트 암호화",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "이메일 주소 바인딩",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "일반 회원",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/월",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "P2P 첨부파일 암호화",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "플러스 회원",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/월",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "기업 회원",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/월",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "기업 이메일 인증 SDK",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "이메일 주소 바인딩 무제한",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "블록체인 도메인(ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/월",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "구매",
+    "description": ""
+  },
+  "active_account": {
+    "message": "무료 활성화",
+    "description": ""
+  },
+  "des_pin_title": {
+    "message": "도구 모음에 확장 고정하는 방법",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "브라우저 오른쪽 상단의 확장 아이콘을 클릭하여 확장 메뉴를 엽니다",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "확장 메뉴에서 고정할 확장 아이콘을 선택합니다",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "확장 옆의 핀 버튼을 클릭하여 도구 모음에 고정합니다",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "QR 코드 스캔하여 결제",
+    "description": ""
+  },
+  "title_login_welcome": {
+    "message": "환영합니다!",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "탈중앙화된 Web3 애플리케이션",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "비밀번호",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "잠금 해제",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "새 계정",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "비밀번호를 잊으셨나요",
+    "description": ""
+  },
+  "address_level": {
+    "message": "사용자 레벨:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "클립보드에 복사",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "라이센스:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "바인딩 해제",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "바인딩된 주소:",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "이 확장 프로그램은 이 사이트를 지원하지 않습니다",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "이 사이트 중 하나를 클릭한 다음 확장을 엽니다",
+    "description": ""
+  },
+  "service_email": {
+    "message": "고객 서비스 이메일",
+    "description": ""
+  },
+  "close": {
+    "message": "닫기",
+    "description": ""
+  },
+  "ok": {
+    "message": "확인",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "계정 비밀번호를 다시 얻는 방법",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "비밀번호를 잊으셨나요를 클릭하세요",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "해당 계정의 시드 문구를 아래에 입력하세요",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "제한 없음",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "라이센스 만료일:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "해당 주소 바인딩",
+    "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "비활성",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "무료 사용자",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "일반 회원",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "프리미엄 회원",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "기업 회원",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "복사 성공",
+    "description": ""
+  },
+  "invalid_password": {
+    "message": "비밀번호 오류",
+    "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "BMail을 통해 첨부 파일을 암호화 하시겠습니까?",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "암호화된 업로드",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "직접 업로드",
+    "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "먼저 이메일 내용을 복호화 해주세요",
+    "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "다운로드한 파일은 보려면 복호화해야 합니다. 다운로드한 파일을 선택하세요.",
+    "description": ""
+  },
+  "bmail_filepath_tips": {
+    "message": "다음 경로에서 파일을 선택하세요:",
+    "description": ""
+  },
+  "bmail_file_load_failed": {
+    "message": "BMail 파일 로드 실패",
+    "description": ""
+  },
+  "bmail_file_key_invalid": {
+    "message": "첨부 파일의 복호화 비밀키를 찾을 수 없습니다",
+    "description": ""
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "암호화된 업로드",
+    "description": ""
+  },
+  "bmail_attachment_decrypt": {
+    "message": "복호화 다운로드",
+    "description": ""
+  }
+}

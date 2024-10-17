@@ -1,0 +1,369 @@
+{
+  "home_title": {
+    "message": "Extension de messagerie Blockchain",
+    "description": "Le titre de la page de l'extension"
+  },
+  "home_user_content": {
+    "message": "Avis aux utilisateurs",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "Créer un compte",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "Importer un compte",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "Mot de passe:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "Au moins 8 caractères",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "Confirmer le mot de passe",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "Créer un nouveau compte",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "Afficher la phrase de récupération",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "Masquer la phrase de récupération",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "Étape suivante",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "Confirmer l'importation",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "Vous pouvez coller l'ensemble de la phrase de récupération dans n'importe quel champ",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "Confirmer la récupération de la clé privée",
+    "description": ""
+  },
+  "address_label": {
+    "message": "Adresse:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail",
+    "description": ""
+  },
+  "email_label": {
+    "message": "Adresse e-mail actuelle:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "Crypter",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "Annuler"
+  },
+  "decrypt_mail_body": {
+    "message": "Décrypter",
+    "description": ""
+  },
+  "OK": {
+    "message": "OK",
+    "description": ""
+  },
+  "Tips": {
+    "message": "Conseils",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "L'adresse du destinataire est vide",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "Le contenu de l'e-mail ne peut pas être vide",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " n'est pas un compte BMail valide",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "Échec du décryptage du contenu de l'e-mail",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "L'adresse e-mail actuelle est invalide",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "Veuillez d'abord lier l'adresse e-mail actuelle",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "Phrase de récupération invalide",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "Compte actuel:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "Membre gratuit",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/mois",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "Chiffrement de texte point à point",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "Lier une adresse e-mail",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "Membre normal",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/mois",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "Chiffrement de pièces jointes point à point",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "Membre Plus",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/mois",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "Membre Entreprise",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/mois",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "SDK de vérification des e-mails d'entreprise",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "Nombre illimité d'adresses e-mail liées",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "Domaine Blockchain (ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/mois",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "Acheter",
+    "description": ""
+  },
+  "active_account": {
+    "message": "Activation gratuite",
+    "description": ""
+  },
+  "des_pin_title": {
+    "message": "Comment épingler l'extension dans la barre d'outils",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "Cliquez sur l'icône de l'extension en haut à droite du navigateur pour ouvrir le menu",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "Sélectionnez l'icône de l'extension à épingler dans le menu",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "Cliquez sur l'icône de punaise à côté de l'extension pour l'épingler dans la barre d'outils",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "Scanner le code QR pour payer",
+    "description": ""
+  },
+  "title_login_welcome": {
+    "message": "Bienvenue !",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "Application Web3 décentralisée",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "Mot de passe",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "Déverrouiller",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "Nouveau compte",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "Mot de passe oublié",
+    "description": ""
+  },
+  "address_level": {
+    "message": "Niveau d'utilisateur :",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "Copier dans le presse-papier",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "Licence :",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "Délier",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "Adresses liées :",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "Cette extension ne supporte pas ce site",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "Veuillez cliquer sur un de ces sites, puis ouvrir l'extension",
+    "description": ""
+  },
+  "service_email": {
+    "message": "E-mail du service client",
+    "description": ""
+  },
+  "close": {
+    "message": "Fermer",
+    "description": ""
+  },
+  "ok": {
+    "message": "OK",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "Comment récupérer le mot de passe du compte",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "Cliquez sur Mot de passe oublié",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "Entrez la phrase de récupération de ce compte dans le champ ci-dessous",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "Sans restriction",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "Licence valide jusqu'au :",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "Lier cette adresse",
+    "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "Inactif",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "Utilisateur gratuit",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "Membre normal",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "Membre premium",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "Membre entreprise",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "Copié avec succès",
+    "description": ""
+  },
+  "invalid_password": {
+    "message": "Mot de passe invalide",
+    "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "Voulez-vous crypter la pièce jointe via BMail ?",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "Télécharger crypté",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "Télécharger directement",
+    "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "Veuillez d'abord décrypter le contenu de l'e-mail",
+    "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "Le fichier téléchargé doit être décrypté pour être consulté. Veuillez choisir le fichier téléchargé.",
+    "description": ""
+  },
+  "bmail_filepath_tips": {
+    "message": "Veuillez choisir un fichier dans le chemin suivant :",
+    "description": ""
+  },
+  "bmail_file_load_failed": {
+    "message": "Échec du chargement du fichier BMail",
+    "description": ""
+  },
+  "bmail_file_key_invalid": {
+    "message": "Clé de décryptage pour la pièce jointe non trouvée",
+    "description": ""
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "Télécharger crypté",
+    "description": ""
+  },
+  "bmail_attachment_decrypt": {
+    "message": "Télécharger décrypté",
+    "description": ""
+  }
+}

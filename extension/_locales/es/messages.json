@@ -1,0 +1,369 @@
+{
+  "home_title": {
+    "message": "Extensión de correo electrónico Blockchain",
+    "description": "El título de la página de extensión"
+  },
+  "home_user_content": {
+    "message": "Aviso para el usuario",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "Crear cuenta",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "Importar cuenta",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "Contraseña:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "Mínimo 8 caracteres",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "Confirmar contraseña",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "Crear nueva cuenta",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "Mostrar frase de recuperación",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "Ocultar frase de recuperación",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "Siguiente paso",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "Confirmar importación",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "Puede pegar la frase de recuperación completa en cualquier campo",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "Confirmar recuperación de clave privada",
+    "description": ""
+  },
+  "address_label": {
+    "message": "Dirección:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail",
+    "description": ""
+  },
+  "email_label": {
+    "message": "Dirección de correo actual:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "Cifrar",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "Cancelar"
+  },
+  "decrypt_mail_body": {
+    "message": "Descifrar",
+    "description": ""
+  },
+  "OK": {
+    "message": "OK",
+    "description": ""
+  },
+  "Tips": {
+    "message": "Consejos",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "La dirección del destinatario está vacía",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "El contenido del correo no puede estar vacío",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " no es una cuenta válida de BMail",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "Fallo al descifrar el contenido del correo",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "La dirección de correo actual no es válida",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "Por favor, vincule primero la dirección de correo actual",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "Frase de recuperación no válida",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "Cuenta actual:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "Miembro gratuito",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/mes",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "Cifrado punto a punto de texto",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "Vincular dirección de correo",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "Miembro normal",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/mes",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "Cifrado punto a punto de adjuntos",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "Miembro Plus",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/mes",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "Miembro empresarial",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/mes",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "SDK de verificación de correo empresarial",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "Vinculaciones de direcciones de correo ilimitadas",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "Dominio Blockchain (ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/mes",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "Comprar",
+    "description": ""
+  },
+  "active_account": {
+    "message": "Activar gratis",
+    "description": ""
+  },
+  "des_pin_title": {
+    "message": "Cómo fijar la extensión en la barra de herramientas",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "Haga clic en el ícono de la extensión en la esquina superior derecha del navegador para abrir el menú",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "Seleccione el ícono de la extensión que desea fijar en el menú",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "Haga clic en el ícono de pin junto a la extensión para fijarla en la barra de herramientas",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "Escanear código QR para pagar",
+    "description": ""
+  },
+  "title_login_welcome": {
+    "message": "¡Bienvenido!",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "Aplicación Web3 descentralizada",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "Contraseña",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "Desbloquear",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "Nueva cuenta",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "Olvidé mi contraseña",
+    "description": ""
+  },
+  "address_level": {
+    "message": "Nivel de usuario:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "Copiar al portapapeles",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "Licencia:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "Desvincular",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "Direcciones vinculadas:",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "Esta extensión no soporta este sitio",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "Por favor, haga clic en uno de estos sitios y luego abra la extensión",
+    "description": ""
+  },
+  "service_email": {
+    "message": "Correo de atención al cliente",
+    "description": ""
+  },
+  "close": {
+    "message": "Cerrar",
+    "description": ""
+  },
+  "ok": {
+    "message": "OK",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "Cómo recuperar la contraseña de la cuenta",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "Haga clic en Olvidé mi contraseña",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "Ingrese la frase de recuperación de este cuenta en el campo a continuación",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "Ilimitado",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "Licencia válida hasta:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "Vincular esta dirección",
+    "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "Inactivo",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "Usuario gratuito",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "Miembro normal",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "Miembro premium",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "Miembro empresarial",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "Copiado con éxito",
+    "description": ""
+  },
+  "invalid_password": {
+    "message": "Contraseña no válida",
+    "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "¿Desea cifrar el adjunto a través de BMail?",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "Cargar cifrado",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "Cargar directamente",
+    "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "Por favor, descifre primero el contenido del correo",
+    "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "El archivo descargado debe ser descifrado para visualizarse. Por favor, seleccione el archivo descargado.",
+    "description": ""
+  },
+  "bmail_filepath_tips": {
+    "message": "Por favor, seleccione un archivo desde la siguiente ruta:",
+    "description": ""
+  },
+  "bmail_file_load_failed": {
+    "message": "Error al cargar el archivo BMail",
+    "description": ""
+  },
+  "bmail_file_key_invalid": {
+    "message": "No se encontró la clave de descifrado para el adjunto",
+    "description": ""
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "Cargar cifrado",
+    "description": ""
+  },
+  "bmail_attachment_decrypt": {
+    "message": "Descargar descifrado",
+    "description": ""
+  }
+}

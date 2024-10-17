@@ -1,0 +1,369 @@
+{
+  "home_title": {
+    "message": "ブロックチェーンメール拡張機能",
+    "description": "拡張機能ページのタイトル"
+  },
+  "home_user_content": {
+    "message": "ユーザーへの注意",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "アカウント作成",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "アカウントのインポート",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "パスワード:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "8文字以上",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "パスワード確認",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "新しいアカウントを作成",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "シードフレーズを表示",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "シードフレーズを隠す",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "次のステップ",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "インポートを確認",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "シードフレーズ全体を任意のフィールドに貼り付けることができます",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "秘密鍵の復元を確認",
+    "description": ""
+  },
+  "address_label": {
+    "message": "アドレス:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail",
+    "description": ""
+  },
+  "email_label": {
+    "message": "現在のメールアドレス:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "暗号化",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "キャンセル"
+  },
+  "decrypt_mail_body": {
+    "message": "復号化",
+    "description": ""
+  },
+  "OK": {
+    "message": "OK",
+    "description": ""
+  },
+  "Tips": {
+    "message": "ヒント",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "受取人アドレスが空です",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "メール内容は空にできません",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " は無効なBMailアカウントです",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "メール内容の復号化に失敗しました",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "現在のメールアドレスが無効です",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "まず現在のメールアドレスをバインドしてください",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "無効なシードフレーズ",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "現在のアカウント:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "無料メンバー",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/月",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "テキストのピアツーピア暗号化",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "メールアドレスをバインド",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "通常メンバー",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/月",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "添付ファイルのピアツーピア暗号化",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "プラスメンバー",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/月",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "法人メンバー",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/月",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "法人メール認証SDK",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "メールアドレスのバインドに制限なし",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "ブロックチェーンドメイン(ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/月",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "購入",
+    "description": ""
+  },
+  "active_account": {
+    "message": "無料アクティベート",
+    "description": ""
+  },
+  "des_pin_title": {
+    "message": "ツールバーに拡張機能をピン留めする方法",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "ブラウザの右上隅にある拡張アイコンをクリックしてメニューを開きます",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "メニュー内でピン留めする拡張機能のアイコンを選択します",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "拡張機能の隣にあるピンのボタンをクリックしてツールバーに固定します",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "QRコードをスキャンして支払う",
+    "description": ""
+  },
+  "title_login_welcome": {
+    "message": "ようこそ！",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "分散型Web3アプリ",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "パスワード",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "ロック解除",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "新しいアカウント",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "パスワードを忘れた",
+    "description": ""
+  },
+  "address_level": {
+    "message": "ユーザーランク:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "クリップボードにコピー",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "ライセンス:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "バインド解除",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "バインドされたアドレス:",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "この拡張機能はこのサイトをサポートしていません",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "これらのサイトのいずれかをクリックしてから拡張機能を開いてください",
+    "description": ""
+  },
+  "service_email": {
+    "message": "サポートメール",
+    "description": ""
+  },
+  "close": {
+    "message": "閉じる",
+    "description": ""
+  },
+  "ok": {
+    "message": "OK",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "アカウントパスワードを再取得する方法",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "パスワードを忘れたをクリック",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "そのアカウントのシードフレーズを下の図に入力",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "無制限",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "ライセンス有効期限:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "このアドレスをバインド",
+    "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "非アクティブ",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "無料ユーザー",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "通常のメンバー",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "プレミアムメンバー",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "法人メンバー",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "コピー成功",
+    "description": ""
+  },
+  "invalid_password": {
+    "message": "パスワードが間違っています",
+    "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "BMailで添付ファイルを暗号化しますか？",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "暗号化してアップロード",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "直接アップロード",
+    "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "まずメールの内容を復号化してください",
+    "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "ダウンロードしたファイルは表示するには復号化が必要です。ダウンロードしたファイルを選択してください。",
+    "description": ""
+  },
+  "bmail_filepath_tips": {
+    "message": "次のパスからファイルを選択してください:",
+    "description": ""
+  },
+  "bmail_file_load_failed": {
+    "message": "BMailファイルの読み込みに失敗しました",
+    "description": ""
+  },
+  "bmail_file_key_invalid": {
+    "message": "添付ファイルの復号鍵が見つかりません",
+    "description": ""
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "暗号化してアップロード",
+    "description": ""
+  },
+  "bmail_attachment_decrypt": {
+    "message": "復号化してダウンロード",
+    "description": ""
+  }
+}

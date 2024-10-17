@@ -1,0 +1,369 @@
+{
+  "home_title": {
+    "message": "Blockchain-E-Mail-Erweiterung",
+    "description": "Der Titel der Erweiterungsseite"
+  },
+  "home_user_content": {
+    "message": "Nutzerhinweise",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "Konto erstellen",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "Konto importieren",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "Passwort:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "Mindestens 8 Zeichen",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "Passwort bestätigen",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "Neues Konto erstellen",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "Seed-Phrase anzeigen",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "Seed-Phrase verbergen",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "Nächster Schritt",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "Import bestätigen",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "Sie können die gesamte Seed-Phrase in jedes Feld einfügen",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "Wiederherstellung des privaten Schlüssels bestätigen",
+    "description": ""
+  },
+  "address_label": {
+    "message": "Adresse:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "BMail",
+    "description": ""
+  },
+  "email_label": {
+    "message": "Aktuelle E-Mail-Adresse:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "Verschlüsseln",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "Abbrechen"
+  },
+  "decrypt_mail_body": {
+    "message": "Entschlüsseln",
+    "description": ""
+  },
+  "OK": {
+    "message": "OK",
+    "description": ""
+  },
+  "Tips": {
+    "message": "Hinweis",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "Empfängeradresse fehlt",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "E-Mail-Inhalt darf nicht leer sein",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": " ist kein gültiges BMail-Konto",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "Entschlüsselung des E-Mail-Inhalts fehlgeschlagen",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "Aktuelle E-Mail-Adresse ist ungültig",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "Bitte binden Sie die aktuelle E-Mail-Adresse",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "Ungültige Seed-Phrase",
+    "description": ""
+  },
+  "wallet_address_lbl": {
+    "message": "Aktuelles Konto:",
+    "description": ""
+  },
+  "account_level_free": {
+    "message": "Kostenloses Mitglied",
+    "description": ""
+  },
+  "account_level_free_unit": {
+    "message": "¥0/Monat",
+    "description": ""
+  },
+  "p2p_encryption": {
+    "message": "P2P-Verschlüsselung für Text",
+    "description": ""
+  },
+  "bind_address": {
+    "message": "E-Mail-Adresse binden",
+    "description": ""
+  },
+  "account_level_normal": {
+    "message": "Normales Mitglied",
+    "description": ""
+  },
+  "account_level_normal_unit": {
+    "message": "¥35/Monat",
+    "description": ""
+  },
+  "attachment_encryption": {
+    "message": "P2P-Verschlüsselung für Anhänge",
+    "description": ""
+  },
+  "account_level_plus": {
+    "message": "Plus-Mitglied",
+    "description": ""
+  },
+  "account_level_plus_unit": {
+    "message": "¥63/Monat",
+    "description": ""
+  },
+  "account_level_enterprise": {
+    "message": "Unternehmensmitglied",
+    "description": ""
+  },
+  "account_level_enterprise_unit": {
+    "message": "¥31500/Monat",
+    "description": ""
+  },
+  "account_level_sdk": {
+    "message": "Unternehmens-E-Mail-Verifizierung SDK",
+    "description": ""
+  },
+  "bind_address_no_limit": {
+    "message": "Unbegrenzte E-Mail-Bindungen",
+    "description": ""
+  },
+  "ens_address": {
+    "message": "Blockchain-Domain (ENS)",
+    "description": ""
+  },
+  "price_val_money_lbl": {
+    "message": "¥",
+    "description": ""
+  },
+  "price_val_money_unit": {
+    "message": "/Monat",
+    "description": ""
+  },
+  "price_val_money_action": {
+    "message": "Kaufen",
+    "description": ""
+  },
+  "active_account": {
+    "message": "Kostenlos aktivieren",
+    "description": ""
+  },
+  "des_pin_title": {
+    "message": "So fixieren Sie das Plugin in der Symbolleiste",
+    "description": ""
+  },
+  "des_pin_step1": {
+    "message": "Klicken Sie auf das Erweiterungssymbol in der oberen rechten Ecke des Browsers, um das Menü zu öffnen",
+    "description": ""
+  },
+  "des_pin_step2": {
+    "message": "Wählen Sie das Symbol der zu fixierenden Erweiterung aus",
+    "description": ""
+  },
+  "des_pin_step3": {
+    "message": "Klicken Sie auf das Pinnadelsymbol neben der Erweiterung, um sie in der Symbolleiste zu fixieren",
+    "description": ""
+  },
+  "scan_qr_to_pay_btn": {
+    "message": "QR-Code scannen und bezahlen",
+    "description": ""
+  },
+  "title_login_welcome": {
+    "message": "Willkommen!",
+    "description": ""
+  },
+  "welcome_login_sub_title": {
+    "message": "Dezentrale Web3-Anwendung",
+    "description": ""
+  },
+  "login_password_lbl": {
+    "message": "Passwort",
+    "description": ""
+  },
+  "login_unlock_btn": {
+    "message": "Entsperren",
+    "description": ""
+  },
+  "login_new_account": {
+    "message": "Neues Konto",
+    "description": ""
+  },
+  "login_forget_password": {
+    "message": "Passwort vergessen",
+    "description": ""
+  },
+  "address_level": {
+    "message": "Benutzerebene:",
+    "description": ""
+  },
+  "copy_to_clipboard": {
+    "message": "In die Zwischenablage kopieren",
+    "description": ""
+  },
+  "license_lbl": {
+    "message": "Lizenz:",
+    "description": ""
+  },
+  "unbind_btn": {
+    "message": "Binden aufheben",
+    "description": ""
+  },
+  "bound_address_list": {
+    "message": "Gebundene Adressen:",
+    "description": ""
+  },
+  "invalid_tips": {
+    "message": "Dieses Plugin unterstützt diese Website nicht",
+    "description": ""
+  },
+  "target_sites": {
+    "message": "Bitte klicken Sie auf eine dieser Websites und öffnen Sie dann das Plugin",
+    "description": ""
+  },
+  "service_email": {
+    "message": "Support-E-Mail",
+    "description": ""
+  },
+  "close": {
+    "message": "Schließen",
+    "description": ""
+  },
+  "ok": {
+    "message": "OK",
+    "description": ""
+  },
+  "supported_title": {
+    "message": "So erhalten Sie Ihr Konto-Passwort zurück",
+    "description": ""
+  },
+  "supported_step1": {
+    "message": "Klicken Sie auf Passwort vergessen",
+    "description": ""
+  },
+  "supported_step2": {
+    "message": "Geben Sie die Seed-Phrase dieses Kontos in das untenstehende Feld ein",
+    "description": ""
+  },
+  "no_valid_license": {
+    "message": "Unbeschränkt",
+    "description": ""
+  },
+  "valid_license_title": {
+    "message": "Lizenzen gültig bis:",
+    "description": ""
+  },
+  "bind_email": {
+    "message": "Diese Adresse binden",
+    "description": ""
+  },
+  "user_level_Inactive": {
+    "message": "Inaktiv",
+    "description": ""
+  },
+  "user_level_free": {
+    "message": "Kostenloser Benutzer",
+    "description": ""
+  },
+  "user_level_normal": {
+    "message": "Normales Mitglied",
+    "description": ""
+  },
+  "user_level_plus": {
+    "message": "Premium-Mitglied",
+    "description": ""
+  },
+  "user_level_enterprise": {
+    "message": "Unternehmensmitglied",
+    "description": ""
+  },
+  "copy_success": {
+    "message": "Erfolgreich kopiert",
+    "description": ""
+  },
+  "invalid_password": {
+    "message": "Ungültiges Passwort",
+    "description": ""
+  },
+  "tips_for_attachment_encryption": {
+    "message": "Möchten Sie den Anhang mit BMail verschlüsseln?",
+    "description": ""
+  },
+  "encrypted_upload": {
+    "message": "Verschlüsselt hochladen",
+    "description": ""
+  },
+  "direct_upload": {
+    "message": "Direkt hochladen",
+    "description": ""
+  },
+  "decrypt_mail_body_first": {
+    "message": "Bitte entschlüsseln Sie zuerst den E-Mail-Inhalt",
+    "description": ""
+  },
+  "bmail_download_tips": {
+    "message": "Die heruntergeladene Datei muss entschlüsselt werden, um sie anzuzeigen. Bitte wählen Sie die heruntergeladene Datei aus.",
+    "description": ""
+  },
+  "bmail_filepath_tips": {
+    "message": "Bitte wählen Sie eine Datei aus folgendem Pfad aus:",
+    "description": ""
+  },
+  "bmail_file_load_failed": {
+    "message": "BMail-Datei konnte nicht geladen werden",
+    "description": ""
+  },
+  "bmail_file_key_invalid": {
+    "message": "Entschlüsselungsschlüssel für den Anhang nicht gefunden",
+    "description": ""
+  },
+  "bmail_attachment_encrypt_btn": {
+    "message": "Verschlüsselt hochladen",
+    "description": ""
+  },
+  "bmail_attachment_decrypt": {
+    "message": "Entschlüsselung herunterladen",
+    "description": ""
+  }
+}
