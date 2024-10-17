@@ -216,20 +216,6 @@ async function closeWallet(sendResponse: (response: any) => void): Promise<void>
     updateIcon(false);
 }
 
-const urlsToMatch = [
-    "https://mail.google.com/*",
-    "https://mail.163.com/*",
-    "https://wx.mail.qq.com/*",
-    "https://mail.qq.com/*",
-    "https://mail.126.com/*",
-    "https://outlook.live.com/*",
-    "https://*.mail.google.com/*",
-    "https://*.mail.163.com/*",
-    "https://*.mail.qq.com/*",
-    "https://*.mail.126.com/*",
-    "https://*.outlook.live.com/*"
-];
-
 async function checkWalletStatus(sendResponse: (response: any) => void) {
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
     const sObj = await sessionGet(__dbKey_cur_key);
