@@ -495,7 +495,7 @@ function findAttachmentKeyID(composeArea: HTMLElement): string | undefined {
     let aekId = "";
     for (let i = 0; i < allAttachDivs.length; i++) {
         const element = allAttachDivs[i];
-        const fileName = element.querySelector(".VlyYV.PQeLQ.QEiYT")?.textContent;
+        const fileName = element.querySelector(".PQeLQ.QEiYT")?.textContent;
         const parsedId = extractAesKeyId(fileName);
         if (!parsedId) {
             continue;
