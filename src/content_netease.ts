@@ -404,19 +404,9 @@ class Provider implements ContentPageProvider {
         return queryEmailAddrNetEase() ?? "";
     }
 
-    async prepareContent(): Promise<void> {
-        addCustomStyles('css/netease.css');
-        const template = await parseContentHtml('html/inject_netease.html');
-        appendForNetEase(template);
-        console.log("------>>> netease content init success");
-    }
-
     async processAttachmentDownload(_fileName?: string, _attachmentData?: any): Promise<void> {
     }
 }
-
-(window as any).contentPageProvider = new Provider();
-
 
 function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplateElement) {
     const ulElement = mailArea.querySelector('ul[id$="_ulCommonAttachItem"]') as HTMLUListElement | null;
@@ -459,3 +449,10 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
     }
 }
 
+(window as any).contentPageProvider = new Provider();
+document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('css/netease.css');
+    const template = await parseContentHtml('html/inject_netease.html');
+    appendForNetEase(template);
+    console.log("------>>> netease content init success");
+});
