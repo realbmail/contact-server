@@ -172,7 +172,7 @@ function monitorReceiverChanges(composeArea: HTMLElement) {
 }
 
 async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) {
-    const composeArea = document.querySelector(".cBeRi.dMm6A") as HTMLElement;
+    const composeArea = document.querySelector(".dMm6A") as HTMLElement;
     if (!composeArea) {
         console.log("------>>> no compose area found");
         return;
