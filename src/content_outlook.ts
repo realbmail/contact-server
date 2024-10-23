@@ -521,7 +521,7 @@ function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplate
             console.log("------>>> more action for attachment operation not found", attachment);
             continue;
         }
-        const fileName = attachment.querySelector(".VlyYV.PQeLQ.QEiYT")?.textContent;
+        const fileName = attachment.querySelector(".PQeLQ.QEiYT")?.textContent;
         const parsedId = extractAesKeyId(fileName);
         if (!parsedId) {
             return;
