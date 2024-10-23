@@ -284,7 +284,7 @@ async function addMailDecryptForReadingOutLook(template: HTMLTemplateElement) {
             return;
         }
 
-        const moreMailDataBar = oneMail.querySelector(".jmmB7.Ts94W.allowTextSelection");
+        const moreMailDataBar = oneMail.querySelector(".Ts94W.allowTextSelection");
         moreMailDataBar?.addEventListener("click", () => {
             setTimeout(() => {
                 prepareOpenedMail(oneMail, template);
