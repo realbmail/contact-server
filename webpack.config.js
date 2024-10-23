@@ -54,13 +54,14 @@ module.exports = (env, argv) => {
             ],
         },
         optimization: {
-            minimize: mode === 'production',
+            minimize: true,
             usedExports: true,
             minimizer: [
                 new TerserPlugin({
                     terserOptions: {
                         compress: {
-                            drop_console: true, // 可选：移除 console.log
+                            // drop_console: true, // 可选：移除 console.log
+                            unused: true,  // 启用删除未使用的代码
                         },
                         format: {
                             comments: false, // 移除注释
