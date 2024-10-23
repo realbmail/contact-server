@@ -423,6 +423,7 @@ class Provider implements ContentPageProvider {
     async prepareContent(): Promise<void> {
         addCustomStyles('css/outlook.css');
         const template = await parseContentHtml('html/inject_outlook.html');
+        appendDecryptDialog(template);
         appendForOutLook(template);
         console.log("------>>> outlook content init success");
     }
@@ -640,4 +641,28 @@ async function decryptDownloadedFile(event: Event, aekId: AttachmentKeyID): Prom
 
     const fileName = moveParenthesesBeforeExtension(aekId.originalFileName);
     await decryptFile(files[0], aesKey, fileName);
+}
+
+
+function appendDecryptDialog(template: HTMLTemplateElement) {
+    const dialog = template.content.getElementById("bmail-decrypt-dialog");
+    if (!dialog) {
+        console.log("------>>>failed to find decrypt dialog");
+        return;
+    }
+
+    const clone = dialog.cloneNode(true) as HTMLElement;
+    clone.style.display = 'none';
+    clone.querySelector(".bmail-download-tips")!.textContent = browser.i18n.getMessage('bmail_download_tips');
+    clone.querySelector(".bmail-filepath-tips")!.textContent = browser.i18n.getMessage('bmail_filepath_tips');
+    const decryptBtn = clone.querySelector(".bmail-decrypt-btn") as HTMLElement;
+    const cancelBtn = clone.querySelector(".bmail-cancel-btn") as HTMLElement;
+
+    decryptBtn.innerText = browser.i18n.getMessage('decrypt_mail_body');
+    cancelBtn.innerText = browser.i18n.getMessage('Cancel');
+    cancelBtn.addEventListener('click', () => {
+        clone.style.display = 'none';
+    })
+
+    document.body.appendChild(clone);
 }
