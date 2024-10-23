@@ -60,7 +60,7 @@ module.exports = (env, argv) => {
                 new TerserPlugin({
                     terserOptions: {
                         compress: {
-                            // drop_console: true, // 可选：移除 console.log
+                            drop_console: true, // 可选：移除 console.log
                             unused: true,  // 启用删除未使用的代码
                         },
                         format: {
