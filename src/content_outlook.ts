@@ -178,7 +178,8 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         return;
     }
 
-    const toolBarDiv1 = composeArea.querySelector(".vBoqL.iLc1q.cc0pa.cF0pa.tblbU.SVWa1.dP5Z2");
+    //vBoqL iLc1q cc0pa cF0pa tblbU zHv4R dP5Z2
+    const toolBarDiv1 = composeArea.querySelector(".vBoqL.iLc1q.cc0pa.cF0pa.tblbU");
     const toolBarDiv2 = composeArea.querySelector(".OTADH.xukFz")
     const toolBarDiv = toolBarDiv1 || toolBarDiv2;
     if (!toolBarDiv) {

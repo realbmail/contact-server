@@ -28,7 +28,7 @@ module.exports = (env, argv) => {
 
     return {
         mode: mode,
-        devtool: mode === 'development' ? 'source-map' : false, // 生产模式下不生成 Source Map
+        devtool: mode === 'development' ? 'inline-source-map' : false, // 生产模式下不生成 Source Map
         entry: {
             background: path.resolve(__dirname, './src/background.ts'),
             home: path.resolve(__dirname, './src/home.ts'),
