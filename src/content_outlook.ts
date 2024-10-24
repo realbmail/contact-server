@@ -179,9 +179,7 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
     }
 
     //vBoqL iLc1q cc0pa cF0pa tblbU zHv4R dP5Z2
-    const toolBarDiv1 = composeArea.querySelector(".vBoqL.iLc1q.cc0pa.cF0pa.tblbU");
-    const toolBarDiv2 = composeArea.querySelector(".OTADH.xukFz")
-    const toolBarDiv = toolBarDiv1 || toolBarDiv2;
+    const toolBarDiv = composeArea.querySelector('div[data-testid="ComposeSendButton"]')?.parentNode as HTMLElement
     if (!toolBarDiv) {
         console.log("------>>> tool bar not found when compose mail");
         return;
@@ -211,10 +209,15 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
     try {
         const mailBody = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
         let receiver: string[] | null
-        const allEmailAddrDivs = composeArea.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
+        const allEmailAddrDivs = composeArea.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1") as NodeListOf<HTMLElement>;
         receiver = await processReceivers(allEmailAddrDivs, (div) => {
             const matchingSpans = div.querySelector('span[class^="textContainer-"], span[class^="individualText-"]') as HTMLElement;
-
+            if (!matchingSpans) {
+                const emailSpan = div.querySelector('span[aria-label]') as HTMLElement;
+                const emailAddr = emailSpan.getAttribute('aria-label');
+                console.log("------>>> email address:", emailAddr);
+                return emailAddr;
+            }
             let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
             if (!emailAddr) {
                 emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
