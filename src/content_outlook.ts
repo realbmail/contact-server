@@ -196,7 +196,7 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
         return;
     }
 
-    const sendDiv = toolBarDiv.querySelector('button.ms-Button.ms-Button--primary.ms-Button--hasMenu') as HTMLElement;
+    const sendDiv = toolBarDiv.querySelector<HTMLButtonElement>('button[title*="+Enter)"]') as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
     const cryptoBtnDiv = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn",
         title, 'bmail_crypto_btn_in_compose_outlook', async _ => {
@@ -211,26 +211,17 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
     try {
         const mailBody = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
         let receiver: string[] | null
-        const receiverTable = composeArea.querySelector(".TvqWh") as HTMLElement;
-        // const receiverTable = composeArea.querySelector(".TvqWh") as HTMLElement;
-        if (!receiverTable) {
-            const spanElement = composeArea.querySelectorAll('.lpcWrapper.lpcCommonWeb-hoverTarget') as NodeListOf<HTMLElement>;
-            receiver = await processReceivers(spanElement, (div) => {
-                return extractEmail(div.getAttribute('aria-label') ?? "");
-            });
-        } else {
-            const allEmailAddrDivs = receiverTable.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
-            receiver = await processReceivers(allEmailAddrDivs, (div) => {
-                const matchingSpans = div.querySelector('span[class^="textContainer-"], span[class^="individualText-"]') as HTMLElement;
+        const allEmailAddrDivs = composeArea.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1.Lbs4W") as NodeListOf<HTMLElement>;
+        receiver = await processReceivers(allEmailAddrDivs, (div) => {
+            const matchingSpans = div.querySelector('span[class^="textContainer-"], span[class^="individualText-"]') as HTMLElement;
 
-                let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
-                if (!emailAddr) {
-                    emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
-                    console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
-                }
-                return emailAddr;
-            });
-        }
+            let emailAddr = extractEmail(matchingSpans.innerText.trim() ?? "");
+            if (!emailAddr) {
+                emailAddr = __nameToEmailMap.get(matchingSpans.innerText.trim());
+                console.log("-------->>>>>>name:", matchingSpans.innerText.trim(), "email:", emailAddr);
+            }
+            return emailAddr;
+        });
 
         if (mailBody.innerHTML.includes(MailFlag)) {
             console.log("----->>> has encrypted and send directly");
