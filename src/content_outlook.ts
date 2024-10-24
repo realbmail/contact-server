@@ -70,7 +70,7 @@ function handleSelection(selectedLi: HTMLElement | null) {
 async function monitorContactAction() {
     const div = document.getElementById("fluent-default-layer-host") as HTMLElement;
     let oldDiv: HTMLElement | null = null;
-    observeForElement(div, 500, () => {
+    observeForElement(div, 300, () => {
         const ulElement = div.querySelector('ul.ms-FloatingSuggestionsList-container') as HTMLElement | null;
         if (oldDiv === ulElement) {
             return null;
