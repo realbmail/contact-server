@@ -214,7 +214,7 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
             const matchingSpans = div.querySelector('span[class^="textContainer-"], span[class^="individualText-"]') as HTMLElement;
             if (!matchingSpans) {
                 const emailSpan = div.querySelector('span[aria-label]') as HTMLElement;
-                const emailAddr = emailSpan.getAttribute('aria-label');
+                let emailAddr = extractEmail(emailSpan.getAttribute('aria-label') ?? "");
                 console.log("------>>> email address:", emailAddr);
                 return emailAddr;
             }
