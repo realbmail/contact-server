@@ -411,21 +411,10 @@ class Provider implements ContentPageProvider {
         return queryEmailAddrOutLook() ?? "";
     }
 
-    async prepareContent(): Promise<void> {
-        addCustomStyles('css/outlook.css');
-        const template = await parseContentHtml('html/inject_outlook.html');
-        appendDecryptDialog(template);
-        appendForOutLook(template);
-        console.log("------>>> outlook content init success");
-    }
-
     async processAttachmentDownload(fileName?: string, _attachmentData?: any): Promise<void> {
         await procDownloadFile(fileName);
     }
 }
-
-(window as any).contentPageProvider = new Provider();
-
 
 function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTemplateElement) {
     const overlayButton = template.content.getElementById('attachmentEncryptBtnOutlook') as HTMLButtonElement | null;
@@ -657,3 +646,13 @@ function appendDecryptDialog(template: HTMLTemplateElement) {
 
     document.body.appendChild(clone);
 }
+
+(window as any).contentPageProvider = new Provider();
+
+document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('css/outlook.css');
+    const template = await parseContentHtml('html/inject_outlook.html');
+    appendDecryptDialog(template);
+    appendForOutLook(template);
+    console.log("------>>> outlook content init success");
+});

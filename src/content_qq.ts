@@ -830,21 +830,11 @@ class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrQQ() ?? "";
     }
-
-    async prepareContent(): Promise<void> {
-        addCustomStyles('css/qq.css');
-        const template = await parseContentHtml('html/inject_qq.html');
-        appendForQQ(template);
-        console.log("------>>> qq content init success");
-    }
-
     async processAttachmentDownload(_fileName?: string, attachmentData?: any): Promise<void> {
         console.log("-------->>>", attachmentData)
         await downloadAndDecryptAgain(attachmentData);
     }
 }
-
-(window as any).contentPageProvider = new Provider();
 
 async function downloadAndDecryptAgain(attachmentData?: any) {
     if (!attachmentData) {
@@ -862,3 +852,12 @@ async function downloadAndDecryptAgain(attachmentData?: any) {
     decryptAttachmentFileData(encryptedData, aesKey, fileName);
     // console.log("------->>>> data size:=>", attachmentData.length);
 }
+
+
+(window as any).contentPageProvider = new Provider();
+document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('css/qq.css');
+    const template = await parseContentHtml('html/inject_qq.html');
+    appendForQQ(template);
+    console.log("------>>> qq content init success");
+});

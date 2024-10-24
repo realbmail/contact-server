@@ -340,17 +340,16 @@ class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrGoogle() ?? "";
     }
-
-    async prepareContent(): Promise<void> {
-        addCustomStyles('css/google.css');
-        const template = await parseContentHtml('html/inject_google.html');
-        appendForGoogle(template);
-        console.log("------>>> google content init success");
-    }
-
     async processAttachmentDownload(_fileName?: string, _attachmentData?: any): Promise<void> {
         return;
     }
 }
 
 (window as any).contentPageProvider = new Provider();
+
+document.addEventListener('DOMContentLoaded', async () => {
+    addCustomStyles('css/google.css');
+    const template = await parseContentHtml('html/inject_google.html');
+    appendForGoogle(template);
+    console.log("------>>> google content init success");
+});

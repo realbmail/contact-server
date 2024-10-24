@@ -31,12 +31,6 @@ function translateInjectedElm() {
 document.addEventListener('DOMContentLoaded', async () => {
     addBmailObject('js/inject.js');
     addCustomStyles('css/common.css');
-
-    const provider: ContentPageProvider = (window as any).contentPageProvider;
-    if (provider) {
-        await provider.prepareContent();
-    }
-
     const template = await parseContentHtml('html/inject.html');
     appendTipDialog(template);
     translateInjectedElm();
