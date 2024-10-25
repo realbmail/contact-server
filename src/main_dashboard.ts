@@ -22,6 +22,16 @@ import {MsgType} from "./consts";
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
 
+    const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
+    closeButton.addEventListener('click', (event) => {
+        hideDialog();
+    });
+
+    setupDashboardHeader(container);
+    setupSettingMenu(container);
+}
+
+function setupDashboardHeader(container: HTMLDivElement) {
     const reloadBindingBtn = container.querySelector(".bmail-address-query-btn") as HTMLButtonElement;
     reloadBindingBtn.addEventListener('click', async () => {
         try {
@@ -34,11 +44,6 @@ export function initDashBoard(): void {
         }
     });
 
-    const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
-    closeButton.addEventListener('click', () => {
-        hideDialog();
-    });
-
     const addrValDiv = document.getElementById("bmail-address-val") as HTMLElement;
     addrValDiv.addEventListener('click', () => {
         const address = addrValDiv.innerText.trim();
@@ -48,16 +53,41 @@ export function initDashBoard(): void {
         navigator.clipboard.writeText(address).then(() => {
             showToastMessage("copy success");
         });
-    })
-
-    const exitBtn = container.querySelector(".bmail-wallet-exit-btn") as HTMLButtonElement
-    exitBtn.addEventListener('click', async () => {
-        await quitThisAccount();
     });
 
     const activeBtn = document.getElementById('bmail-active-account') as HTMLButtonElement;
     activeBtn.addEventListener('click', async () => {
         await activeCurrentAccount(activeBtn);
+    });
+}
+
+function setupSettingMenu(container: HTMLElement) {
+
+    const settingMenu = container.querySelector(".bmail-setting-list") as HTMLElement;
+
+    const settingShowBtn = container.querySelector('.bmail-system-setting-btn') as HTMLButtonElement;
+    settingShowBtn.addEventListener('click', () => {
+        settingMenu.style.display = "block";
+    });
+
+    const networkSetting = container.querySelector(".bmail-network-setting") as HTMLElement;
+    networkSetting.addEventListener('click', (event) => {
+        event.preventDefault();
+        settingMenu.style.display = "none";
+        showView('#onboarding/network-setting', router);
+    });
+
+    const exitBtn = container.querySelector(".bmail-wallet-exit-btn") as HTMLElement
+    exitBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        settingMenu.style.display = "none";
+        await quitThisAccount();
+    });
+
+    container.addEventListener('click', (event) => {
+        if (!settingShowBtn.contains(event.target as Node)) {
+            settingMenu.style.display = "none";
+        }
     });
 }
 

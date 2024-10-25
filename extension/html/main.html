@@ -55,12 +55,24 @@
                                   style="display: none">激活</button></span>
                 </div>
                 <div style="display: flex">
-                    <button class="bmail-wallet-exit-btn" id="bmail-wallet-exit-btn"><img alt="query image"
-                                                                                          src="../file/quit-icon.png">
+                    <button class="bmail-address-query-btn" id="bmail-address-query-btn">
+                        <img alt="refresh image" src="../file/queryBtn.png">
                     </button>
-                    <button class="bmail-address-query-btn" id="bmail-address-query-btn"><img alt="query image"
-                                                                                              src="../file/queryBtn.png">
+
+                    <button class="bmail-system-setting-btn" id="bmail-system-setting-btn">
+                        <img alt="system setting image" src="../file/setting.png">
                     </button>
+
+                    <div class="bmail-setting-list" id="bmail-setting-list">
+                        <a class="bmail-setting-item bmail-wallet-exit-btn" href="#" id="bmail-wallet-exit-btn">
+                            <img alt="quit image" src="../file/quit-icon.png">
+                            <span class="bmail-quit-lbl" id="bmail-quit-lbl">退出</span>
+                        </a>
+                        <a class="bmail-setting-item bmail-network-setting" href="#" id="bmail-network-setting">
+                            <img alt="network setting image" src="../file/setting.png">
+                            <span class="bmail-network-lbl" id="bmail-network-lbl">网络设置</span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="bmail-address-area">
@@ -94,6 +106,26 @@
         <span id="bmail-email-address-lbl">Current Email Address:</span>
         <p id="bmail-email-address-val"></p>
         <button class="current-email-bind-btn" id="current-email-bind-btn" style="display: none">绑定该地址</button>
+    </div>
+</div>
+
+<div class="view-network-setting page_view" id="view-network-setting">
+
+    <div>
+        <button class="system-back" id="system-back-btn">
+            <img alt="back image" src="../file/logo_48.png">
+            <span class="system-back-lbl" id="system-back-lbl">返回</span>
+        </button>
+    </div>
+
+    <div class="contact-server-setting">
+        <div>
+            <span class="contact-server-lbl" id="contact-server-lbl">通讯录服务器:</span>
+            <label>
+                <input class="contact-server-val" id="contact-server-val" type="url">
+            </label>
+            <button class="contact-server-save" id="contact-server-save">Save</button>
+        </div>
     </div>
 </div>
 

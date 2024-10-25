@@ -36,10 +36,8 @@ function updateIcon(isLoggedIn: boolean) {
 }
 
 runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
-    console.log("[service work] action :=>", request.action, sender.url);
-
+    // console.log("[service work] action :=>", request.action, sender.url);
     switch (request.action) {
-
         case MsgType.KeepAlive:
             sendResponse({status: true});
             return true;
