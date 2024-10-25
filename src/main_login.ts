@@ -24,15 +24,16 @@ export function initLoginDiv(): void {
     });
 }
 
-function openAllWallets(): void {
-    const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
-    const password = inputElement.value;
+async function openAllWallets(): Promise<void> {
+    try {
+        const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
+        const password = inputElement.value;
 
-    browser.runtime.sendMessage({action: MsgType.WalletOpen, password: password}).then(async (response: {
-        status: boolean;
-        message: MailAddress;
-        error: string
-    }) => {
+        const response = await browser.runtime.sendMessage({
+            action: MsgType.WalletOpen,
+            password: password
+        })
+
         if (!response.status) {
             const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
             console.log("------>>>error:", response.error)
@@ -43,15 +44,15 @@ function openAllWallets(): void {
             }
             return;
         }
+
         console.log("------------>>>", response.message);
         const mAddr = response.message as MailAddress;
         await sessionSet(__currentAccountAddress, mAddr);
         inputElement.value = '';
         showView('#onboarding/main-dashboard', router);
-        return;
-    }).catch(error => {
-        console.error('Error sending message:', error);
-    });
+    } catch (e) {
+        console.log("------------>>> failed to open wallet:=>", e);
+    }
 }
 
 async function newAccountToReplaceCurrent() {

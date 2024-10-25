@@ -92,40 +92,43 @@ function setupSettingMenu(container: HTMLElement) {
 }
 
 export async function loadAndSetupAccount(force?: boolean) {
-    const accountAddr = await sessionGet(__currentAccountAddress);
-    if (!accountAddr) {
-        console.log("------>>>fatal logic error, no wallet found!");
-        showView('#onboarding/main-login', router);
-        return;
-    }
-    document.getElementById('bmail-address-val')!.textContent = accountAddr.bmail_address;
+    try {
+        const accountAddr = await sessionGet(__currentAccountAddress);
+        if (!accountAddr) {
+            console.log("------>>>fatal logic error, no wallet found!");
+            showView('#onboarding/main-login', router);
+            return;
+        }
+        document.getElementById('bmail-address-val')!.textContent = accountAddr.bmail_address;
 
-    const statusRsp = await sendMessageToBackground({
-        address: accountAddr.bmail_address,
-        force: force === true
-    }, MsgType.QueryAccountDetails);
-    if (statusRsp.success < 0) {
-        console.log("------>>> account detail load failed")
-        return;
+        const statusRsp = await sendMessageToBackground({
+            address: accountAddr.bmail_address,
+            force: force === true
+        }, MsgType.QueryAccountDetails);
+        if (statusRsp.success < 0) {
+            console.log("------>>> account detail load failed")
+            return;
+        }
+
+        const accountData = statusRsp.data as BMailAccount;
+        // console.log("------>>> account query success:", accountData);
+        setupElementByAccountData(accountData);
+        await sessionSet(__currentAccountData, accountData);
+    } catch (e) {
+        console.log("------>>> query current account detail from server failed:=>", e);
     }
-    const accountData = statusRsp.data as BMailAccount;
-    // console.log("------>>> account query success:", accountData);
-    setupElementByAccountData(accountData);
-    await sessionSet(__currentAccountData, accountData);
 }
-
 
 export async function populateDashboard() {
     try {
         showLoading();
         await loadAndSetupAccount();
-        queryCurrentEmailAddr();
+        await checkCurrentEmailBindStatus();
     } catch (err) {
         console.log("------>>> populate dashboard failed:", err);
     } finally {
         hideLoading();
     }
-    // await loadContact();
 }
 
 async function quitThisAccount() {
@@ -210,7 +213,7 @@ async function mailBindingAction(isUnbind: boolean, email: string): Promise<bool
         }
         await loadAndSetupAccount(true);
         if (isUnbind) {
-            queryCurrentEmailAddr();
+            await checkCurrentEmailBindStatus();
         }
         return true;
     } catch (e) {
@@ -242,37 +245,41 @@ async function hashEmailAddr(email: string): Promise<boolean> {
     return false;
 }
 
-function queryCurrentEmailAddr() {
-    browser.tabs.query({active: true, currentWindow: true}).then(tabList => {
-
+async function checkCurrentEmailBindStatus() {
+    try {
+        const tabList = await browser.tabs.query({active: true, currentWindow: true});
         const activeTab = tabList[0];
         if (!activeTab || !activeTab.id) {
             console.log("------>>> invalid tab")
             return;
         }
 
-        browser.tabs.sendMessage(activeTab.id, {action: MsgType.QueryCurEmail}).then(async response => {
-            if (response && response.value) {
-                console.log('------>>>Element Value:', response.value);
-                const currentEmail = response.value;
-                document.getElementById('bmail-email-address-val')!.textContent = currentEmail;
-                const hasBind = await hashEmailAddr(currentEmail);
-                if (hasBind) {
-                    return;
-                }
-                const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
-                bindOrUnbindBtn.style.display = "block";
-                bindOrUnbindBtn.addEventListener('click', async () => {
-                    const success = await mailBindingAction(false, currentEmail);
-                    if (success) {
-                        bindOrUnbindBtn.style.display = 'none';
-                    }
-                }, {once: true})
-            } else {
-                console.log('------>>>Element not found or has no value');
+        const response = await browser.tabs.sendMessage(activeTab.id, {action: MsgType.QueryCurEmail});
+        if (!response || !response.value) {
+            console.log('------>>>Element not found or has no value');
+            return;
+        }
+
+        console.log('------>>>Element Value:', response.value);
+        const currentEmail = response.value;
+        document.getElementById('bmail-email-address-val')!.textContent = currentEmail;
+        const hasBind = await hashEmailAddr(currentEmail);
+        if (hasBind) {
+            return;
+        }
+
+        const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
+        bindOrUnbindBtn.style.display = "block";
+        bindOrUnbindBtn.addEventListener('click', async () => {
+            const success = await mailBindingAction(false, currentEmail);
+            if (success) {
+                bindOrUnbindBtn.style.display = 'none';
             }
-        });
-    })
+        }, {once: true});
+
+    } catch (e) {
+        console.log("------>>> query current email address error:=>", e);
+    }
 }
 
 async function activeCurrentAccount(actBtn: HTMLButtonElement) {
