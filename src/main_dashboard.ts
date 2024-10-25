@@ -23,7 +23,7 @@ export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
 
     const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
-    closeButton.addEventListener('click', (event) => {
+    closeButton.addEventListener('click', () => {
         hideDialog();
     });
 
