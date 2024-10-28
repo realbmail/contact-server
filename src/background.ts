@@ -35,7 +35,7 @@ function updateIcon(isLoggedIn: boolean) {
     browser.action.setIcon({path: iconPath}).then();
 }
 
-runtime.onMessage.addListener((request: any, sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
+runtime.onMessage.addListener((request: any, _sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     // console.log("[service work] action :=>", request.action, sender.url);
     switch (request.action) {
         case MsgType.KeepAlive:
