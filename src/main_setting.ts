@@ -1,4 +1,4 @@
-import {getContactSrv, isValidUrl, setContactSrv} from "./common";
+import {isValidUrl} from "./common";
 import {showDialog} from "./main_common";
 
 export function initSetting() {
@@ -7,8 +7,8 @@ export function initSetting() {
 }
 
 export async function populateSystemSetting() {
-    const contactSrvInput = document.getElementById('contact-server-val') as HTMLInputElement;
-    contactSrvInput.value = getContactSrv();
+    // const contactSrvInput = document.getElementById('contact-server-val') as HTMLInputElement;
+    // contactSrvInput.value = getContactSrv();
 }
 
 function saveNewContactServer() {
@@ -18,5 +18,4 @@ function saveNewContactServer() {
         showDialog("Tips", "invalid url value");
         return;
     }
-    setContactSrv(serverAddress);
 }

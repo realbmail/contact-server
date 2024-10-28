@@ -4,6 +4,7 @@ import {BMReq, BMRsp} from "./proto/bmail_srv";
 import {MailFlag} from "./bmail_body";
 import {MsgType} from "./consts";
 import * as iconv from 'iconv-lite';
+import {getContactSrv} from "./setting";
 
 export const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
 
@@ -291,16 +292,4 @@ export function isValidUrl(urlString: string): boolean {
     } catch (error) {
         return false;
     }
-}
-
-// const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
-// const httpServerUrl = "http://bmail.simplenets.org:8001"
-// const httpServerUrl = "http://127.0.0.1:8001"
-let __officialContactSrv = "https://bmail.simplenets.org:8443"
-
-export function getContactSrv(): string {
-    return __officialContactSrv;
-}
-
-export function setContactSrv(url: string): void {
 }
