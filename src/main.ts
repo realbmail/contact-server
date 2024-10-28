@@ -14,6 +14,7 @@ import {initDashBoard} from "./main_dashboard";
 import {WalletStatus} from "./consts";
 import {queryCurWallet} from "./wallet";
 import {__dbKey_cur_key, __key_wallet_status} from "./background";
+import {initSetting} from "./main_setting";
 
 document.addEventListener("DOMContentLoaded", initBMailExtension as EventListener);
 
@@ -26,6 +27,7 @@ async function initBMailExtension(): Promise<void> {
     await checkBackgroundStatus();
     initLoginDiv();
     initDashBoard();
+    initSetting();
 }
 
 async function checkBackgroundStatus(): Promise<void> {

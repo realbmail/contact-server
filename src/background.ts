@@ -168,7 +168,6 @@ runtime.onSuspend.addListener(() => {
     closeDatabase();
 });
 
-
 async function createWallet(mnemonic: string, password: string, sendResponse: (response: any) => void): Promise<void> {
     try {
         await checkAndInitDatabase();

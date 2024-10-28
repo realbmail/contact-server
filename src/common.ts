@@ -2,7 +2,7 @@ import * as QRCode from 'qrcode';
 import browser from "webextension-polyfill";
 import {BMReq, BMRsp} from "./proto/bmail_srv";
 import {MailFlag} from "./bmail_body";
-import {httpServerUrl, MsgType} from "./consts";
+import {MsgType} from "./consts";
 import * as iconv from 'iconv-lite';
 
 export const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
@@ -44,7 +44,8 @@ export async function createQRCodeImg(data: string) {
 }
 
 export async function httpApi(path: string, param: any) {
-    const response = await fetch(httpServerUrl + path, {
+    const url = getContactSrv();
+    const response = await fetch(url + path, {
         method: 'POST', // 设置方法为POST
         headers: {
             'Content-Type': 'application/x-protobuf'
@@ -283,3 +284,23 @@ function decodeFilename(encodedStr: string): string {
     return iconv.decode(buffer, 'gb18030');
 }
 
+export function isValidUrl(urlString: string): boolean {
+    try {
+        new URL(urlString);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+// const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
+// const httpServerUrl = "http://bmail.simplenets.org:8001"
+// const httpServerUrl = "http://127.0.0.1:8001"
+let __officialContactSrv = "https://bmail.simplenets.org:8443"
+
+export function getContactSrv(): string {
+    return __officialContactSrv;
+}
+
+export function setContactSrv(url: string): void {
+}

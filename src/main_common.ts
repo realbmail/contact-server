@@ -1,4 +1,5 @@
 import {populateDashboard} from "./main_dashboard";
+import {populateSystemSetting} from "./main_setting";
 
 export const __currentAccountAddress = "__current_wallet_storage_key_"
 export const __systemSetting = "__system_setting_"
@@ -15,6 +16,8 @@ export enum UserLevel {
 export function router(path: string): void {
     if (path === '#onboarding/main-dashboard') {
         populateDashboard().then();
+    } else if (path === '#onboarding/network-setting') {
+        populateSystemSetting().then();
     }
 }
 
