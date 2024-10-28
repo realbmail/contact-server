@@ -11,6 +11,7 @@ import browser from "webextension-polyfill";
 import {DbWallet, queryCurWallet} from "./wallet";
 import {AccountOperation} from "./proto/bmail_srv";
 import {MsgType} from "./consts";
+import {createNewWallet} from "./background";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;
@@ -56,7 +57,7 @@ function initWelcomeDiv(): void {
 
 function initPasswordDiv(): void {
     const createPasswordButton = document.querySelector('#view-create-password .primary-button') as HTMLButtonElement;
-    createPasswordButton.addEventListener('click', createWallet);
+    createPasswordButton.addEventListener('click', createWalletAction);
 }
 
 function navigateTo(hash: string): void {
@@ -87,7 +88,7 @@ function importWallet(): void {
     // generateRecoveryPhraseInputs();
 }
 
-async function createWallet(): Promise<void> {
+async function createWalletAction(): Promise<void> {
     const passwordBtn1 = document.getElementById("home-create-password") as HTMLInputElement;
     const passwordBtn2 = document.getElementById("home-confirm-password") as HTMLInputElement;
 
@@ -115,18 +116,6 @@ async function createWallet(): Promise<void> {
     passwordBtn2.value = ''
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic();
-}
-
-async function createNewWallet(mnemonic: string, password: string): Promise<DbWallet | null> {
-    const request = {
-        mnemonic: mnemonic,
-        password: password,
-    }
-    const resp = await sendMessageToBackground(request, MsgType.WalletCreate);
-    if (!resp.success) {
-        return null;
-    }
-    return resp.data as DbWallet;
 }
 
 function displayMnemonic(): void {

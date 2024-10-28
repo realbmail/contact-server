@@ -2,7 +2,7 @@
 import browser, {Runtime} from "webextension-polyfill";
 import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem, databaseQueryAll} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
+import {castToMemWallet, DbWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex, extractNameFromUrl} from "./common";
 import {decodeMail, encodeMail, initMailBodyVersion} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
@@ -40,11 +40,6 @@ runtime.onMessage.addListener((request: any, _sender: Runtime.MessageSender, sen
     switch (request.action) {
         case MsgType.KeepAlive:
             sendResponse({status: true});
-            return true;
-
-        case MsgType.WalletCreate:
-            const param = request.data;
-            createWallet(param.mnemonic, param.password, sendResponse).then();
             return true;
 
         case MsgType.WalletOpen:
@@ -168,20 +163,19 @@ runtime.onSuspend.addListener(() => {
     closeDatabase();
 });
 
-async function createWallet(mnemonic: string, password: string, sendResponse: (response: any) => void): Promise<void> {
+export async function createNewWallet(mnemonic: string, password: string): Promise<DbWallet | null> {
     try {
         await checkAndInitDatabase();
         const wallet = newWallet(mnemonic, password);
-        await databaseQueryAll(__tableNameWallet);
         await databaseAddItem(__tableNameWallet, wallet);
         const mKey = castToMemWallet(password, wallet);
         await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
         await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
         await sessionSet(__dbKey_cur_addr, mKey.address);
-        sendResponse({success: true, data: wallet})
+        return wallet;
     } catch (error) {
-        console.log("[service work] creating wallet failed:", error);
-        sendResponse({status: false, message: 'create wallet failed'});
+        console.log("------>>>creating wallet failed:", error);
+        return null;
     }
 }
 
