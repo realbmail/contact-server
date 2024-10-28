@@ -5,6 +5,7 @@ import {sessionSet} from "./session_storage";
 import {__currentAccountAddress, router, showDialog} from "./main_common";
 import {__tableNameWallet, databaseDeleteByFilter} from "./database";
 import {MsgType} from "./consts";
+import {openWallet} from "./background";
 
 export function initLoginDiv(): void {
     const unlock = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;
@@ -29,29 +30,24 @@ async function openAllWallets(): Promise<void> {
         const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
         const password = inputElement.value;
 
-        const response = await browser.runtime.sendMessage({
-            action: MsgType.WalletOpen,
-            password: password
-        })
-
-        if (!response.status) {
-            const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
-            console.log("------>>>error:", response.error)
-            if (response.error.includes("bad seed size") || response.error.includes("Malformed UTF-8 data")) {
-                errTips.innerText = browser.i18n.getMessage('invalid_password');
-            } else {
-                errTips.innerText = response.error;
-            }
-            return;
+        const mAddr = await openWallet(password);
+        if (!mAddr) {
+            throw new Error("Cannot open wallet.");
         }
 
-        console.log("------------>>>", response.message);
-        const mAddr = response.message as MailAddress;
         await sessionSet(__currentAccountAddress, mAddr);
         inputElement.value = '';
         showView('#onboarding/main-dashboard', router);
+
     } catch (e) {
         console.log("------------>>> failed to open wallet:=>", e);
+        const err = e as Error;
+        const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
+        if (err.message.includes("bad seed size") || err.message.includes("Malformed UTF-8 data")) {
+            errTips.innerText = browser.i18n.getMessage('invalid_password');
+        } else {
+            errTips.innerText = err.message;
+        }
     }
 }
 

@@ -42,14 +42,6 @@ runtime.onMessage.addListener((request: any, _sender: Runtime.MessageSender, sen
             sendResponse({status: true});
             return true;
 
-        case MsgType.WalletOpen:
-            openWallet(request.password, sendResponse).then(() => {
-            }).catch((error: Error) => {
-                console.log("[service work] Failed to open wallets:", error);
-                sendResponse({status: false, error: error.message});
-            });
-            return true;
-
         case MsgType.WalletClose:
             closeWallet(sendResponse).then(() => {
             });
@@ -179,22 +171,20 @@ export async function createNewWallet(mnemonic: string, password: string): Promi
     }
 }
 
-async function openWallet(pwd: string, sendResponse: (response: any) => void): Promise<boolean> {
+export async function openWallet(pwd: string): Promise<MailAddress | null> {
     await checkAndInitDatabase();
     const wallet = await queryCurWallet();
     if (!wallet) {
-        sendResponse({status: false, error: 'no wallet setup'});
         await sessionSet(__key_wallet_status, WalletStatus.NoWallet);
-        return false;
+        return null;
     }
 
     const mKey = castToMemWallet(pwd, wallet);
     await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
     await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
     await sessionSet(__dbKey_cur_addr, mKey.address);
-    sendResponse({status: true, message: mKey.address});
     updateIcon(true);
-    return true;
+    return mKey.address;
 }
 
 async function closeWallet(sendResponse: (response: any) => void): Promise<void> {
@@ -272,8 +262,8 @@ async function SigDataInBackground(data: any, sendResponse: (response: any) => v
             sendResponse({success: false, message: "open wallet first"});
             return;
         }
-        const success = await openWallet(pwd, sendResponse);
-        if (!success) {
+        const address = await openWallet(pwd);
+        if (!address) {
             sendResponse({success: false, message: "open wallet failed"});
             return;
         }
