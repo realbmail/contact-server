@@ -18,6 +18,7 @@ import {
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
+import {closeWallet} from "./background";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
@@ -133,11 +134,7 @@ export async function populateDashboard() {
 
 async function quitThisAccount() {
     await sessionRemove(__currentAccountAddress);
-    const rsp = await sendMessageToBackground(null, MsgType.WalletClose);
-    if (!rsp || rsp.success <= 0) {
-        showDialog("Error", "failed to quit");
-        return
-    }
+    await closeWallet();
     showView('#onboarding/main-login', router);
 }
 

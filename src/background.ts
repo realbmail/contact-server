@@ -42,11 +42,6 @@ runtime.onMessage.addListener((request: any, _sender: Runtime.MessageSender, sen
             sendResponse({status: true});
             return true;
 
-        case MsgType.WalletClose:
-            closeWallet(sendResponse).then(() => {
-            });
-            return true;
-
         case  MsgType.BMailInbox:
             browser.action.openPopup().then(() => {
                 sendResponse({success: true});
@@ -187,13 +182,10 @@ export async function openWallet(pwd: string): Promise<MailAddress | null> {
     return mKey.address;
 }
 
-async function closeWallet(sendResponse: (response: any) => void): Promise<void> {
+export async function closeWallet(): Promise<void> {
     await sessionRemove(__key_wallet_status);
     await sessionRemove(__dbKey_cur_key);
     await sessionRemove(__dbKey_cur_addr);
-    if (sendResponse) {
-        sendResponse({status: true});
-    }
     updateIcon(false);
 }
 

@@ -1,5 +1,4 @@
 export enum MsgType {
-    WalletClose = 'WalletClose',
     EncryptData = 'EncryptData',
     DecryptData = 'DecryptData',
     BMailInbox = 'BMailInbox',
