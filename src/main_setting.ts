@@ -17,16 +17,21 @@ export function initSetting() {
 
 export async function populateSystemSetting() {
     const serverListElm = document.getElementById('contact-server-list') as HTMLSelectElement;
+    serverListElm.innerHTML = '';
     const ss = await getSystemSetting();
     const itemElm = document.getElementById('contact-server-item-template')!;
 
-    ss.contactList.forEach(item => {
+    for (let i = 0; i < ss.contactList.length; i++) {
+        const item = ss.contactList[i];
         const clone = itemElm.cloneNode(true) as HTMLOptionElement;
         clone.removeAttribute('id');
         clone.value = item;
         clone.textContent = item;
         serverListElm.appendChild(clone);
-    });
+        if (item === ss.contactSrv) {
+            serverListElm.selectedIndex = i;
+        }
+    }
 }
 
 async function addNewContactItem() {

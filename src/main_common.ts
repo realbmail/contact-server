@@ -26,22 +26,32 @@ export function hideDialog(): void {
 }
 
 type dialogAction = () => Promise<boolean>;
-let __dialogOkCallback: dialogAction | null | undefined = null;
-let __dialogCancelCallback: dialogAction | null | undefined = null;
+let __dialogOkCallback: dialogAction | undefined;
+let __dialogCancelCallback: dialogAction | undefined;
 
-function dialogOkAction() {
-
+async function dialogOKAction() {
+    if (__dialogOkCallback) {
+        const closeTab = await __dialogOkCallback();
+        if (closeTab) {
+            hideDialog();
+        }
+        return;
+    }
+    hideDialog();
 }
 
-function dialogCancelAction() {
-
+async function dialogCancelAction() {
+    if (__dialogCancelCallback) {
+        await __dialogCancelCallback()
+    }
+    hideDialog();
 }
 
 export function initDialogAction() {
     const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
     closeButton.addEventListener('click', dialogCancelAction);
     const confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
-    confirmButton.addEventListener('click', dialogOkAction);
+    confirmButton.addEventListener('click', dialogOKAction);
 }
 
 export function showDialog(title: string, message: string,
@@ -62,14 +72,6 @@ export function showDialog(title: string, message: string,
     } else {
         confirmButton.innerText = 'OK';
     }
-
-    confirmButton.replaceWith(confirmButton.cloneNode(true));
-    confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
-
-    confirmButton.addEventListener('click', async () => {
-
-    });
-
     dialogContainer.style.display = 'flex';
 }
 
