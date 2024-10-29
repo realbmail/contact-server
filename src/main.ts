@@ -4,11 +4,9 @@ import {
 } from "./common";
 import {checkAndInitDatabase, initDatabase} from "./database";
 import {translateMainPage} from "./local";
-import {loadLastSystemSetting} from "./setting";
-import {sessionGet, sessionSet} from "./session_storage";
-import {
-    __systemSetting, router
-} from "./main_common";
+import {getSystemSetting} from "./setting";
+import {sessionGet} from "./session_storage";
+import {router} from "./main_common";
 import {initLoginDiv} from "./main_login";
 import {initDashBoard} from "./main_dashboard";
 import {WalletStatus} from "./consts";
@@ -20,9 +18,7 @@ document.addEventListener("DOMContentLoaded", initBMailExtension as EventListene
 
 async function initBMailExtension(): Promise<void> {
     await initDatabase();
-    loadLastSystemSetting().then(setting => {
-        sessionSet(__systemSetting, setting);
-    });
+    await getSystemSetting();
     translateMainPage();
     await checkBackgroundStatus();
     initLoginDiv();

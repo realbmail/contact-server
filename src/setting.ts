@@ -1,13 +1,16 @@
 import {__currentDatabaseVersion, __tableSystemSetting, databaseUpdate, getMaxIdRecord} from "./database";
+import {sessionGet, sessionSet} from "./session_storage";
+
+const __dbSystemSetting = "__db_key_system_setting__"
 
 export class SysSetting {
     id: number;
-    curContactSrv: string;
+    contactSrv: string;
     contactList: string[];
 
     constructor(id: number, contact: string, srvList: string[]) {
         this.id = id;
-        this.curContactSrv = contact;
+        this.contactSrv = contact;
         this.contactList = srvList;
     }
 
@@ -16,18 +19,55 @@ export class SysSetting {
     }
 }
 
-export async function loadLastSystemSetting(): Promise<SysSetting> {
-    const ss = await getMaxIdRecord(__tableSystemSetting);
+export async function getSystemSetting(): Promise<SysSetting> {
+    let ss = await sessionGet(__dbSystemSetting);
     if (ss) {
-        return new SysSetting(ss.id, ss.address, ss.network);
+        return new SysSetting(ss.id, ss.contactSrv, ss.contactList);
     }
-    return new SysSetting(__currentDatabaseVersion, __officialContactSrv, [__officialContactSrv]);
+
+    ss = await getMaxIdRecord(__tableSystemSetting);
+    let sObj;
+    if (ss) {
+        sObj = new SysSetting(ss.id, ss.contactSrv, ss.contactList);
+    } else {
+        sObj = new SysSetting(__currentDatabaseVersion, __officialContactSrv, [__officialContactSrv]);
+    }
+
+    await sessionSet(__dbSystemSetting, sObj);
+
+    return sObj;
+}
+
+async function setSystemSetting(ss: SysSetting) {
+    await sessionSet(__dbSystemSetting, ss);
+    await ss.syncToDB();
+}
+
+export async function changeCurrentSrv(srv: string) {
+    const sObj = await getSystemSetting();
+    sObj.contactSrv = srv;
+    await setSystemSetting(sObj);
+}
+
+export async function addContactSrv(srv: string) {
+
+    const sObj = await getSystemSetting();
+
+    for (let i = 0; i < sObj.contactList.length; i++) {
+        if (sObj.contactList[i] === srv) {
+            throw Error(srv + " already exists");
+        }
+    }
+
+    sObj.contactList.push(srv);
+    await setSystemSetting(sObj);
 }
 
 // const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"
 // const httpServerUrl = "http://127.0.0.1:8001"
 let __officialContactSrv = "https://bmail.simplenets.org:8443"
 
-export function getContactSrv(): string {
-    return __officialContactSrv;
+export async function getContactSrv(): Promise<string> {
+    const ss = await getSystemSetting();
+    return ss.contactSrv ?? __officialContactSrv;
 }

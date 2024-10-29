@@ -10,7 +10,7 @@ import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {
     __currentAccountAddress,
     __currentAccountData,
-    hideDialog,
+    hideDialog, initDialogAction,
     router,
     showDialog,
     showToastMessage, UserLevel
@@ -22,12 +22,7 @@ import {closeWallet} from "./background";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;
-
-    const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
-    closeButton.addEventListener('click', () => {
-        hideDialog();
-    });
-
+    initDialogAction();
     setupDashboardHeader(container);
     setupSettingMenu(container);
 }

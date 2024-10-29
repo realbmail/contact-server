@@ -2,7 +2,6 @@ import {populateDashboard} from "./main_dashboard";
 import {populateSystemSetting} from "./main_setting";
 
 export const __currentAccountAddress = "__current_wallet_storage_key_"
-export const __systemSetting = "__system_setting_"
 export const __currentAccountData = "__current_account_data_";
 
 export enum UserLevel {
@@ -26,11 +25,35 @@ export function hideDialog(): void {
     dialogContainer.style.display = 'none';
 }
 
-export function showDialog(title: string, message: string, confirmButtonText?: string, confirmCallback?: () => Promise<boolean>): void {
+type dialogAction = () => Promise<boolean>;
+let __dialogOkCallback: dialogAction | null | undefined = null;
+let __dialogCancelCallback: dialogAction | null | undefined = null;
+
+function dialogOkAction() {
+
+}
+
+function dialogCancelAction() {
+
+}
+
+export function initDialogAction() {
+    const closeButton = document.getElementById('dialog-tips-close-button') as HTMLButtonElement;
+    closeButton.addEventListener('click', dialogCancelAction);
+    const confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
+    confirmButton.addEventListener('click', dialogOkAction);
+}
+
+export function showDialog(title: string, message: string,
+                           confirmButtonText?: string, confirmCallback?: dialogAction,
+                           cancelCallback?: dialogAction): void {
     const dialogContainer = document.getElementById('dialog-tips-container') as HTMLDivElement;
     const dialogTitle = document.getElementById('dialog-tips-title') as HTMLHeadingElement;
     const dialogMessage = document.getElementById('dialog-tips-message') as HTMLParagraphElement;
     let confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
+
+    __dialogOkCallback = confirmCallback;
+    __dialogCancelCallback = cancelCallback;
 
     dialogTitle.innerText = title;
     dialogMessage.innerText = message;
@@ -44,14 +67,7 @@ export function showDialog(title: string, message: string, confirmButtonText?: s
     confirmButton = document.getElementById('dialog-tips-confirm-button') as HTMLButtonElement;
 
     confirmButton.addEventListener('click', async () => {
-        if (confirmCallback) {
-            const closeTab = await confirmCallback();
-            if (closeTab) {
-                hideDialog();
-            }
-            return;
-        }
-        hideDialog();
+
     });
 
     dialogContainer.style.display = 'flex';

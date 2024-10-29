@@ -586,56 +586,6 @@ export function readCurrentMailAddress(): string {
     }
 }
 
-
-export function showCustomModal(
-    tips: string,
-    okTxt: string,
-    noTxt: string,
-    okFun?: () => void,
-    noFun?: () => void
-) {
-    const modal = document.getElementById('dialog-confirm-container') as HTMLElement;
-
-    const tipsElement = document.getElementById('dialog-confirm-tips') as HTMLElement;
-    const okButton = document.getElementById('dialog-confirm-ok') as HTMLButtonElement;
-    const noButton = document.getElementById('dialog-confirm-no') as HTMLButtonElement;
-    const closeButton = modal.querySelector('.dialog-confirm-close-button') as HTMLElement;
-
-    tipsElement.textContent = tips;
-    okButton.textContent = okTxt;
-    noButton.textContent = noTxt;
-
-    modal.style.display = 'block';
-
-    okButton.onclick = null;
-    noButton.onclick = null;
-    closeButton.onclick = null;
-
-    okButton.onclick = () => {
-        modal.style.display = 'none';
-        if (okFun) {
-            okFun();
-        }
-    };
-
-    noButton.onclick = () => {
-        modal.style.display = 'none';
-        if (noFun) {
-            noFun();
-        }
-    };
-
-    closeButton.onclick = () => {
-        modal.style.display = 'none';
-    };
-
-    window.onclick = (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
-}
-
 export class AttachmentKeyID {
     id: string;
     originalFileName: string;

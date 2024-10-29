@@ -45,7 +45,7 @@ export async function createQRCodeImg(data: string) {
 }
 
 export async function httpApi(path: string, param: any) {
-    const url = getContactSrv();
+    const url = await getContactSrv();
     const response = await fetch(url + path, {
         method: 'POST', // 设置方法为POST
         headers: {
@@ -125,20 +125,16 @@ export function extractEmail(input: string): string | null {
 }
 
 export function extractJsonString(input: string): { json: string, offset: number, endOffset: number } | null {
-    // 保存原始 HTML 标签的位置
     const tagPositions: { start: number, end: number, length: number }[] = [];
     const tagRegex = /<\/?[^>]+(>|$)/g;
     let match;
 
-    // 记录所有 HTML 标签的位置和长度
     while ((match = tagRegex.exec(input)) !== null) {
         tagPositions.push({start: match.index, end: tagRegex.lastIndex, length: match[0].length});
     }
 
-    // 移除所有 HTML 标签
     const cleanedInput = input.replace(/<\/?[^>]+(>|$)/g, "");
 
-    // 匹配 JSON 字符串
     const jsonRegex = /{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*}/g;
     while ((match = jsonRegex.exec(cleanedInput)) !== null) {
         const jsonString = match[0];
@@ -147,7 +143,6 @@ export function extractJsonString(input: string): { json: string, offset: number
             let offset = match.index;
             let endOffset = offset + jsonString.length;
 
-            // 调整 offset 和 endOffset，恢复原始 HTML 的位置
             for (const tag of tagPositions) {
                 if (tag.start <= offset) {
                     offset += tag.length; // 将偏移量往后推，保持一致
@@ -244,11 +239,9 @@ export function extractNameFromUrl(url: string, key: string): string | null {
         }
 
         try {
-            // 尝试使用 decodeURIComponent 解码
             return decodeURIComponent(rawParam);
         } catch (decodeError) {
             console.warn(`------>>> 参数 ${key} 无法用 UTF-8 解码，尝试 GB18030 解码`);
-            // 捕获 UTF-8 解码错误并尝试 GB18030 解码
             try {
                 return decodeFilename(rawParam);
             } catch (gbkError) {
@@ -276,7 +269,6 @@ function decodeFilename(encodedStr: string): string {
             bytes.push(byte);
             i += 3; // 跳过 '%XX'
         } else {
-            // 对于非编码字符，直接取其 ASCII 码
             bytes.push(encodedStr.charCodeAt(i));
             i += 1;
         }
