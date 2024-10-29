@@ -10,7 +10,7 @@ import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {
     __currentAccountAddress,
     __currentAccountData,
-    hideDialog, initDialogAction,
+    initDialogAction,
     router,
     showDialog,
     showToastMessage, UserLevel
@@ -167,12 +167,14 @@ function setupElementByAccountData(accountData: BMailAccount) {
     } else {
         document.getElementById('bmail-account-license-val')!.textContent = browser.i18n.getMessage('valid_license_title');
     }
+
+    const parentDiv = document.getElementById('binding-email-address-list') as HTMLElement;
+    parentDiv.innerHTML = '';
+
     if (accountData.emails.length <= 0) {
         return;
     }
 
-    const parentDiv = document.getElementById('binding-email-address-list') as HTMLElement;
-    parentDiv.innerHTML = '';
     const templateDiv = document.getElementById('binding-email-address-item') as HTMLElement;
     accountData.emails.forEach(email => {
         const clone = templateDiv.cloneNode(true) as HTMLElement;

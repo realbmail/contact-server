@@ -1,21 +1,19 @@
 /// <reference lib="webworker" />
 import browser, {Runtime} from "webextension-polyfill";
-import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem, databaseQueryAll} from "./database";
+import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
 import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {castToMemWallet, DbWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
 import {BMRequestToSrv, decodeHex, extractNameFromUrl} from "./common";
 import {decodeMail, encodeMail, initMailBodyVersion} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
-import {MsgType, WalletStatus} from "./consts";
+import {__dbKey_cur_account_details, __dbKey_cur_key, __key_wallet_status, MsgType, WalletStatus} from "./consts";
 import {extractAesKeyId} from "./content_common";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
 const __alarm_name__: string = '__alarm_name__timer__';
-export const __key_wallet_status: string = '__key_wallet_status';
-export const __dbKey_cur_key: string = '__dbKey_cur_key__';
+
 const __dbKey_cur_addr: string = '__dbKey_cur_addr__';
-const __dbKey_cur_account_details: string = '__dbKey_cur_account_details__';
 
 const ICON_PATHS = {
     loggedIn: {

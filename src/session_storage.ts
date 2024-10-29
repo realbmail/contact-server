@@ -35,34 +35,3 @@ export async function sessionRemove(key: string): Promise<void> {
         console.error("[session service] Failed to remove value:", error);
     }
 }
-
-export async function syncSet(key: string, value: any): Promise<void> {
-    try {
-        await storage.sync.set({[key]: value});
-        // console.log(`[service work] set value for key=${key} successfully.`);
-    } catch (error: unknown) {
-        const err = error as Error;
-        console.error(`[sync service] Failed to set  key=${key} value:`, err);
-    }
-}
-
-export async function syncGet(key: string): Promise<any> {
-    try {
-        const result = await storage.sync.get(key);
-        // console.log(`[service work] get value for key=${key} successfully.`);
-        return result[key];
-    } catch (error: unknown) {
-        const err = error as Error;
-        console.error(`[sync service] Failed to get value for key=${key} :`, err);
-        return null;
-    }
-}
-
-export async function syncRemove(key: string): Promise<void> {
-    try {
-        await storage.sync.remove(key);
-        // console.log(`[service work] Value for key=${key} was removed successfully.`);
-    } catch (error) {
-        console.error("[sync service] Failed to remove value:", error);
-    }
-}

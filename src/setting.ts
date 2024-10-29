@@ -1,5 +1,6 @@
 import {__currentDatabaseVersion, __tableSystemSetting, databaseUpdate, getMaxIdRecord} from "./database";
-import {sessionGet, sessionSet} from "./session_storage";
+import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
+import {__dbKey_cur_account_details} from "./consts";
 
 const __dbSystemSetting = "__db_key_system_setting__"
 
@@ -47,6 +48,7 @@ export async function changeCurrentSrv(srv: string) {
     const sObj = await getSystemSetting();
     sObj.contactSrv = srv;
     await setSystemSetting(sObj);
+    await sessionRemove(__dbKey_cur_account_details);
 }
 
 export async function addContactSrv(srv: string) {
