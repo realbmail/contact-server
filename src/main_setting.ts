@@ -17,10 +17,17 @@ export function initSetting() {
         dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
     });
 
-    document.addEventListener('click', (event) => {
-        if (!dropdownToggle.contains(event.target as Node)) {
-            dropdownMenu.style.display = "none";
+    const container = document.getElementById("view-network-setting") as HTMLDivElement;
+
+    container.addEventListener('click', (event) => {
+
+        if (dropdownMenu.style.display === "none" ||
+            dropdownToggle.contains(event.target as Node) ||
+            dropdownMenu.contains(event.target as Node)) {
+            return;
         }
+
+        dropdownMenu.style.display = "none";
     });
 }
 
@@ -54,16 +61,16 @@ export async function populateSystemSetting() {
         if (item === __officialContactSrv) {
             deleteButton.style.display = 'none';
         } else {
-            deleteButton.addEventListener('click', () => removeContactItem(item, selectedItem, optionDiv, dropdownMenu));
+            deleteButton.addEventListener('click', (event) => removeContactItem(event, item, selectedItem, optionDiv, dropdownMenu));
         }
         dropdownMenu.appendChild(optionDiv);
     });
 }
 
-async function removeContactItem(srv: string, selectedItem: HTMLSpanElement,
+async function removeContactItem(event: MouseEvent, srv: string, selectedItem: HTMLSpanElement,
                                  optionDiv: HTMLDivElement, dropdownMenu: HTMLDivElement) {
+    event.stopPropagation(); // 阻止点击事件冒泡到 optionDiv
     showLoading();
-
     try {
         dropdownMenu.removeChild(optionDiv);
 
@@ -71,7 +78,8 @@ async function removeContactItem(srv: string, selectedItem: HTMLSpanElement,
 
         dropdownMenu.querySelectorAll('.contact-server-item').forEach(el => {
             el.classList.remove('selected');
-            const val = el.textContent?.trim();
+            const itemVal = el.querySelector('.contact-server-item-val') as HTMLSpanElement;
+            const val = itemVal.textContent?.trim();
             if (newSetting.contactSrv === val) {
                 el.classList.add('selected');
                 selectedItem.textContent = val;
@@ -101,6 +109,7 @@ async function addNewContactItem() {
         await addContactSrv(serverAddress);
         await populateSystemSetting();
         showToastMessage("add success");
+        contactSrvInput.value = '';
     } catch (e) {
         const err = e as Error;
         showToastMessage(err.message);
@@ -111,7 +120,6 @@ async function addNewContactItem() {
 
 async function contactSrvChanged(selectedValue: string, selectedItem: HTMLSpanElement,
                                  dropdownMenu: HTMLDivElement, optionDiv: HTMLDivElement) {
-
     showLoading();
     try {
         selectedItem.textContent = selectedValue;
@@ -125,5 +133,4 @@ async function contactSrvChanged(selectedValue: string, selectedItem: HTMLSpanEl
     } finally {
         hideLoading();
     }
-
 }

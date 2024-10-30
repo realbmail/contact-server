@@ -1,4 +1,4 @@
-import {ec, ec as EC} from "elliptic";
+import {ec as EC} from "elliptic";
 import Hex from "crypto-js/enc-hex";
 import PBKDF2 from "crypto-js/pbkdf2";
 import WordArray from "crypto-js/lib-typedarrays";

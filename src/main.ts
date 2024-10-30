@@ -55,10 +55,11 @@ async function checkWalletStatus(): Promise<WalletStatus> {
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
     if (walletStatus === WalletStatus.Init) {
         const wallet = await queryCurWallet();
-        console.log('[service work] queryCurWallet result:', wallet);
         if (!wallet) {
             return WalletStatus.NoWallet;
         }
+
+        console.log('------>>> load active wallet:', wallet?.address.bmail_address);
         return WalletStatus.Locked;
     }
 
