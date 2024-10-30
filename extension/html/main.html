@@ -119,20 +119,27 @@
 
     <div class="contact-server-setting">
         <div>
-            <span>
             <label class="contact-server-lbl" for="contact-server-val" id="contact-server-lbl"></label>
-                <input class="contact-server-val" id="contact-server-val" type="url">
-                <button class="contact-server-save" id="contact-server-add">Add</button>
-            </span>
-
-            <span>
-                <label for="contact-server-list">通讯录服务器：</label>
-                <option class="contact-server-item" id="contact-server-item-template"></option>
-                <select class="contact-server-list" id="contact-server-list">
-                </select>
-            </span>
-
+            <input class="contact-server-val" id="contact-server-val" type="url">
+            <button class="contact-server-save" id="contact-server-add">Add</button>
         </div>
+
+        <div class="custom-dropdown" id="contact-server-list">
+            <div>
+                <span class="selected-item" id="selected-item">未选择</span>
+                <button class="dropdown-toggle" id="dropdown-toggle">
+                    <img alt="drop down image" src="../file/dropdown.png">
+                </button>
+            </div>
+
+            <div class="contact-server-item" id="contact-server-item-template" style="display: none;">
+                <span class="contact-server-item-val"></span>
+                <button class="contact-server-item-del-btn">删除</button>
+            </div>
+            <div class="dropdown-menu" id="server-dropdown-menu" style="display: none;">
+            </div>
+        </div>
+
     </div>
 </div>
 
