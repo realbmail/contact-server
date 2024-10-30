@@ -263,6 +263,12 @@ async function checkCurrentEmailBindStatus() {
 
         const bindOrUnbindBtn = document.getElementById('current-email-bind-btn') as HTMLElement;
         bindOrUnbindBtn.style.display = "block";
+
+        if (bindOrUnbindBtn.dataset.hasAddBinding === 'true') {
+            return;
+        }
+
+        bindOrUnbindBtn.dataset.hasAddBinding = 'true';
         bindOrUnbindBtn.addEventListener('click', async () => {
             const success = await mailBindingAction(false, currentEmail);
             if (success) {
