@@ -2,15 +2,13 @@ import {initDatabase} from "./database";
 import {
     BMRequestToSrv,
     createQRCodeImg, encodeHex,
-    sendMessageToBackground,
     showView, signDataByMessage
 } from "./utils";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
-import {DbWallet, queryCurWallet} from "./wallet";
+import {queryCurWallet} from "./wallet";
 import {AccountOperation} from "./proto/bmail_srv";
-import {MsgType} from "./consts";
 import {createNewWallet} from "./background";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
@@ -574,14 +572,15 @@ async function freeActiveAccount(address?: string) {
         const message = AccountOperation.encode(payload).finish()
         const signature = await signDataByMessage(encodeHex(message));
         if (!signature) {
-            throw new Error("sign data failed")
+            errorDiv.innerText = "sign data failed";
+            return;
         }
+
         const srvRsp = await BMRequestToSrv("/account_create", address, message, signature)
         console.log("------->>>fetch success:=>", srvRsp);
         navigateTo('#onboarding/account-success');
     } catch (error) {
         console.log("------->>>fetch failed:=>", error);
-        const errorDiv = document.getElementById("account-home-error") as HTMLDivElement;
         errorDiv.innerText = "fetch failed:" + error;
         errorDiv.style.display = "block";
     } finally {

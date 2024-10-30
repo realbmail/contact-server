@@ -24,13 +24,15 @@ export function initLoginDiv(): void {
 }
 
 async function openAllWallets(): Promise<void> {
+    const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
     try {
         const inputElement = document.querySelector(".view-main-login input") as HTMLInputElement;
         const password = inputElement.value;
 
         const mAddr = await openWallet(password);
         if (!mAddr) {
-            throw new Error("Cannot open wallet.");
+            errTips.innerText = "no address found in wallet.";
+            return;
         }
 
         await sessionSet(__currentAccountAddress, mAddr);
@@ -40,7 +42,6 @@ async function openAllWallets(): Promise<void> {
     } catch (e) {
         console.log("------------>>> failed to open wallet:=>", e);
         const err = e as Error;
-        const errTips = document.querySelector(".view-main-login .login-error") as HTMLElement;
         if (err.message.includes("bad seed size") || err.message.includes("Malformed UTF-8 data")) {
             errTips.innerText = browser.i18n.getMessage('invalid_password');
         } else {
