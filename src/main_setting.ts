@@ -1,4 +1,4 @@
-import {hideLoading, isValidUrl, showLoading, showView} from "./common";
+import {hideLoading, isValidUrl, showLoading, showView} from "./utils";
 import {showToastMessage} from "./main_common";
 import {__officialContactSrv, addContactSrv, changeCurrentSrv, getSystemSetting, removeContractSrv} from "./setting";
 

@@ -15,7 +15,7 @@ import {
     extractEmail, hideLoading,
     sendMessageToBackground,
     showLoading,
-} from "./common";
+} from "./utils";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
 import {

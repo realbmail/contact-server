@@ -5,7 +5,7 @@ import {
     showLoading,
     showView,
     signDataByMessage
-} from "./common";
+} from "./utils";
 import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
 import {
     __currentAccountAddress,

@@ -10,7 +10,7 @@ import base58 from "bs58";
 import {keccak256} from "js-sha3";
 import {__tableNameWallet, getMaxIdRecord} from "./database";
 import nacl from 'tweetnacl';
-import {decodeHex, encodeHex} from "./common";
+import {decodeHex, encodeHex} from "./utils";
 import {ed2CurvePri} from "./edwards25519";
 
 const BMailAddrPrefix = "BM";

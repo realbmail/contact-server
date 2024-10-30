@@ -14,7 +14,7 @@ import {
     moveParenthesesBeforeExtension,
     sendMessageToBackground,
     showLoading
-} from "./common";
+} from "./utils";
 import {MailFlag} from "./bmail_body";
 import {addAttachmentEncryptBtn, decryptFile, loadAKForReading} from "./content_attachment";
 import {AttachmentFileSuffix, MsgType} from "./consts";

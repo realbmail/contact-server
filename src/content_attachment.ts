@@ -1,5 +1,5 @@
 import {generateRandomKey} from "./wallet";
-import {decodeHex, encodeHex, sendMessageToBackground} from "./common";
+import {decodeHex, encodeHex, sendMessageToBackground} from "./utils";
 import nacl from "tweetnacl";
 import {AttachmentFileSuffix, MsgType} from "./consts";
 import browser from "webextension-polyfill";

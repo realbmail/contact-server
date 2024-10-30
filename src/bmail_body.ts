@@ -1,7 +1,7 @@
 import naclUtil from "tweetnacl-util";
 import nacl from "tweetnacl";
 import {decodePubKey, generateRandomKey, MailKey} from "./wallet";
-import {decodeHex, encodeHex} from "./common";
+import {decodeHex, encodeHex} from "./utils";
 import {ed2CurvePub} from "./edwards25519";
 
 export let MailBodyVersion = '1.2.6';

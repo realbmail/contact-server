@@ -1,7 +1,7 @@
 import browser from "webextension-polyfill";
 import {
     showView
-} from "./common";
+} from "./utils";
 import {checkAndInitDatabase, initDatabase} from "./database";
 import {translateMainPage} from "./local";
 import {getSystemSetting} from "./setting";

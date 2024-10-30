@@ -15,7 +15,7 @@ import {
     replaceTextNodeWithDiv,
     showTipsDialog
 } from "./content_common";
-import {extractEmail, hideLoading, showLoading} from "./common";
+import {extractEmail, hideLoading, showLoading} from "./utils";
 import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
 
 function appendForNetEase(template: HTMLTemplateElement) {

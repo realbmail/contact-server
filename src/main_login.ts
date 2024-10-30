@@ -1,10 +1,8 @@
 import browser from "webextension-polyfill";
-import {hideLoading, showLoading, showView} from "./common";
-import {MailAddress} from "./wallet";
+import {hideLoading, showLoading, showView} from "./utils";
 import {sessionSet} from "./session_storage";
 import {__currentAccountAddress, router, showDialog} from "./main_common";
 import {__tableNameWallet, databaseDeleteByFilter} from "./database";
-import {MsgType} from "./consts";
 import {openWallet} from "./background";
 
 export function initLoginDiv(): void {

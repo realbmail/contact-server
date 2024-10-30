@@ -6,7 +6,7 @@ import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
-import {decodeHex, encodeHex} from "./common";
+import {decodeHex, encodeHex} from "./utils";
 import {
     decodePubKey,
     decryptAes,

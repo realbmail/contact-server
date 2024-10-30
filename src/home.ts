@@ -4,7 +4,7 @@ import {
     createQRCodeImg, encodeHex,
     sendMessageToBackground,
     showView, signDataByMessage
-} from "./common";
+} from "./utils";
 import {translateHomePage} from "./local";
 import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";

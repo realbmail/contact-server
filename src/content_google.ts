@@ -7,7 +7,7 @@ import {
     parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
 } from "./content_common";
-import {emailRegex, hideLoading, showLoading} from "./common";
+import {emailRegex, hideLoading, showLoading} from "./utils";
 import browser from "webextension-polyfill";
 import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
 

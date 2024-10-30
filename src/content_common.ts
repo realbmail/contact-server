@@ -7,7 +7,7 @@ import {
     replaceTextInRange,
     sendMessageToBackground,
     showLoading
-} from "./common";
+} from "./utils";
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 import {

@@ -7,7 +7,7 @@ import {
     readCurrentMailAddress,
     setupEmailAddressByInjection
 } from "./content_common";
-import {sendMessageToBackground} from "./common";
+import {sendMessageToBackground} from "./utils";
 
 import {BmailError, EventData, wrapResponse} from "./inject_msg";
 
