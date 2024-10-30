@@ -3,7 +3,7 @@ import {hideLoading, showLoading, showView} from "./utils";
 import {sessionSet} from "./session_storage";
 import {__currentAccountAddress, router, showDialog} from "./main_common";
 import {__tableNameWallet, databaseDeleteByFilter} from "./database";
-import {openWallet} from "./background";
+import {openWallet} from "./wallet_util";
 
 export function initLoginDiv(): void {
     const unlock = document.querySelector(".view-main-login .primary-button") as HTMLButtonElement;

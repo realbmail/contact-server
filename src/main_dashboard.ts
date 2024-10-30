@@ -18,7 +18,7 @@ import {
 import {AccountOperation, BMailAccount} from "./proto/bmail_srv";
 import browser from "webextension-polyfill";
 import {MsgType} from "./consts";
-import {closeWallet} from "./background";
+import {closeWallet} from "./wallet_util";
 
 export function initDashBoard(): void {
     const container = document.getElementById("view-main-dashboard") as HTMLDivElement;

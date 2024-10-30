@@ -9,7 +9,7 @@ import {generateMnemonic, validateMnemonic, wordlists} from 'bip39';
 import browser from "webextension-polyfill";
 import {queryCurWallet} from "./wallet";
 import {AccountOperation} from "./proto/bmail_srv";
-import {createNewWallet} from "./background";
+import {createNewWallet} from "./wallet_util";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage as EventListener);
 let ___mnemonic_in_mem: string | null = null;

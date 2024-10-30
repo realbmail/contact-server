@@ -1,37 +1,25 @@
 /// <reference lib="webworker" />
 import browser, {Runtime} from "webextension-polyfill";
-import {__tableNameWallet, checkAndInitDatabase, closeDatabase, databaseAddItem} from "./database";
-import {resetStorage, sessionGet, sessionRemove, sessionSet} from "./session_storage";
-import {castToMemWallet, DbWallet, MailAddress, MailKey, newWallet, queryCurWallet} from "./wallet";
+import {closeDatabase} from "./database";
+import {resetStorage, sessionGet, sessionSet} from "./session_storage";
+import {MailAddress, MailKey} from "./wallet";
 import {BMRequestToSrv, decodeHex, extractNameFromUrl} from "./utils";
 import {decodeMail, encodeMail, initMailBodyVersion} from "./bmail_body";
 import {BMailAccount, QueryReq, EmailReflects, BindAction} from "./proto/bmail_srv";
-import {__dbKey_cur_account_details, __dbKey_cur_key, __key_wallet_status, MsgType, WalletStatus} from "./consts";
+import {
+    __dbKey_cur_account_details,
+    __dbKey_cur_addr,
+    __dbKey_cur_key,
+    __key_wallet_status,
+    MsgType,
+    WalletStatus
+} from "./consts";
 import {extractAesKeyId} from "./content_common";
+import {openWallet, updateIcon} from "./wallet_util";
 
 const runtime = browser.runtime;
 const alarms = browser.alarms;
 const __alarm_name__: string = '__alarm_name__timer__';
-
-const __dbKey_cur_addr: string = '__dbKey_cur_addr__';
-
-const ICON_PATHS = {
-    loggedIn: {
-        "16": "../file/logo_16.png",
-        "48": "../file/logo_48.png",
-        "128": "../file/logo_128.png"
-    },
-    loggedOut: {
-        "16": "../file/logo_16_out.png",
-        "48": "../file/logo_48_out-black.png",
-        "128": "../file/logo_128_out.png"
-    }
-};
-
-function updateIcon(isLoggedIn: boolean) {
-    const iconPath = isLoggedIn ? ICON_PATHS.loggedIn : ICON_PATHS.loggedOut;
-    browser.action.setIcon({path: iconPath}).then();
-}
 
 runtime.onMessage.addListener((request: any, _sender: Runtime.MessageSender, sendResponse: (response?: any) => void): true | void => {
     // console.log("[service work] action :=>", request.action, sender.url);
@@ -147,45 +135,6 @@ runtime.onSuspend.addListener(() => {
     console.log('[service work] Browser is shutting down, closing IndexedDB...');
     closeDatabase();
 });
-
-export async function createNewWallet(mnemonic: string, password: string): Promise<DbWallet | null> {
-    try {
-        await checkAndInitDatabase();
-        const wallet = newWallet(mnemonic, password);
-        await databaseAddItem(__tableNameWallet, wallet);
-        const mKey = castToMemWallet(password, wallet);
-        await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
-        await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
-        await sessionSet(__dbKey_cur_addr, mKey.address);
-        return wallet;
-    } catch (error) {
-        console.log("------>>>creating wallet failed:", error);
-        return null;
-    }
-}
-
-export async function openWallet(pwd: string): Promise<MailAddress | null> {
-    await checkAndInitDatabase();
-    const wallet = await queryCurWallet();
-    if (!wallet) {
-        await sessionSet(__key_wallet_status, WalletStatus.NoWallet);
-        return null;
-    }
-
-    const mKey = castToMemWallet(pwd, wallet);
-    await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
-    await sessionSet(__dbKey_cur_key, mKey.rawPriKey());
-    await sessionSet(__dbKey_cur_addr, mKey.address);
-    updateIcon(true);
-    return mKey.address;
-}
-
-export async function closeWallet(): Promise<void> {
-    await sessionRemove(__key_wallet_status);
-    await sessionRemove(__dbKey_cur_key);
-    await sessionRemove(__dbKey_cur_addr);
-    updateIcon(false);
-}
 
 async function checkWalletStatus(sendResponse: (response: any) => void) {
     let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;

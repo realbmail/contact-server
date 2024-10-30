@@ -39,3 +39,4 @@ export const AttachmentFileSuffix = "bmail"
 export const __dbKey_cur_account_details: string = '__dbKey_cur_account_details__';
 export const __key_wallet_status: string = '__key_wallet_status';
 export const __dbKey_cur_key: string = '__dbKey_cur_key__';
+export const __dbKey_cur_addr: string = '__dbKey_cur_addr__';
