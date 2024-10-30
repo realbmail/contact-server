@@ -1,6 +1,7 @@
 import {hideLoading, isValidUrl, showLoading, showView} from "./utils";
 import {showToastMessage} from "./main_common";
 import {__officialContactSrv, addContactSrv, changeCurrentSrv, getSystemSetting, removeContractSrv} from "./setting";
+import {prepareDashboardElm} from "./main_dashboard";
 
 export function initSetting() {
     const backBtn = document.getElementById("system-back-btn") as HTMLButtonElement;
@@ -32,6 +33,10 @@ export function initSetting() {
 }
 
 export async function populateSystemSetting() {
+    await populateServerMenu();
+}
+
+async function populateServerMenu() {
     const serverListElm = document.getElementById('contact-server-list') as HTMLDivElement;
     const dropdownMenu = serverListElm.querySelector('.dropdown-menu') as HTMLDivElement;
     const selectedItem = document.getElementById('selected-item') as HTMLSpanElement;
@@ -61,33 +66,22 @@ export async function populateSystemSetting() {
         if (item === __officialContactSrv) {
             deleteButton.style.display = 'none';
         } else {
-            deleteButton.addEventListener('click', (event) => removeContactItem(event, item, selectedItem, optionDiv, dropdownMenu));
+            deleteButton.addEventListener('click', (event) => removeContactItem(event, item));
         }
         dropdownMenu.appendChild(optionDiv);
     });
 }
 
-async function removeContactItem(event: MouseEvent, srv: string, selectedItem: HTMLSpanElement,
-                                 optionDiv: HTMLDivElement, dropdownMenu: HTMLDivElement) {
+async function removeContactItem(event: MouseEvent, srv: string) {
     event.stopPropagation(); // 阻止点击事件冒泡到 optionDiv
     showLoading();
     try {
-        dropdownMenu.removeChild(optionDiv);
-
-        const newSetting = await removeContractSrv(srv);
-
-        dropdownMenu.querySelectorAll('.contact-server-item').forEach(el => {
-            el.classList.remove('selected');
-            const itemVal = el.querySelector('.contact-server-item-val') as HTMLSpanElement;
-            const val = itemVal.textContent?.trim();
-            if (newSetting.contactSrv === val) {
-                el.classList.add('selected');
-                selectedItem.textContent = val;
-            }
-        });
-
+        const needUpdate = await removeContractSrv(srv);
+        await populateServerMenu();
+        if (needUpdate) {
+            await prepareDashboardElm(true);
+        }
         showToastMessage("remove success");
-
     } catch (e) {
         const err = e as Error;
         showToastMessage(err.message);
@@ -107,9 +101,9 @@ async function addNewContactItem() {
     showLoading();
     try {
         await addContactSrv(serverAddress);
-        await populateSystemSetting();
-        showToastMessage("add success");
+        await populateServerMenu();
         contactSrvInput.value = '';
+        showToastMessage("add success");
     } catch (e) {
         const err = e as Error;
         showToastMessage(err.message);
@@ -127,6 +121,7 @@ async function contactSrvChanged(selectedValue: string, selectedItem: HTMLSpanEl
         dropdownMenu.querySelectorAll('.contact-server-item').forEach(el => el.classList.remove('selected'));
         optionDiv.classList.add('selected');
         await changeCurrentSrv(selectedValue);
+        await prepareDashboardElm(true);
     } catch (e) {
         const err = e as Error;
         showToastMessage(err.message);

@@ -1,6 +1,6 @@
 import {__currentDatabaseVersion, __tableSystemSetting, databaseUpdate, getMaxIdRecord} from "./database";
-import {sessionGet, sessionSet} from "./session_storage";
-import {loadAndSetupAccount} from "./main_dashboard";
+import {sessionGet, sessionRemove, sessionSet} from "./session_storage";
+import {__dbKey_cur_account_details} from "./consts";
 
 const __dbSystemSetting = "__db_key_system_setting__"
 
@@ -48,7 +48,6 @@ export async function changeCurrentSrv(srv: string) {
     const sObj = await getSystemSetting();
     sObj.contactSrv = srv;
     await setSystemSetting(sObj);
-    loadAndSetupAccount(true).then();
 }
 
 export async function addContactSrv(srv: string) {
@@ -64,7 +63,7 @@ export async function addContactSrv(srv: string) {
     await setSystemSetting(sObj);
 }
 
-export async function removeContractSrv(srv: string): Promise<SysSetting> {
+export async function removeContractSrv(srv: string): Promise<boolean> {
     const sObj = await getSystemSetting();
 
     for (let i = 0; i < sObj.contactList.length; i++) {
@@ -74,17 +73,18 @@ export async function removeContractSrv(srv: string): Promise<SysSetting> {
         }
     }
 
+    let needUpdateSrv = false;
     if (sObj.contactSrv === srv) {
         if (sObj.contactList.length > 0) {
             sObj.contactSrv = sObj.contactList[0];
         } else {
             sObj.contactSrv = '';
         }
+        needUpdateSrv = true;
     }
 
     await setSystemSetting(sObj);
-    loadAndSetupAccount(true).then();
-    return sObj;
+    return needUpdateSrv;
 }
 
 // const httpServerUrl = "https://sharp-happy-grouse.ngrok-free.app"

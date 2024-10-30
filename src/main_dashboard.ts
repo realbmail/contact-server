@@ -32,7 +32,7 @@ function setupDashboardHeader(container: HTMLDivElement) {
     reloadBindingBtn.addEventListener('click', async () => {
         try {
             showLoading();
-            await loadAndSetupAccount(true);
+            await prepareDashboardElm(true);
         } catch (error) {
             console.log("------>> load setup account error:=>", error);
         } finally {
@@ -118,8 +118,7 @@ export async function loadAndSetupAccount(force?: boolean) {
 export async function populateDashboard() {
     try {
         showLoading();
-        await loadAndSetupAccount();
-        await checkCurrentEmailBindStatus();
+        await prepareDashboardElm();
     } catch (err) {
         console.log("------>>> populate dashboard failed:", err);
     } finally {
@@ -186,7 +185,7 @@ function setupElementByAccountData(accountData: BMailAccount) {
             if (success) {
                 clone.parentNode?.removeChild(clone);
             }
-        })
+        });
         const emailSpan = clone.querySelector('.binding-email-address-val') as HTMLElement
         emailSpan.innerText = email;
         parentDiv.append(clone);
@@ -205,10 +204,8 @@ async function mailBindingAction(isUnbind: boolean, email: string): Promise<bool
             showDialog("error", rsp.message);
             return false;
         }
-        await loadAndSetupAccount(true);
-        if (isUnbind) {
-            await checkCurrentEmailBindStatus();
-        }
+
+        await prepareDashboardElm(true);
         return true;
     } catch (e) {
         showDialog("error", JSON.stringify(e));
@@ -301,11 +298,16 @@ async function activeCurrentAccount(actBtn: HTMLButtonElement) {
         const srvRsp = await BMRequestToSrv("/account_create", address, message, signature)
         console.log("------->>>fetch success:=>", srvRsp);
         actBtn.style.display = 'none';
-        await loadAndSetupAccount(true);
+        await prepareDashboardElm(true);
     } catch (e) {
         console.log("------->>>fetch failed:=>", e);
         showDialog("error", JSON.stringify(e));
     } finally {
         hideLoading();
     }
+}
+
+export async function prepareDashboardElm(force?: boolean): Promise<void> {
+    await loadAndSetupAccount(force);
+    await checkCurrentEmailBindStatus();
 }
