@@ -87,15 +87,14 @@ function setupSettingMenu(container: HTMLElement) {
     });
 }
 
-export async function loadAndSetupAccount(force?: boolean) {
+async function loadAndSetupAccount(force?: boolean): Promise<BMailAccount | null> {
     try {
         const accountAddr = await sessionGet(__currentAccountAddress);
         if (!accountAddr) {
             console.log("------>>>fatal logic error, no wallet found!");
             showView('#onboarding/main-login', router);
-            return;
+            return null;
         }
-        document.getElementById('bmail-address-val')!.textContent = accountAddr.bmail_address;
 
         const statusRsp = await sendMessageToBackground({
             address: accountAddr.bmail_address,
@@ -103,15 +102,16 @@ export async function loadAndSetupAccount(force?: boolean) {
         }, MsgType.QueryAccountDetails);
         if (statusRsp.success < 0) {
             console.log("------>>> account detail load failed")
-            return;
+            return null;
         }
 
         const accountData = statusRsp.data as BMailAccount;
         // console.log("------>>> account query success:", accountData);
-        setupElementByAccountData(accountData);
         await sessionSet(__currentAccountData, accountData);
+        return accountData;
     } catch (e) {
         console.log("------>>> query current account detail from server failed:=>", e);
+        return null;
     }
 }
 
@@ -154,6 +154,8 @@ function setupElementByAccountData(accountData: BMailAccount) {
     const levelInfo = levelToStr(accountData.level);
     levelStr.textContent = levelInfo.name;
     imgElm.src = levelInfo.url;
+
+    document.getElementById('bmail-address-val')!.textContent = accountData.address;
 
     if (accountData.level === 0) {
         document.getElementById('bmail-active-account')!.style.display = 'block';
@@ -308,6 +310,12 @@ async function activeCurrentAccount(actBtn: HTMLButtonElement) {
 }
 
 export async function prepareDashboardElm(force?: boolean): Promise<void> {
-    await loadAndSetupAccount(force);
+    const accountData = await loadAndSetupAccount(force);
+    if (!accountData) {
+
+        return;
+    }
+    setupElementByAccountData(accountData);
+
     await checkCurrentEmailBindStatus();
 }
