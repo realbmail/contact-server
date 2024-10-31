@@ -361,5 +361,17 @@
   "bmail_attachment_decrypt": {
     "message": "Entschlüsselung herunterladen",
     "description": ""
+  },
+  "account_exit": {
+    "message": "Beenden"
+  },
+  "network_setting": {
+    "message": "Netzwerkeinstellungen"
+  },
+  "network_item_placeholder": {
+    "message": "Geben Sie die richtige http://... ein"
+  },
+  "network_item_add": {
+    "message": "Hinzufügen"
   }
 }

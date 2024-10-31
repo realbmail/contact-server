@@ -361,5 +361,17 @@
   "bmail_attachment_decrypt": {
     "message": "Загрузить расшифрованным",
     "description": ""
+  },
+  "account_exit": {
+    "message": "Выйти"
+  },
+  "network_setting": {
+    "message": "Настройки сети"
+  },
+  "network_item_placeholder": {
+    "message": "Введите правильный http://..."
+  },
+  "network_item_add": {
+    "message": "Добавить"
   }
 }

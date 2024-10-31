@@ -121,4 +121,10 @@ export function translateMainPage() {
     document.getElementById('dialog-tips-close-button')!.textContent = browser.i18n.getMessage('close');
     document.getElementById('current-email-bind-btn')!.textContent = browser.i18n.getMessage('bind_email');
 
+
+    document.getElementById('bmail-quit-lbl')!.textContent = browser.i18n.getMessage('account_exit');
+    document.getElementById('bmail-network-lbl')!.textContent = browser.i18n.getMessage('network_setting');
+    (document.getElementById('contact-server-val') as HTMLInputElement).placeholder = browser.i18n.getMessage('network_item_placeholder');
+    document.getElementById('contact-server-add')!.textContent = browser.i18n.getMessage('network_item_add');
+
 }

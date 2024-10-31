@@ -355,5 +355,17 @@
   },
   "bmail_attachment_decrypt": {
     "message": "Decrypt&Download"
+  },
+  "account_exit": {
+    "message": "Exit"
+  },
+  "network_setting": {
+    "message": "Network Settings"
+  },
+  "network_item_placeholder": {
+    "message": "Enter the correct http://..."
+  },
+  "network_item_add": {
+    "message": "Add"
   }
 }

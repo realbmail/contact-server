@@ -361,5 +361,17 @@
   "bmail_attachment_decrypt": {
     "message": "복호화 다운로드",
     "description": ""
+  },
+  "account_exit": {
+    "message": "종료"
+  },
+  "network_setting": {
+    "message": "네트워크 설정"
+  },
+  "network_item_placeholder": {
+    "message": "올바른 http://... 을 입력하세요"
+  },
+  "network_item_add": {
+    "message": "추가"
   }
 }

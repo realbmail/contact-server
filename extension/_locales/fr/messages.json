@@ -361,5 +361,17 @@
   "bmail_attachment_decrypt": {
     "message": "Télécharger décrypté",
     "description": ""
+  },
+  "account_exit": {
+    "message": "Quitter"
+  },
+  "network_setting": {
+    "message": "Paramètres réseau"
+  },
+  "network_item_placeholder": {
+    "message": "Entrez le http://... correct"
+  },
+  "network_item_add": {
+    "message": "Ajouter"
   }
 }

@@ -355,5 +355,17 @@
   },
   "bmail_attachment_decrypt": {
     "message": "解密下载"
+  },
+  "account_exit": {
+    "message": "退出"
+  },
+  "network_setting": {
+    "message": "网络设置"
+  },
+  "network_item_placeholder": {
+    "message": "输入正确的http://..."
+  },
+  "network_item_add": {
+    "message": "增加"
   }
 }

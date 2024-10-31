@@ -361,5 +361,17 @@
   "bmail_attachment_decrypt": {
     "message": "復号化してダウンロード",
     "description": ""
+  },
+  "account_exit": {
+    "message": "終了"
+  },
+  "network_setting": {
+    "message": "ネットワーク設定"
+  },
+  "network_item_placeholder": {
+    "message": "正しい http://... を入力してください"
+  },
+  "network_item_add": {
+    "message": "追加"
   }
 }

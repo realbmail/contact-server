@@ -19,11 +19,11 @@ document.addEventListener("DOMContentLoaded", initBMailExtension as EventListene
 async function initBMailExtension(): Promise<void> {
     await initDatabase();
     await getSystemSetting();
-    translateMainPage();
     await checkBackgroundStatus();
     initLoginDiv();
     initDashBoard();
     initSetting();
+    translateMainPage();
 }
 
 async function checkBackgroundStatus(): Promise<void> {
