@@ -3,7 +3,7 @@
   "name": "BMail",
   "version": "3.1.0",
   "default_locale": "en",
-  "description": "Blockchain Mail Protocol.",
+  "description": "An extension using blockchain technology for peer-to-peer encryption of emails",
   "action": {
     "default_popup": "html/main.html",
     "default_icon": {
