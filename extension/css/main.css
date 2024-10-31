@@ -624,6 +624,14 @@ button:hover {
     font-weight: 500;
 }
 
+.contact-server-item .server-item-selected {
+    display: none;
+}
+
+.contact-server-item.selected .server-item-selected {
+    display: block;
+}
+
 input#contact-server-val {
     width: calc(100% - 20px);
     font-size: 14px;
