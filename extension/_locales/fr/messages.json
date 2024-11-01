@@ -373,5 +373,11 @@
   },
   "network_item_add": {
     "message": "Ajouter"
+  },
+  "attachment_decrypt_error": {
+    "message": "Échec du déchiffrement, la clé peut être incorrecte ou les données sont corrompues"
+  },
+  "attachment_download_error": {
+    "message": "Échec de la réponse réseau, code d'état:"
   }
 }

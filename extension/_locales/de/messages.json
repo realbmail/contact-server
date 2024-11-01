@@ -373,5 +373,11 @@
   },
   "network_item_add": {
     "message": "Hinzufügen"
+  },
+  "attachment_decrypt_error": {
+    "message": "Entschlüsselung fehlgeschlagen, möglicherweise ist der Schlüssel falsch oder die Daten sind beschädigt"
+  },
+  "attachment_download_error": {
+    "message": "Netzwerkantwort fehlgeschlagen, Statuscode:"
   }
 }

@@ -373,5 +373,11 @@
   },
   "network_item_add": {
     "message": "Добавить"
+  },
+  "attachment_decrypt_error": {
+    "message": "Расшифровка не удалась, возможно, ключ неверен или данные повреждены"
+  },
+  "attachment_download_error": {
+    "message": "Ошибка сети, код состояния:"
   }
 }

@@ -373,5 +373,11 @@
   },
   "network_item_add": {
     "message": "追加"
+  },
+  "attachment_decrypt_error": {
+    "message": "復号に失敗しました。キーが正しくないか、データが破損している可能性があります"
+  },
+  "attachment_download_error": {
+    "message": "ネットワーク応答に失敗しました。ステータスコード:"
   }
 }

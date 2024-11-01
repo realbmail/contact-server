@@ -367,5 +367,11 @@
   },
   "network_item_add": {
     "message": "增加"
+  },
+  "attachment_decrypt_error": {
+    "message": "解密失败，可能是密钥不正确或数据已损坏"
+  },
+  "attachment_download_error": {
+    "message": "网络响应失败，状态码:"
   }
 }

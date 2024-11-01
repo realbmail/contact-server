@@ -367,5 +367,11 @@
   },
   "network_item_add": {
     "message": "Add"
+  },
+  "attachment_decrypt_error": {
+    "message": "Decryption failed, the key may be incorrect or the data is corrupted"
+  },
+  "attachment_download_error": {
+    "message": "Network response failed, status code:"
   }
 }

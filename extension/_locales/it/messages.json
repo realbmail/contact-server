@@ -373,5 +373,11 @@
   },
   "network_item_add": {
     "message": "Aggiungere"
+  },
+  "attachment_decrypt_error": {
+    "message": "Decrittazione fallita, la chiave potrebbe essere errata o i dati potrebbero essere danneggiati"
+  },
+  "attachment_download_error": {
+    "message": "Risposta di rete fallita, codice di stato:"
   }
 }

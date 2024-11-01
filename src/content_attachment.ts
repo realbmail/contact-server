@@ -209,7 +209,8 @@ export async function downloadAndDecryptFile(url: string, aesKey: AttachmentEncr
     });
 
     if (!response.ok) {
-        throw new Error(`网络响应失败，状态码：${response.status}`);
+        const status = browser.i18n.getMessage("attachment_download_error");
+        throw new Error(`${status} ${response.status}`);
     }
 
     const encryptedDataBuffer = await response.arrayBuffer();
@@ -225,7 +226,7 @@ export function decryptAttachmentFileData(
 ) {
     const decryptedData = nacl.secretbox.open(encryptedData, aesKey.nonce, aesKey.key);
     if (!decryptedData) {
-        throw new Error('解密失败，可能是密钥不正确或数据已损坏');
+        throw new Error(browser.i18n.getMessage("attachment_decrypt_error"));
     }
 
     const blob = new Blob([decryptedData], {type: 'application/octet-stream'});

@@ -373,5 +373,11 @@
   },
   "network_item_add": {
     "message": "Agregar"
+  },
+  "attachment_decrypt_error": {
+    "message": "Falló la desencriptación, la clave puede ser incorrecta o los datos están dañados"
+  },
+  "attachment_download_error": {
+    "message": "Fallo en la respuesta de red, código de estado:"
   }
 }

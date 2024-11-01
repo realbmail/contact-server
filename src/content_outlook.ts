@@ -623,7 +623,10 @@ async function decryptDownloadedFile(event: Event, aekId: AttachmentKeyID): Prom
     }
 
     const fileName = moveParenthesesBeforeExtension(aekId.originalFileName);
-    await decryptFile(files[0], aesKey, fileName);
+    decryptFile(files[0], aesKey, fileName).catch(err => {
+        let e = err as Error;
+        showTipsDialog("Error", e.message);
+    });
 }
 
 
