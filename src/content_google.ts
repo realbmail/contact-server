@@ -57,20 +57,51 @@ function queryEmailAddrGoogle() {
 
 
 const _composeBtnParentClass = "td.I5"
+const __bmailComposeDivId = "bmail-mail-body-for-gmail";
 
-function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: HTMLElement) {
-
-    const mailBodyDiv = composeDiv.querySelector(".Am.aiL.Al.editable.LW-avf.tS-tW") as HTMLElement;
+function checkMailBodyDiv(template: HTMLTemplateElement, composeDiv: HTMLElement): HTMLElement | null {
+    let mailBodyDiv = composeDiv.querySelector('.Am.aiL.Al.editable') as HTMLElement;
     if (!mailBodyDiv) {
         composeDiv.dataset.tryTimes = composeDiv.dataset.tryTimes ?? "" + "1";
         if (composeDiv.dataset.tryTimes.length > 3) {
             console.log("------>>> failed to find mail body")
-            return;
+            return null;
         }
 
         setTimeout(() => {
             _addCryptoBtnForComposeDiv(template, composeDiv);
         }, 1000)
+        return null;
+    }
+    const gmailBody = mailBodyDiv.querySelector(__bmailComposeDivId) as HTMLElement;
+    if (gmailBody) {
+        return gmailBody;
+    }
+
+    const replayArea = mailBodyDiv.querySelector(".gmail_quote");
+    if (!replayArea) {
+        return mailBodyDiv;
+    }
+    mailBodyDiv = replayArea.parentElement as HTMLElement;
+
+    const div = document.createElement("div");
+    div.classList.add(__bmailComposeDivId);
+
+    const childrenArray = Array.from(mailBodyDiv.children) as HTMLElement[];
+    console.log("------>>> children nodes:", childrenArray);
+    childrenArray.forEach((subNode) => {
+        if (subNode !== replayArea) {
+            div.appendChild(subNode);
+        }
+    });
+
+    mailBodyDiv.insertBefore(div, replayArea);
+    return div;
+}
+
+function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: HTMLElement) {
+    const mailBodyDiv = checkMailBodyDiv(template, composeDiv);
+    if (!mailBodyDiv) {
         return;
     }
 
@@ -340,6 +371,7 @@ class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrGoogle() ?? "";
     }
+
     async processAttachmentDownload(_fileName?: string, _attachmentData?: any): Promise<void> {
         return;
     }
