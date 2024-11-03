@@ -204,10 +204,11 @@ async function addCryptButtonToComposeDivOutLook(template: HTMLTemplateElement) 
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1] as HTMLElement);
 }
 
+const __bmailComposeDivId = "bmail-mail-body-for-outlook";
 async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTMLElement) {
     showLoading();
     try {
-        const mailBody = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
+        let mailBody = document.querySelector("[id^='editorParent_']")?.firstChild as HTMLElement;
         let receiver: string[] | null
         const allEmailAddrDivs = composeArea.querySelectorAll("._Entity._EType_RECIPIENT_ENTITY._EReadonly_1") as NodeListOf<HTMLElement>;
         receiver = await processReceivers(allEmailAddrDivs, (div) => {
@@ -225,6 +226,17 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
             }
             return emailAddr;
         });
+
+        const replayArea = document.getElementById("divRplyFwdMsg");
+        if (replayArea) {
+            const div = document.createElement("div");
+            div.classList.add(__bmailComposeDivId);
+            mailBody.querySelectorAll(".elementToProof").forEach((subNode) => {
+                div.appendChild(subNode);
+            });
+            mailBody.insertBefore(div, mailBody.firstChild as HTMLElement);
+            mailBody = div;
+        }
 
         if (mailBody.innerHTML.includes(MailFlag)) {
             console.log("----->>> has encrypted and send directly");
