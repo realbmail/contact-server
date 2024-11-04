@@ -16,7 +16,7 @@ import {
     showTipsDialog
 } from "./content_common";
 import {extractEmail, hideLoading, showLoading} from "./utils";
-import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
+import {addAttachmentEncryptBtn, decryptAttachment, loadAKForReading} from "./content_attachment";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -80,6 +80,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
             addMailDecryptForReadingNetease(div, template);
             addEncryptBtnForQuickReply(div, template);
             addDecryptBtnForAttachment(div, template);
+            checkAttachmentBeforeForwardMail(div);
         });
     }, 1500);
 }
@@ -206,7 +207,7 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
 }
 
 function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
-    const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLInputElement;
+    const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLElement;
     const allAttachDivs = attachArea.querySelectorAll(".G0");
     if (allAttachDivs.length === 0) {
         return undefined;
@@ -456,3 +457,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     appendForNetEase(template);
     console.log("------>>> netease content init success");
 });
+
+function checkAttachmentBeforeForwardMail(mailArea: HTMLElement) {
+    const decryptBtn = mailArea.querySelector(".bmail-crypto-btn-div");
+    if (!decryptBtn) {
+        console.log("------>>> no need to monitor forward action for this mail");
+        return;
+    }
+
+    const forwardParent = decryptBtn.nextSibling as HTMLElement;
+    if (!forwardParent || forwardParent.children.length <= 2) {
+        console.warn("------>>> there should be the  forward parent node next to decrypt button", forwardParent);
+        return;
+    }
+
+    const forwardBtn = forwardParent.children[2].firstElementChild as HTMLElement;
+    if (!forwardBtn) {
+        console.warn("------>>> forward button not found", forwardBtn);
+        return;
+    }
+    if (forwardBtn.dataset.hasAddListener === 'true') {
+        console.log("----->>> duplicate listen action for mail attachment")
+        return;
+    }
+
+    const attachArea = mailArea.querySelector('div[id$="_dvAttach_reply"]') as HTMLElement;
+    if (!attachArea) {
+        console.log("------>>> no attachment in reply area");
+        return;
+    }
+
+    forwardBtn.addEventListener("click", (e) => checkAttachmentBeforeForward(e, attachArea), true);
+    forwardBtn.dataset.hasAddListener = 'true';
+}
+
+function checkAttachmentBeforeForward(e: MouseEvent, attachArea: HTMLElement) {
+    const attachmentListDiv = attachArea.querySelector('ul[id$="_ulCommonAttachItem"]')
+
+    const fileNameDivs = attachmentListDiv?.querySelectorAll('strong.dh0');
+    if (!fileNameDivs || fileNameDivs.length === 0) {
+        console.warn("------>>> no attachment file name found");
+        return;
+    }
+    for (let i = 0; i < fileNameDivs.length; i++) {
+        const fileNameDiv = fileNameDivs[i] as HTMLElement;
+        const fileName = fileNameDiv.innerText;
+        const parsedId = extractAesKeyId(fileName);
+        if (!parsedId) {
+            console.log("----->>> no need to check attachment key for file:", fileName);
+            continue;
+        }
+        const attachmentKey = loadAKForReading(parsedId.id);
+        if (!attachmentKey) {
+            e.stopImmediatePropagation(); // 阻止其他事件处理器的执行
+            showTipsDialog("Tips", "当前邮件需要先解密再转发！");//TODO::browser
+            return;
+        }
+
+        attachmentKey.cacheAKForCompose();
+    }
+}
