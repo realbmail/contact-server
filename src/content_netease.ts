@@ -80,7 +80,7 @@ function checkHasMailContent(template: HTMLTemplateElement) {
             addMailDecryptForReadingNetease(div, template);
             addEncryptBtnForQuickReply(div, template);
             addDecryptBtnForAttachment(div, template);
-            checkAttachmentBeforeForwardMail(div);
+            // checkAttachmentBeforeForwardMail(div);
         });
     }, 1500);
 }
@@ -200,11 +200,18 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
     }
 
     overlayButton.innerText = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
-    const aekID = findAttachmentKeyID(composeDiv);
+    let aekID;
+    const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
+    let mailDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    const isForward = mailDoc?.querySelector('div[id="isForwardContent"]');
+    if (!isForward) {
+        aekID = findAttachmentKeyID(composeDiv);
+    }
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
     attachmentDiv.appendChild(overlyClone);
 }
+
 
 function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
     const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLElement;
@@ -221,8 +228,9 @@ function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
         if (!parsedId) {
             continue;
         }
-        aekId = parsedId.id;
-        break;
+        if (parsedId.id > aekId) {
+            aekId = parsedId.id;
+        }
     }
 
     return aekId;

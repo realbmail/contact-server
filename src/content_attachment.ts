@@ -62,20 +62,20 @@ export class AttachmentEncryptKey {
     }
 
     cacheAkForReading() {
-        const keyStr = sessionStorage.getItem(wrapKeyID(this.id));
+        let keyStr = sessionStorage.getItem(wrapKeyID(this.id));
         if (keyStr) {
             return;
         }
-        sessionStorage.setItem(wrapKeyID(this.id), AttachmentEncryptKey.toJson(this));
+        keyStr = AttachmentEncryptKey.toJson(this);
+        console.log("------------>>> need to remove :", keyStr);
+        sessionStorage.setItem(wrapKeyID(this.id), keyStr);
     }
 }
 
-function generateAttachmentKey(id?: string): AttachmentEncryptKey {
+function generateAttachmentKey(): AttachmentEncryptKey {
     const key = generateRandomKey();
     const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
-    if (!id) {
-        id = '' + Date.now();
-    }
+    const id = '' + Date.now();
     return new AttachmentEncryptKey(id, key, nonce);
 }
 
@@ -98,6 +98,7 @@ export function loadAKForReading(aekId: string): AttachmentEncryptKey | undefine
         if (!keyStr) {
             return undefined;
         }
+        console.log("---------------->>>remove here:", keyStr);
         return AttachmentEncryptKey.fromJson(keyStr);
     } catch (err) {
         console.log("------->>> parse attachment aes key error:", err);
@@ -114,10 +115,10 @@ export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButt
 
     let attachmentKey: AttachmentEncryptKey
     if (aekId) {
-        const attStr = localStorage.getItem(wrapKeyID(aekId));
+        let attStr = localStorage.getItem(wrapKeyID(aekId)) || sessionStorage.getItem(wrapKeyID(aekId));
         if (!attStr) {
-            attachmentKey = generateAttachmentKey(aekId);
-            localStorage.setItem(wrapKeyID(aekId), AttachmentEncryptKey.toJson(attachmentKey));
+            attachmentKey = generateAttachmentKey();
+            localStorage.setItem(wrapKeyID(attachmentKey.id), AttachmentEncryptKey.toJson(attachmentKey));
         } else {
             attachmentKey = AttachmentEncryptKey.fromJson(attStr);
         }
