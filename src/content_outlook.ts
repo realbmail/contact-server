@@ -238,11 +238,6 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
             mailBody = div;
         }
 
-        if (mailBody.innerHTML.includes(MailFlag)) {
-            console.log("----->>> has encrypted and send directly");
-            sendDiv.click();
-            return;
-        }
         const aekID = findAttachmentKeyID(composeArea);
         const success = await encryptMailInComposing(mailBody, receiver, aekID);
         if (!success) {
