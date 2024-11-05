@@ -23,6 +23,7 @@ import {
     decryptAttachmentFileData,
     loadAKForReading
 } from "./content_attachment";
+import {MailFlag} from "./bmail_body";
 
 function appendForQQ(template: HTMLTemplateElement) {
 
@@ -111,7 +112,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         return;
     }
 
-    mailContentDiv = await checkMailContent(mailContentDiv);
+    mailContentDiv = await checkMailContent(mailContentDiv, template);
 
     const sendDiv = toolBar.querySelector(".xmail_sendmail_btn") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
@@ -186,22 +187,39 @@ function findAttachmentKeyID(): Set<string> {
     return mySet;
 }
 
-async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
-    const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
-    if (!replyOrQuoteDiv) {
-        return mailContentDiv
-    }
-    const div = document.createElement("div");
-    div.classList.add(__bmailComposeDivId);
+async function checkMailContent(mailContentDiv: HTMLElement, template: HTMLTemplateElement): Promise<HTMLElement> {
 
-    const childrenArray = Array.from(mailContentDiv.children) as HTMLElement[];
-    childrenArray.forEach((subNode) => {
-        if (subNode !== replyOrQuoteDiv) {
-            div.appendChild(subNode);
+    let newMailContentDiv = mailContentDiv;
+    const qMailBox = mailContentDiv.querySelector('.qmbox') as HTMLElement;
+    if (qMailBox) {
+        newMailContentDiv = qMailBox;
+    }
+
+    const replyOrQuoteDiv = newMailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
+    if (replyOrQuoteDiv) {
+
+        const div = document.createElement("div");
+        div.classList.add(__bmailComposeDivId);
+
+        const childrenArray = Array.from(newMailContentDiv.children) as HTMLElement[];
+        childrenArray.forEach((subNode) => {
+            if (subNode !== replyOrQuoteDiv) {
+                div.appendChild(subNode);
+            }
+        });
+        newMailContentDiv.insertBefore(div, replyOrQuoteDiv);
+        newMailContentDiv = div;
+    }
+
+    const encryptedArea = newMailContentDiv.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement;
+    if (encryptedArea) {
+        const hasEncryptedRawData = encryptedArea.innerText.includes(MailFlag);
+        if (hasEncryptedRawData) {
+            await decryptMailForEditionOfSentMail(encryptedArea);
         }
-    });
-    mailContentDiv.insertBefore(div, replyOrQuoteDiv);
-    return div;
+    }
+
+    return newMailContentDiv;
 }
 
 async function encryptMailAndSendQQ(mailBody: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {
