@@ -190,13 +190,11 @@ function findAttachmentKeyID(): Set<string> {
 async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
 
     let newMailContentDiv = mailContentDiv;
-    const qMailBox = mailContentDiv.querySelector('.qmbox') as HTMLElement;
-    if (qMailBox) {
-        newMailContentDiv = qMailBox;
-    }
 
     const replyOrQuoteDiv = newMailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
     if (replyOrQuoteDiv) {
+        newMailContentDiv = replyOrQuoteDiv.parentElement as HTMLElement;
+
         const firstLevelElements = Array.from(newMailContentDiv.children).filter((child) =>
             child.classList.contains(__bmailComposeDivId)
         ) as HTMLElement[];
