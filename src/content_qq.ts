@@ -197,18 +197,24 @@ async function checkMailContent(mailContentDiv: HTMLElement, template: HTMLTempl
 
     const replyOrQuoteDiv = newMailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
     if (replyOrQuoteDiv) {
+        const firstLevelElements = Array.from(newMailContentDiv.children).filter((child) =>
+            child.classList.contains(__bmailComposeDivId)
+        ) as HTMLElement[];
 
-        const div = document.createElement("div");
-        div.classList.add(__bmailComposeDivId);
-
-        const childrenArray = Array.from(newMailContentDiv.children) as HTMLElement[];
-        childrenArray.forEach((subNode) => {
-            if (subNode !== replyOrQuoteDiv) {
-                div.appendChild(subNode);
-            }
-        });
-        newMailContentDiv.insertBefore(div, replyOrQuoteDiv);
-        newMailContentDiv = div;
+        if (firstLevelElements.length === 1) {
+            newMailContentDiv = firstLevelElements[0];
+        } else {
+            const newDiv = document.createElement("div");
+            newDiv.classList.add(__bmailComposeDivId);
+            const childrenArray = Array.from(newMailContentDiv.children) as HTMLElement[];
+            childrenArray.forEach((subNode) => {
+                if (subNode !== replyOrQuoteDiv) {
+                    newDiv.appendChild(subNode);
+                }
+            });
+            newMailContentDiv.insertBefore(newDiv, replyOrQuoteDiv);
+            newMailContentDiv = newDiv;
+        }
     }
 
     const encryptedArea = newMailContentDiv.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement;
