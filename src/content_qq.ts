@@ -128,10 +128,10 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         toolBar.appendChild(cryptoBtnDiv);
     }
 
-    prepareAttachmentForCompose(template);
+    prepareAttachmentForCompose(template, iframeDocument.querySelector(".xm_compose_origin_mail_container") !== null);
 }
 
-function prepareAttachmentForCompose(template: HTMLTemplateElement) {
+function prepareAttachmentForCompose(template: HTMLTemplateElement, isReplyOrForward: boolean) {
 
     const overlayButton = template.content.getElementById('attachmentOverlayBtnQQ') as HTMLButtonElement | null;
     if (!overlayButton) {
@@ -150,7 +150,10 @@ function prepareAttachmentForCompose(template: HTMLTemplateElement) {
         return;
     }
 
-    const aekID = findAttachmentKeyID();
+    let aekID;
+    if (!isReplyOrForward) {
+        aekID = findAttachmentKeyID();
+    }
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     overlyClone.textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
     addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
@@ -830,6 +833,7 @@ class Provider implements ContentPageProvider {
     readCurrentMailAddress(): string {
         return queryEmailAddrQQ() ?? "";
     }
+
     async processAttachmentDownload(_fileName?: string, attachmentData?: any): Promise<void> {
         console.log("-------->>>", attachmentData)
         await downloadAndDecryptAgain(attachmentData);
