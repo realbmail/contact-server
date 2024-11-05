@@ -200,27 +200,22 @@ function prepareAttachmentForCompose(composeDiv: HTMLElement, template: HTMLTemp
     }
 
     overlayButton.innerText = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
-    let aekID;
-    const iframe = composeDiv.querySelector(".APP-editor-iframe") as HTMLIFrameElement | null;
-    let mailDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
-    const isForward = mailDoc?.querySelector('div[id="isForwardContent"]');
-    if (!isForward) {
-        aekID = findAttachmentKeyID(composeDiv);
-    }
+    const aekIDSet = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
+    const aekID = addAttachmentEncryptBtn(fileInput, overlyClone, aekIDSet);
     attachmentDiv.appendChild(overlyClone);
+    composeDiv.dataset.attachmentKeyId = aekID;
 }
 
 
-function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
+function findAttachmentKeyID(composeDiv: HTMLElement): Set<string> {
+    const mySet = new Set<string>();
     const attachArea = composeDiv.querySelector('div[id$="_attachContent"]') as HTMLElement;
     const allAttachDivs = attachArea.querySelectorAll(".G0");
     if (allAttachDivs.length === 0) {
-        return undefined;
+        return mySet;
     }
 
-    let aekId = "";
     for (let i = 0; i < allAttachDivs.length; i++) {
         const element = allAttachDivs[i];
         const fileName = element.querySelector(".o0")?.textContent;
@@ -228,12 +223,10 @@ function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
         if (!parsedId) {
             continue;
         }
-        if (parsedId.id > aekId) {
-            aekId = parsedId.id;
-        }
+        mySet.add(parsedId.id)
     }
 
-    return aekId;
+    return mySet;
 }
 
 async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLElement) {
@@ -260,7 +253,7 @@ async function encryptDataAndSendNetEase(composeDiv: HTMLElement, sendDiv: HTMLE
             return extractEmail(div.textContent ?? "");
         });
 
-        const aekId = findAttachmentKeyID(composeDiv);
+        const aekId = composeDiv.dataset.attachmentKeyId ?? "";
         const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;

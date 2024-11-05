@@ -238,7 +238,7 @@ async function encryptMailAndSendOutLook(composeArea: HTMLElement, sendDiv: HTML
             mailBody = div;
         }
 
-        const aekID = findAttachmentKeyID(composeArea);
+        const aekID = composeArea.dataset.attachmentKeyId ?? "";
         const success = await encryptMailInComposing(mailBody, receiver, aekID);
         if (!success) {
             return;
@@ -466,23 +466,24 @@ function prepareAttachmentForCompose(composeArea: HTMLElement, template: HTMLTem
                 return;
             }
 
-            const aekID = findAttachmentKeyID(composeArea);
+            const aekIDSet = findAttachmentKeyID(composeArea);
             const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
             overlyClone.querySelector(".button_txt_lbl")!.textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
-            addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
+            const aekID = addAttachmentEncryptBtn(fileInput, overlyClone, aekIDSet);
             attachmentDiv.insertBefore(overlyClone, attachmentDiv.firstChild);
+            composeArea.dataset.attachmentKeyId = aekID;
         }, 600);
     });
 }
 
-function findAttachmentKeyID(composeArea: HTMLElement): string | undefined {
+function findAttachmentKeyID(composeArea: HTMLElement): Set<string> {
+    const mySet = new Set<string>();
     const attachArea = composeArea.querySelector(".RrjjU.D_1qK.disableTextSelection") as HTMLElement
     const allAttachDivs = attachArea?.querySelectorAll("div.Y0d3P");
     if (!allAttachDivs || allAttachDivs.length === 0) {
-        return undefined;
+        return mySet;
     }
 
-    let aekId = "";
     for (let i = 0; i < allAttachDivs.length; i++) {
         const element = allAttachDivs[i];
         const fileName = element.querySelector(".PQeLQ.QEiYT")?.textContent;
@@ -490,11 +491,10 @@ function findAttachmentKeyID(composeArea: HTMLElement): string | undefined {
         if (!parsedId) {
             continue;
         }
-        aekId = parsedId.id;
-        break;
+        mySet.add(parsedId.id);
     }
 
-    return aekId;
+    return mySet;
 }
 
 function addDecryptBtnForAttachment(oneMail: HTMLElement, template: HTMLTemplateElement) {

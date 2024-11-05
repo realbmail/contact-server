@@ -128,44 +128,44 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         toolBar.appendChild(cryptoBtnDiv);
     }
 
-    prepareAttachmentForCompose(template, iframeDocument.querySelector(".xm_compose_origin_mail_container") !== null);
+    mailContentDiv.dataset.attachmentKeyId = prepareAttachmentForCompose(template);
 }
 
-function prepareAttachmentForCompose(template: HTMLTemplateElement, isReplyOrForward: boolean) {
+function prepareAttachmentForCompose(template: HTMLTemplateElement): string {
 
     const overlayButton = template.content.getElementById('attachmentOverlayBtnQQ') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
-        return;
+        return "";
     }
 
     const fileInput = document.getElementById("attachUploadBtn") as HTMLInputElement;
     const attachmentDiv = document.querySelector(".toolbar") as HTMLElement;
     if (!fileInput || !attachmentDiv) {
         console.log("----->>> file input or tool bar not found");
-        return;
+        return "";
     }
     if (attachmentDiv.querySelector(".attachmentOverlayBtnQQ")) {
         console.log("----->>> overly button already added before for mail composing");
-        return;
+        return "";
     }
 
-    let aekID;
-    if (!isReplyOrForward) {
-        aekID = findAttachmentKeyID();
-    }
+    const aekIDSet = findAttachmentKeyID();
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     overlyClone.textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
-    addAttachmentEncryptBtn(fileInput, overlyClone, aekID);
+    const aekId = addAttachmentEncryptBtn(fileInput, overlyClone, aekIDSet);
     attachmentDiv.appendChild(overlyClone);
+
+    return aekId;
 }
 
 
-function findAttachmentKeyID(): string | undefined {
+function findAttachmentKeyID(): Set<string> {
+    const mySet = new Set<string>();
 
     const allAttachDivs = document.querySelector(".compose_attach_list")?.querySelectorAll(".compose_attach_item.compose_attach_item_complete");
     if (!allAttachDivs || allAttachDivs.length === 0) {
-        return undefined;
+        return mySet;
     }
 
     for (let i = 0; i < allAttachDivs.length; i++) {
@@ -173,17 +173,17 @@ function findAttachmentKeyID(): string | undefined {
         const fileName = element.querySelector(".compose_attach_item_name.ml8")?.textContent;
         const fileSuffix = element.querySelector(".compose_attach_item_name.no_shrink")?.textContent;
         if (!fileSuffix || !fileName) {
-            return undefined;
+            continue;
         }
 
         const parsedId = extractAesKeyId(fileName + fileSuffix);
         if (!parsedId) {
             continue;
         }
-        return parsedId.id;
+        mySet.add(parsedId.id);
     }
 
-    return undefined;
+    return mySet;
 }
 
 async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
@@ -243,7 +243,7 @@ async function encryptMailAndSendQQ(mailBody: HTMLElement, receiverTable: HTMLEl
             return;
         }
 
-        const aekId = findAttachmentKeyID();
+        const aekId = mailBody.dataset.attachmentKeyId ?? "";
         const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;
@@ -551,20 +551,20 @@ async function addCryptoBtnToComposeDivQQOldVersion(template: HTMLTemplateElemen
     ) as HTMLElement;
 
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[2]);
-
-    prepareAttachmentForComposeOldVersion(iframeDocument as Document, template);
+    mailContentDiv.dataset.attachmentKeyId = prepareAttachmentForComposeOldVersion(iframeDocument as Document, template);
 }
 
-function findAttachmentKeyIDOldVersion(): string | undefined {
+function findAttachmentKeyIDOldVersion(): Set<string> {
+    const mySet = new Set<string>();
     const iframe = document.getElementById("mainFrameContainer")?.querySelector('iframe[name="mainFrame"]') as HTMLIFrameElement | null;
     const frameDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
     if (!frameDoc) {
-        return undefined;
+        return mySet;
     }
     const attachArea = frameDoc.getElementById("attachContainer")?.querySelectorAll('span[ui-type="filename"]')
 
     if (!attachArea || !attachArea.length) {
-        return undefined;
+        return mySet;
     }
 
     for (let i = 0; i < attachArea.length; i++) {
@@ -575,33 +575,33 @@ function findAttachmentKeyIDOldVersion(): string | undefined {
         if (!parsedId) {
             continue;
         }
-
-        return parsedId.id;
+        mySet.add(parsedId.id);
     }
 
-    return undefined;
+    return mySet;
 }
 
-function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTMLTemplateElement) {
+function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTMLTemplateElement): string {
 
     const overlayButton = template.content.getElementById('attachmentOverlayButtonForQQOldVersion') as HTMLButtonElement | null;
     if (!overlayButton) {
         console.log("----->>> overlayButton not found");
-        return;
+        return "";
     }
 
-    const aekId = findAttachmentKeyIDOldVersion();
     const attachmentToolBar = frameDoc.getElementById("composecontainer");
     const fileInput = attachmentToolBar?.querySelector('input[type="file"]') as HTMLInputElement;
     const attachmentDiv = attachmentToolBar?.querySelector(".compose_toolbtn.qmEditorAttach") as HTMLElement
     if (!fileInput || !attachmentDiv) {
         console.log("----->>> compose attachment tool bar not found");
-        return;
+        return "";
     }
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
     overlyClone.children[0].textContent = browser.i18n.getMessage('bmail_attachment_encrypt_btn');
-    addAttachmentEncryptBtn(fileInput, overlyClone, aekId);
+    const aekIdSet = findAttachmentKeyIDOldVersion();
+    const aekId = addAttachmentEncryptBtn(fileInput, overlyClone, aekIdSet);
     attachmentDiv.appendChild(overlyClone);
+    return aekId
 }
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
@@ -664,7 +664,7 @@ async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, receiverTab
             return div.getAttribute('addr')?.trim() as string | null;
         });
 
-        const aekId = findAttachmentKeyIDOldVersion();
+        const aekId = mailBody.dataset.attachmentKeyId ?? "";
         const success = await encryptMailInComposing(mailBody, receiver, aekId);
         if (!success) {
             return;

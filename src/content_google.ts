@@ -121,7 +121,7 @@ function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: H
 
     const clone = parseCryptoMailBtn(template, 'file/logo_48.png', ".bmail-crypto-btn", title,
         "bmail_crypto_btn_in_compose_google", async _ => {
-            const aekId = findAttachmentKeyID(composeDiv);
+            const aekId = composeDiv.dataset.attachmentKeyId ?? "";
             await encryptMailAndSendGoogle(mailBodyDiv, titleForm, sendDiv, aekId);
             setTimeout(() => {
                 addCryptoBtnToReadingMailGoogle(template).then();
@@ -141,13 +141,14 @@ function _addCryptoBtnForComposeDiv(template: HTMLTemplateElement, composeDiv: H
     }
 }
 
-function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
+function findAttachmentKeyID(composeDiv: HTMLElement): Set<string> {
+    const mySet = new Set<string>();
     const attachFileArea = composeDiv.querySelector(".bA3 .GM")?.querySelectorAll(".dL");
     if (!attachFileArea || attachFileArea.length === 0) {
         console.log("------>>> no attached filed found");
-        return undefined;
+        return mySet;
     }
-    let aekId = "";
+
     for (let i = 0; i < attachFileArea.length; i++) {
         const element = attachFileArea.item(i);
         const fileName = element.querySelector(".vI")?.textContent;
@@ -155,10 +156,10 @@ function findAttachmentKeyID(composeDiv: HTMLElement): string | undefined {
         if (!parsedId) {
             continue;
         }
-        aekId = parsedId.id;
+        mySet.add(parsedId.id)
         break;
     }
-    return aekId;
+    return mySet;
 }
 
 function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: HTMLElement, composeDiv: HTMLElement) {
@@ -180,10 +181,11 @@ function _prepareAttachmentForCompose(template: HTMLTemplateElement, toolBarTr: 
         return;
     }
 
-    const aekId = findAttachmentKeyID(composeDiv);
+    const aekIdSet = findAttachmentKeyID(composeDiv);
     const overlyClone = overlayButton.cloneNode(true) as HTMLElement;
-    addAttachmentEncryptBtn(fileInput, overlyClone, aekId);
+    const aekID = addAttachmentEncryptBtn(fileInput, overlyClone, aekIdSet);
     attachmentDiv.insertBefore(overlyClone, attachmentDiv.firstChild);
+    composeDiv.dataset.attachmentKeyId = aekID;
 }
 
 

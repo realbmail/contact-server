@@ -67,7 +67,6 @@ export class AttachmentEncryptKey {
             return;
         }
         keyStr = AttachmentEncryptKey.toJson(this);
-        console.log("------------>>> need to remove :", keyStr);
         sessionStorage.setItem(wrapKeyID(this.id), keyStr);
     }
 }
@@ -98,7 +97,6 @@ export function loadAKForReading(aekId: string): AttachmentEncryptKey | undefine
         if (!keyStr) {
             return undefined;
         }
-        console.log("---------------->>>remove here:", keyStr);
         return AttachmentEncryptKey.fromJson(keyStr);
     } catch (err) {
         console.log("------->>> parse attachment aes key error:", err);
@@ -111,18 +109,19 @@ export function removeAttachmentKey(aekId: string) {
     sessionStorage.removeItem(wrapKeyID(aekId));
 }
 
-export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButton: HTMLElement, aekId?: string): void {
+export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButton: HTMLElement, aekIdSet: Set<string>): string {
 
-    let attachmentKey: AttachmentEncryptKey
-    if (aekId) {
+    let attachmentKey: AttachmentEncryptKey | null = null;
+    for (const aekId of aekIdSet) {
         let attStr = localStorage.getItem(wrapKeyID(aekId));
         if (!attStr) {
-            attachmentKey = generateAttachmentKey();
-            localStorage.setItem(wrapKeyID(attachmentKey.id), AttachmentEncryptKey.toJson(attachmentKey));
-        } else {
-            attachmentKey = AttachmentEncryptKey.fromJson(attStr);
+            continue;
         }
-    } else {
+        attachmentKey = AttachmentEncryptKey.fromJson(attStr);
+        break;
+    }
+
+    if (!attachmentKey) {
         attachmentKey = generateAttachmentKey();
     }
 
@@ -134,6 +133,8 @@ export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButt
         tempInput.addEventListener('change', (event) => handleTempInputChange(event, fileInput, attachmentKey));
         tempInput.click();
     });
+
+    return attachmentKey.id;
 }
 
 async function handleTempInputChange(event: Event, fileInput: HTMLInputElement, aesKey: AttachmentEncryptKey): Promise<void> {
