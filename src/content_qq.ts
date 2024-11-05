@@ -112,7 +112,7 @@ async function addCryptoBtnToComposeDivQQ(template: HTMLTemplateElement) {
         return;
     }
 
-    mailContentDiv = await checkMailContent(mailContentDiv, template);
+    mailContentDiv = await checkMailContent(mailContentDiv);
 
     const sendDiv = toolBar.querySelector(".xmail_sendmail_btn") as HTMLElement;
     const title = browser.i18n.getMessage('crypto_and_send');
@@ -187,7 +187,7 @@ function findAttachmentKeyID(): Set<string> {
     return mySet;
 }
 
-async function checkMailContent(mailContentDiv: HTMLElement, template: HTMLTemplateElement): Promise<HTMLElement> {
+async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
 
     let newMailContentDiv = mailContentDiv;
     const qMailBox = mailContentDiv.querySelector('.qmbox') as HTMLElement;
