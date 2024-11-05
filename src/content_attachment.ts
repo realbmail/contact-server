@@ -115,7 +115,7 @@ export function addAttachmentEncryptBtn(fileInput: HTMLInputElement, overlayButt
 
     let attachmentKey: AttachmentEncryptKey
     if (aekId) {
-        let attStr = localStorage.getItem(wrapKeyID(aekId)) || sessionStorage.getItem(wrapKeyID(aekId));
+        let attStr = localStorage.getItem(wrapKeyID(aekId));
         if (!attStr) {
             attachmentKey = generateAttachmentKey();
             localStorage.setItem(wrapKeyID(attachmentKey.id), AttachmentEncryptKey.toJson(attachmentKey));
