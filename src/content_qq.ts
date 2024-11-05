@@ -187,29 +187,12 @@ function findAttachmentKeyID(): Set<string> {
 }
 
 async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElement> {
-
-    const firstChild = mailContentDiv.firstChild as HTMLElement;
-    if (firstChild && firstChild.classList.contains('qmbox')) {
-        const div = document.createElement("div");
-        div.id = __bmailComposeDivId;
-        mailContentDiv.insertBefore(div, mailContentDiv.firstChild);
-        const originalTxtDiv = firstChild.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
-        if (!originalTxtDiv) {
-            return mailContentDiv;
-        }
-
-        await decryptMailForEditionOfSentMail(originalTxtDiv);
-        div.append(originalTxtDiv);
-        div.innerHTML += '<br><br>'
-        return div;
-    }
-
     const replyOrQuoteDiv = mailContentDiv.querySelector(".xm_compose_origin_mail_container") as HTMLElement | null;
     if (!replyOrQuoteDiv) {
         return mailContentDiv
     }
     const div = document.createElement("div");
-    div.id = __bmailComposeDivId;
+    div.classList.add(__bmailComposeDivId);
 
     const childrenArray = Array.from(mailContentDiv.children) as HTMLElement[];
     childrenArray.forEach((subNode) => {
@@ -217,7 +200,6 @@ async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElemen
             div.appendChild(subNode);
         }
     });
-
     mailContentDiv.insertBefore(div, replyOrQuoteDiv);
     return div;
 }
@@ -610,7 +592,7 @@ async function processEditAgainOrFromDraft(frameDoc: Document): Promise<HTMLElem
     const editAgainContentDiv = frameDoc.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
     if (editAgainContentDiv) {
         const div = document.createElement("div");
-        div.id = __bmailComposeDivId;
+        div.classList.add(__bmailComposeDivId);
         frameDoc.body.insertBefore(div, frameDoc.body.firstChild);
         await decryptMailForEditionOfSentMail(editAgainContentDiv);
         div.append(editAgainContentDiv);
@@ -621,13 +603,13 @@ async function processEditAgainOrFromDraft(frameDoc: Document): Promise<HTMLElem
 }
 
 function resortMailContent(frameDoc: Document): HTMLElement {
-    const bmailContentDiv = frameDoc.getElementById(__bmailComposeDivId) as HTMLElement;
+    const bmailContentDiv = frameDoc.querySelector(`.${__bmailComposeDivId}`) as HTMLElement;
     if (bmailContentDiv) {
         return bmailContentDiv;
     }
 
     const div = document.createElement("div");
-    div.id = __bmailComposeDivId;
+    div.classList.add(__bmailComposeDivId);
 
     const targetDiv = frameDoc.body.querySelector('div[style="font-size: 12px;font-family: Arial Narrow;padding:2px 0 2px 0;"]');
     if (!targetDiv) {
