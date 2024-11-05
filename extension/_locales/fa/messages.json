@@ -1,0 +1,113 @@
+{
+  "home_title": {
+    "message": "افزونه ایمیل بلاکچین",
+    "description": "The title of the extension page"
+  },
+  "home_user_content": {
+    "message": "اطلاعات کاربر",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "ایجاد حساب کاربری",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "وارد کردن حساب",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "رمز عبور:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "حداقل 8 کاراکتر",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "تأیید رمز عبور",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "ایجاد حساب جدید",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "نمایش عبارت بازیابی",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "پنهان کردن عبارت بازیابی",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "مرحله بعدی",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "تأیید وارد کردن",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "می‌توانید عبارت بازیابی را در هر فیلدی قرار دهید",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "تأیید بازیابی کلید خصوصی",
+    "description": ""
+  },
+  "address_label": {
+    "message": "آدرس:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "بی‌میل",
+    "description": ""
+  },
+  "email_label": {
+    "message": "آدرس ایمیل فعلی:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "رمزنگاری",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "لغو"
+  },
+  "decrypt_mail_body": {
+    "message": "رمزگشایی",
+    "description": ""
+  },
+  "Tips": {
+    "message": "نکته",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "آدرس گیرنده خالی است",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "محتوای ایمیل نمی‌تواند خالی باشد",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": "حساب بی‌میل حاوی پیام نیست",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "رمزگشایی محتوای ایمیل شکست خورد",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "آدرس ایمیل فعلی نامعتبر است",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "لطفاً ابتدا آدرس ایمیل فعلی را پیوند دهید",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "عبارت بازیابی نامعتبر",
+    "description": ""
+  }
+}

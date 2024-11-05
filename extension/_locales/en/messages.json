@@ -92,7 +92,7 @@
     "description": ""
   },
   "decrypt_mail_body_failed": {
-    "message": "failed to decrypt mail body",
+    "message": "failed to decrypt mail content",
     "description": ""
   },
   "curr_email_invalid": {
@@ -332,7 +332,7 @@
     "description": ""
   },
   "decrypt_mail_body_first": {
-    "message": "Decrypt mail body first",
+    "message": "Decrypt mail content first",
     "description": ""
   },
   "bmail_download_tips": {

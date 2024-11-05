@@ -1,0 +1,113 @@
+{
+  "home_title": {
+    "message": "ملحق بريد إلكتروني بلوكشين",
+    "description": "The title of the extension page"
+  },
+  "home_user_content": {
+    "message": "تعليمات المستخدم",
+    "description": ""
+  },
+  "home_wallet_create": {
+    "message": "إنشاء حساب",
+    "description": ""
+  },
+  "home_wallet_import": {
+    "message": "استيراد حساب",
+    "description": ""
+  },
+  "home_password_label": {
+    "message": "كلمة المرور:",
+    "description": ""
+  },
+  "home_password_placeholder": {
+    "message": "الحد الأدنى 8 أحرف",
+    "description": ""
+  },
+  "home_password_placeholder2": {
+    "message": "تأكيد كلمة المرور",
+    "description": ""
+  },
+  "home_wallet_create_btn": {
+    "message": "إنشاء حساب جديد",
+    "description": ""
+  },
+  "reveal_seed_phrase": {
+    "message": "عرض العبارة السرية",
+    "description": ""
+  },
+  "hide_seed_phrase": {
+    "message": "إخفاء العبارة السرية",
+    "description": ""
+  },
+  "home_next_step": {
+    "message": "الخطوة التالية",
+    "description": ""
+  },
+  "home_confirm_import": {
+    "message": "تأكيد الاستيراد",
+    "description": ""
+  },
+  "import_container_tip": {
+    "message": "يمكنك لصق العبارة السرية بالكامل في أي حقل",
+    "description": ""
+  },
+  "home_confirm_recovery": {
+    "message": "تأكيد استعادة المفتاح الخاص",
+    "description": ""
+  },
+  "address_label": {
+    "message": "العنوان:",
+    "description": ""
+  },
+  "inject_mail_inbox": {
+    "message": "بريد بي ميل",
+    "description": ""
+  },
+  "email_label": {
+    "message": "عنوان البريد الإلكتروني الحالي:",
+    "description": ""
+  },
+  "crypto_and_send": {
+    "message": "تشفير",
+    "description": ""
+  },
+  "Cancel": {
+    "message": "إلغاء"
+  },
+  "decrypt_mail_body": {
+    "message": "فك التشفير",
+    "description": ""
+  },
+  "Tips": {
+    "message": "نصيحة",
+    "description": ""
+  },
+  "encrypt_mail_receiver": {
+    "message": "عنوان المستلم فارغ",
+    "description": ""
+  },
+  "encrypt_mail_body": {
+    "message": "لا يمكن أن يكون محتوى البريد الإلكتروني فارغًا",
+    "description": ""
+  },
+  "invalid_bmail_account": {
+    "message": "ليس حساب بريد بي ميل يحتوي على رسائل",
+    "description": ""
+  },
+  "decrypt_mail_body_failed": {
+    "message": "فشل في فك تشفير محتوى البريد",
+    "description": ""
+  },
+  "curr_email_invalid": {
+    "message": "عنوان البريد الإلكتروني الحالي غير صالح",
+    "description": ""
+  },
+  "curr_email_unbind": {
+    "message": "يرجى ربط عنوان البريد الإلكتروني الحالي أولاً",
+    "description": ""
+  },
+  "recover_error_message": {
+    "message": "عبارة سرية غير صالحة",
+    "description": ""
+  }
+}
