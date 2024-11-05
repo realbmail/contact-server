@@ -13,7 +13,7 @@ import {
     parseCryptoMailBtn,
     processReceivers,
     replaceTextNodeWithDiv,
-    showTipsDialog
+    showTipsDialog, setKeepAlive
 } from "./content_common";
 import {extractEmail, hideLoading, showLoading} from "./utils";
 import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
@@ -452,6 +452,8 @@ function addDecryptBtnForAttachment(mailArea: HTMLElement, template: HTMLTemplat
 }
 
 (window as any).contentPageProvider = new Provider();
+setKeepAlive();
+
 document.addEventListener('DOMContentLoaded', async () => {
     addCustomStyles('css/netease.css');
     const template = await parseContentHtml('html/inject_netease.html');

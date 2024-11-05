@@ -8,7 +8,7 @@ import {
     observeFrame,
     parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn, processReceivers,
-    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog, extractAesKeyId
+    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog, extractAesKeyId, setKeepAlive
 } from "./content_common";
 import {
     emailRegex,
@@ -863,6 +863,7 @@ async function downloadAndDecryptAgain(attachmentData?: any) {
 
 
 (window as any).contentPageProvider = new Provider();
+setKeepAlive();
 document.addEventListener('DOMContentLoaded', async () => {
     addCustomStyles('css/qq.css');
     const template = await parseContentHtml('html/inject_qq.html');

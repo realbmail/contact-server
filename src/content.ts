@@ -201,12 +201,3 @@ browser.runtime.onMessage.addListener((request, _sender, sendResponse: (response
     }
     return true;
 });
-
-const intervalId = setInterval(() => {
-    sendMessageToBackground("", MsgType.KeepAlive).then();
-}, 5000);
-
-window.addEventListener('beforeunload', () => {
-    clearInterval(intervalId);
-    console.log('Message sending interval cleared.');
-});

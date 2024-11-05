@@ -4,7 +4,7 @@ import {
     encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, ContentPageProvider,
     observeForElement, parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn,
-    processReceivers, replaceTextNodeWithDiv, showTipsDialog, AttachmentKeyID
+    processReceivers, replaceTextNodeWithDiv, showTipsDialog, AttachmentKeyID, setKeepAlive
 } from "./content_common";
 import browser from "webextension-polyfill";
 import {
@@ -661,7 +661,7 @@ function appendDecryptDialog(template: HTMLTemplateElement) {
 }
 
 (window as any).contentPageProvider = new Provider();
-
+setKeepAlive();
 document.addEventListener('DOMContentLoaded', async () => {
     addCustomStyles('css/outlook.css');
     const template = await parseContentHtml('html/inject_outlook.html');

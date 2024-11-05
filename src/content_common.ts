@@ -630,3 +630,15 @@ export function addCustomStyles(cssFilePath: string): void {
     link.href = browser.runtime.getURL(cssFilePath);
     document.head.appendChild(link);
 }
+
+export function setKeepAlive() {
+
+    const intervalId = setInterval(() => {
+        sendMessageToBackground("", MsgType.KeepAlive).then();
+    }, 5000);
+
+    window.addEventListener('beforeunload', () => {
+        clearInterval(intervalId);
+        console.log('Message sending interval cleared.');
+    });
+}

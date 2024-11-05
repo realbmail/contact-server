@@ -5,7 +5,7 @@ import {
     encryptMailInComposing, extractAesKeyId, ContentPageProvider,
     observeForElement,
     parseBmailInboxBtn, parseContentHtml,
-    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog
+    parseCryptoMailBtn, processInitialTextNodesForGoogle, processReceivers, showTipsDialog, setKeepAlive
 } from "./content_common";
 import {emailRegex, hideLoading, showLoading} from "./utils";
 import browser from "webextension-polyfill";
@@ -380,6 +380,7 @@ class Provider implements ContentPageProvider {
 }
 
 (window as any).contentPageProvider = new Provider();
+setKeepAlive();
 
 document.addEventListener('DOMContentLoaded', async () => {
     addCustomStyles('css/google.css');
