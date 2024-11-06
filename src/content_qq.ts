@@ -35,7 +35,7 @@ function appendForQQ(template: HTMLTemplateElement) {
             monitorComposeActionQQ(template).then();
             appendBmailInboxMenuQQ(template).then();
             monitorQQMailReading(template).then();
-            addCryptoBtnToReadingMailQQ(template).then();
+            addCryptoBtnToReadingMailQQ(template);
             addCryptoBtnToComposeDivQQ(template).then();
             monitorQQMailReadingOldVersion(template).then();
         });
@@ -268,14 +268,7 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
         return;
     }
 
-    let messageTipDiv = document.querySelectorAll(".xm_mailPushTip_contatinerBox")
-    messageTipDiv.forEach(message => {
-        message.addEventListener("click", async () => {
-            setTimeout(async () => {
-                await addCryptoBtnToReadingMailQQ(template, mainArea);
-            }, 1500);
-        })
-    });
+    monitorMsgTip(template, mainArea);
 
     mainArea.addEventListener("click", (event) => {
         const targetElement = event.target as HTMLElement;
@@ -295,7 +288,7 @@ async function monitorQQMailReading(template: HTMLTemplateElement) {
     });
 }
 
-async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainArea?: HTMLElement) {
+function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainArea?: HTMLElement) {
     // console.log("------>>> try to add button to mail reading div");
     let parentDiv = document.body;
     if (mainArea) {
@@ -870,6 +863,27 @@ async function downloadAndDecryptAgain(attachmentData?: any) {
     const fileName = attachmentData.fileName;
     decryptAttachmentFileData(encryptedData, aesKey, fileName);
     // console.log("------->>>> data size:=>", attachmentData.length);
+}
+
+function monitorMsgTip(template: HTMLTemplateElement, mainArea: HTMLElement) {
+    const mainAppDiv = document.getElementById("mailMainApp") as HTMLElement;
+    const messageTipDiv = Array.from(mainAppDiv.querySelectorAll(".xm_mailPushTip_containerBox"));
+
+    if (!messageTipDiv || messageTipDiv.length === 0) {
+        const div = document.createElement('div')
+        div.classList.add('xm_mailPushTip_containerBox');
+        mainAppDiv.appendChild(div);
+        console.log("-------->>>add a push message tips box");
+        messageTipDiv.push(div);
+    }
+
+    messageTipDiv.forEach(message => {
+        message.addEventListener("click", () => {
+            setTimeout(() => {
+                addCryptoBtnToReadingMailQQ(template, mainArea);
+            }, 1000)
+        });
+    });
 }
 
 
