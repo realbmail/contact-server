@@ -331,6 +331,12 @@ async function addCryptoBtnToReadingMailQQ(template: HTMLTemplateElement, mainAr
 
     toolBar.insertBefore(cryptoBtnDiv, toolBar.firstChild);
 
+    const topToolBarDiv = parentDiv.querySelector(".ui-ellipsis-toolbar-btns");
+    const editAgainBtnSvg = topToolBarDiv?.querySelector('svg path[d^="M5.25 4.25"]') as HTMLElement | null;
+    if (editAgainBtnSvg) {
+        addLoginCheckForEditAgainBtn(topToolBarDiv!.firstElementChild as HTMLElement);
+    }
+
     const replayBar = parentDiv.querySelector(".mail-detail-reply") as HTMLElement | null;
     if (replayBar) {
         replayBar.addEventListener("click", () => {
