@@ -612,11 +612,21 @@ const __bmailComposeDivId = "bmail-mail-body-for-qq";
 
 async function prepareMailContentOldVersion(frameDoc: Document): Promise<HTMLElement> {
     let bmailContentDiv = frameDoc.body.firstElementChild as HTMLElement;
+    if (!bmailContentDiv) {
+        console.warn("------>>> should not lost mail content when compose");
+        return frameDoc.body as HTMLElement;
+    }
+
     if (!bmailContentDiv.classList.contains(__bmailComposeDivId)) {
         bmailContentDiv = document.createElement("div");
         bmailContentDiv.classList.add(__bmailComposeDivId);
         bmailContentDiv.appendChild(frameDoc.body.firstChild as HTMLElement);
         frameDoc.body.insertBefore(bmailContentDiv, frameDoc.body.firstChild);
+    } else {
+        const encryptedArea = bmailContentDiv.querySelector(`.${__raw_content_class_name}`) as HTMLElement;
+        if (encryptedArea) {
+            await decryptMailForEditionOfSentMail(encryptedArea);
+        }
     }
 
     const replyOrQuoteDiv = frameDoc.querySelector("includetail") as HTMLElement | null;
@@ -765,7 +775,31 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
 
     toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
 
+    const editAgainButton = toolBarDiv.querySelector('a[ck="optMail"][opt="draft"]') as HTMLAnchorElement | null;
+    addLoginCheckForEditAgainBtn(editAgainButton)
+
     addDecryptBtnForAttachmentOldVersion(template, doc);
+}
+
+function addLoginCheckForEditAgainBtn(editAgainButton: HTMLElement | null) {
+    if (!editAgainButton || editAgainButton.dataset.hasAddAction === 'true') {
+        return;
+    }
+
+    const clickHandler = async (e: MouseEvent) => {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin);
+
+        if (statusRsp.success > 0) {
+            editAgainButton.removeEventListener('click', clickHandler, true);
+            editAgainButton.click();
+            editAgainButton.addEventListener('click', clickHandler, true);
+        }
+    };
+    editAgainButton.addEventListener('click', clickHandler, true);
+    editAgainButton.dataset.hasAddAction = 'true';
 }
 
 function addDecryptBtnForAttachmentOldVersion(template: HTMLTemplateElement, doc: Document) {
