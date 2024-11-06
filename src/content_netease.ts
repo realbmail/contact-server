@@ -17,6 +17,7 @@ import {
 } from "./content_common";
 import {extractEmail, hideLoading, showLoading} from "./utils";
 import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
+import {__raw_content_class_name} from "./consts";
 
 function appendForNetEase(template: HTMLTemplateElement) {
     const clone = parseBmailInboxBtn(template, "bmail_left_menu_btn_netEase");
@@ -128,7 +129,7 @@ async function parseMailBodyToCheckCryptoButtonStatus(composeDiv: HTMLElement, b
         replaceTextNodeWithDiv(wrappedDiv as HTMLElement);
     })
 
-    const mailEditAgainDiv = iframeDocument.querySelector('.bmail-encrypted-data-wrapper') as HTMLElement;
+    const mailEditAgainDiv = iframeDocument.querySelector(`.${__raw_content_class_name}`) as HTMLElement;
     if (mailEditAgainDiv) {
         const targetElement = mailEditAgainDiv.closest('#isReplyContent, #isForwardContent, .cm_quote_msg');
         if (!targetElement) {

@@ -17,7 +17,7 @@ import {
     showLoading,
 } from "./utils";
 import browser from "webextension-polyfill";
-import {MsgType} from "./consts";
+import {__raw_content_class_name, MsgType} from "./consts";
 import {
     addAttachmentEncryptBtn,
     decryptAttachmentFileData,
@@ -215,7 +215,7 @@ async function checkMailContent(mailContentDiv: HTMLElement): Promise<HTMLElemen
         }
     }
 
-    const encryptedArea = newMailContentDiv.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement;
+    const encryptedArea = newMailContentDiv.querySelector(`.${__raw_content_class_name}`) as HTMLElement;
     if (encryptedArea) {
         const hasEncryptedRawData = encryptedArea.innerText.includes(MailFlag);
         if (hasEncryptedRawData) {
@@ -609,55 +609,15 @@ function prepareAttachmentForComposeOldVersion(frameDoc: Document, template: HTM
 }
 
 const __bmailComposeDivId = "bmail-mail-body-for-qq";
-
-async function processEditAgainOrFromDraft(frameDoc: Document): Promise<HTMLElement> {
-    const editAgainContentDiv = frameDoc.querySelector(".bmail-encrypted-data-wrapper") as HTMLElement
-    if (editAgainContentDiv) {
-        const div = document.createElement("div");
-        div.classList.add(__bmailComposeDivId);
-        frameDoc.body.insertBefore(div, frameDoc.body.firstChild);
-        await decryptMailForEditionOfSentMail(editAgainContentDiv);
-        div.append(editAgainContentDiv);
-        div.innerHTML += '<br><br>';
-        return div;
-    }
-    return resortMailContent(frameDoc);
-}
-
-function resortMailContent(frameDoc: Document): HTMLElement {
-    const bmailContentDiv = frameDoc.querySelector(`.${__bmailComposeDivId}`) as HTMLElement;
-    if (bmailContentDiv) {
-        return bmailContentDiv;
-    }
-
-    const div = document.createElement("div");
-    div.classList.add(__bmailComposeDivId);
-
-    const targetDiv = frameDoc.body.querySelector('div[style="font-size: 12px;font-family: Arial Narrow;padding:2px 0 2px 0;"]');
-    if (!targetDiv) {
-        console.log("----->>> reply flag not found [old version]");
-        return frameDoc.body;
-    }
-
-    let sibling = targetDiv.previousElementSibling;
-    while (sibling) {
-        div.insertBefore(sibling.cloneNode(true), div.lastElementChild as HTMLElement);
-        const previousSibling = sibling.previousElementSibling;
-        sibling.remove();
-        sibling = previousSibling;
-    }
-
-    div.insertBefore(frameDoc.body.firstChild as HTMLElement, div.firstChild as HTMLElement);
-    frameDoc.body.insertBefore(div, frameDoc.body.firstChild);
-    return div;
-}
-
 async function checkMailContentOldVersion(frameDoc: Document): Promise<HTMLElement> {
     const replyOrQuoteDiv = frameDoc.querySelector("includetail") as HTMLElement | null;
-    if (!replyOrQuoteDiv) {
-        return processEditAgainOrFromDraft(frameDoc);
+    if (replyOrQuoteDiv) {
     }
-    return resortMailContent(frameDoc);
+
+    let bmailContentDiv = frameDoc.querySelector(`.${__bmailComposeDivId}`) as HTMLElement;
+    if (!bmailContentDiv) {
+    }
+    return frameDoc.body;
 }
 
 async function encryptMailAndSendQQOldVersion(mailBody: HTMLElement, receiverTable: HTMLElement, sendDiv: HTMLElement) {

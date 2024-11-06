@@ -179,31 +179,6 @@ export function hideLoading(): void {
     document.getElementById("dialog-waiting-overlay")!.style.display = 'none';
 }
 
-export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
-    const closestJsonElements: HTMLElement[] = [];
-    const allElements = Array.from(mailArea.querySelectorAll('div, blockquote, pre')) as HTMLElement[];
-    allElements.push(mailArea);
-    allElements.forEach((element) => {
-        const textContent = element.textContent?.trim();
-        if (!textContent) {
-            return;
-        }
-        if (!textContent.includes(MailFlag)) {
-            return;
-        }
-        const hasJsonChild = Array.from(element.children).some((childElement) => {
-            const childText = childElement.textContent?.trim();
-            return childText && childText.includes(MailFlag);
-        });
-        if (!hasJsonChild) {
-            closestJsonElements.push(element);
-        }
-    });
-
-    // console.log("------------------>>div size with bmail content-------------->>>>", closestJsonElements.length);
-    return closestJsonElements;
-}
-
 export function moveParenthesesBeforeExtension(filename: string): string {
     const regex = /^(.*?)(\.[^.]+)\s*\(([^)]+)\)$/;
     const match = filename.match(regex);

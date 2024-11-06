@@ -1,6 +1,5 @@
 import browser from "webextension-polyfill";
 import {
-    EncryptedMailDivSearch,
     extractJsonString,
     hideLoading,
     isValidEmail,
@@ -11,6 +10,7 @@ import {
 import {MailFlag} from "./bmail_body";
 import {EmailReflects} from "./proto/bmail_srv";
 import {
+    __raw_content_class_name,
     AttachmentFileSuffix,
     ECInvalidEmailAddress,
     ECNoValidMailReceiver,
@@ -174,7 +174,7 @@ export async function encryptMailInComposing(mailBody: HTMLElement, receiver: st
         showTipsDialog("Tips", mailRsp.message);
         return false;
     }
-    mailBody.innerHTML = '<div class="bmail-encrypted-data-wrapper">' + mailRsp.data + '</div>';
+    mailBody.innerHTML = `<div class="${__raw_content_class_name}">` + mailRsp.data + '</div>';
 
     if (aekId) {
         removeAttachmentKey(aekId);
@@ -314,6 +314,31 @@ export async function queryContactFromSrv(emailToQuery: string[], receiver: stri
     }
 
     return receiver;
+}
+
+export function EncryptedMailDivSearch(mailArea: HTMLElement): HTMLElement[] {
+    const closestJsonElements: HTMLElement[] = [];
+    const allElements = Array.from(mailArea.querySelectorAll('div, blockquote, pre, span')) as HTMLElement[];
+    allElements.push(mailArea);
+    allElements.forEach((element) => {
+        const textContent = element.textContent?.trim();
+        if (!textContent) {
+            return;
+        }
+        if (!textContent.includes(MailFlag)) {
+            return;
+        }
+        const hasJsonChild = Array.from(element.children).some((childElement) => {
+            const childText = childElement.textContent?.trim();
+            return childText && childText.includes(MailFlag);
+        });
+        if (!hasJsonChild) {
+            closestJsonElements.push(element);
+        }
+    });
+
+    // console.log("------------------>>div size with bmail content-------------->>>>", closestJsonElements.length);
+    return closestJsonElements;
 }
 
 export function appendDecryptForDiv(cryptoBtnDiv: HTMLElement, mailArea: HTMLElement) {
@@ -485,7 +510,8 @@ export function replaceTextNodeWithDiv(firstChild: HTMLElement) {
     if (!textContent) {
         return;
     }
-    const regex = /<div class="bmail-encrypted-data-wrapper">(.*?)<\/div>/;
+    // const regex = /<div class="bmail-encrypted-data-wrapper">(.*?)<\/div>/;
+    const regex = new RegExp(`<div class="${__raw_content_class_name}">(.*?)<\\/div>`);
     const match = textContent.match(regex);
 
     if (!match || !match[1]) {
@@ -493,7 +519,7 @@ export function replaceTextNodeWithDiv(firstChild: HTMLElement) {
     }
     const extractedContent = match[1];
     const newDiv = document.createElement('div');
-    newDiv.className = 'bmail-encrypted-data-wrapper';
+    newDiv.className = __raw_content_class_name;
     newDiv.innerHTML = extractedContent;
     firstChild?.parentNode?.replaceChild(newDiv, firstChild);
 }
@@ -531,7 +557,7 @@ export function findAllTextNodesWithEncryptedDiv(mailArea: HTMLElement): Node[] 
     const matchingNodes: Node[] = [];
 
     while (currentNode) {
-        if (currentNode.nodeValue?.includes('<div class="bmail-encrypted-data-wrapper">')) {
+        if (currentNode.nodeValue?.includes(`<div class="${__raw_content_class_name}">`)) {
             matchingNodes.push(currentNode);
         }
         currentNode = walker.nextNode();

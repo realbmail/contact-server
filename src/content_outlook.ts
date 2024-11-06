@@ -4,11 +4,10 @@ import {
     encryptMailInComposing, extractAesKeyId, findAllTextNodesWithEncryptedDiv, ContentPageProvider,
     observeForElement, parseBmailInboxBtn, parseContentHtml,
     parseCryptoMailBtn,
-    processReceivers, replaceTextNodeWithDiv, showTipsDialog, AttachmentKeyID, setKeepAlive
+    processReceivers, replaceTextNodeWithDiv, showTipsDialog, AttachmentKeyID, setKeepAlive, EncryptedMailDivSearch
 } from "./content_common";
 import browser from "webextension-polyfill";
 import {
-    EncryptedMailDivSearch,
     extractEmail,
     hideLoading,
     moveParenthesesBeforeExtension,
@@ -373,7 +372,6 @@ function showMoreMailContent(oneMail: HTMLElement, toolBarDiv: HTMLElement, temp
     BMailDivs.forEach(bmailBody => {
         decryptMailInReading(bmailBody, cryptoBtn).then();
     });
-
 }
 
 function addCryptBtnToMailHistory(mailContent: HTMLElement, template: HTMLTemplateElement) {
