@@ -668,3 +668,24 @@ export function setKeepAlive() {
         console.log('Message sending interval cleared.');
     });
 }
+
+export function addLoginCheckForEditAgainBtn(editAgainButton: HTMLElement | null) {
+    if (!editAgainButton || editAgainButton.dataset.hasAddAction === 'true') {
+        return;
+    }
+
+    const clickHandler = async (e: MouseEvent) => {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+
+        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin);
+
+        if (statusRsp.success > 0) {
+            editAgainButton.removeEventListener('click', clickHandler, true);
+            editAgainButton.click();
+            editAgainButton.addEventListener('click', clickHandler, true);
+        }
+    };
+    editAgainButton.addEventListener('click', clickHandler, true);
+    editAgainButton.dataset.hasAddAction = 'true';
+}

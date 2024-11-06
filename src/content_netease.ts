@@ -13,7 +13,7 @@ import {
     parseCryptoMailBtn,
     processReceivers,
     replaceTextNodeWithDiv,
-    showTipsDialog, setKeepAlive
+    showTipsDialog, setKeepAlive, addLoginCheckForEditAgainBtn
 } from "./content_common";
 import {extractEmail, hideLoading, showLoading} from "./utils";
 import {addAttachmentEncryptBtn, decryptAttachment} from "./content_attachment";
@@ -164,8 +164,8 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
         await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtn);
         return;
     }
-    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
-    if (!headerBtnList) {
+    const toolBarDiv = composeDiv.querySelector(".js-component-toolbar.nui-toolbar");
+    if (!toolBarDiv) {
         console.log("------>>> header list not found for mail composition");
         return;
     }
@@ -178,7 +178,7 @@ async function prepareComposeEnv(composeDiv: HTMLElement, template: HTMLTemplate
     ) as HTMLElement;
 
     await parseMailBodyToCheckCryptoButtonStatus(composeDiv, cryptoBtnDiv.querySelector('.bmail-crypto-btn') as HTMLElement);
-    headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
+    toolBarDiv.insertBefore(cryptoBtnDiv, toolBarDiv.children[1]);
     // console.log("------>>> encrypt button add success");
 }
 
@@ -314,8 +314,8 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         return;
     }
 
-    const headerBtnList = composeDiv.querySelector(".js-component-toolbar.nui-toolbar") as HTMLElement | null;
-    if (!headerBtnList) {
+    const toolBarDiv = composeDiv.querySelector(".js-component-toolbar.nui-toolbar") as HTMLElement | null;
+    if (!toolBarDiv) {
         console.log("------>>> header list not found for netease mail reading");
         return;
     }
@@ -339,7 +339,12 @@ function addMailDecryptForReadingNetease(composeDiv: HTMLElement, template: HTML
         return;
     }
 
-    headerBtnList.insertBefore(cryptoBtnDiv, headerBtnList.children[1]);
+    const editAgainBtnGrp = toolBarDiv.children[1];
+    toolBarDiv.insertBefore(cryptoBtnDiv, editAgainBtnGrp);
+    const editAgainBtn = editAgainBtnGrp.firstElementChild as HTMLElement
+    if (editAgainBtn.classList.length === 2) {
+        addLoginCheckForEditAgainBtn(editAgainBtnGrp.firstElementChild as HTMLElement);
+    }
 }
 
 function addEncryptBtnForQuickReply(mailArea: HTMLElement, template: HTMLTemplateElement) {

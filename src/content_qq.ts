@@ -1,28 +1,31 @@
 import {
     __decrypt_button_css_name,
-    __localContactMap, addCustomStyles,
+    __localContactMap,
+    addCustomStyles,
     addDecryptButtonForBmailBody,
-    checkFrameBody, decryptMailForEditionOfSentMail, decryptMailInReading,
-    encryptMailInComposing, findAllTextNodesWithEncryptedDiv, ContentPageProvider,
+    addLoginCheckForEditAgainBtn,
+    checkFrameBody,
+    ContentPageProvider,
+    decryptMailForEditionOfSentMail,
+    decryptMailInReading,
+    encryptMailInComposing,
+    extractAesKeyId,
+    findAllTextNodesWithEncryptedDiv,
     observeForElement,
     observeFrame,
-    parseBmailInboxBtn, parseContentHtml,
-    parseCryptoMailBtn, processReceivers,
-    queryContactFromSrv, replaceTextNodeWithDiv, showTipsDialog, extractAesKeyId, setKeepAlive
+    parseBmailInboxBtn,
+    parseContentHtml,
+    parseCryptoMailBtn,
+    processReceivers,
+    queryContactFromSrv,
+    replaceTextNodeWithDiv,
+    setKeepAlive,
+    showTipsDialog
 } from "./content_common";
-import {
-    emailRegex,
-    extractEmail, hideLoading,
-    sendMessageToBackground,
-    showLoading,
-} from "./utils";
+import {emailRegex, extractEmail, hideLoading, sendMessageToBackground, showLoading,} from "./utils";
 import browser from "webextension-polyfill";
 import {__raw_content_class_name, MsgType} from "./consts";
-import {
-    addAttachmentEncryptBtn,
-    decryptAttachmentFileData,
-    loadAKForReading
-} from "./content_attachment";
+import {addAttachmentEncryptBtn, decryptAttachmentFileData, loadAKForReading} from "./content_attachment";
 import {MailFlag} from "./bmail_body";
 
 function appendForQQ(template: HTMLTemplateElement) {
@@ -779,27 +782,6 @@ async function addCryptoBtnToReadingMailQQOldVersion(template: HTMLTemplateEleme
     addLoginCheckForEditAgainBtn(editAgainButton)
 
     addDecryptBtnForAttachmentOldVersion(template, doc);
-}
-
-function addLoginCheckForEditAgainBtn(editAgainButton: HTMLElement | null) {
-    if (!editAgainButton || editAgainButton.dataset.hasAddAction === 'true') {
-        return;
-    }
-
-    const clickHandler = async (e: MouseEvent) => {
-        e.stopImmediatePropagation();
-        e.preventDefault();
-
-        const statusRsp = await sendMessageToBackground('', MsgType.CheckIfLogin);
-
-        if (statusRsp.success > 0) {
-            editAgainButton.removeEventListener('click', clickHandler, true);
-            editAgainButton.click();
-            editAgainButton.addEventListener('click', clickHandler, true);
-        }
-    };
-    editAgainButton.addEventListener('click', clickHandler, true);
-    editAgainButton.dataset.hasAddAction = 'true';
 }
 
 function addDecryptBtnForAttachmentOldVersion(template: HTMLTemplateElement, doc: Document) {
