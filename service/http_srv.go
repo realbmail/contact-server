@@ -7,6 +7,7 @@ import (
 	"github.com/realbmail/contact-server/common"
 	pbs "github.com/realbmail/contact-server/proto"
 	"google.golang.org/protobuf/proto"
+	"net"
 	"net/http"
 )
 
@@ -23,14 +24,19 @@ func (s *Service) Start() {
 		_ = http.ListenAndServe("127.0.0.1:8887", r)
 	}()
 
-	if __httpConf.UseHttps {
-		fmt.Println("https service start success:", __httpConf.HttpPort)
-		panic(http.ListenAndServeTLS(":"+__httpConf.HttpPort, __httpConf.SSLCertFile, __httpConf.SSLKeyFile, s.router))
-	} else {
-		fmt.Println("http service start success:", __httpConf.HttpPort)
-		panic(http.ListenAndServe(":"+__httpConf.HttpPort, s.router))
+	addr := ":" + __httpConf.HttpPort
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		panic(err)
 	}
 
+	if __httpConf.UseHttps {
+		fmt.Println("https service start success:", __httpConf.HttpPort)
+		panic(http.ServeTLS(listener, s.router, __httpConf.SSLCertFile, __httpConf.SSLKeyFile))
+	} else {
+		fmt.Println("http service start success:", __httpConf.HttpPort)
+		panic(http.Serve(listener, s.router))
+	}
 }
 func queryUserLevel(w http.ResponseWriter, r *http.Request) {
 
