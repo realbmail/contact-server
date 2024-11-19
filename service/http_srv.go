@@ -24,7 +24,7 @@ func (s *Service) Start() {
 		_ = http.ListenAndServe("127.0.0.1:8887", r)
 	}()
 
-	addr := ":" + __httpConf.HttpPort
+	addr := __httpConf.HttpHost + ":" + __httpConf.HttpPort
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)

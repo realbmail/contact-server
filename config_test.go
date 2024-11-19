@@ -16,6 +16,7 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 		JSEnv:    "production",
 		HttpCfg: &service.HttpCfg{
 			CheckSignature: true,
+			HttpHost:       "",
 			HttpPort:       "8001",
 			RefreshContent: true,
 			UseHttps:       false,
