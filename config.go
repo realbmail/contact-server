@@ -6,6 +6,7 @@ import (
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/db_firestore"
 	"github.com/realbmail/contact-server/db_leveldb"
+	"github.com/realbmail/contact-server/db_redis"
 	"github.com/realbmail/contact-server/service"
 	"os"
 )
@@ -17,6 +18,7 @@ type Config struct {
 	*service.HttpCfg
 	*db_firestore.FsCfg
 	*db_leveldb.LBCfg
+	*db_redis.RedisCfg
 }
 
 var _sysConfig *Config = nil
@@ -47,7 +49,8 @@ func initConfig(filName string) *Config {
 	}
 
 	service.InitConf(cf.HttpCfg)
-	db_firestore.InitConf(cf.FsCfg)
+	//db_firestore.InitConf(cf.FsCfg)
+	db_redis.InitConf(cf.RedisCfg)
 	_sysConfig = cf
 	fmt.Println(cf.String())
 	common.SetLogLevel(cf.LogLevel, cf.LogFile)

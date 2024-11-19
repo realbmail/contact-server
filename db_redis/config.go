@@ -3,11 +3,11 @@ package db_redis
 import "fmt"
 
 type RedisCfg struct {
-	Addr         string `json:"addr"`
-	Password     string `json:"password"`
-	DB           int    `json:"db"`
-	PoolSize     int    `json:"pool_size"`
-	MinIdleConns int    `json:"min_idle_conns"`
+	Addr         string `json:"redis_addr"`
+	Password     string `json:"redis_password"`
+	DB           int    `json:"redis_db"`
+	PoolSize     int    `json:"redis_pool_size"`
+	MinIdleConns int    `json:"redis_min_idle_conns"`
 }
 
 func (c *RedisCfg) String() string {

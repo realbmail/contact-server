@@ -5,6 +5,7 @@ import (
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/db_firestore"
 	"github.com/realbmail/contact-server/db_leveldb"
+	"github.com/realbmail/contact-server/db_redis"
 	pbs "github.com/realbmail/contact-server/proto"
 	"html/template"
 )
@@ -12,6 +13,7 @@ import (
 const (
 	DBTypFirestore = 1
 	DBTypLevelDB   = 2
+	DBTypRedis     = 3
 )
 
 type HttpCfg struct {
@@ -35,10 +37,14 @@ func dataBaseType(dbNo int) string {
 		return "firestore"
 	case DBTypLevelDB:
 		return "levelDB"
+	case DBTypRedis:
+		return "DBTypRedis"
+
 	default:
 		return "unknown"
 	}
 }
+
 func (c *HttpCfg) String() string {
 	s := "\n------server config------"
 	s += "\nhttp port:\t" + c.HttpPort
@@ -63,6 +69,9 @@ func InitConf(c *HttpCfg) {
 	} else if __httpConf.DatabaseTyp == DBTypLevelDB {
 		__httpConf.database = db_leveldb.DbInst()
 		fmt.Println("======>>> using level db as database")
+	} else if __httpConf.DatabaseTyp == DBTypRedis {
+		__httpConf.database = db_redis.DbInst()
+		fmt.Println("======>>> using redis as database")
 	}
 }
 
