@@ -31,10 +31,10 @@ func (s *Service) Start() {
 	}
 
 	if __httpConf.UseHttps {
-		fmt.Println("https service start success:", __httpConf.HttpPort)
+		fmt.Println("https service start success:", addr)
 		panic(http.ServeTLS(listener, s.router, __httpConf.SSLCertFile, __httpConf.SSLKeyFile))
 	} else {
-		fmt.Println("http service start success:", __httpConf.HttpPort)
+		fmt.Println("http service start success:", addr)
 		panic(http.Serve(listener, s.router))
 	}
 }
