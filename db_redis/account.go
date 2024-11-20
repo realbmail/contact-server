@@ -32,8 +32,7 @@ func (rdm *DbManager) QueryAccount(bmailAddr string) (*common.BMailAccount, erro
 }
 
 func (rdm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
-	//TODO implement me
-	panic("implement me")
+	panic("this api not support any more")
 }
 
 func (rdm *DbManager) UpdateAccountLevel(accountId string, level int8) error {
@@ -49,7 +48,7 @@ func (rdm *DbManager) UpdateAccountLevel(accountId string, level int8) error {
     end
 
     local account = cjson.decode(data)
-    account.UserLel = newLevel
+    account.user_lel = newLevel
 
     local updatedData = cjson.encode(account)
     redis.call("SET", key, updatedData)
@@ -84,7 +83,7 @@ func (rdm *DbManager) ActiveAccount(accountId string, level int8) error {
     end
 
     -- 创建账户对象
-    local account = { UserLel = level }
+    local account = { user_lel = level, e_mail_address = {}, license = "" }
     local data = cjson.encode(account)
 
     -- 写入 Redis
@@ -140,9 +139,9 @@ func (rdm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
         local oldAccountData = redis.call("GET", oldAccountKey)
         if oldAccountData then
             local oldAccountObj = cjson.decode(oldAccountData)
-            for i, email in ipairs(oldAccountObj.EMailAddress) do
+            for i, email in ipairs(oldAccountObj.e_mail_address) do
                 if email == newEmail then
-                    table.remove(oldAccountObj.EMailAddress, i)
+                    table.remove(oldAccountObj.e_mail_address, i)
                     break
                 end
             end
@@ -155,14 +154,14 @@ func (rdm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
 
     -- 检查当前账户是否已绑定该 Email
     local accountObj = cjson.decode(accountData)
-    for _, email in ipairs(accountObj.EMailAddress) do
+    for _, email in ipairs(accountObj.e_mail_address) do
         if email == newEmail then
             return "OK" -- 已绑定，无需重复添加
         end
     end
 
     -- 添加 Email 到账户的 Email 列表
-    table.insert(accountObj.EMailAddress, newEmail)
+    table.insert(accountObj.e_mail_address, newEmail)
     redis.call("SET", accountKey, cjson.encode(accountObj))
 
     return "OK"
@@ -211,9 +210,9 @@ func (rdm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 
     -- 更新账户的 Email 列表
     local accountObj = cjson.decode(accountData)
-    for i, addr in ipairs(accountObj.EMailAddress) do
+    for i, addr in ipairs(accountObj.e_mail_address) do
         if addr == email then
-            table.remove(accountObj.EMailAddress, i)
+            table.remove(accountObj.e_mail_address, i)
             break
         end
     end
