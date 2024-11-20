@@ -83,11 +83,13 @@ func (rdm *DbManager) ActiveAccount(accountId string, level int8) error {
     end
 
     -- 创建账户对象
-    local account = { user_lel = level, e_mail_address = {}, license = "" }
-    local data = cjson.encode(account)
+    local accountJson = string.format(
+        '{"user_lel":%d,"e_mail_address":[],"license":""}',
+        level
+    )
 
     -- 写入 Redis
-    redis.call("SET", key, data)
+    redis.call("SET", key, accountJson)
     return "OK"
     `
 
@@ -114,8 +116,8 @@ func (rdm *DbManager) ActiveAccount(accountId string, level int8) error {
 }
 
 func (rdm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
-	accountKey := "account:" + bmailAddr
-	emailKey := "email:" + emailAddr
+	accountKey := TableAccount + bmailAddr
+	emailKey := TableEmail + emailAddr
 
 	// Lua 脚本
 	script := `
@@ -135,10 +137,16 @@ func (rdm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
 
     -- 如果 Email 已绑定到其他账户，需要移除旧绑定
     if oldAccount and oldAccount ~= newAccount then
-        local oldAccountKey = "account:" .. oldAccount
+        local oldAccountKey =  "` + TableAccount + `" .. oldAccount
         local oldAccountData = redis.call("GET", oldAccountKey)
         if oldAccountData then
             local oldAccountObj = cjson.decode(oldAccountData)
+
+	    -- 检查 e_mail_address 是否为表
+	    if type(oldAccountObj.e_mail_address) ~= "table" then
+		oldAccountObj.e_mail_address = {} -- 初始化为空表
+	    end
+
             for i, email in ipairs(oldAccountObj.e_mail_address) do
                 if email == newEmail then
                     table.remove(oldAccountObj.e_mail_address, i)
@@ -154,6 +162,12 @@ func (rdm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
 
     -- 检查当前账户是否已绑定该 Email
     local accountObj = cjson.decode(accountData)
+
+    -- 检查 e_mail_address 是否为表
+    if type(accountObj.e_mail_address) ~= "table" then
+        accountObj.e_mail_address = {} -- 初始化为空表
+    end
+
     for _, email in ipairs(accountObj.e_mail_address) do
         if email == newEmail then
             return "OK" -- 已绑定，无需重复添加
@@ -184,8 +198,8 @@ func (rdm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
 }
 
 func (rdm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
-	accountKey := "account:" + bmailAddr
-	emailKey := "email:" + emailAddr
+	accountKey := TableAccount + bmailAddr
+	emailKey := TableEmail + emailAddr
 
 	// Lua 脚本
 	script := `
@@ -210,6 +224,12 @@ func (rdm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 
     -- 更新账户的 Email 列表
     local accountObj = cjson.decode(accountData)
+
+    -- 检查 e_mail_address 是否为表
+    if type(accountObj.e_mail_address) ~= "table" then
+        accountObj.e_mail_address = {} -- 初始化为空表
+    end
+
     for i, addr in ipairs(accountObj.e_mail_address) do
         if addr == email then
             table.remove(accountObj.e_mail_address, i)
@@ -234,6 +254,54 @@ func (rdm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 			return nil
 		}
 		return err
+	}
+
+	if result == "OK" {
+		return nil
+	}
+
+	return fmt.Errorf("unexpected result: %v", result)
+}
+
+func (rdm *DbManager) DeleteAccount(accountId string) error {
+	accountKey := TableAccount + accountId
+
+	script := `
+    local accountKey = KEYS[1]
+
+    -- 检查账户是否存在
+    local accountData = redis.call("GET", accountKey)
+    if not accountData then
+        return {err="Account does not exist"}
+    end
+
+    -- 解码账户数据
+    local accountObj = cjson.decode(accountData)
+
+    -- 检查 e_mail_address 是否为表
+    if type(accountObj.e_mail_address) ~= "table" then
+        accountObj.e_mail_address = {} -- 初始化为空表
+    end
+
+    -- 删除账户相关的 Email 映射
+    for _, email in ipairs(accountObj.e_mail_address) do
+        local emailKey = "` + TableEmail + `" .. email
+        redis.call("DEL", emailKey)
+    end
+
+    -- 删除账户数据
+    redis.call("DEL", accountKey)
+
+    return "OK"
+    `
+
+	// 执行 Lua 脚本
+	result, err := rdm.cli.Eval(rdm.ctx, script, []string{accountKey}).Result()
+	if err != nil {
+		if strings.Contains(err.Error(), "Account does not exist") {
+			return fmt.Errorf("account does not exist: %s", accountId)
+		}
+		return fmt.Errorf("failed to delete account: %w", err)
 	}
 
 	if result == "OK" {

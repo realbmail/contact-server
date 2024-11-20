@@ -11,7 +11,7 @@ import (
 type startParam struct {
 	level   int8
 	address string
-	query   bool
+	action  int8
 }
 
 var param = &startParam{}
@@ -31,8 +31,8 @@ func init() {
 		"l", 1, "dbtool.lnx -l 1")
 	flags.StringVarP(&param.address, "address",
 		"a", "", "dbtool.lnx -a [Address]")
-	flags.BoolVarP(&param.query, "query",
-		"q", false, "dbtool.lnx -q [Address]")
+	flags.Int8VarP(&param.action, "actionTyp",
+		"t", 0, "dbtool.lnx -t [Address]")
 }
 
 func main() {
@@ -47,10 +47,19 @@ func mainRun(_ *cobra.Command, _ []string) {
 		UserLevel: int32(param.level),
 	}
 	var url = "http://127.0.0.1:8887"
-	api := url + "/update_user_level"
-	if param.query {
+	var api = "" // := url + "/update_user_level"
+	switch param.action {
+	case 0:
 		api = url + "/query_user_level"
+		break
+	case 1:
+		api = url + "/update_user_level"
+		break
+	case 2:
+		api = url + "/delete_user_level"
+		break
 	}
+
 	reqData, _ := json.Marshal(req)
 	respData, err := service.DoHttp(api, "application/json", reqData)
 	if err != nil {
@@ -62,6 +71,7 @@ func mainRun(_ *cobra.Command, _ []string) {
 		}
 		return
 	}
+
 	var rsp = service.Rsp{}
 	err = json.Unmarshal(respData, &rsp)
 	if err != nil {

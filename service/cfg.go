@@ -86,4 +86,5 @@ type DatabaseI interface {
 	DeleteBinding(bmailAddr string, emailAddr string) error
 	UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error
 	QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error)
+	DeleteAccount(bmailAddr string) error
 }
