@@ -144,7 +144,7 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryReflectByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
 	r.MethodFunc(http.MethodPost, "/account_singIn", callFunc(AccountSignIn))
-	r.MethodFunc(http.MethodPost, "/operate_account", callFunc(OperateAccount))
+	//r.MethodFunc(http.MethodPost, "/operate_account", callFunc(OperateAccount))
 	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountActive))
 	r.MethodFunc(http.MethodPost, "/account_active", callFunc(AccountActive))
 	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
@@ -271,31 +271,32 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
-	var operation = &pbs.AccountOperation{}
-	err := proto.Unmarshal(request.Payload, operation)
-	if err != nil {
-		return nil, err
-	}
-	if len(operation.Address) == 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid operation parameter")
-	}
-
-	err = checkRightsOfAccount(operation)
-	if err != nil {
-		return nil, err
-	}
-
-	err = __httpConf.database.OperateAccount(operation.Address, operation.Emails, operation.IsDel)
-	if err != nil {
-		return nil, err
-	}
-
-	common.LogInst().Debug().Bool("is-deletion", operation.IsDel).
-		Str("bmail", operation.Address).Msgf("operate contact success:%v", operation.Emails)
-	return rsp, nil
-}
+//
+//func OperateAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
+//	var rsp = &pbs.BMRsp{Success: true}
+//	var operation = &pbs.AccountOperation{}
+//	err := proto.Unmarshal(request.Payload, operation)
+//	if err != nil {
+//		return nil, err
+//	}
+//	if len(operation.Address) == 0 {
+//		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid operation parameter")
+//	}
+//
+//	err = checkRightsOfAccount(operation)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	err = __httpConf.database.OperateAccount(operation.Address, operation.Emails, operation.IsDel)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	common.LogInst().Debug().Bool("is-deletion", operation.IsDel).
+//		Str("bmail", operation.Address).Msgf("operate contact success:%v", operation.Emails)
+//	return rsp, nil
+//}
 
 func AccountActive(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}

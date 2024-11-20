@@ -69,76 +69,77 @@ func (dm *DbManager) ActiveAccount(accountId string, level int8) error {
 	return err
 }
 
-func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
-	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*20)
-	defer cancel()
-
-	err := dm.fileCli.RunTransaction(opCtx, func(ctx context.Context, tx *firestore.Transaction) error {
-		docRef := dm.fileCli.Collection(DBTableAccount).Doc(bmailAddr)
-		accountSnapShot, err := tx.Get(docRef)
-		if err != nil {
-			return common.NewBMError(common.BMErrNoRight, "create account first please")
-		}
-
-		var contact common.BMailAccount
-		err = accountSnapShot.DataTo(&contact)
-		if err != nil {
-			return err
-		}
-
-		emailAddrInterface := make([]interface{}, len(emailAddr))
-		for i, v := range emailAddr {
-			emailAddrInterface[i] = v
-		}
-
-		oldAccToUpdate, err := dm.updateEmailReflect(tx, bmailAddr, emailAddr, isDel)
-		if err != nil {
-			return err
-		}
-
-		if isDel {
-			err = tx.Update(docRef, []firestore.Update{
-				{
-					Path:  "e_mail_address",
-					Value: firestore.ArrayRemove(emailAddrInterface...),
-				},
-			})
-		} else {
-			err = tx.Update(docRef, []firestore.Update{
-				{
-					Path:  "e_mail_address",
-					Value: firestore.ArrayUnion(emailAddrInterface...),
-				},
-			})
-		}
-
-		if err != nil {
-			return err
-		}
-
-		if len(oldAccToUpdate) == 0 {
-			return nil
-		}
-
-		for email, addr := range oldAccToUpdate {
-			docRef = dm.fileCli.Collection(DBTableAccount).Doc(addr)
-			if err != nil {
-				continue
-			}
-
-			err = tx.Update(docRef, []firestore.Update{
-				{
-					Path:  "e_mail_address",
-					Value: firestore.ArrayRemove(email),
-				},
-			})
-		}
-
-		return nil
-	})
-
-	return err
-}
+//
+//func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
+//	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*20)
+//	defer cancel()
+//
+//	err := dm.fileCli.RunTransaction(opCtx, func(ctx context.Context, tx *firestore.Transaction) error {
+//		docRef := dm.fileCli.Collection(DBTableAccount).Doc(bmailAddr)
+//		accountSnapShot, err := tx.Get(docRef)
+//		if err != nil {
+//			return common.NewBMError(common.BMErrNoRight, "create account first please")
+//		}
+//
+//		var contact common.BMailAccount
+//		err = accountSnapShot.DataTo(&contact)
+//		if err != nil {
+//			return err
+//		}
+//
+//		emailAddrInterface := make([]interface{}, len(emailAddr))
+//		for i, v := range emailAddr {
+//			emailAddrInterface[i] = v
+//		}
+//
+//		oldAccToUpdate, err := dm.updateEmailReflect(tx, bmailAddr, emailAddr, isDel)
+//		if err != nil {
+//			return err
+//		}
+//
+//		if isDel {
+//			err = tx.Update(docRef, []firestore.Update{
+//				{
+//					Path:  "e_mail_address",
+//					Value: firestore.ArrayRemove(emailAddrInterface...),
+//				},
+//			})
+//		} else {
+//			err = tx.Update(docRef, []firestore.Update{
+//				{
+//					Path:  "e_mail_address",
+//					Value: firestore.ArrayUnion(emailAddrInterface...),
+//				},
+//			})
+//		}
+//
+//		if err != nil {
+//			return err
+//		}
+//
+//		if len(oldAccToUpdate) == 0 {
+//			return nil
+//		}
+//
+//		for email, addr := range oldAccToUpdate {
+//			docRef = dm.fileCli.Collection(DBTableAccount).Doc(addr)
+//			if err != nil {
+//				continue
+//			}
+//
+//			err = tx.Update(docRef, []firestore.Update{
+//				{
+//					Path:  "e_mail_address",
+//					Value: firestore.ArrayRemove(email),
+//				},
+//			})
+//		}
+//
+//		return nil
+//	})
+//
+//	return err
+//}
 
 func (dm *DbManager) UpdateBinding(bmailAddr string, emailAddr string) error {
 	// 设置上下文和超时时间

@@ -23,13 +23,11 @@ type DbManager struct {
 }
 
 func (rdm *DbManager) UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error {
-	//TODO implement me
-	panic("implement me")
+	panic("unsupported now")
 }
 
 func (rdm *DbManager) QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error) {
-	//TODO implement me
-	panic("implement me")
+	panic("unsupported now")
 }
 
 func DbInst() *DbManager {

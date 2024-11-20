@@ -29,7 +29,7 @@ func (rdm *DbManager) QueryAccount(accountId string) (*common.BMailAccount, erro
 		account.UserLel = int8(ul)
 	}
 	if emailStr, ok := data["e_mail_address"]; ok {
-		json.Unmarshal([]byte(emailStr), &account.EMailAddress)
+		_ = json.Unmarshal([]byte(emailStr), &account.EMailAddress)
 	}
 	if license, ok := data["license"]; ok {
 		account.LicenseHex = license
@@ -38,9 +38,6 @@ func (rdm *DbManager) QueryAccount(accountId string) (*common.BMailAccount, erro
 	return account, nil
 }
 
-func (rdm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
-	panic("this api not support any more")
-}
 func (rdm *DbManager) UpdateAccountLevel(accountId string, level int8) error {
 	accountKeyStr := TableAccount + accountId
 

@@ -23,24 +23,25 @@ func (dm *DbManager) QueryAccount(bmailAddr string) (*common.BMailAccount, error
 	return &account, nil
 }
 
-func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
-	if isDel {
-		for i := 0; i < len(emailAddr); i++ {
-			email := emailAddr[i]
-			if err := dm.DeleteBinding(bmailAddr, email); err != nil {
-				return err
-			}
-		}
-	} else {
-		for i := 0; i < len(emailAddr); i++ {
-			email := emailAddr[i]
-			if err := dm.UpdateBinding(bmailAddr, email); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
+//
+//func (dm *DbManager) OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error {
+//	if isDel {
+//		for i := 0; i < len(emailAddr); i++ {
+//			email := emailAddr[i]
+//			if err := dm.DeleteBinding(bmailAddr, email); err != nil {
+//				return err
+//			}
+//		}
+//	} else {
+//		for i := 0; i < len(emailAddr); i++ {
+//			email := emailAddr[i]
+//			if err := dm.UpdateBinding(bmailAddr, email); err != nil {
+//				return err
+//			}
+//		}
+//	}
+//	return nil
+//}
 
 func (dm *DbManager) UpdateAccountLevel(accountId string, level int8) error {
 	accountKeyStr := TableAccount + accountId

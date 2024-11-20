@@ -81,6 +81,7 @@ func remove(slice []string, item string) []string {
 	}
 	return result
 }
+
 func (dm *DbManager) DeleteAccount(bmailAddr string) error {
-	panic("implement me")
+	panic("api not support any more")
 }
