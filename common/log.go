@@ -51,12 +51,13 @@ func LogInst() *zerolog.Logger {
 }
 
 func SetLogLevel(ll, file string) {
-	_ = LogInst()
-
 	logLevel = ll
 	if len(file) > 0 {
 		LogFileName = file
 	}
+
+	_ = LogInst()
+
 	logLvl, err := zerolog.ParseLevel(logLevel)
 	if err != nil {
 		fmt.Println("set log level err:", err)

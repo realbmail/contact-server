@@ -140,3 +140,7 @@ func (dm *DbManager) QueryContacts(address string, startAfterEmail string) ([]*p
 
 	return contacts, nil
 }
+
+func (dm *DbManager) DeleteAccount(bmailAddr string) error {
+	panic("implement me")
+}

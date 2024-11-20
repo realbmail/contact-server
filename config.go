@@ -6,6 +6,7 @@ import (
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/db_firestore"
 	"github.com/realbmail/contact-server/db_leveldb"
+	"github.com/realbmail/contact-server/db_redis"
 	"github.com/realbmail/contact-server/service"
 	"os"
 )
@@ -17,6 +18,7 @@ type Config struct {
 	*service.HttpCfg
 	*db_firestore.FsCfg
 	*db_leveldb.LBCfg
+	*db_redis.RedisCfg
 }
 
 var _sysConfig *Config = nil
@@ -27,7 +29,10 @@ func (c Config) String() string {
 	s += "\nlog file:\t" + c.LogFile
 	s += "\njs environment:\t" + c.JSEnv
 	s += "\n-------------------------"
-	s += "\r\n" + c.HttpCfg.String() + "\r\n" + c.FsCfg.String() + "\r\n"
+	s += "\r\n" + c.HttpCfg.String() +
+		"\r\n" + c.FsCfg.String() +
+		"\r\n" + c.LBCfg.String() +
+		"\r\n" + c.RedisCfg.String() + "\r\n"
 	return s
 }
 
@@ -46,8 +51,9 @@ func initConfig(filName string) *Config {
 		cf.HttpPort = param.port
 	}
 
+	db_redis.InitConf(cf.RedisCfg)
 	service.InitConf(cf.HttpCfg)
-	db_firestore.InitConf(cf.FsCfg)
+	//db_firestore.InitConf(cf.FsCfg)
 	_sysConfig = cf
 	fmt.Println(cf.String())
 	common.SetLogLevel(cf.LogLevel, cf.LogFile)

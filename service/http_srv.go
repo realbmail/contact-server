@@ -21,10 +21,11 @@ func (s *Service) Start() {
 		r.Use(middleware.Recoverer)
 		r.HandleFunc("/update_user_level", updateUserLevel)
 		r.HandleFunc("/query_user_level", queryUserLevel)
+		r.HandleFunc("/delete_user_level", deleteUser)
 		_ = http.ListenAndServe("127.0.0.1:8887", r)
 	}()
 
-	addr := ":" + __httpConf.HttpPort
+	addr := __httpConf.HttpHost + ":" + __httpConf.HttpPort
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
@@ -55,6 +56,25 @@ func queryUserLevel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	WriteJsonRequest(w, Rsp{Success: true, Payload: acc})
+}
+
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+
+	var action pbs.AccountOperation
+
+	var err = ReadJsonRequest(r, &action)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	err = __httpConf.database.DeleteAccount(action.Address)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	WriteJsonRequest(w, Rsp{Success: true, Payload: ""})
 }
 
 func updateUserLevel(w http.ResponseWriter, r *http.Request) {

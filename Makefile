@@ -42,11 +42,11 @@ target:=mac
 
 mac:
 	GOOS=darwin go build -ldflags '-w -s' -o $(BINDIR)/$(NAME).mac  -ldflags="$(LD_FLAGS)"
-	GOOS=darwin go build -ldflags '-w -s' -o $(BINDIR)/dbtool.mac ./db_leveldb/db_tool/*.go
+	GOOS=darwin go build -ldflags '-w -s' -o $(BINDIR)/dbtool.mac ./db_tool/*.go
 
 linux:
 	GOOS=linux GOARCH=amd64 go build -ldflags '-w -s' -o $(BINDIR)/$(NAME).lnx  -ldflags="$(LD_FLAGS)"
-	GOOS=linux GOARCH=amd64 go build -ldflags '-w -s' -o $(BINDIR)/$dbtool.lnx  ./db_leveldb/db_tool/*.go
+	GOOS=linux GOARCH=amd64 go build -ldflags '-w -s' -o $(BINDIR)/$dbtool.lnx  ./db_tool/*.go
 
 clean:
 	rm $(BINDIR)/$(NAME)

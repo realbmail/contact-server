@@ -5,6 +5,7 @@ import (
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/db_firestore"
 	"github.com/realbmail/contact-server/db_leveldb"
+	"github.com/realbmail/contact-server/db_redis"
 	pbs "github.com/realbmail/contact-server/proto"
 	"html/template"
 )
@@ -12,10 +13,12 @@ import (
 const (
 	DBTypFirestore = 1
 	DBTypLevelDB   = 2
+	DBTypRedis     = 3
 )
 
 type HttpCfg struct {
 	CheckSignature      bool   `json:"check_signature"`
+	HttpHost            string `json:"http_host"`
 	HttpPort            string `json:"http_port"`
 	RefreshContent      bool   `json:"refresh_content"`
 	UseHttps            bool   `json:"use_https"`
@@ -34,10 +37,14 @@ func dataBaseType(dbNo int) string {
 		return "firestore"
 	case DBTypLevelDB:
 		return "levelDB"
+	case DBTypRedis:
+		return "DBTypRedis"
+
 	default:
 		return "unknown"
 	}
 }
+
 func (c *HttpCfg) String() string {
 	s := "\n------server config------"
 	s += "\nhttp port:\t" + c.HttpPort
@@ -62,6 +69,9 @@ func InitConf(c *HttpCfg) {
 	} else if __httpConf.DatabaseTyp == DBTypLevelDB {
 		__httpConf.database = db_leveldb.DbInst()
 		fmt.Println("======>>> using level db as database")
+	} else if __httpConf.DatabaseTyp == DBTypRedis {
+		__httpConf.database = db_redis.DbInst()
+		fmt.Println("======>>> using redis as database")
 	}
 }
 
@@ -76,4 +86,5 @@ type DatabaseI interface {
 	DeleteBinding(bmailAddr string, emailAddr string) error
 	UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error
 	QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error)
+	DeleteAccount(bmailAddr string) error
 }

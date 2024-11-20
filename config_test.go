@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/realbmail/contact-server/db_firestore"
 	"github.com/realbmail/contact-server/db_leveldb"
+	"github.com/realbmail/contact-server/db_redis"
 	"github.com/realbmail/contact-server/service"
 	"os"
 	"testing"
@@ -16,6 +17,7 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 		JSEnv:    "production",
 		HttpCfg: &service.HttpCfg{
 			CheckSignature: true,
+			HttpHost:       "",
 			HttpPort:       "8001",
 			RefreshContent: true,
 			UseHttps:       false,
@@ -33,6 +35,13 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 		},
 		LBCfg: &db_leveldb.LBCfg{
 			DBPath: db_leveldb.DefaultDBPath,
+		},
+		RedisCfg: &db_redis.RedisCfg{
+			Addr:         "localhost:6379",
+			Password:     "123",
+			DB:           0,
+			PoolSize:     10,
+			MinIdleConns: 3,
 		},
 	}
 
