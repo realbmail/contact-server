@@ -24,4 +24,5 @@ var __dbConf *RedisCfg
 
 func InitConf(c *RedisCfg) {
 	__dbConf = c
+	fmt.Println(c.String())
 }

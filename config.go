@@ -29,10 +29,7 @@ func (c Config) String() string {
 	s += "\nlog file:\t" + c.LogFile
 	s += "\njs environment:\t" + c.JSEnv
 	s += "\n-------------------------"
-	s += "\r\n" + c.HttpCfg.String() +
-		"\r\n" + c.FsCfg.String() +
-		"\r\n" + c.LBCfg.String() +
-		"\r\n" + c.RedisCfg.String() + "\r\n"
+	s += "\r\n" + c.HttpCfg.String() + "\r\n"
 	return s
 }
 
@@ -51,9 +48,19 @@ func initConfig(filName string) *Config {
 		cf.HttpPort = param.port
 	}
 
-	db_redis.InitConf(cf.RedisCfg)
+	switch cf.HttpCfg.DatabaseTyp {
+	case service.DBTypFirestore:
+		db_firestore.InitConf(cf.FsCfg)
+		break
+	case service.DBTypRedis:
+		db_redis.InitConf(cf.RedisCfg)
+		break
+	case service.DBTypLevelDB:
+		db_leveldb.InitConf(cf.LBCfg)
+		break
+	}
+
 	service.InitConf(cf.HttpCfg)
-	//db_firestore.InitConf(cf.FsCfg)
 	_sysConfig = cf
 	fmt.Println(cf.String())
 	common.SetLogLevel(cf.LogLevel, cf.LogFile)

@@ -28,4 +28,5 @@ func (c *FsCfg) String() string {
 
 func InitConf(c *FsCfg) {
 	__dbConf = c
+	fmt.Println(c.String())
 }

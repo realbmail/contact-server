@@ -1,5 +1,7 @@
 package db_leveldb
 
+import "fmt"
+
 const (
 	DefaultDBPath = "./database"
 )
@@ -20,4 +22,5 @@ func (c *LBCfg) String() string {
 func InitConf(c *LBCfg) {
 	__dbConf = c
 	_ = DbInst()
+	fmt.Println(c.String())
 }

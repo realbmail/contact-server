@@ -103,19 +103,25 @@ func (dm *DbManager) updateEmailReflect(tx *firestore.Transaction, accountAddr s
 	return oldAccountToUpdate, nil
 }
 
-func (dm *DbManager) deleteEmailReflect(tx *firestore.Transaction, email string) error {
+func (dm *DbManager) deleteEmailReflect(email string) error {
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
+	defer cancel()
+
 	docRef := dm.fileCli.Collection(DBTableReflect).Doc(email)
-	err := tx.Delete(docRef)
+	_, err := docRef.Delete(opCtx)
 	if err != nil && status.Code(err) != codes.NotFound {
 		return err
 	}
 	return nil
 }
 
-func (dm *DbManager) updateEmailReflectOnly(tx *firestore.Transaction, accountAddr string, email string) (string, error) {
+func (dm *DbManager) updateEmailReflectOnly(accountAddr string, email string) (string, error) {
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
+	defer cancel()
+
 	var oldBMailAddress string
 	docRef := dm.fileCli.Collection(DBTableReflect).Doc(email)
-	docSnap, err := tx.Get(docRef)
+	docSnap, err := docRef.Get(opCtx)
 	if err != nil && status.Code(err) != codes.NotFound {
 		return "", err
 	}
@@ -125,19 +131,18 @@ func (dm *DbManager) updateEmailReflectOnly(tx *firestore.Transaction, accountAd
 		if err := docSnap.DataTo(&obj); err != nil {
 			return "", err
 		}
-		if obj.BMailAddress != accountAddr {
-			oldBMailAddress = obj.BMailAddress
-			obj.BMailAddress = accountAddr
-		} else {
-			// 如果 BMailAddress 已经是当前的 accountAddr，跳过更新
+		if obj.BMailAddress == accountAddr {
 			return "", nil
 		}
+		oldBMailAddress = obj.BMailAddress
+		obj.BMailAddress = accountAddr
 	} else {
 		obj = common.EmailReflect{
 			BMailAddress: accountAddr,
 		}
 	}
-	if err := tx.Set(docRef, obj); err != nil {
+	_, err = docRef.Set(opCtx, obj)
+	if err != nil {
 		return "", err
 	}
 	return oldBMailAddress, nil
