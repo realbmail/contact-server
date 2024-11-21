@@ -6,12 +6,15 @@ import (
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/realbmail/contact-server/service"
 	"github.com/spf13/cobra"
+	"github.com/syndtr/goleveldb/leveldb"
+	"log"
 )
 
 type startParam struct {
-	level   int8
-	address string
-	action  int8
+	level     int8
+	address   string
+	action    int8
+	localPath string
 }
 
 var param = &startParam{}
@@ -33,6 +36,8 @@ func init() {
 		"a", "", "dbtool.lnx -a [Address]")
 	flags.Int8VarP(&param.action, "actionTyp",
 		"t", 0, "dbtool.lnx -t [Address]")
+	flags.StringVarP(&param.localPath, "local-path",
+		"p", "", "dbtool.lnx -p [path/to/database]")
 }
 
 func main() {
@@ -42,6 +47,10 @@ func main() {
 }
 
 func mainRun(_ *cobra.Command, _ []string) {
+	if len(param.localPath) > 0 {
+		readLocalAll(param.localPath)
+		return
+	}
 	var req = &pbs.AccountOperation{
 		Address:   param.address,
 		UserLevel: int32(param.level),
@@ -80,4 +89,33 @@ func mainRun(_ *cobra.Command, _ []string) {
 	}
 
 	fmt.Println(rsp)
+}
+
+func readLocalAll(pathDir string) {
+	// 打开 LevelDB 数据库
+	db, err := leveldb.OpenFile(pathDir, nil)
+	if err != nil {
+		log.Fatalf("Failed to open leveldb: %v", err)
+	}
+	defer db.Close()
+
+	// 创建一个迭代器遍历所有的键值对
+	iter := db.NewIterator(nil, nil)
+	defer iter.Release()
+
+	fmt.Println("Reading all key-value pairs from testdb:")
+
+	for iter.Next() {
+		// 获取键值对
+		key := iter.Key()
+		value := iter.Value()
+
+		// 输出键值对
+		fmt.Printf("Key: %s, Value: %s\n", string(key), string(value))
+	}
+
+	// 检查迭代是否发生错误
+	if err := iter.Error(); err != nil {
+		log.Fatalf("Iterator error: %v", err)
+	}
 }
