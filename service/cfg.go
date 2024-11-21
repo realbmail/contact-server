@@ -19,6 +19,7 @@ const (
 type HttpCfg struct {
 	CheckSignature      bool   `json:"check_signature"`
 	HttpHost            string `json:"http_host"`
+	DebugPort           string `json:"debug_port"`
 	HttpPort            string `json:"http_port"`
 	RefreshContent      bool   `json:"refresh_content"`
 	UseHttps            bool   `json:"use_https"`
@@ -72,6 +73,9 @@ func InitConf(c *HttpCfg) {
 	} else if __httpConf.DatabaseTyp == DBTypRedis {
 		__httpConf.database = db_redis.DbInst()
 		fmt.Println("======>>> using redis as database")
+	}
+	if len(__httpConf.DebugPort) == 0 {
+		__httpConf.DebugPort = "8887"
 	}
 }
 

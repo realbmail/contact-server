@@ -22,7 +22,9 @@ func (s *Service) Start() {
 		r.HandleFunc("/update_user_level", updateUserLevel)
 		r.HandleFunc("/query_user_level", queryUserLevel)
 		r.HandleFunc("/delete_user_level", deleteUser)
-		_ = http.ListenAndServe("127.0.0.1:8887", r)
+		r.HandleFunc("/query_by_email", queryEmailReflect)
+		var err = http.ListenAndServe("127.0.0.1:"+__httpConf.DebugPort, r)
+		fmt.Println("debug server err:", err)
 	}()
 
 	addr := __httpConf.HttpHost + ":" + __httpConf.HttpPort
@@ -50,6 +52,29 @@ func queryUserLevel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	acc, err := __httpConf.database.QueryAccount(action.Address)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	WriteJsonRequest(w, Rsp{Success: true, Payload: acc})
+}
+func queryEmailReflect(w http.ResponseWriter, r *http.Request) {
+
+	var action pbs.AccountOperation
+
+	var err = ReadJsonRequest(r, &action)
+	if err != nil {
+		WriteJsonError(w, err)
+		return
+	}
+
+	if len(action.Emails) == 0 {
+		WriteJsonError(w, fmt.Errorf("no email address found"))
+		return
+	}
+
+	acc, err := __httpConf.database.QueryReflectByOneEmail(action.Emails[0])
 	if err != nil {
 		WriteJsonError(w, err)
 		return

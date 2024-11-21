@@ -19,6 +19,7 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 			CheckSignature: true,
 			HttpHost:       "",
 			HttpPort:       "8001",
+			DebugPort:      "8887",
 			RefreshContent: true,
 			UseHttps:       false,
 			SSLCertFile:    "",

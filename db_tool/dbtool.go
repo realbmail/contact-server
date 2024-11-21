@@ -15,6 +15,8 @@ type startParam struct {
 	address   string
 	action    int8
 	localPath string
+	debugPort string
+	email     string
 }
 
 var param = &startParam{}
@@ -38,6 +40,10 @@ func init() {
 		"t", 0, "dbtool.lnx -t [Address]")
 	flags.StringVarP(&param.localPath, "local-path",
 		"p", "", "dbtool.lnx -p [path/to/database]")
+	flags.StringVarP(&param.debugPort, "debug-port",
+		"d", "8887", "dbtool.lnx -d [PORT]")
+	flags.StringVarP(&param.email, "email",
+		"e", "", "dbtool.lnx -e [EMAIL ADDRESS]")
 }
 
 func main() {
@@ -54,8 +60,9 @@ func mainRun(_ *cobra.Command, _ []string) {
 	var req = &pbs.AccountOperation{
 		Address:   param.address,
 		UserLevel: int32(param.level),
+		Emails:    []string{param.email},
 	}
-	var url = "http://127.0.0.1:8887"
+	var url = "http://127.0.0.1:" + param.debugPort
 	var api = "" // := url + "/update_user_level"
 	switch param.action {
 	case 0:
@@ -66,6 +73,9 @@ func mainRun(_ *cobra.Command, _ []string) {
 		break
 	case 2:
 		api = url + "/delete_user_level"
+		break
+	case 3:
+		api = url + "/query_by_email"
 		break
 	}
 
