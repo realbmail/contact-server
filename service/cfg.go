@@ -48,7 +48,9 @@ func dataBaseType(dbNo int) string {
 
 func (c *HttpCfg) String() string {
 	s := "\n------server config------"
+	s += "\nhttp host:\t" + c.HttpHost
 	s += "\nhttp port:\t" + c.HttpPort
+	s += "\ndebug port:\t" + c.DebugPort
 	s += "\nrefresh content:\t" + fmt.Sprintf("%t", c.RefreshContent)
 	s += "\ncheck signature:\t" + fmt.Sprintf("%t", c.CheckSignature)
 	s += "\nuse https:\t" + fmt.Sprintf("%t", c.UseHttps)
