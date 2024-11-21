@@ -148,3 +148,40 @@ func (dm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 
 	return dm.deleteEmailReflect(emailAddr)
 }
+
+func (dm *DbManager) DeleteAccount(bmailAddr string) error {
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
+	defer cancel()
+
+	docRef := dm.fileCli.Collection(DBTableAccount).Doc(bmailAddr)
+
+	docSnap, err := docRef.Get(opCtx)
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil
+		}
+		return err
+	}
+
+	var account common.BMailAccount
+	err = docSnap.DataTo(&account)
+	if err != nil {
+		return err
+	}
+
+	if account.MailStoreObj != nil {
+		for email := range account.MailStoreObj {
+			err := dm.deleteEmailReflect(email)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	_, err = docRef.Delete(opCtx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
