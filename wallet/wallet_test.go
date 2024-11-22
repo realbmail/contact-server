@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"golang.org/x/crypto/curve25519"
+	"os"
 	"testing"
 )
 
@@ -59,6 +60,7 @@ func TestNewWallet(t *testing.T) {
 	}
 
 	fmt.Println(w.String())
+	_ = os.WriteFile("wallet.json", []byte(w.String()), 0644)
 }
 
 func TestParseWallet(t *testing.T) {

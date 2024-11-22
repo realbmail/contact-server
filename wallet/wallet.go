@@ -7,15 +7,21 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/btcsuite/btcutil/base58"
 	cryptoEth "github.com/ethereum/go-ethereum/crypto"
 	"golang.org/x/crypto/curve25519"
 	"io"
+	"os"
 	"strings"
 )
 
 const (
 	BMailPrefix = "BM"
+)
+
+var (
+	SigErr = fmt.Errorf("signature verify failed")
 )
 
 type MailAddr struct {
@@ -130,6 +136,14 @@ func ParseWallet(jsonStr, pwd string) (*Wallet, error) {
 	return w, nil
 }
 
+func OpenWalletFromPath(path, pwd string) (*Wallet, error) {
+	bts, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return ParseWallet(string(bts), pwd)
+}
+
 func (w *Wallet) OpenWallet(pwd string) bool {
 	if w.key != nil {
 		return true
@@ -201,4 +215,21 @@ func DecodePubKey(pubKeyStr string) ([]byte, error) {
 	encodedAddress := strings.TrimPrefix(pubKeyStr, BMailAddrPrefix)
 	decoded := base58.Decode(encodedAddress)
 	return decoded, nil
+}
+
+func VerifyMessage(address, signature string, message []byte) error {
+	peerPub, err := DecodePubKey(address)
+	if err != nil {
+		return err
+	}
+	sigBts, err := hex.DecodeString(signature)
+	if err != nil {
+		return err
+	}
+
+	success := ed25519.Verify(peerPub, message, sigBts)
+	if !success {
+		return SigErr
+	}
+	return nil
 }

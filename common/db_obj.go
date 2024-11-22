@@ -1,5 +1,7 @@
 package common
 
+import "encoding/json"
+
 type BMailAccount struct {
 	UserLel      int8            `json:"user_lel"  firestore:"user_lel"`
 	EMailAddress []string        `json:"e_mail_address" firestore:"-"`
@@ -27,4 +29,20 @@ func (ba *BMailAccount) ArrayToMap() {
 
 type EmailReflect struct {
 	BMailAddress string `json:"b_mail_address" firestore:"b_mail_address"`
+}
+
+const (
+	ActiveVeryfyUrl = "/active_verify"
+)
+
+type ActiveLinkData struct {
+	Token      string `json:"token"`
+	Address    string `json:"address"`
+	Email      string `json:"email"`
+	CreateTime int64  `json:"create_time"`
+}
+
+func (d *ActiveLinkData) SigData() []byte {
+	data, _ := json.Marshal(d)
+	return data
 }

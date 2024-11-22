@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/realbmail/contact-server/common"
-	"github.com/realbmail/contact-server/db_firestore"
-	"github.com/realbmail/contact-server/db_leveldb"
-	"github.com/realbmail/contact-server/db_redis"
+	"github.com/realbmail/contact-server/db/db_firestore"
+	"github.com/realbmail/contact-server/db/db_leveldb"
+	"github.com/realbmail/contact-server/db/db_redis"
 	"github.com/realbmail/contact-server/service"
+	"github.com/realbmail/contact-server/wallet"
 	"os"
 )
 
@@ -19,6 +20,7 @@ type Config struct {
 	*db_firestore.FsCfg
 	*db_leveldb.LBCfg
 	*db_redis.RedisCfg
+	*wallet.WConf
 }
 
 var _sysConfig *Config = nil
@@ -30,6 +32,7 @@ func (c Config) String() string {
 	s += "\njs environment:\t" + c.JSEnv
 	s += "\n-------------------------"
 	s += "\r\n" + c.HttpCfg.String() + "\r\n"
+	s += "\r\n" + c.WConf.String() + "\r\n"
 	return s
 }
 
@@ -61,6 +64,7 @@ func initConfig(filName string) *Config {
 	}
 
 	service.InitConf(cf.HttpCfg)
+	wallet.InitConf(cf.WConf)
 	_sysConfig = cf
 	fmt.Println(cf.String())
 	common.SetLogLevel(cf.LogLevel, cf.LogFile)

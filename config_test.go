@@ -6,6 +6,7 @@ import (
 	"github.com/realbmail/contact-server/db_leveldb"
 	"github.com/realbmail/contact-server/db_redis"
 	"github.com/realbmail/contact-server/service"
+	"github.com/realbmail/contact-server/wallet"
 	"os"
 	"testing"
 )
@@ -43,6 +44,13 @@ func TestCreateDefaultConfigFile(t *testing.T) {
 			DB:           0,
 			PoolSize:     10,
 			MinIdleConns: 3,
+		},
+		WConf: &wallet.WConf{
+			WalletPath: ".wallet.json",
+			WalletAuth: "",
+			SmtpHost:   "smtp.gmail.com",
+			SmtpPort:   465,
+			EMail:      "bmailservice02@gmail.com",
 		},
 	}
 

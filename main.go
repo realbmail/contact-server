@@ -5,6 +5,7 @@ import (
 	"github.com/hopwesley/fdlimit"
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/service"
+	"github.com/realbmail/contact-server/wallet"
 	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
@@ -64,7 +65,7 @@ func mainRun(_ *cobra.Command, _ []string) {
 		panic(err)
 	}
 	initConfig(param.config)
-
+	_ = wallet.WInst()
 	var srv = service.NewHttpService()
 	go func() {
 		srv.Start()

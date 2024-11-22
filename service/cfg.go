@@ -3,9 +3,9 @@ package service
 import (
 	"fmt"
 	"github.com/realbmail/contact-server/common"
-	"github.com/realbmail/contact-server/db_firestore"
-	"github.com/realbmail/contact-server/db_leveldb"
-	"github.com/realbmail/contact-server/db_redis"
+	"github.com/realbmail/contact-server/db/db_firestore"
+	"github.com/realbmail/contact-server/db/db_leveldb"
+	"github.com/realbmail/contact-server/db/db_redis"
 	pbs "github.com/realbmail/contact-server/proto"
 	"html/template"
 )
@@ -85,7 +85,6 @@ type DatabaseI interface {
 	QueryReflectByOneEmail(emailAddr string) (*common.EmailReflect, error)
 	QueryReflectsByEmails(emailAddrs []string) (map[string]common.EmailReflect, error)
 	QueryAccount(bmailAddr string) (*common.BMailAccount, error)
-	//OperateAccount(bmailAddr string, emailAddr []string, isDel bool) error
 	ActiveAccount(accountId string, level int8) error
 	UpdateAccountLevel(accountId string, level int8) error
 	UpdateBinding(bmailAddr string, emailAddr string) error
@@ -93,4 +92,6 @@ type DatabaseI interface {
 	UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error
 	QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error)
 	DeleteAccount(bmailAddr string) error
+	CreateActiveLink(data *common.ActiveLinkData) error
+	GetActiveLink(token string) (*common.ActiveLinkData, error)
 }

@@ -3,6 +3,7 @@ package db_redis
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
+	"github.com/realbmail/contact-server/common"
 	pbs "github.com/realbmail/contact-server/proto"
 	"sync"
 )
@@ -52,4 +53,12 @@ func (rdm *DbManager) KeepAlive() bool {
 		return false
 	}
 	return true
+}
+
+func (rdm *DbManager) CreateActiveLink(data *common.ActiveLinkData) error {
+	panic("api not support any more")
+}
+
+func (rdm *DbManager) GetActiveLink(token string) (*common.ActiveLinkData, error) {
+	panic("api not support any more")
 }

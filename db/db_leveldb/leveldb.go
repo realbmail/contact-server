@@ -2,6 +2,7 @@ package db_leveldb
 
 import (
 	"fmt"
+	"github.com/realbmail/contact-server/common"
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/syndtr/goleveldb/leveldb"
 	"sync"
@@ -83,5 +84,12 @@ func remove(slice []string, item string) []string {
 }
 
 func (dm *DbManager) DeleteAccount(bmailAddr string) error {
+	panic("api not support any more")
+}
+func (dm *DbManager) CreateActiveLink(data *common.ActiveLinkData) error {
+	panic("api not support any more")
+}
+
+func (dm *DbManager) GetActiveLink(token string) (*common.ActiveLinkData, error) {
 	panic("api not support any more")
 }
