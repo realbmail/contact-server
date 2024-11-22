@@ -18,6 +18,7 @@ const (
 	DBTableAccount   = "bmail-account"
 	DBTableReflect   = "email-reflect"
 	DBTableContact   = "bmail-contact"
+	DBActiveLink     = "active-link"
 )
 
 var _dbInst *DbManager
