@@ -88,8 +88,9 @@ func SendActiveMail(data *common.ActiveLinkData, subject, body string) {
 	err = sendEmail([]string{data.Email}, subject, body)
 	if err != nil {
 		common.LogInst().Err(err).Str("active-data", string(data.SigData())).Msg("send mail failed")
+	} else {
+		common.LogInst().Debug().Str("active-data", string(data.SigData())).Msg("send active link success")
 	}
-	common.LogInst().Debug().Str("active-data", string(data.SigData())).Msg("send active link success")
 }
 
 func VerifyActivationLink(data *common.ActiveLinkData, signature string) error {
