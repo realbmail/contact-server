@@ -54,7 +54,7 @@ const (
 	tokenExpiration = 24 * time.Hour
 )
 
-func sendEmail(tos []string, body, subject string) error {
+func sendEmail(tos []string, subject, body string) error {
 	smtpHost := _wConf.SmtpHost
 	smtpPort := _wConf.SmtpPort
 	senderEmail := _wConf.EMail
@@ -83,12 +83,13 @@ func SendActiveMail(data *common.ActiveLinkData, subject, body string) {
 
 	activeLink := fmt.Sprintf("%s?token=%s&signature=%s", common.ActiveVeryfyUrl, data.Token, signature)
 
-	body = fmt.Sprintf(body, activeLink, data.Address, data.Email)
+	body = fmt.Sprintf(body, activeLink)
 
 	err = sendEmail([]string{data.Email}, subject, body)
 	if err != nil {
 		common.LogInst().Err(err).Str("active-data", string(data.SigData())).Msg("send mail failed")
 	}
+	common.LogInst().Debug().Str("active-data", string(data.SigData())).Msg("send active link success")
 }
 
 func VerifyActivationLink(data *common.ActiveLinkData, signature string) error {
