@@ -164,11 +164,14 @@ func callFunc(callback func(request *pbs.BMReq) (*pbs.BMRsp, error)) func(w http
 func NewHttpService() *Service {
 	var s = &Service{}
 	r := chi.NewRouter()
+
 	r.Use(middleware.Recoverer)
 	r.HandleFunc("/", keepAlive)
 	r.HandleFunc("/keep_alive", keepAlive)
 	r.HandleFunc("/keep_alive2", keepAlive2)
 	r.HandleFunc(common.ActiveVeryfyUrl, ActiveVerify)
+	r.HandleFunc("/admin_address", AdminAddress)
+
 	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryReflectByEmail))
 	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryReflectByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
@@ -179,8 +182,8 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/query_contact", callFunc(QueryContact))
 	r.MethodFunc(http.MethodPost, "/bind_account", callFunc(BindAccount))
 	r.MethodFunc(http.MethodPost, "/unbind_account", callFunc(UnbindAccount))
-	r.MethodFunc(http.MethodPost, "/admin_address", callFunc(AdminAddress))
 	r.MethodFunc(http.MethodPost, "/active_by_email", callFunc(ActiveByEmail))
+
 	s.router = r
 
 	return s
@@ -412,27 +415,6 @@ func UnbindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func AdminAddress(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
-	var query = &pbs.QueryReq{}
-	err := proto.Unmarshal(request.Payload, query)
-	if err != nil {
-		return nil, err
-	}
-	if len(query.Address) == 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid admin query parameter")
-	}
-
-	var addr = wallet.WInst().Address
-	var result = &pbs.WalletAddress{
-		Address: addr.BmailAddress,
-		EthAddr: addr.EthAddress,
-	}
-	rsp.Payload = common.MustProto(result)
-	common.LogInst().Debug().Msg("query admin address success")
-	return rsp, nil
-}
-
 func ActiveByEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 	var rsp = &pbs.BMRsp{Success: true}
@@ -500,4 +482,14 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	_, _ = fmt.Fprintln(w, "Activation completed successfully!")
+}
+
+func AdminAddress(w http.ResponseWriter, r *http.Request) {
+	var addr = wallet.WInst().Address
+	var result = &pbs.WalletAddress{
+		Address: addr.BmailAddress,
+		EthAddr: addr.EthAddress,
+	}
+	common.LogInst().Debug().Msg("query admin address success")
+	WriteJsonRequest(w, result)
 }

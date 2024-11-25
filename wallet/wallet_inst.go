@@ -47,6 +47,10 @@ func WInst() *Wallet {
 			panic(err)
 		}
 		instance = inst
+		fmt.Println("============================")
+		fmt.Println("current admin address:" + inst.Address.BmailAddress)
+		fmt.Println("current etherum address:" + inst.Address.EthAddress)
+		fmt.Println("============================")
 	})
 	return instance
 }
