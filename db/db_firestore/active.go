@@ -10,9 +10,9 @@ import (
 func (dm *DbManager) CreateActiveLink(data *common.ActiveLinkData) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
 	defer cancel()
-	contactDoc := dm.fileCli.Collection(DBActiveLink).Doc(data.Token)
+	activeDoc := dm.fileCli.Collection(DBActiveLink).Doc(data.Token)
 
-	_, err := contactDoc.Get(opCtx)
+	_, err := activeDoc.Get(opCtx)
 	if err == nil {
 		common.LogInst().Warn().Str("token", data.Token).Msg("active link data already exists")
 		return common.NewBMError(common.BMErrDuplicate, "Active link data already exists")
@@ -22,7 +22,7 @@ func (dm *DbManager) CreateActiveLink(data *common.ActiveLinkData) error {
 		return err
 	}
 
-	_, err = contactDoc.Set(opCtx, data)
+	_, err = activeDoc.Set(opCtx, data)
 	if err != nil {
 		common.LogInst().Err(err).Str("token", data.Token).Msg("failed to save active link data")
 		return err

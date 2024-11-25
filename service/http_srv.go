@@ -487,7 +487,11 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-
+	err = __httpConf.database.ActiveAccount(data.Address, int8(UserLevelFree))
+	if err != nil {
+		http.Error(w, "Active Account failed", http.StatusBadRequest) //TODO::
+		return
+	}
 	err = __httpConf.database.UpdateBinding(data.Address, data.Email)
 	if err != nil {
 		http.Error(w, "Update binding relationship failed", http.StatusBadRequest) //TODO::
@@ -495,5 +499,5 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintln(w, "Activation successful!")
+	_, _ = fmt.Fprintln(w, "Activation completed successfully!")
 }
