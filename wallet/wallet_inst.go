@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/realbmail/contact-server/common"
 	"gopkg.in/gomail.v2"
+	"strings"
 	"sync"
 	"time"
 )
@@ -83,13 +84,14 @@ func SendActiveMail(data *common.ActiveLinkData, subject, body string) {
 
 	activeLink := fmt.Sprintf("%s?token=%s&signature=%s", common.ActiveVeryfyUrl, data.Token, signature)
 
-	body = fmt.Sprintf(body, activeLink)
+	body = strings.Replace(body, "__active_link__", activeLink, -1)
 
 	err = sendEmail([]string{data.Email}, subject, body)
 	if err != nil {
 		common.LogInst().Err(err).Str("active-data", string(data.SigData())).Msg("send mail failed")
+		_ = sendEmail([]string{data.Email}, subject, body)
 	} else {
-		common.LogInst().Debug().Str("active-data", string(data.SigData())).Msg("send active link success")
+		common.LogInst().Debug().Str("active-data", string(data.SigData())).Msg("send active mail success")
 	}
 }
 
