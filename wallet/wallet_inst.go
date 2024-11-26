@@ -79,14 +79,14 @@ func sendEmail(tos []string, subject, body string) error {
 	return nil
 }
 
-func SendActiveMail(data *common.ActiveLinkData, subject, body string) {
+func SendActiveMail(data *common.ActiveLinkData, subject, body string, isUnbind bool) {
 	signature, err := instance.SignMessage(data.SigData())
 	if err != nil {
 		common.LogInst().Err(err).Str("active-data", string(data.SigData())).Msg("generate active link failed")
 		return
 	}
 
-	activeLink := fmt.Sprintf("%s?token=%s&signature=%s", common.ActiveVeryfyUrl, data.Token, signature)
+	activeLink := fmt.Sprintf("%s?token=%s&signature=%s&unbind=%t", common.ActiveVeryfyUrl, data.Token, signature, isUnbind)
 
 	body = strings.Replace(body, "__active_link__", activeLink, -1)
 

@@ -433,13 +433,14 @@ func ActiveByEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		Address:    request.Address,
 		Email:      action.Email,
 		CreateTime: time.Now().Unix(),
+		IsUnbind:   action.Unbind,
 	}
 	err = __httpConf.database.CreateActiveLink(data)
 	if err != nil {
 		return nil, err
 	}
 	go func() {
-		wallet.SendActiveMail(data, action.Subject, action.Body)
+		wallet.SendActiveMail(data, action.Subject, action.Body, action.Unbind)
 	}()
 	return rsp, nil
 }
@@ -452,6 +453,9 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing token parameter", http.StatusBadRequest)
 		return
 	}
+	isUnbindStr := query.Get("unbind")
+	isUnbind := isUnbindStr == "true"
+
 	data, err := __httpConf.database.GetActiveLink(token)
 	if err != nil {
 		http.Error(w, "Active link not found", http.StatusBadRequest)
@@ -469,15 +473,25 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	err = __httpConf.database.ActiveAccount(data.Address, int8(UserLevelFree))
-	if err != nil {
-		http.Error(w, "Active Account failed", http.StatusBadRequest)
-		return
-	}
-	err = __httpConf.database.UpdateBinding(data.Address, data.Email)
-	if err != nil {
-		http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
-		return
+
+	if isUnbind {
+		err = __httpConf.database.DeleteBinding(data.Address, data.Email)
+		if err != nil {
+			http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
+			return
+		}
+	} else {
+		err = __httpConf.database.ActiveAccount(data.Address, int8(UserLevelFree))
+		if err != nil {
+			http.Error(w, "Active Account failed", http.StatusBadRequest)
+			return
+		}
+
+		err = __httpConf.database.UpdateBinding(data.Address, data.Email)
+		if err != nil {
+			http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
+			return
+		}
 	}
 
 	err = __httpConf.database.RemoveActiveLink(token)
@@ -487,7 +501,7 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintln(w, "Activation completed successfully!")
+	_, _ = fmt.Fprintln(w, "Action completed successfully!")
 }
 
 func AdminAddress(w http.ResponseWriter, r *http.Request) {

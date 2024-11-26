@@ -40,6 +40,7 @@ type ActiveLinkData struct {
 	Address    string `json:"address"`
 	Email      string `json:"email"`
 	CreateTime int64  `json:"create_time"`
+	IsUnbind   bool   `json:"is_unbind"`
 }
 
 func (d *ActiveLinkData) SigData() []byte {
