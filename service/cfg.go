@@ -94,4 +94,5 @@ type DatabaseI interface {
 	DeleteAccount(bmailAddr string) error
 	CreateActiveLink(data *common.ActiveLinkData) error
 	GetActiveLink(token string) (*common.ActiveLinkData, error)
+	RemoveActiveLink(token string) error
 }

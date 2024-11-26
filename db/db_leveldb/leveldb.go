@@ -93,3 +93,6 @@ func (dm *DbManager) CreateActiveLink(data *common.ActiveLinkData) error {
 func (dm *DbManager) GetActiveLink(token string) (*common.ActiveLinkData, error) {
 	panic("api not support any more")
 }
+func (dm *DbManager) RemoveActiveLink(token string) error {
+	return nil
+}

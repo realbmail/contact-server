@@ -51,3 +51,23 @@ func (dm *DbManager) GetActiveLink(token string) (*common.ActiveLinkData, error)
 	}
 	return &data, nil
 }
+
+func (dm *DbManager) RemoveActiveLink(token string) error {
+	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
+	defer cancel()
+
+	contactDoc := dm.fileCli.Collection(DBActiveLink).Doc(token)
+
+	_, err := contactDoc.Delete(opCtx)
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			common.LogInst().Debug().Str("token", token).Msg("active link data not found for deletion")
+			return nil
+		}
+		common.LogInst().Err(err).Str("token", token).Msg("failed to delete active link data")
+		return err
+	}
+
+	common.LogInst().Debug().Str("token", token).Msg("active link data deleted successfully")
+	return nil
+}

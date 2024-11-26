@@ -454,7 +454,7 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 	}
 	data, err := __httpConf.database.GetActiveLink(token)
 	if err != nil {
-		http.Error(w, "No active data found", http.StatusBadRequest)
+		http.Error(w, "Active link not found", http.StatusBadRequest)
 		return
 	}
 
@@ -471,12 +471,18 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 	}
 	err = __httpConf.database.ActiveAccount(data.Address, int8(UserLevelFree))
 	if err != nil {
-		http.Error(w, "Active Account failed", http.StatusBadRequest) //TODO::
+		http.Error(w, "Active Account failed", http.StatusBadRequest)
 		return
 	}
 	err = __httpConf.database.UpdateBinding(data.Address, data.Email)
 	if err != nil {
-		http.Error(w, "Update binding relationship failed", http.StatusBadRequest) //TODO::
+		http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
+		return
+	}
+
+	err = __httpConf.database.RemoveActiveLink(token)
+	if err != nil {
+		http.Error(w, "delete active link failed", http.StatusBadRequest)
 		return
 	}
 

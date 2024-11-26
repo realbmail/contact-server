@@ -62,3 +62,6 @@ func (rdm *DbManager) CreateActiveLink(data *common.ActiveLinkData) error {
 func (rdm *DbManager) GetActiveLink(token string) (*common.ActiveLinkData, error) {
 	panic("api not support any more")
 }
+func (rdm *DbManager) RemoveActiveLink(token string) error {
+	return nil
+}
