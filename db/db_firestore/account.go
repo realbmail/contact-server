@@ -49,12 +49,12 @@ func (dm *DbManager) UpdateAccountLevel(accountId string, level int8) error {
 	return err
 }
 
-func (dm *DbManager) ActiveAccount(accountId string, level int8) error {
+func (dm *DbManager) ActiveAccount(accountId string, defaultLevel int8) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut*10)
 	defer cancel()
 	docRef := dm.fileCli.Collection(DBTableAccount).Doc(accountId)
 	var obj = common.BMailAccount{
-		UserLel: level,
+		UserLel: defaultLevel,
 	}
 	_, err := docRef.Get(opCtx)
 	if err == nil {

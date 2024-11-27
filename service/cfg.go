@@ -85,7 +85,7 @@ type DatabaseI interface {
 	QueryReflectByOneEmail(emailAddr string) (*common.EmailReflect, error)
 	QueryReflectsByEmails(emailAddrs []string) (map[string]common.EmailReflect, error)
 	QueryAccount(bmailAddr string) (*common.BMailAccount, error)
-	ActiveAccount(accountId string, level int8) error
+	ActiveAccount(accountId string, defaultLevel int8) error
 	UpdateAccountLevel(accountId string, level int8) error
 	UpdateBinding(bmailAddr string, emailAddr string) error
 	DeleteBinding(bmailAddr string, emailAddr string) error

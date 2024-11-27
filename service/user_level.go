@@ -23,8 +23,8 @@ const (
 
 var NoRightError = errors.New("no right to operate")
 
-func checkRightsOfAction(operation *pbs.BindAction) error {
-	acc, err := __httpConf.database.QueryAccount(operation.Address)
+func checkRightsOfAction(address string) error {
+	acc, err := __httpConf.database.QueryAccount(address)
 	if err != nil {
 		return err
 	}

@@ -92,8 +92,11 @@ func SendActiveMail(data *common.ActiveLinkData, subject, body string, isUnbind 
 
 	err = sendEmail([]string{data.Email}, subject, body)
 	if err != nil {
-		common.LogInst().Err(err).Str("active-data", string(data.SigData())).Msg("send mail failed")
-		_ = sendEmail([]string{data.Email}, subject, body)
+		common.LogInst().Err(err).Str("email", data.Email).Msg("send mail failed")
+		err = sendEmail([]string{data.Email}, subject, body)
+		if err != nil {
+			common.LogInst().Err(err).Str("email", data.Email).Msg("send mail again failed")
+		}
 	} else {
 		common.LogInst().Debug().Str("active-data", string(data.SigData())).Msg("send active mail success")
 	}

@@ -172,48 +172,19 @@ func NewHttpService() *Service {
 	r.HandleFunc(common.ActiveVeryfyUrl, ActiveVerify)
 	r.HandleFunc("/admin_address", AdminAddress)
 
-	r.MethodFunc(http.MethodPost, "/query_by_one_email", callFunc(QueryReflectByEmail))
 	r.MethodFunc(http.MethodPost, "/query_by_email_array", callFunc(QueryReflectByEmailArray))
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
-	r.MethodFunc(http.MethodPost, "/account_singIn", callFunc(AccountSignIn))
-	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountActive))
+
 	r.MethodFunc(http.MethodPost, "/account_active", callFunc(AccountActive))
-	r.MethodFunc(http.MethodPost, "/operate_contact", callFunc(OperateContact))
-	r.MethodFunc(http.MethodPost, "/query_contact", callFunc(QueryContact))
+
 	r.MethodFunc(http.MethodPost, "/bind_account", callFunc(BindAccount))
 	r.MethodFunc(http.MethodPost, "/unbind_account", callFunc(UnbindAccount))
+
 	r.MethodFunc(http.MethodPost, "/active_by_email", callFunc(ActiveByEmail))
 
 	s.router = r
 
 	return s
-}
-
-func QueryReflectByEmail(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
-	var query = &pbs.QueryReq{}
-	err := proto.Unmarshal(request.Payload, query)
-	if err != nil {
-		return nil, err
-	}
-	if query == nil || len(query.OneEmailAddr) <= 0 {
-		common.LogInst().Warn().Msg("invalid parameter for querying by one email")
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid email address")
-	}
-
-	emailContact, err := __httpConf.database.QueryReflectByOneEmail(query.OneEmailAddr)
-	if err != nil {
-		common.LogInst().Err(err).Str("email-addr", query.OneEmailAddr).Msg("query database failed for one email")
-		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by email:"+err.Error())
-	}
-
-	var contact = &pbs.EmailReflect{
-		Address: emailContact.BMailAddress,
-	}
-	rsp.Payload = common.MustProto(contact)
-
-	common.LogInst().Debug().Str("email-addr", query.OneEmailAddr).Msgf("query by one email address success:%v", contact)
-	return rsp, nil
 }
 
 func QueryReflectByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
@@ -250,29 +221,6 @@ func QueryReflectByEmailArray(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func AccountSignIn(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
-	if len(request.Address) <= 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid sign in address")
-	}
-	var query = &pbs.QueryReq{}
-
-	account, err := __httpConf.database.QueryAccount(request.Address)
-	if err != nil {
-		return nil, common.NewBMError(common.BMErrDatabase, "failed to query by bmail:"+err.Error())
-	}
-
-	var result = &pbs.BMailAccount{
-		Address: query.Address,
-		Level:   int32(account.UserLel),
-		License: account.LicenseHex,
-		Emails:  account.EMailAddress,
-	}
-	rsp.Payload = common.MustProto(result)
-	common.LogInst().Debug().Str("address", request.Address).Msg("account sign in success")
-	return rsp, nil
-}
-
 func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	var rsp = &pbs.BMRsp{Success: true}
 
@@ -300,7 +248,6 @@ func QueryAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 	rsp.Payload = common.MustProto(result)
 	common.LogInst().Debug().Str("address", query.Address).Msg("query by bmail address success")
-
 	return rsp, nil
 }
 
@@ -325,52 +272,8 @@ func AccountActive(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	return rsp, nil
 }
 
-func OperateContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
-	var contact = &pbs.ContactOperation{}
-	err := proto.Unmarshal(request.Payload, contact)
-	if err != nil {
-		return nil, err
-	}
-	if len(contact.Contacts) == 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid contact parameter for operation")
-	}
-
-	err = __httpConf.database.UpdateContactDetails(request.Address, contact.Contacts, contact.IsDel)
-	if err != nil {
-		return nil, err
-	}
-
-	common.LogInst().Debug().Str("owner-address", request.Address).Msgf("operate contact success:%v", contact.Contacts)
-	return rsp, nil
-}
-
-func QueryContact(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
-	var query = &pbs.QueryReq{}
-	err := proto.Unmarshal(request.Payload, query)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(request.Address) <= 0 {
-		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bmail address")
-	}
-
-	contacts, err := __httpConf.database.QueryContacts(request.Address, query.OneEmailAddr)
-	if err != nil {
-		return nil, err
-	}
-	var result = &pbs.ContactOperation{
-		Contacts: contacts,
-	}
-	rsp.Payload = common.MustProto(result)
-	common.LogInst().Debug().Msg("query contacts success")
-	return rsp, nil
-}
-
 func BindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
-	var rsp = &pbs.BMRsp{Success: true}
+	var rsp = &pbs.BMRsp{Success: true, Payload: []byte{1}} //TODO::
 	var action = &pbs.BindAction{}
 	err := proto.Unmarshal(request.Payload, action)
 	if err != nil {
@@ -380,10 +283,27 @@ func BindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 		return nil, common.NewBMError(common.BMErrInvalidParam, "invalid bind action parameter")
 	}
 
-	err = checkRightsOfAction(action)
+	err = checkRightsOfAction(action.Address)
 	if err != nil {
 		common.LogInst().Err(err).Str("mail", action.Mail).Str("address", action.Address).Msg("bind action error")
 		return nil, err
+	}
+
+	reflect, err := __httpConf.database.QueryReflectByOneEmail(action.Mail)
+	if err != nil {
+		common.LogInst().Err(err).Str("mail", action.Mail).Msg("query reflection of email failed")
+		return nil, err
+	}
+
+	if len(reflect.BMailAddress) > 0 {
+		if reflect.BMailAddress != action.Address {
+			common.LogInst().Debug().Str("bmail", action.Address).Msgf("need email cofirm:%v", action.Mail)
+			rsp.Payload = []byte{2}
+			sendBindConfirmMail(action, false)
+		} else {
+			common.LogInst().Debug().Str("bmail", action.Address).Msgf("duplicate bind :%v", action.Mail)
+		}
+		return rsp, nil
 	}
 
 	err = __httpConf.database.UpdateBinding(action.Address, action.Mail)
@@ -393,6 +313,25 @@ func BindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
 
 	common.LogInst().Debug().Str("bmail", action.Address).Msgf("bind account success:%v", action.Mail)
 	return rsp, nil
+}
+
+func sendBindConfirmMail(action *pbs.BindAction, isUnbind bool) {
+	go func() {
+		token := uuid.NewString()
+		data := &common.ActiveLinkData{
+			Token:      token,
+			Address:    action.Address,
+			Email:      action.Mail,
+			CreateTime: time.Now().Unix(),
+			IsUnbind:   isUnbind,
+		}
+		err := __httpConf.database.CreateActiveLink(data)
+		if err != nil {
+			common.LogInst().Err(err).Msg("failed to create active link when binding email")
+			return
+		}
+		wallet.SendActiveMail(data, action.Subject, action.MailBody, isUnbind)
+	}()
 }
 
 func UnbindAccount(request *pbs.BMReq) (*pbs.BMRsp, error) {
@@ -453,18 +392,16 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing token parameter", http.StatusBadRequest)
 		return
 	}
-	isUnbindStr := query.Get("unbind")
-	isUnbind := isUnbindStr == "true"
-
-	data, err := __httpConf.database.GetActiveLink(token)
-	if err != nil {
-		http.Error(w, "Active link not found", http.StatusBadRequest)
-		return
-	}
 
 	signature := query.Get("signature")
 	if signature == "" {
 		http.Error(w, "Missing signature parameter", http.StatusBadRequest)
+		return
+	}
+
+	data, err := __httpConf.database.GetActiveLink(token)
+	if err != nil {
+		http.Error(w, "Active link not found", http.StatusBadRequest)
 		return
 	}
 
@@ -474,24 +411,22 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isUnbind {
-		err = __httpConf.database.DeleteBinding(data.Address, data.Email)
-		if err != nil {
-			http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
-			return
-		}
-	} else {
-		err = __httpConf.database.ActiveAccount(data.Address, int8(UserLevelFree))
-		if err != nil {
-			http.Error(w, "Active Account failed", http.StatusBadRequest)
-			return
-		}
+	err = __httpConf.database.ActiveAccount(data.Address, int8(UserLevelFree))
+	if err != nil {
+		http.Error(w, "Active Account failed", http.StatusBadRequest)
+		return
+	}
 
-		err = __httpConf.database.UpdateBinding(data.Address, data.Email)
-		if err != nil {
-			http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
-			return
-		}
+	err = checkRightsOfAction(data.Address)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = __httpConf.database.UpdateBinding(data.Address, data.Email)
+	if err != nil {
+		http.Error(w, "Update binding relationship failed", http.StatusBadRequest)
+		return
 	}
 
 	err = __httpConf.database.RemoveActiveLink(token)
