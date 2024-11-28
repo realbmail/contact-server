@@ -176,6 +176,7 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/query_account", callFunc(QueryAccount))
 
 	r.MethodFunc(http.MethodPost, "/account_active", callFunc(AccountActive))
+	r.MethodFunc(http.MethodPost, "/account_create", callFunc(AccountActive)) //to be removed
 
 	r.MethodFunc(http.MethodPost, "/bind_account", callFunc(BindAccount))
 	r.MethodFunc(http.MethodPost, "/unbind_account", callFunc(UnbindAccount))
