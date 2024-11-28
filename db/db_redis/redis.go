@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/realbmail/contact-server/common"
-	pbs "github.com/realbmail/contact-server/proto"
 	"sync"
 )
 
@@ -21,14 +20,6 @@ var (
 type DbManager struct {
 	cli *redis.Client
 	ctx context.Context
-}
-
-func (rdm *DbManager) UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error {
-	panic("unsupported now")
-}
-
-func (rdm *DbManager) QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error) {
-	panic("unsupported now")
 }
 
 func DbInst() *DbManager {
@@ -63,5 +54,5 @@ func (rdm *DbManager) GetActiveLink(token string) (*common.ActiveLinkData, error
 	panic("api not support any more")
 }
 func (rdm *DbManager) RemoveActiveLink(token string) error {
-	return nil
+	panic("api not support any more")
 }

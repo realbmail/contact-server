@@ -16,9 +16,9 @@ const (
 	UserLevelEnterpriseVip
 )
 const (
-	EmailAddrNoForFree   = 1
-	EmailAddrNoForNormal = 3
-	EmailAddrNoForPlus   = 5
+	EmailAddrNoForFree   = 2
+	EmailAddrNoForNormal = 4
+	EmailAddrNoForPlus   = 8
 )
 
 var NoRightError = errors.New("no right to operate")

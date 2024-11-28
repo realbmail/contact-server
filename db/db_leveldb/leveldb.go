@@ -1,9 +1,7 @@
 package db_leveldb
 
 import (
-	"fmt"
 	"github.com/realbmail/contact-server/common"
-	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/syndtr/goleveldb/leveldb"
 	"sync"
 )
@@ -21,14 +19,6 @@ var (
 type DbManager struct {
 	levelDB *leveldb.DB
 	locker  sync.Map
-}
-
-func (dm *DbManager) UpdateContactDetails(address string, contacts []*pbs.ContactItem, isDel bool) error {
-	return fmt.Errorf("implement me")
-}
-
-func (dm *DbManager) QueryContacts(address string, startAfterEmail string) ([]*pbs.ContactItem, error) {
-	return nil, fmt.Errorf("implement me")
 }
 
 func DbInst() *DbManager {

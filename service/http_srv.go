@@ -124,14 +124,14 @@ func updateUserLevel(w http.ResponseWriter, r *http.Request) {
 	WriteJsonRequest(w, Rsp{Success: true})
 }
 
-func keepAlive(w http.ResponseWriter, r *http.Request) {
+func keepAlive(w http.ResponseWriter, _ *http.Request) {
 	var c = common.BMailAccount{
 		EMailAddress: []string{"ri", "ben", "con"},
 	}
 	WriteJsonRequest(w, Rsp{Success: true, Payload: common.MustJson(c)})
 }
 
-func keepAlive2(w http.ResponseWriter, r *http.Request) {
+func keepAlive2(w http.ResponseWriter, _ *http.Request) {
 	WriteProtoResponse(w, &pbs.BMRsp{Success: true})
 }
 
@@ -181,6 +181,7 @@ func NewHttpService() *Service {
 	r.MethodFunc(http.MethodPost, "/unbind_account", callFunc(UnbindAccount))
 
 	r.MethodFunc(http.MethodPost, "/active_by_email", callFunc(ActiveByEmail))
+	r.MethodFunc(http.MethodPost, "/decrypt_by_admin", callFunc(DecryptByAdmin))
 
 	s.router = r
 
@@ -439,7 +440,7 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 	_, _ = fmt.Fprintln(w, "Action completed successfully!")
 }
 
-func AdminAddress(w http.ResponseWriter, r *http.Request) {
+func AdminAddress(w http.ResponseWriter, _ *http.Request) {
 	var addr = wallet.WInst().Address
 	var result = &pbs.WalletAddress{
 		Address: addr.BmailAddress,
@@ -447,4 +448,38 @@ func AdminAddress(w http.ResponseWriter, r *http.Request) {
 	}
 	common.LogInst().Debug().Msg("query admin address success")
 	WriteJsonRequest(w, result)
+}
+
+func DecryptByAdmin(request *pbs.BMReq) (*pbs.BMRsp, error) {
+	var rsp = &pbs.BMRsp{Success: true}
+	var decryptReq = &pbs.DecryptRequest{}
+
+	err := proto.Unmarshal(request.Payload, decryptReq)
+	if err != nil {
+		common.LogInst().Err(err).Msg("unmarshal payload failed")
+		return nil, err
+	}
+
+	account, err := __httpConf.database.QueryAccount(request.Address)
+	if err != nil {
+		common.LogInst().Err(err).Msg("no account detail found for requester")
+		return nil, err
+	}
+
+	if len(account.MailStoreObj) == 0 {
+		return nil, fmt.Errorf("no right to decrypt this mail")
+	}
+
+	aesKey, err := wallet.DecryptAdminAesKey(decryptReq.Sender, request.Address,
+		decryptReq.Nonce, decryptReq.AdminKey,
+		decryptReq.MailReceiver, account.MailStoreObj)
+	if err != nil {
+		common.LogInst().Err(err).Msg("decrypt aes key failed")
+		return nil, err
+	}
+
+	rsp.Payload = aesKey
+	common.LogInst().Debug().Str("sender", decryptReq.Sender).
+		Str("requestor", request.Address).Msg("decrypt by admin key success")
+	return rsp, nil
 }

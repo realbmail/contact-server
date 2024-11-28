@@ -1,9 +1,13 @@
 package wallet
 
 import (
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/realbmail/contact-server/common"
+	"golang.org/x/crypto/nacl/secretbox"
 	"gopkg.in/gomail.v2"
 	"strings"
 	"sync"
@@ -112,4 +116,86 @@ func VerifyActivationLink(data *common.ActiveLinkData, signature string) error {
 	dataToSign := data.SigData()
 
 	return VerifyMessage(instance.Address.BmailAddress, signature, dataToSign)
+}
+
+func DecryptAdminAesKey(sender, thirdAddr, none, aesKey, mailReceiver string, bindEmail map[string]bool) ([]byte, error) {
+	noneBts, err := hex.DecodeString(none)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(noneBts) != 24 {
+		return nil, fmt.Errorf("invalid nonce param")
+	}
+
+	sharedKeySender, err := instance.KeyFromPeerAddr(sender)
+	if err != nil {
+		return nil, err
+	}
+
+	aesKeyBts, err := hex.DecodeString(aesKey)
+	if err != nil {
+		return nil, err
+	}
+
+	decryptAesKey, err := decryptData(aesKeyBts, noneBts, sharedKeySender)
+	if err != nil {
+		return nil, err
+	}
+
+	decodedMailReceiver, err := base64.StdEncoding.DecodeString(mailReceiver)
+	if err != nil {
+		return nil, err
+	}
+
+	plainMailReceiver, err := decryptData(decodedMailReceiver, noneBts, decryptAesKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var mailList []string
+	err = json.Unmarshal(plainMailReceiver, &mailList)
+	if err != nil {
+		return nil, err
+	}
+
+	var isMatch = false
+	for _, s := range mailList {
+		if bindEmail[s] {
+			isMatch = true
+			break
+		}
+	}
+	if !isMatch {
+		return nil, fmt.Errorf("no right to decrypt this mail")
+	}
+
+	sharedKeyThird, err := instance.KeyFromPeerAddr(thirdAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	return encryptData(decryptAesKey, noneBts, sharedKeyThird)
+}
+
+func encryptData(aesKey []byte, nonce []byte, sharedKey []byte) ([]byte, error) {
+	var s [32]byte
+	var n [24]byte
+	copy(s[:], sharedKey)
+	copy(n[:], nonce)
+
+	encrypted := secretbox.Seal(nil, aesKey, &n, &s)
+	return encrypted, nil
+}
+
+func decryptData(encryptedData []byte, nonce []byte, sharedKey []byte) ([]byte, error) {
+	var s [32]byte
+	var n [24]byte
+	copy(s[:], sharedKey)
+	copy(n[:], nonce)
+	decrypted, ok := secretbox.Open(nil, encryptedData, &n, &s)
+	if !ok {
+		return nil, fmt.Errorf("decryption failed")
+	}
+	return decrypted, nil
 }

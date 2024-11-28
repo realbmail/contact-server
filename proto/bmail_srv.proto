@@ -74,3 +74,10 @@ message EMailActive{
   string body = 3;
   bool unbind = 4;
 }
+
+message DecryptRequest{
+  string sender = 1;
+  string adminKey = 2;
+  string mailReceiver = 3;
+  string nonce = 4;
+}
