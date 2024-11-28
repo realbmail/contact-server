@@ -467,7 +467,7 @@ func DecryptByAdmin(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	}
 
 	if len(account.MailStoreObj) == 0 {
-		return nil, fmt.Errorf("no right to decrypt this mail")
+		return nil, fmt.Errorf("bind your email to BMail first please")
 	}
 
 	aesKey, err := wallet.DecryptAdminAesKey(decryptReq.Sender, request.Address,
