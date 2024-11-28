@@ -121,42 +121,38 @@ func VerifyActivationLink(data *common.ActiveLinkData, signature string) error {
 func DecryptAdminAesKey(sender, thirdAddr, none, aesKey, mailReceiver string, bindEmail map[string]bool) ([]byte, error) {
 	noneBts, err := hex.DecodeString(none)
 	if err != nil {
-		return nil, err
-	}
-
-	if len(noneBts) != 24 {
-		return nil, fmt.Errorf("invalid nonce param")
+		return nil, errors.Join(err, fmt.Errorf("decode noce failed"))
 	}
 
 	sharedKeySender, err := instance.KeyFromPeerAddr(sender)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("shared key between admin and sender failed"))
 	}
 
 	aesKeyBts, err := hex.DecodeString(aesKey)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("decode admin aes key failed"))
 	}
 
 	decryptAesKey, err := decryptData(aesKeyBts, noneBts, sharedKeySender)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("decrypt admin aes key failed"))
 	}
 
 	decodedMailReceiver, err := base64.StdEncoding.DecodeString(mailReceiver)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("decode mail receivers failed"))
 	}
 
 	plainMailReceiver, err := decryptData(decodedMailReceiver, noneBts, decryptAesKey)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("decrypt mail receivers failed"))
 	}
 
 	var mailList []string
 	err = json.Unmarshal(plainMailReceiver, &mailList)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("unwrap mail list in mail body failed"))
 	}
 
 	var isMatch = false
@@ -167,12 +163,12 @@ func DecryptAdminAesKey(sender, thirdAddr, none, aesKey, mailReceiver string, bi
 		}
 	}
 	if !isMatch {
-		return nil, fmt.Errorf("no right to decrypt this mail")
+		return nil, fmt.Errorf("bind your email to BMail first please")
 	}
 
 	sharedKeyThird, err := instance.KeyFromPeerAddr(thirdAddr)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(err, fmt.Errorf("shared key between admin and receiver failed"))
 	}
 
 	return encryptData(decryptAesKey, noneBts, sharedKeyThird)

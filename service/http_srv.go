@@ -154,7 +154,7 @@ func callFunc(callback func(request *pbs.BMReq) (*pbs.BMRsp, error)) func(w http
 		response, err := callback(request)
 		if err != nil {
 			WriteError(w, err)
-			common.LogInst().Err(err).Msg("query by email error")
+			common.LogInst().Err(err).Msg("http action failed")
 			return
 		}
 		WriteProtoResponse(w, response)
