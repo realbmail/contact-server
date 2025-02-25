@@ -183,6 +183,7 @@ func NewHttpService() *Service {
 
 	r.MethodFunc(http.MethodPost, "/active_by_email", callFunc(ActiveByEmail))
 	r.MethodFunc(http.MethodPost, "/decrypt_by_admin", callFunc(DecryptByAdmin))
+	r.MethodFunc(http.MethodGet, "/uninstall_user", UninstallByUser)
 
 	s.router = r
 
@@ -438,7 +439,7 @@ func ActiveVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintln(w, "Action completed successfully!")
+	_, _ = fmt.Fprintln(w, "Action completed success!")
 }
 
 func AdminAddress(w http.ResponseWriter, _ *http.Request) {
@@ -483,4 +484,26 @@ func DecryptByAdmin(request *pbs.BMReq) (*pbs.BMRsp, error) {
 	common.LogInst().Debug().Str("sender", decryptReq.Sender).
 		Str("requestor", request.Address).Msg("decrypt by admin key success")
 	return rsp, nil
+}
+
+func UninstallByUser(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	address := query.Get("address")
+	if address == "" {
+		common.LogInst().Warn().Msg("address not found when uninstall by user")
+		http.Error(w, "Missing token parameter", http.StatusBadRequest)
+		return
+	}
+
+	var err = __httpConf.database.UninstallByUser(address)
+	if err != nil {
+		common.LogInst().Err(err).Msg("uninstall from database failed")
+		http.Error(w, "uninstall from database failed", http.StatusInternalServerError)
+		return
+	}
+
+	common.LogInst().Info().Str("address", address).Msg("uninstall by user success")
+
+	_, _ = fmt.Fprintln(w, "Uninstall Success!")
 }

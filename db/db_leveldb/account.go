@@ -166,6 +166,10 @@ func (dm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 	return WriteStruct(dm.levelDB, accountKeyStr, account)
 }
 
+func (dm *DbManager) UninstallByUser(bmailAddr string) error {
+	return nil
+}
+
 func (dm *DbManager) deleteEmailReflect(email string) error {
 	emailKeyStr := TableEmail + email
 	lock := dm.getLock(emailKeyStr)

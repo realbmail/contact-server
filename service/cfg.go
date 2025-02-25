@@ -91,6 +91,7 @@ type DatabaseI interface {
 	UpdateAccountLevel(accountId string, level int8) error
 	UpdateBinding(bmailAddr string, emailAddr string) error
 	DeleteBinding(bmailAddr string, emailAddr string) error
+	UninstallByUser(bmailAddr string) error
 
 	CreateActiveLink(data *common.ActiveLinkData) error
 	GetActiveLink(token string) (*common.ActiveLinkData, error)
