@@ -154,6 +154,10 @@ func (rdm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 	return nil
 }
 
+func (rdm *DbManager) UninstallByUser(bmailAddr string) error {
+	return nil
+}
+
 // 添加 Email 到账户的 Helper 函数
 func (rdm *DbManager) appendEmailToAccount(accountKey, emailAddr string) error {
 	// 获取现有 Email 列表

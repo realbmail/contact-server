@@ -149,6 +149,39 @@ func (dm *DbManager) DeleteBinding(bmailAddr string, emailAddr string) error {
 	return dm.deleteEmailReflect(emailAddr)
 }
 
+func (dm *DbManager) UninstallByUser(bmailAddr string) error {
+
+	var contact common.BMailAccount
+	var emailsToDelete []string
+
+	err, isNotFound := dm.databaseToObj(DBTableAccount, bmailAddr, &contact, func(docRef *firestore.DocumentRef) error {
+		if contact.MailStoreObj == nil {
+			return nil
+		}
+
+		for email := range contact.MailStoreObj {
+			emailsToDelete = append(emailsToDelete, email)
+		}
+		contact.MailStoreObj = nil
+		return nil
+	})
+
+	if err != nil {
+		if isNotFound {
+			return nil
+		}
+		return err
+	}
+
+	for _, email := range emailsToDelete {
+		if err := dm.deleteEmailReflect(email); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (dm *DbManager) DeleteAccount(bmailAddr string) error {
 	opCtx, cancel := context.WithTimeout(dm.ctx, DefaultDBTimeOut)
 	defer cancel()
