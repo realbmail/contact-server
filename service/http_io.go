@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	pbs "github.com/realbmail/contact-server/proto"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
+
+	pbs "github.com/realbmail/contact-server/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 func ReadJsonRequest(r *http.Request, val any) error {

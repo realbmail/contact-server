@@ -2,6 +2,10 @@ package service
 
 import (
 	"fmt"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
@@ -9,9 +13,6 @@ import (
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/realbmail/contact-server/wallet"
 	"google.golang.org/protobuf/proto"
-	"net"
-	"net/http"
-	"time"
 )
 
 type Service struct {

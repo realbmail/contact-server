@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
+
 	"github.com/hopwesley/fdlimit"
 	"github.com/realbmail/contact-server/common"
 	"github.com/realbmail/contact-server/service"
 	"github.com/realbmail/contact-server/wallet"
 	"github.com/spf13/cobra"
-	"os"
-	"os/signal"
-	"strconv"
-	"syscall"
 )
 
 const (

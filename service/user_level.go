@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	pbs "github.com/realbmail/contact-server/proto"
 )
 

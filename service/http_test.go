@@ -5,17 +5,18 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"testing"
+
 	"github.com/realbmail/contact-server/common"
 	pbs "github.com/realbmail/contact-server/proto"
 	"github.com/realbmail/contact-server/wallet"
 	"google.golang.org/protobuf/proto"
-	"testing"
 )
 
 const (
-	api_url = "http://127.0.0.1:8001"
+	//api_url = "http://127.0.0.1:8001"
 	//api_url = "https://sharp-happy-grouse.ngrok-free.app"
-	//api_url = "https://dessage.xyz/bmail_server"
+	api_url = "https://bc.dessage.xyz"
 )
 
 var address string
